@@ -1,7 +1,4 @@
 SelectionFunction=function(x, y, lambda, family, implementation="glmnet", ...){
-  # implementation: name of a function (character string) with a variable/group selection algorithm which outputs a matrix
-  # of coefficients (beta/loadings or simply binary indicators) where columns are variables and rows are parameter values
-
   # Making sure none of the variables has a null standard deviation
   mysd=apply(x,2,stats::sd)
   if (any(mysd==0)){
