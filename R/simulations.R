@@ -1,13 +1,118 @@
-SimulateGraph=function(n=100, pk=10, implementation="huge", topology="random", nu=0.1,
+#' Simulation of data with underlying graph structure
+#'
+#' This function can be used to (i) simulate a graph, and
+#' (ii) simulate multivariate Normal data for which
+#' the graph structure is encoded in the nonzero entries of
+#' the true partial correlation matrix
+#' (i.e. ensuring that the conditional independence structure between
+#' the variables is encoded in the simulated graph).
+#'
+#' @param n number of observations in the simulated data.
+#' @param pk number of variables in the simulated data.
+#' If pk is a vector, the number of variables is the sum of its entries.
+#' In this case, the (partial) correlation matrix of the simulated data
+#' will have a block structure, where blocks arise from
+#' the integration of as many groups of variables as there are
+#' entries in pk, and the numbers in pk define the number of variables
+#' in each of the groups.
+#' @param implementation name of the function to use for
+#' simulation of the graph. By default, functionalities
+#' implemented in the huge.generator() function
+#' from the huge package is used. Alternatively, this argument can be
+#' a character string indicating the name of a function.
+#' This function must use arguments called "pk", "topology" and "nu"
+#' and return a (pxp) binary and symmetric matrix
+#' where p is the sum of the entries in pk.
+#' To use extra arguments in this function, the function can have
+#' ... as input and the extra arguments can be used directly as
+#' input of SimulateGraphical().
+#' @param topology topology of the simulated graph. If using
+#' implementation="huge", possible values are listed for the
+#' argument "graph" of the huge.generator() function. These are:
+#' "random", "hub", "cluster", "band" and "scale-free".
+#' @param nu density of the graph, i.e. expected number of edges
+#' over possible number of edges (px(p-1)/2 where p is the number of nodes).
+#' This argument is only used for topology="random" and topology="cluster"
+#' if implementation="huge".
+#' @param output_matrices logical indicating whether the true precision and
+#' (partial) correlation matrices should be included in the output.
+#' @param v_within multiplicative factor used for diagonal blocks
+#' in simulation of the precision matrix.
+#' @param v_between multiplicative factor used for off-diagonal blocks
+#' in simulation of the precision matrix.
+#' @param pd_strategy method to ensure that the generated precision matrix
+#' is positive definite (and hence can be a covariance matrix). With
+#' pd_strategy="diagonally_dominant", the precision matrix is made diagonally dominant
+#' by setting the diagonal entries to the sum of absolute values on the
+#' corresponding row and a constant u. With pd_strategy="nonnegative_eigenvalues",
+#' diagonal entries are set to the sum of the absolute value of the smallest
+#' eigenvalue and a constant u.
+#' @param u vector of constant u used to ensure positive definiteness of the
+#' simulated precision matrix. The proposed value that maximises the contrast of
+#' the simulated correlation matrix is used. If u=NULL,
+#' a grid of values is automatically generated
+#' and iteratively shifted to ensure that the chosen value is not an extreme value.
+#' @param niter_max_u_grid maximum number of iterations where the grid of u values is shifted.
+#' This parameter is only used with u=NULL.
+#' @param tolerance_u_grid number of values between the chosen value for u and
+#' the end of the grid (first or last value). This parameter is only used with u=NULL.
+#' @param u_delta difference in log10-scale between the smallest (or largest)
+#' u values in the grid used in the current iteration and the one built for next iteration.
+#' This parameter is only used with u=NULL.
+#' @param ... additional arguments passed to the graph simulation function
+#' provided in "implementation".
+#'
+#' @seealso \code{\link{SimulateAdjacency}} for simulation of unweighted, undirected graphs
+#' with no self-loops
+#'
+#' @return A list with:
+#' \item{data}{simulated data with n observation and sum(pk) variables}
+#' \item{theta}{adjacency matrix of the simulated graph}
+#' \item{omega}{true simulated precision matrix.
+#' Only returned if output_matrices=TRUE.}
+#' \item{phi}{true simulated partial correlation matrix.
+#' Only returned if output_matrices=TRUE.}
+#' \item{C}{true simulated correlation matrix.
+#' Only returned if output_matrices=TRUE.}
+#' \item{u}{chosen value of u.
+#' Only returned if output_matrices=TRUE.}
+#' \item{u_grid}{grid of u values.
+#' Only returned if output_matrices=TRUE.}
+#' \item{contrast_path}{contrast values obtained for the values of u
+#' listed in u_grid. Only returned if output_matrices=TRUE.}
+#'
+#' @examples
+#' # Simulation of random graph with 50 nodes
+#' set.seed(1)
+#' simul=SimulateGraphical(n=100, pk=50, topology="random", nu=0.05)
+#' dim(simul$data) # dimension of simulated dataset
+#' sum(simul$theta)/2 # number of edges
+#' plot(Graph(simul$theta))
+#'
+#' # Simulation of scale-free graph with 20 nodes
+#' set.seed(1)
+#' simul=SimulateGraphical(n=100, pk=20, topology="scale-free")
+#' plot(Graph(simul$theta))
+#'
+#' # Using user-defined function for graph simulation
+#' CentralNode=function(pk, topology=NULL, nu=NULL, hub=1){
+#'   theta=matrix(0, nrow=sum(pk), ncol=sum(pk))
+#'   theta[hub,]=1
+#'   theta[,hub]=1
+#'   diag(theta)=0
+#'   return(theta)
+#' }
+#' simul=SimulateGraphical(n=100, pk=10, implementation="CentralNode")
+#' plot(Graph(simul$theta)) # star
+#' simul=SimulateGraphical(n=100, pk=10, implementation="CentralNode", hub=2)
+#' plot(Graph(simul$theta)) # variable 2 is the central node
+#'
+#' @export
+SimulateGraphical=function(n=100, pk=10, implementation="huge", topology="random", nu=0.1,
                        output_matrices=FALSE,
                        v_within=1, v_between=1,
                        pd_strategy="diagonally_dominant",
                        u=NULL, niter_max_u_grid=5, tolerance_u_grid=10, u_delta=5, ...){
-  # pd_strategy: "diagonally_dominant" or "nonnegative_eigenvalues"
-  # n_iter_max_u_grid: number of iterations where grid is refined
-  # tolerance_u_grid: how far away from the extreme values
-  # u_delta: difference in log10-scale between the smallest (or largest) u values in the grid used in the current iteration and the one built for next iteration
-
   # Defining grid of u values if not provided
   if (is.null(u)){
     u=10^-(seq(0,5,by=0.1))
@@ -22,7 +127,7 @@ SimulateGraph=function(n=100, pk=10, implementation="huge", topology="random", n
   p=sum(pk)
 
   # Creating matrix with block indices
-  bigblocks=GetBlockMatrix(pk)
+  bigblocks=BlockMatrix(pk)
   bigblocks_vect=bigblocks[upper.tri(bigblocks)]
   N_blocks=unname(table(bigblocks_vect))
   block_ids=unique(as.vector(bigblocks))
@@ -59,7 +164,7 @@ SimulateGraph=function(n=100, pk=10, implementation="huge", topology="random", n
   for (u_value in u){
     omega_tmp=MakePositiveDefinite(omega=omega, u_value=u_value, pd_strategy=pd_strategy)
     C=stats::cov2cor(solve(omega_tmp))
-    contrast=c(contrast, GetContrast(C))
+    contrast=c(contrast, Contrast(C))
   }
 
   # Avoiding extreme values in u grid if not provided by the user
@@ -93,7 +198,7 @@ SimulateGraph=function(n=100, pk=10, implementation="huge", topology="random", n
         for (u_value in u){
           omega_tmp=MakePositiveDefinite(omega=omega, u_value=u_value, pd_strategy=pd_strategy)
           C=stats::cov2cor(solve(omega_tmp))
-          contrast=c(contrast, GetContrast(C))
+          contrast=c(contrast, Contrast(C))
         }
       }
     }
@@ -137,7 +242,63 @@ SimulateGraph=function(n=100, pk=10, implementation="huge", topology="random", n
 }
 
 
-SimulateXY=function(n=100, pk=10, X=NULL, nu_pred=0.2, beta_set=c(-1,1), continuous=FALSE,
+#' Simulation of predictors and associated outcome
+#'
+#' This function can be used to simulate (i) a matrix X of n observations
+#' for pk normally distributed variables, and (ii) an outcome Y obtained
+#' from the linear combination of (a subset of) the pk variables.
+#' The outputs of this function can be used to
+#' evaluate the ability of variable selection algorithms to identify,
+#' among the variables in X, relevant predictors of the outcome Y.
+#'
+#' @param n number of observations in the simulated data.
+#' @param pk number of variables in the simulated data.
+#' @param X matrix of predictors. With X=NULL, the matrix of predictors
+#' is simulated for pk variables and n observations. If X is provided,
+#' (a subset of) its variables will be used to simulate the outcome data.
+#' @param nu_pred density of the set of variables to be used for the
+#' simulation of the outcome data (i.e. number of true predictors over the
+#' number of potential predictors).
+#' @param beta_set related to beta coefficients used in the linear combination.
+#' If continuous=FALSE, beta_set is the set of possible beta coefficients.
+#' If continuous=FALSE, beta_set is the range of possible beta coefficients.
+#' @param continuous logical indicating whether to sample from proposed
+#' beta coefficients in "beta_set" (if continuous=FALSE) or to sample continuous
+#' values between the minimum and maximum values in "beta_set" (if continuous=TRUE).
+#' @param sd_pred_error residual standard deviation. Used only if family="gaussian".
+#' @param family type of outcome. If family="gaussian", a normally distributed
+#' outcome is simulated. If family="binomial", a binary outcome is simulated from
+#' a Bernouilli distribution where the probability is defined as a linear combination
+#' of (a subset of) the pk variables.
+#'
+#' @return A list with:
+#' \item{X}{simulated data among which some variables were used in the linear combination
+#' from which the outcome Y is derived. This dataset includes both signal
+#' and noise variables.}
+#' \item{Y}{simulated outcome Y.}
+#' \item{proba}{true probability that the outcome is equal to 1.
+#' Only returned if family="binomial".}
+#' \item{logit_proba}{logit of the true probability that the outcome is equal to 1.
+#' This is obtained as a linear combination of (a subset of) the variables in X.
+#' Only returned if family="binomial".}
+#' \item{theta_pred}{binary vector indicating which variables in X were used in the
+#' linear combination to obtain the outcome Y, i.e. indicating which variables in X are
+#' signal (if equal to 1) or noise (if equal to 0) variables.}
+#' \item{beta}{true beta coefficients used in the linear model for simulation of the outcome Y.}
+#'
+#' @examples
+#' # Data simulation (continuous outcome)
+#' simul=SimulateRegression(n=200, pk=100, family="gaussian")
+#' plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
+#' simul=SimulateRegression(n=200, pk=100, family="gaussian", sd_pred_error=5)
+#' plot(simul$Y_pred, simul$Y) # larger residual error
+#'
+#' # Data simulation (binary outcome)
+#' simul=SimulateRegression(n=200, pk=100, family="binomial")
+#' boxplot(simul$logit_proba~simul$Y) # true logit probability by simulated binary outcome
+#'
+#' @export
+SimulateRegression=function(n=100, pk=10, X=NULL, nu_pred=0.2, beta_set=c(-1,1), continuous=FALSE,
                     sd_pred_error=1, family="gaussian"){
   # Simulation of the predictors
   if (is.null(X)) {
@@ -197,6 +358,32 @@ SimulateXY=function(n=100, pk=10, X=NULL, nu_pred=0.2, beta_set=c(-1,1), continu
 }
 
 
+#' Simulation of an undirected graph
+#'
+#' Simulation of the adjacency matrix encoding an
+#' unweighted, undirected graph with no self-loops.
+#'
+#' @param pk number of nodes.
+#' @param topology topology of the simulated graph. If using
+#' implementation="huge", possible values are listed for the
+#' argument "graph" of the huge.generator() function. These are:
+#' "random", "hub", "cluster", "band" and "scale-free".
+#' @param nu density of the graph, i.e. expected number of edges
+#' over possible number of edges (px(p-1)/2 where p is the number of nodes).
+#' This argument is only used for topology="random" and topology="cluster"
+#' if implementation="huge".
+#' @param ... additional arguments to be passed to the
+#' \code{\link{huge.generator}} function from the huge package.
+#'
+#' @return a symmetric adjacency matrix encoding an
+#' unweighted, undirected graph with no self-loops.
+#'
+#' #' @examples
+#' # Simulation of a scale-free graph with 20 nodes
+#' adjacency=SimulateAdjacency(pk=20, topology="scale-free")
+#' plot(Graph(adjacency))
+#'
+#' @export
 SimulateAdjacency=function(pk=10, topology="random", nu=0.1, ...){
   # Simulating the adjacency matrix using huge
   theta=as.matrix(huge::huge.generator(n=2, d=sum(pk), prob=nu,
@@ -210,6 +397,43 @@ SimulateAdjacency=function(pk=10, topology="random", nu=0.1, ...){
 }
 
 
+#' Making positive definite
+#'
+#' Determines the diagonal entries of a symmetric matrix to
+#' ensure it is positive definite.
+#' For this, diagonal entries of the matrix are (i) defined to be higher than
+#' the sum of entries on the corresponding rows, which ensure
+#' it is diagonally dominant, or (ii) set to
+#' the absolute value of the smallest eigenvalue.
+#'
+#' @param omega input matrix.
+#' @param u_value constant used in the transformation.
+#' @param pd_strategy method to ensure that the output matrix
+#' is positive definite.
+#' With pd_strategy="diagonally_dominant", the matrix is made diagonally dominant
+#' by setting the diagonal entries to the sum of absolute values on the
+#' corresponding row and the constant u_value.
+#' With pd_strategy="nonnegative_eigenvalues",
+#' diagonal entries are set to the sum of the absolute value of the smallest
+#' eigenvalue and the constant u_value.
+#'
+#' @return A positive definite matrix.
+#'
+#' @examples
+#' # Simulation of a symmetric matrix
+#' p=5
+#' set.seed(1)
+#' sigma=matrix(rnorm(p*p), ncol=p)
+#' sigma=sigma+t(sigma)
+#'
+#' # Diagonal dominance
+#' sigma_pd=MakePositiveDefinite(sigma, pd="diagonally_dominant")
+#'
+#' # Non-negative eigenvalues
+#' sigma_pd=MakePositiveDefinite(sigma, pd="nonnegative_eigenvalues")
+#' eigen(sigma_pd)$values
+#'
+#' @export
 MakePositiveDefinite=function(omega, u_value=0.1, pd_strategy="diagonally_dominant"){
   # Adding a small number (u) to the diagonal
   if (pd_strategy=="diagonally_dominant"){
@@ -225,7 +449,16 @@ MakePositiveDefinite=function(omega, u_value=0.1, pd_strategy="diagonally_domina
 }
 
 
-GetContrast=function(mat, digits=3){
+#' Contrast of a matrix
+#'
+#' Computes the contrast of a matrix, defined as the number of visited bins of entries
+#' with a specified number of digits.
+#'
+#' @param mat input matrix for which to compute the contrast.
+#' @param digits number of digits to use.
+#'
+#' @return A single number, the contrast of the input matrix.
+Contrast=function(mat, digits=3){
   return(length(unique(round(as.vector(abs(mat)), digits=digits))))
 }
 

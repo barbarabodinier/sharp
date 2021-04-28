@@ -1,3 +1,120 @@
+#' Stability selection in regression
+#'
+#' Runs stability selection regression models with
+#' different combinations of parameters controlling the sparsity
+#' of the underlying selection algorithm (e.g. penalty parameter for
+#' regularised models) and thresholds in selection proportions.
+#' These two parameters are jointly calibrated by maximising
+#' the stability score of the model (possibly under a constraint
+#' on the expected number of falsely stably selected features).
+#'
+#' @param xdata matrix of predictors with observations as rows and variables as columns.
+#' @param ydata vector or matrix of outcome(s).
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glmnet", these are penalty parameters
+#' controlling the regularised model.
+#' If Lambda=NULL, \code{\link{LambdaGridRegression}} is used to define
+#' a relevant grid.
+#' @param pi_list grid of values for the threshold in selection proportion.
+#' With n_cat=3, these values must be between 0.5 and 1.
+#' With n_cat=2, these values must be between 0 and 1.
+#' @param K number of resampling iterations.
+#' @param tau subsample size. Only used with resampling="subsampling".
+#' @param seed value of the seed to use to ensure reproducibility.
+#' @param n_cat number of categories used to compute the stability score.
+#' Possible values are 2 or 3.
+#' @param family type of regression model. This argument is defined as in the
+#' \code{\link{glmnet}} function from the glmnet package. Possible values include
+#' "gaussian" (linear regression), "binomial" (logistic regression),
+#' "multinomial" (multinomial regression), and "cox" (survival analysis).
+#' This argument is only used with implementation="glmnet", or with functions
+#' using the family argument in the same way (see example below).
+#' @param implementation name of the function to use for variable selection.
+#' With implementation="glmnet", the function \code{\link{glmnet}}
+#' is called. Alternatively, this argument can be
+#' a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "y", "lambda" and "family"
+#' and return matrices of model coefficients (see \code{\link{SelectionAlgo}}).
+#' @param resampling resampling approach. Possible values are: "subsampling"
+#' for sampling without replacement of a proportion tau of the observations, or
+#' "bootstrap" for sampling with replacement generating a resampled dataset with
+#' as many observations as in the full sample. Alternatively, this argument can be
+#' a character string indicating the name of a function to use for resampling.
+#' This function must use arguments called "data" and "tau" and return
+#' IDs of observations to be included in the resampled dataset
+#' (see example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False Positives,
+#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
+#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
+#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' @param FDP_thr threshold in the expected proportion of falsely selected features
+#' (or False Discovery Proportion, FDP)
+#' for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' @param Lambda_cardinal number of values in the grid.
+#' @param n_cores number of cores to use for parallel computing.
+#' Only available on Unix systems.
+#' @param verbose logical indicating if a message with minimum and maximum
+#' numbers of selected variables on one instance of resampled data should be printed.
+#' @param ... additional parameters passed to the functions provided in
+#' "implementation" or "resampling".
+#'
+#' @return A list with:
+#' \item{S}{a matrix of
+#' the best stability scores
+#' for different penalty parameters.
+#' Rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda").}
+#' \item{Lambda}{a matrix with different penalty parameters as rows.}
+#' \item{Q}{a matrix of
+#' average numbers of features
+#' selected by the underlying algorihm
+#' for different penalty parameters (as rows).}
+#' \item{Q_s}{a matrix of
+#' calibrated numbers of stable features
+#' for different penalty parameters (as rows).}
+#' \item{P}{a matrix of
+#' calibrated thresholds in selection proportions
+#' for different penalty parameters (as rows).}
+#' \item{PFER}{a matrix of
+#' computed upper-bounds in PFER of
+#' calibrated stability selection models
+#' for different penalty parameters.}
+#' \item{PFER}{a matrix of
+#' computed upper-bounds in FDP of
+#' calibrated stability selection models
+#' for different penalty parameters.}
+#' \item{S_2d}{a matrix of
+#' stability scores obtained
+#' with different combinations of parameters.
+#' Rows correspond to different penalty parameters and
+#' columns correspond to different tresholds in selection proportions.}
+#' \item{selprop}{a matrix of selection proportions.
+#' Columns correspond to predictors.
+#' Rows correspond to
+#' different penalty parameters.}
+#' \item{Beta}{an array of model coefficients.
+#' Rows correspond to
+#' different model parameters.
+#' Columns correspond to predictors.
+#' Indices along the third dimension correspond to
+#' different resampling iterations.
+#' With multivariate outcomes, indices along
+#' the fourth dimension correspond to outcome-specific coefficients.}
+#' \item{method}{a list with input values for the arguments
+#' "implementation", "family", "resampling" and "PFER_method".}
+#' \item{param}{a list with input values for the arguments
+#' "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr",
+#' "seed", "xdata" and "ydata".}
+#'
+#' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}}
+#'
+#' @example examples/example_variableselection.R
+#'
+#' @export
 VariableSelection=function(xdata, ydata=NULL, Lambda=NULL, pi_list=seq(0.6,0.9,by=0.01),
                            K=100, tau=0.5, seed=1, n_cat=3,
                            family="gaussian", implementation="glmnet",
@@ -17,14 +134,14 @@ VariableSelection=function(xdata, ydata=NULL, Lambda=NULL, pi_list=seq(0.6,0.9,b
     # Defining grid of lambda values (using glmnet implementation)
     Lambda=LambdaGridRegression(xdata=xdata, ydata=ydata, tau=tau, seed=seed,
                                 family=family, implementation=implementation,
-                                resampling=resampling, PFER_method=PFER_method, PFER_thr=PFER_thr, FDP_thr=FDP_thr,
+                                resampling=resampling,
                                 Lambda_cardinal=Lambda_cardinal, verbose=FALSE, ...)
   }
 
   # Stability selection and score
   mypar=parallel::mclapply(X=1:n_cores, FUN=function(k){
-    return(StabilityCalibRegression(xdata=xdata, ydata=ydata, Lambda=Lambda, pi_list=pi_list,
-                                    K=ceiling(K/n_cores), tau=tau, seed=k, n_cat=n_cat,
+    return(SerialRegression(xdata=xdata, ydata=ydata, Lambda=Lambda, pi_list=pi_list,
+                                    K=ceiling(K/n_cores), tau=tau, seed=as.numeric(paste0(seed, k)), n_cat=n_cat,
                                     family=family, implementation=implementation, resampling=resampling,
                                     PFER_method=PFER_method, PFER_thr=PFER_thr, FDP_thr=FDP_thr,
                                     verbose=verbose, ...))
@@ -42,8 +159,111 @@ VariableSelection=function(xdata, ydata=NULL, Lambda=NULL, pi_list=seq(0.6,0.9,b
 }
 
 
-# Not to be accessible
-StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9,by=0.01),
+#' Stability selection in regression (internal)
+#'
+#' This function can be used to estimate a
+#' stability selection regression model
+#' using a serial implementation and
+#' when the grid of penalty parameters is provided
+#' (for internal use only).
+#'
+#' @param xdata matrix of predictors with observations as rows and variables as columns.
+#' @param ydata vector or matrix of outcome(s).
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glmnet", these are penalty parameters
+#' controlling the regularised model.
+#' @param pi_list grid of values for the threshold in selection proportion.
+#' With n_cat=3, these values must be between 0.5 and 1.
+#' With n_cat=2, these values must be between 0 and 1.
+#' @param K number of resampling iterations.
+#' @param tau subsample size. Only used with resampling="subsampling".
+#' @param seed value of the seed to use to ensure reproducibility.
+#' @param n_cat number of categories used to compute the stability score.
+#' Possible values are 2 or 3.
+#' @param family type of regression model. This argument is defined as in the
+#' \code{\link{glmnet}} function from the glmnet package. Possible values include
+#' "gaussian" (linear regression), "binomial" (logistic regression),
+#' "multinomial" (multinomial regression), and "cox" (survival analysis).
+#' This argument is only used with implementation="glmnet", or with functions
+#' using the family argument in the same way (see example below).
+#' @param implementation name of the function to use for variable selection.
+#' With implementation="glmnet", the function \code{\link{glmnet}}
+#' is called. Alternatively, this argument can be
+#' a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "y", "lambda" and "family"
+#' and return matrices of model coefficients (see \code{\link{SelectionAlgo}}).
+#' @param resampling resampling approach. Possible values are: "subsampling"
+#' for sampling without replacement of a proportion tau of the observations, or
+#' "bootstrap" for sampling with replacement generating a resampled dataset with
+#' as many observations as in the full sample. Alternatively, this argument can be
+#' a character string indicating the name of a function to use for resampling.
+#' This function must use arguments called "data" and "tau" and return
+#' IDs of observations to be included in the resampled dataset
+#' (see example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False Positives,
+#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
+#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
+#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' @param FDP_thr threshold in the expected proportion of falsely selected features
+#' (or False Discovery Proportion, FDP)
+#' for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' @param verbose logical indicating if a message with minimum and maximum
+#' numbers of selected variables on one instance of resampled data should be printed.
+#' @param ... additional parameters passed to the functions provided in
+#' "implementation" or "resampling".
+#'
+#' @return A list with:
+#' \item{S}{a matrix of
+#' the best stability scores
+#' for different penalty parameters.
+#' Rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda").}
+#' \item{Lambda}{a matrix with different penalty parameters as rows.}
+#' \item{Q}{a matrix of
+#' average numbers of features
+#' selected by the underlying algorihm
+#' for different penalty parameters (as rows).}
+#' \item{Q_s}{a matrix of
+#' calibrated numbers of stable features
+#' for different penalty parameters (as rows).}
+#' \item{P}{a matrix of
+#' calibrated thresholds in selection proportions
+#' for different penalty parameters (as rows).}
+#' \item{PFER}{a matrix of
+#' computed upper-bounds in PFER of
+#' calibrated stability selection models
+#' for different penalty parameters.}
+#' \item{PFER}{a matrix of
+#' computed upper-bounds in FDP of
+#' calibrated stability selection models
+#' for different penalty parameters.}
+#' \item{S_2d}{a matrix of
+#' stability scores obtained
+#' with different combinations of parameters.
+#' Rows correspond to different penalty parameters and
+#' columns correspond to different tresholds in selection proportions.}
+#' \item{selprop}{a matrix of selection proportions.
+#' Columns correspond to predictors.
+#' Rows correspond to
+#' different penalty parameters.}
+#' \item{Beta}{an array of model coefficients.
+#' Rows correspond to
+#' different model parameters.
+#' Columns correspond to predictors.
+#' Indices along the third dimension correspond to
+#' different resampling iterations.}
+#' \item{method}{a list with input values for the arguments
+#' "implementation", "family", "resampling" and "PFER_method".}
+#' \item{param}{a list with input values for the arguments
+#' "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr",
+#' "seed", "xdata" and "ydata".}
+#'
+#' @keywords internal
+SerialRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9,by=0.01),
                                   K=100, tau=0.5, seed=1, n_cat=3,
                                   family="gaussian", implementation="glmnet",
                                   resampling="subsampling", PFER_method="MB", PFER_thr=Inf, FDP_thr=Inf,
@@ -61,10 +281,10 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
   colnames(Beta)=colnames(xdata)
 
   # Initialising the array with all beta coefficients
-  s=GetSubsample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
+  s=Resample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
   Xsub = xdata[s,]
   Ysub = ydata[s,]
-  mybeta=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+  mybeta=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
   if (length(dim(mybeta$beta_full))==2){
     Beta_full=array(0, dim=c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
                     dimnames=list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL))
@@ -84,21 +304,21 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
   if (PFER_method=="MB"){
     for (k in 1:K){
       set.seed(k)
-      s=GetSubsample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
+      s=Resample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
       Xsub = xdata[s,]
       Ysub = ydata[s,]
-      mybeta=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+      mybeta=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
 
       # Resampling if model failed to converge
-      while (is.infinite(mybeta$beta[1])){
-        s=GetSubsample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
+      while (is.infinite(mybeta$selected[1])){
+        s=Resample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
         Xsub = xdata[s,]
         Ysub = ydata[s,]
-        mybeta=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+        mybeta=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
       }
 
       # Storing (one set of) beta coefficients, used to define set of selected variables
-      Beta[rownames(mybeta$beta),colnames(mybeta$beta),k]=mybeta$beta
+      Beta[rownames(mybeta$selected),colnames(mybeta$selected),k]=mybeta$selected
 
       # Storing all beta coefficients
       if (length(dim(Beta_full))==3){
@@ -119,35 +339,35 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
   if (PFER_method=="SS"){
     for (k in 1:ceiling(K/2)){
       set.seed(k)
-      s=GetSubsample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
+      s=Resample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
 
       # First subset
       Xsub = xdata[s,]
       Ysub = ydata[s,]
-      mybeta1=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+      mybeta1=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
 
       # Complementary subset
       Xsub = xdata[seq(1,nrow(xdata))[!seq(1,nrow(xdata))%in%s],]
       Ysub = ydata[seq(1,nrow(xdata))[!seq(1,nrow(xdata))%in%s],]
-      mybeta2=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+      mybeta2=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
 
       # Resampling if model failed to converge
-      while (is.infinite(mybeta1$beta[1])|is.infinite(mybeta2$beta[1])){
-        s=GetSubsample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
+      while (is.infinite(mybeta1$selected[1])|is.infinite(mybeta2$selected[1])){
+        s=Resample(data=ydata, family=family, tau=tau, resampling=resampling, ...)
 
         # First subset
         Xsub = xdata[s,]
         Ysub = ydata[s,]
-        mybeta=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+        mybeta=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
 
         # Complementary subset
         Xsub = xdata[seq(1,nrow(xdata))[!seq(1,nrow(xdata))%in%s],]
         Ysub = ydata[seq(1,nrow(xdata))[!seq(1,nrow(xdata))%in%s],]
-        mybeta=SelectionFunction(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
+        mybeta=SelectionAlgo(x=Xsub, y=Ysub, lambda=Lambda[,1], family=family, implementation=implementation, ...)
       }
 
       # Storing beta coefficients from first set
-      Beta[rownames(mybeta1$beta),colnames(mybeta1$beta),k]=mybeta1$beta
+      Beta[rownames(mybeta1$selected),colnames(mybeta1$selected),k]=mybeta1$selected
 
       # Storing all beta coefficients from first set
       if (length(dim(Beta_full))==3){
@@ -157,7 +377,7 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
       }
 
       # Storing beta coefficients from complementary set
-      Beta[rownames(mybeta2$beta),colnames(mybeta2$beta),ceiling(K/2)+k]=mybeta2$beta
+      Beta[rownames(mybeta2$selected),colnames(mybeta2$selected),ceiling(K/2)+k]=mybeta2$selected
 
       # Storing all beta coefficients from complementary set
       if (length(dim(Beta_full))==3){
@@ -186,7 +406,7 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
 
   # Computation of the stability score over Lambda and pi_list
   if (K>2){
-    metrics=ComputeMetrics(bigstab=bigstab, pk=NULL, pi_list=pi_list, K=K, n_cat=n_cat,
+    metrics=StabilityMetrics(bigstab=bigstab, pk=NULL, pi_list=pi_list, K=K, n_cat=n_cat,
                            Sequential_template=NULL, graph=FALSE,
                            PFER_method=PFER_method, PFER_thr_blocks=PFER_thr, FDP_thr_blocks=FDP_thr)
     if (verbose){
@@ -195,14 +415,9 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
     }
   } else {
     Q=matrix(NA, nrow=nrow(Lambda), ncol=1)
-    PFER=matrix(NA, nrow=nrow(Lambda), ncol=length(pi_list))
     for (k in 1:nrow(Lambda)){
       q_block=sum(Beta[k,,1]!=0)
       Q[k,1]=round(q_block)
-      for (j in 1:length(pi_list)){
-        pi=pi_list[j]
-        PFER[k,j]=ComputePFER(q=q_block,pi=pi,N=N_block)
-      }
     }
   }
   Beta=Beta_full
@@ -217,7 +432,7 @@ StabilityCalibRegression=function(xdata, ydata=NULL, Lambda, pi_list=seq(0.6,0.9
                 methods=list(implementation=implementation, family=family, resampling=resampling, PFER_method=PFER_method),
                 params=list(K=K, pi_list=pi_list, tau=tau, n_cat=n_cat, pk=ncol(xdata), PFER_thr=PFER_thr, FDP_thr=FDP_thr, seed=seed, xdata=xdata, ydata=ydata)))
   } else {
-    return(list(Q=Q, Beta=Beta, PFER_2d=PFER))
+    return(list(Q=Q, Beta=Beta))
   }
 }
 

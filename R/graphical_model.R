@@ -1,3 +1,183 @@
+#' Stability selection graphical model
+#'
+#' Runs stability selection graphical models with
+#' different combinations of parameters controlling the sparsity
+#' of the underlying selection algorithm (e.g. penalty parameter for
+#' regularised models) and thresholds in selection proportions.
+#' These two parameters are jointly calibrated by maximising
+#' the stability score of the model (possibly under a constraint
+#' on the expected number of falsely stably selected features).
+#'
+#' @param data matrix with observations as rows and variables as columns.
+#' @param pk vector encoding the grouping structure.
+#' Only used for multi-block stability selection.
+#' For this, the variables in data have to be ordered
+#' by group and argument "pk" has to be a vector
+#' indicating the number of variables
+#' in each of the groups (see example below).
+#' If pk=NULL, single-block stability selection is performed.
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glassoFast", these are penalty parameters
+#' controlling the regularised model.
+#' If Lambda=NULL, \code{\link{LambdaGridGraphical}} is used to define
+#' a relevant grid.
+#' For multi-block calibration (i.e. when argument "pk" is a vector),
+#' Lambda can be a vector, to use the procedure from Equation (5) (recommended),
+#' or a matrix with as many columns as there are entries in "pk",
+#' to use the procedure from Equation (4) (see details and examples below).
+#' @param lambda_other_blocks optional vector of (penalty) parameters
+#' to use for other blocks
+#' in the iterative multi-block procedure (see example below).
+#' Only used for multi-block graphical models, i.e. when pk is a vector.
+#' @param pi_list grid of values for the threshold in selection proportion.
+#' With n_cat=3, these values must be between 0.5 and 1.
+#' With n_cat=2, these values must be between 0 and 1.
+#' @param K number of resampling iterations.
+#' @param tau subsample size. Only used with resampling="subsampling".
+#' @param seed value of the seed to use to ensure reproducibility.
+#' @param n_cat number of categories used to compute the stability score.
+#' Possible values are 2 or 3.
+#' @param implementation name of the function to use for graphical modelling.
+#' With implementation="glassoFast", the function \code{\link{glassoFast}}
+#' is used for regularised estimation of a conditional independence graph.
+#' Alternatively, this argument can be a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "lambda" and "scale"
+#' and return a binary and symmetric adjacency matrix (see \code{\link{GraphicalAlgo}}).
+#' @param start character string indicating if the algorithm should be
+#' initialised at the estimated (inverse) covariance with previous
+#' penalty parameters (start="warm") or not (start="cold").
+#' Using start="warm" can speed-up the computations.
+#' Only used for implementation="glassoFast" (see argument "start"
+#' in \code{\link{glassoFast}}).
+#' @param scale logical indicating if the correlation (if scale=TRUE)
+#' or covariance (if scale=FALSE) matrix should be used as input
+#' for the graphical LASSO. If implementation is not set to "glassoFast",
+#' this argument must be used as input of the function provided instead.
+#' @param resampling resampling approach. Possible values are: "subsampling"
+#' for sampling without replacement of a proportion tau of the observations, or
+#' "bootstrap" for sampling with replacement generating a resampled dataset with
+#' as many observations as in the full sample. Alternatively, this argument can be
+#' a character string indicating the name of a function to use for resampling.
+#' This function must use arguments called "data" and "tau" and return
+#' IDs of observations to be included in the resampled dataset
+#' (see example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False Positives,
+#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
+#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
+#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' The grid is defined such that the estimated graph does not generate an upper-bound in
+#' PFER above PFER_thr.
+#' @param FDP_thr threshold in the expected proportion of falsely selected edges
+#' (or False Discovery Proportion, FDP)
+#' for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' If FDP_thr is not infinite, the grid is defined such that the estimated graph
+#' does not generate an upper-bound in PFER above the number of node pairs.
+#' @param Lambda_cardinal number of values in the grid.
+#' @param lambda_max maximum value in the grid. With lambda_max=NULL,
+#' the maximum value is set to the maximum covariance in absolute value.
+#' @param lambda_path_factor multiplicative factor used to define the minimum value in the grid.
+#' @param max_density threshold on the density. The grid is defined such that the density
+#' of the estimated graph does not exceed max_density.
+#' @param n_cores number of cores to use for parallel computing.
+#' Only available on Unix systems.
+#' @param verbose logical indicating if a message with minimum and maximum
+#' numbers of selected variables on one instance of resampled data should be printed.
+#' @param ... additional parameters passed to the functions provided in
+#' "implementation" or "resampling".
+#'
+#' @return A list with:
+#' \item{S}{a matrix of
+#' the best (block-specific) stability scores
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{Lambda}{a matrix of
+#' (block-specific) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to sets of penalty parameters and
+#' columns correspond to different blocks.}
+#' \item{Q}{a matrix of
+#' average numbers of (block-specific) edges
+#' selected by the underlying algorihm
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{Q_s}{a matrix of
+#' calibrated numbers of (block-specific) stable edges
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{P}{a matrix of
+#' calibrated (block-specific) thresholds in selection proportions
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{PFER}{a matrix of
+#' computed (block-specific) upper-bounds in PFER of
+#' calibrated graphs
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{FDP}{a matrix of
+#' computed (block-specific) upper-bounds in FDP of
+#' calibrated graphs
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{S_2d}{an array of
+#' (block-specific) stability scores obtained
+#' with different combinations of parameters.
+#' Rows correspond to different (sets of) penalty parameters and
+#' columns correspond to different thresholds in selection proportions.
+#' In multi-block stability selection,
+#' indices along the third dimension
+#' correspond to different blocks.}
+#' \item{PFER_2d}{an array of
+#' computed upper-bounds of PFER obtained
+#' with different combinations of parameters.
+#' Rows correspond to different penalty parameters and
+#' columns correspond to different thresholds in selection proportions.
+#' Only available for single-block stability selection.}
+#' \item{FDP_2d}{an array of
+#' computed upper-bounds of FDP obtained
+#' with different combinations of parameters.
+#' Rows correspond to different penalty parameters and
+#' columns correspond to different thresholds in selection proportions.
+#' Only available for single-block stability selection.}
+#' \item{selprop}{an array of selection proportions.
+#' Rows and columns correspond to nodes in the graph.
+#' Indices along the third dimension correspond to
+#' different (sets of) penalty parameters.}
+#' \item{sign}{a matrix of signs of Pearson's correlations.}
+#' \item{method}{a list with input values for the arguments
+#' "implementation", "start", "resampling" and "PFER_method".}
+#' \item{param}{a list with input values for the arguments
+#' "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr",
+#' "seed", "lambda_other_blocks" and "data".
+#' The object "Sequential_template" is also returned
+#' (for internal use).}
+#'
+#' @seealso \code{\link{LambdaGridGraphical}}, \code{\link{Resample}}, \code{\link{GraphicalAlgo}}
+#'
+#' @example examples/example_graphicalmodel.R
+#'
+#' @export
 GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
                         pi_list=seq(0.6,0.9,by=0.01), K=100, tau=0.5, seed=1, n_cat=3,
                         implementation="glassoFast", start="warm", scale=TRUE,
@@ -19,7 +199,7 @@ GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
 
   # Error and warning messages
   bigblocks=bigblocks_vect=blocks=N_blocks=nblocks=PFER_thr_blocks=FDP_thr_blocks=NULL
-  CheckInputNetwork(data=data, pk=pk, Lambda=Lambda, lambda_other_blocks=lambda_other_blocks,
+  CheckInputGraphical(data=data, pk=pk, Lambda=Lambda, lambda_other_blocks=lambda_other_blocks,
                     pi_list=pi_list, K=K, tau=tau, seed=seed, n_cat=n_cat,
                     implementation=implementation, start=start, scale=scale,
                     resampling=resampling, PFER_method=PFER_method, PFER_thr=PFER_thr, FDP_thr=FDP_thr,
@@ -33,7 +213,7 @@ GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
     if (verbose){
       print("Defining the grid of lambda values...")
     }
-    Lambda=LambdaGridNetwork(data=data, pk=pk, lambda_other_blocks=lambda_other_blocks, tau=tau,
+    Lambda=LambdaGridGraphical(data=data, pk=pk, lambda_other_blocks=lambda_other_blocks, tau=tau,
                              implementation=implementation, start="cold", scale=scale,
                              resampling=resampling, PFER_method=PFER_method, PFER_thr=PFER_thr, FDP_thr=FDP_thr,
                              lambda_max=lambda_max, lambda_path_factor=lambda_path_factor, max_density=max_density,
@@ -50,8 +230,8 @@ GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
 
   # Stability selection and score
   mypar=parallel::mclapply(X=1:n_cores, FUN=function(k){
-    return(StabilityCalibNetwork(data=data, pk=pk, Lambda=Lambda, lambda_other_blocks=lambda_other_blocks,
-                                 pi_list=pi_list, K=ceiling(K/n_cores), tau=tau, seed=k, n_cat=n_cat,
+    return(SerialGraphical(data=data, pk=pk, Lambda=Lambda, lambda_other_blocks=lambda_other_blocks,
+                                 pi_list=pi_list, K=ceiling(K/n_cores), tau=tau, seed=as.numeric(paste0(seed, k)), n_cat=n_cat,
                                  implementation=implementation, start=start, scale=scale,
                                  resampling=resampling, PFER_method=PFER_method, PFER_thr=PFER_thr, FDP_thr=FDP_thr,
                                  verbose=verbose, ...))
@@ -81,7 +261,181 @@ GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
 }
 
 
-StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
+#' Stability selection graphical model (internal)
+#'
+#' Runs stability selection graphical models with
+#' different combinations of parameters controlling the sparsity
+#' of the underlying selection algorithm (e.g. penalty parameter for
+#' regularised models) and thresholds in selection proportions.
+#' These two parameters are jointly calibrated by maximising
+#' the stability score of the model (possibly under a constraint
+#' on the expected number of falsely stably selected features).
+#' This function uses a serial implementation and requires
+#' the grid of parameters controlling the underlying algorithm
+#' as input (for internal use only).
+#'
+#' @param data matrix with observations as rows and variables as columns.
+#' @param pk vector encoding the grouping structure.
+#' Only used for multi-block stability selection.
+#' For this, the variables in data have to be ordered
+#' by group and argument "pk" has to be a vector
+#' indicating the number of variables
+#' in each of the groups (see example below).
+#' If pk=NULL, single-block stability selection is performed.
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glassoFast", these are penalty parameters
+#' controlling the regularised model.
+#' If Lambda=NULL, \code{\link{LambdaGridGraphical}} is used to define
+#' a relevant grid.
+#' For multi-block calibration (i.e. when argument "pk" is a vector),
+#' Lambda can be a vector, to use the procedure from Equation (5) (recommended),
+#' or a matrix with as many columns as there are entries in "pk",
+#' to use the procedure from Equation (4) (see details and examples below).
+#' @param lambda_other_blocks optional vector of (penalty) parameters
+#' to use for other blocks
+#' in the iterative multi-block procedure (see example below).
+#' Only used for multi-block graphical models, i.e. when pk is a vector.
+#' @param pi_list grid of values for the threshold in selection proportion.
+#' With n_cat=3, these values must be between 0.5 and 1.
+#' With n_cat=2, these values must be between 0 and 1.
+#' @param K number of resampling iterations.
+#' @param tau subsample size. Only used with resampling="subsampling".
+#' @param seed value of the seed to use to ensure reproducibility.
+#' @param n_cat number of categories used to compute the stability score.
+#' Possible values are 2 or 3.
+#' @param implementation name of the function to use for definition of the grid
+#' of lambda values. With implementation="glassoFast", the function \code{\link{glassoFast}}
+#' is called and iteratively applied on possible penalty values until the constraint are verified,
+#' i.e. that the expected density is below the value given in "max_density",
+#' that the expected PFER is below the value given in "PFER_thr"
+#' or that the expected PFER is below the number of selected edges if "FDP_thr" is not set to Inf.
+#' Alternatively, this argument can be a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "lambda" and "scale"
+#' and return a binary and symmetric adjacency matrix (see example below).
+#' @param start character string indicating if the algorithm should be
+#' initialised at the estimated (inverse) covariance with previous
+#' penalty parameters (start="warm") or not (start="cold").
+#' Using start="warm" can speed-up the computations.
+#' Only used for implementation="glassoFast" (see argument "start"
+#' in \code{\link{glassoFast}}).
+#' @param scale logical indicating if the correlation (if scale=TRUE)
+#' or covariance (if scale=FALSE) matrix should be used as input
+#' for the graphical LASSO. If implementation is not set to "glassoFast",
+#' this argument must be used as input of the function provided instead.
+#' @param resampling resampling approach. Possible values are: "subsampling"
+#' for sampling without replacement of a proportion tau of the observations, or
+#' "bootstrap" for sampling with replacement generating a resampled dataset with
+#' as many observations as in the full sample. Alternatively, this argument can be
+#' a character string indicating the name of a function to use for resampling.
+#' This function must use arguments called "data" and "tau" and return
+#' IDs of observations to be included in the resampled dataset
+#' (see example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False Positives,
+#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
+#' proposed by Meinshausen and Buhlmann (2010) is used. With PFER_method="SS",
+#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' The grid is defined such that the estimated graph does not generate an upper-bound in
+#' PFER above PFER_thr.
+#' @param FDP_thr threshold in the expected proportion of falsely selected edges
+#' (or False Discovery Proportion, FDP)
+#' for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' If FDP_thr is not infinite, the grid is defined such that the estimated graph
+#' does not generate an upper-bound in PFER above the number of node pairs.
+#' @param verbose logical indicating if a message with minimum and maximum
+#' numbers of selected variables on one instance of resampled data should be printed.
+#' @param ... additional parameters passed to the functions provided in
+#' "implementation" or "resampling".
+#'
+#' @return A list with:
+#' \item{S}{a matrix of
+#' the best (block-specific) stability scores
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{Lambda}{a matrix of
+#' (block-specific) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to sets of penalty parameters and
+#' columns correspond to different blocks.}
+#' \item{Q}{a matrix of
+#' average numbers of (block-specific) edges
+#' selected by the underlying algorihm
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{Q_s}{a matrix of
+#' calibrated numbers of (block-specific) stable edges
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{P}{a matrix of
+#' calibrated (block-specific) thresholds in selection proportions
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{PFER}{a matrix of
+#' computed (block-specific) upper-bounds in PFER of
+#' calibrated graphs
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{FDP}{a matrix of
+#' computed (block-specific) upper-bounds in FDP of
+#' calibrated stability selection models
+#' for different (sets of) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to different sets of penalty parameters,
+#' (values are stored in the output "Lambda") and
+#' columns correspond to different blocks.}
+#' \item{S_2d}{an array of
+#' (block-specific) stability scores obtained
+#' with different combinations of parameters.
+#' Rows correspond to different (sets of) penalty parameters and
+#' columns correspond to different thresholds in selection proportions.
+#' In multi-block stability selection,
+#' indices along the third dimension
+#' correspond to different blocks.}
+#' \item{PFER_2d}{an array of
+#' computed upper-bounds of PFER obtained
+#' with different combinations of parameters.
+#' Rows correspond to different penalty parameters and
+#' columns correspond to different thresholds in selection proportions.
+#' Only available for single-block stability selection.}
+#' \item{FDP_2d}{an array of
+#' computed upper-bounds of FDP obtained
+#' with different combinations of parameters.
+#' Rows correspond to different penalty parameters and
+#' columns correspond to different thresholds in selection proportions.
+#' Only available for single-block stability selection.}
+#' \item{selprop}{an array of selection proportions.
+#' Rows and columns correspond to nodes in the graph.
+#' Indices along the third dimension correspond to
+#' different (sets of) penalty parameters.}
+#' \item{sign}{a matrix of signs of Pearson's correlations.}
+#' \item{method}{a list with input values for the arguments
+#' "implementation", "start", "resampling" and "PFER_method".}
+#' \item{param}{a list with input values for the arguments
+#' "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr",
+#' "seed", "lambda_other_blocks" and "data".
+#' The object "Sequential_template" is also returned
+#' (for internal use).}
+#'
+#' @keywords internal
+SerialGraphical=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
                                pi_list=seq(0.6,0.9,by=0.01), K=100, tau=0.5, seed=1, n_cat=n_cat,
                                implementation="glassoFast", start="cold", scale=TRUE,
                                resampling="subsampling", PFER_method="MB", PFER_thr=Inf, FDP_thr=Inf,
@@ -96,7 +450,7 @@ StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
   }
 
   # Creating matrix with block indices
-  bigblocks=GetBlockMatrix(pk)
+  bigblocks=BlockMatrix(pk)
   bigblocks_vect=bigblocks[upper.tri(bigblocks)]
   N_blocks=unname(table(bigblocks_vect))
   blocks=unique(as.vector(bigblocks_vect))
@@ -121,11 +475,11 @@ StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
 
   # Re-formatting Lambda
   if (is.vector(Lambda)){
-    grid=MakeBlockLambdaGrid(Lambda=Lambda, lambda_other_blocks=lambda_other_blocks)
+    grid=BlockLambdaGrid(Lambda=Lambda, lambda_other_blocks=lambda_other_blocks)
     Lambda=grid$Lambda
     Sequential_template=grid$Sequential_template
   } else {
-    grid=MakeBlockLambdaGrid(Lambda=Lambda, lambda_other_blocks=lambda_other_blocks)
+    grid=BlockLambdaGrid(Lambda=Lambda, lambda_other_blocks=lambda_other_blocks)
     Lambda=grid$Lambda
     Sequential_template=grid$Sequential_template
   }
@@ -167,11 +521,11 @@ StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
   if (PFER_method=="MB"){
     for (i in 1:K){
       # Subsampling of the data
-      s=GetSubsample(data=data, family=NULL, tau=tau, resampling=resampling, ...)
+      s=Resample(data=data, family=NULL, tau=tau, resampling=resampling, ...)
       data_sub=data[s,]
 
       # Estimation of the networks for different penalties
-      A=NetworkFunction(x=data_sub, pk=pk, Lambda=Lambda, Sequential_template=Sequential_template,
+      A=GraphicalAlgo(x=data_sub, pk=pk, Lambda=Lambda, Sequential_template=Sequential_template,
                         scale=scale, implementation=implementation, start=start, ...)
 
       # Computing the selection counts
@@ -194,24 +548,19 @@ StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
   if (PFER_method=="SS"){
     for (i in 1:ceiling(K/2)){
       # Sample 1
-      s=GetSubsample(data=data, family=NULL, tau=tau, resampling=resampling, ...)
+      s=Resample(data=data, family=NULL, tau=tau, resampling=resampling, ...)
       data_sub=data[s,]
 
       # Estimation of the networks for different penalties
-      A1=NetworkFunction(x=data_sub, pk=pk, Lambda=Lambda, Sequential_template=Sequential_template,
-                        scale=scale, implementation=implementation, start=start, ...)
-
-      # # Computing the selection counts
-      # for (k in 1:dim(A)[3]){
-      #   bigstab[,,k]=bigstab[,,k]+A[,,k]
-      # }
+      A1=GraphicalAlgo(x=data_sub, pk=pk, Lambda=Lambda, Sequential_template=Sequential_template,
+                         scale=scale, implementation=implementation, start=start, ...)
 
       # Sample 2: everything not in sample 1
       data_sub=data[-s,]
 
       # Estimation of the networks for different penalties
-      A2=NetworkFunction(x=data_sub, pk=pk, Lambda=Lambda, Sequential_template=Sequential_template,
-                        scale=scale, implementation=implementation, start=start, ...)
+      A2=GraphicalAlgo(x=data_sub, pk=pk, Lambda=Lambda, Sequential_template=Sequential_template,
+                         scale=scale, implementation=implementation, start=start, ...)
 
       # Computing the simultaneous selection counts
       for (k in 1:dim(A1)[3]){
@@ -232,7 +581,7 @@ StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
 
   # Computation of the stability score
   if (K>2){
-    metrics=ComputeMetrics(bigstab=bigstab, pk=pk, pi_list=pi_list, K=K, n_cat=n_cat,
+    metrics=StabilityMetrics(bigstab=bigstab, pk=pk, pi_list=pi_list, K=K, n_cat=n_cat,
                            Sequential_template=Sequential_template, graph=TRUE,
                            PFER_method=PFER_method, PFER_thr_blocks=PFER_thr_blocks, FDP_thr_blocks=FDP_thr_blocks)
     if (verbose){
@@ -242,7 +591,6 @@ StabilityCalibNetwork=function(data, pk=NULL, Lambda, lambda_other_blocks=NULL,
   } else {
     # Initialising objects to be filled
     Q=matrix(NA,nrow=nrow(Lambda),ncol=nblocks)
-    PFER=matrix(NA,nrow(Lambda),length(pi_list))
     for (k in 1:nrow(Lambda)){
       # Extracting corresponding selection proportions
       stab_iter=bigstab[,,k]

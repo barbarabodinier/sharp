@@ -1,3 +1,61 @@
+#' Checking input parameters (regression model)
+#'
+#' Checks if input parameters are valid.
+#' For invalid parameters, this function (i) stops the run and generates
+#' an error message, or (ii) sets the invalid parameter to its default value
+#' and reports it in a warning message.
+#'
+#' @param xdata matrix of predictors with observations as rows and variables as columns.
+#' @param ydata vector or matrix of outcome(s).
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glmnet", these are penalty parameters
+#' controlling the regularised model.
+#' If Lambda=NULL, \code{\link{LambdaGridRegression}} is used to define
+#' a relevant grid.
+#' @param pi_list grid of values for the threshold in selection proportion.
+#' With n_cat=3, these values must be between 0.5 and 1.
+#' With n_cat=2, these values must be between 0 and 1.
+#' @param K number of resampling iterations.
+#' @param tau subsample size. Only used with resampling="subsampling".
+#' @param seed value of the seed to use to ensure reproducibility.
+#' @param n_cat number of categories used to compute the stability score.
+#' Possible values are 2 or 3.
+#' @param family type of regression model. This argument is defined as in the
+#' \code{\link{glmnet}} function from the glmnet package. Possible values include
+#' "gaussian" (linear regression), "binomial" (logistic regression),
+#' "multinomial" (multinomial regression), and "cox" (survival analysis).
+#' This argument is only used with implementation="glmnet", or with functions
+#' using the family argument in the same way (see example below).
+#' @param implementation name of the function to use for variable selection.
+#' With implementation="glmnet", the function \code{\link{glmnet}}
+#' is called. Alternatively, this argument can be
+#' a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "y", "lambda" and "family"
+#' and return matrices of model coefficients (see \code{\link{SelectionAlgo}}).
+#' @param resampling resampling approach. Possible values are: "subsampling"
+#' for sampling without replacement of a proportion tau of the observations, or
+#' "bootstrap" for sampling with replacement generating a resampled dataset with
+#' as many observations as in the full sample. Alternatively, this argument can be
+#' a character string indicating the name of a function to use for resampling.
+#' This function must use arguments called "data" and "tau" and return
+#' IDs of observations to be included in the resampled dataset
+#' (see example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False Positives,
+#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
+#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
+#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' @param FDP_thr threshold in the expected proportion of falsely selected features
+#' (or False Discovery Proportion, FDP)
+#' for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' @param Lambda_cardinal number of values in the grid.
+#' @param verbose logical indicating if a message with minimum and maximum
+#' numbers of selected variables on one instance of resampled data should be printed.
+#'
+#' @keywords internal
 CheckInputRegression=function(xdata, ydata, Lambda=NULL, pi_list=seq(0.6,0.9,by=0.01),
                               K=100, tau=0.5, seed=1, n_cat=3,
                               family="gaussian", implementation="glmnet",
@@ -255,7 +313,92 @@ CheckInputRegression=function(xdata, ydata, Lambda=NULL, pi_list=seq(0.6,0.9,by=
 }
 
 
-CheckInputNetwork=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
+#' Checking input parameters (graphical model)
+#'
+#' Checks if input parameters are valid.
+#' For invalid parameters, this function (i) stops the run and generates
+#' an error message, or (ii) sets the invalid parameter to its default value
+#' and reports it in a warning message.
+#'
+#' @param data matrix with observations as rows and variables as columns.
+#' @param pk vector encoding the grouping structure.
+#' Only used for multi-block stability selection.
+#' For this, the variables in data have to be ordered
+#' by group and argument "pk" has to be a vector
+#' indicating the number of variables
+#' in each of the groups (see example below).
+#' If pk=NULL, single-block stability selection is performed.
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glassoFast", these are penalty parameters
+#' controlling the regularised model.
+#' If Lambda=NULL, \code{\link{LambdaGridGraphical}} is used to define
+#' a relevant grid.
+#' For multi-block calibration (i.e. when argument "pk" is a vector),
+#' Lambda can be a vector, to use the procedure from Equation (5) (recommended),
+#' or a matrix with as many columns as there are entries in "pk",
+#' to use the procedure from Equation (4) (see details and examples below).
+#' @param lambda_other_blocks optional vector of (penalty) parameters
+#' to use for other blocks
+#' in the iterative multi-block procedure (see example below).
+#' Only used for multi-block graphical models, i.e. when pk is a vector.
+#' @param pi_list grid of values for the threshold in selection proportion.
+#' With n_cat=3, these values must be between 0.5 and 1.
+#' With n_cat=2, these values must be between 0 and 1.
+#' @param K number of resampling iterations.
+#' @param tau subsample size. Only used with resampling="subsampling".
+#' @param seed value of the seed to use to ensure reproducibility.
+#' @param n_cat number of categories used to compute the stability score.
+#' Possible values are 2 or 3.
+#' @param implementation name of the function to use for graphical modelling.
+#' With implementation="glassoFast", the function \code{\link{glassoFast}}
+#' is used for regularised estimation of a conditional independence graph.
+#' Alternatively, this argument can be a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "lambda" and "scale"
+#' and return a binary and symmetric adjacency matrix (see \code{\link{GraphicalAlgo}}).
+#' @param start character string indicating if the algorithm should be
+#' initialised at the estimated (inverse) covariance with previous
+#' penalty parameters (start="warm") or not (start="cold").
+#' Using start="warm" can speed-up the computations.
+#' Only used for implementation="glassoFast" (see argument "start"
+#' in \code{\link{glassoFast}}).
+#' @param scale logical indicating if the correlation (if scale=TRUE)
+#' or covariance (if scale=FALSE) matrix should be used as input
+#' for the graphical LASSO. If implementation is not set to "glassoFast",
+#' this argument must be used as input of the function provided instead.
+#' @param resampling resampling approach. Possible values are: "subsampling"
+#' for sampling without replacement of a proportion tau of the observations, or
+#' "bootstrap" for sampling with replacement generating a resampled dataset with
+#' as many observations as in the full sample. Alternatively, this argument can be
+#' a character string indicating the name of a function to use for resampling.
+#' This function must use arguments called "data" and "tau" and return
+#' IDs of observations to be included in the resampled dataset
+#' (see example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False Positives,
+#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
+#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
+#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' The grid is defined such that the estimated graph does not generate an upper-bound in
+#' PFER above PFER_thr.
+#' @param FDP_thr threshold in the expected proportion of falsely selected edges
+#' (or False Discovery Proportion, FDP)
+#' for constrained calibration by error control.
+#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
+#' If FDP_thr is not infinite, the grid is defined such that the estimated graph
+#' does not generate an upper-bound in PFER above the number of node pairs.
+#' @param Lambda_cardinal number of values in the grid.
+#' @param lambda_max maximum value in the grid. With lambda_max=NULL,
+#' the maximum value is set to the maximum covariance in absolute value.
+#' @param lambda_path_factor multiplicative factor used to define the minimum value in the grid.
+#' @param max_density threshold on the density. The grid is defined such that the density
+#' of the estimated graph does not exceed max_density.
+#' @param verbose logical indicating if a message with minimum and maximum
+#' numbers of selected variables on one instance of resampled data should be printed.
+#'
+#' @keywords internal
+CheckInputGraphical=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
                            pi_list=seq(0.6,0.9,by=0.01), K=100, tau=0.5, seed=1, n_cat=3,
                            implementation="glassoFast", start="cold", scale=TRUE,
                            resampling="subsampling", PFER_method="MB", PFER_thr=Inf, FDP_thr=Inf,
@@ -406,7 +549,7 @@ CheckInputNetwork=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
   }
 
   # Create matrix with block indices
-  bigblocks=GetBlockMatrix(pk)
+  bigblocks=BlockMatrix(pk)
   bigblocks_vect=bigblocks[upper.tri(bigblocks)]
   N_blocks=unname(table(bigblocks_vect))
   blocks=unique(as.vector(bigblocks_vect))

@@ -1,4 +1,19 @@
-GetBlockMatrix=function(pk){
+#' Block matrix
+#'
+#' Generates a symmetric matrix of the size of the adjacency matrix
+#' encoding the block structure from the numbers of variables in each group.
+#'
+#' @param pk vector encoding the grouping structure.
+#'
+#' @return a symmetric block matrix.
+#'
+#' @examples
+#' # Small example
+#' mat=BlockMatrix(pk=c(2,3))
+#' dim(mat)
+#'
+#' @export
+BlockMatrix=function(pk){
   nblocks=sum(upper.tri(matrix(NA, ncol=length(pk), nrow=length(pk)), diag=TRUE))
   blocks=matrix(NA, nrow=length(pk), ncol=length(pk))
   blocks[upper.tri(blocks, diag=TRUE)]=1:nblocks
@@ -27,7 +42,57 @@ GetBlockMatrix=function(pk){
 }
 
 
-MakeBlockLambdaGrid=function(Lambda, lambda_other_blocks=NULL){
+#' Block structure
+#'
+#' Generates a symmetric matrix encoding the block structure
+#' from the numbers of variables in each group.
+#' This can be used to visualise block IDs.
+#'
+#' @param pk vector encoding the grouping structure.
+#'
+#' @return a symmetric matrix.
+#'
+#' @examples
+#' # Example with 2 groups
+#' mat=BlockStructure(pk=rep(10,2))
+#'
+#' # Example with 5 groups
+#' mat=BlockStructure(pk=rep(10,5))
+#'
+#' @export
+BlockStructure=function(pk){
+  nblocks=sum(upper.tri(matrix(NA, ncol=length(pk), nrow=length(pk)), diag=TRUE))
+  blocks=matrix(NA, nrow=length(pk), ncol=length(pk))
+  blocks[upper.tri(blocks, diag=TRUE)]=1:nblocks
+  blocks[lower.tri(blocks, diag=TRUE)]=1:nblocks
+
+  return(blocks)
+}
+
+
+#' Multi-block grid
+#'
+#' Generates a matrix of penalty parameters
+#' for multi-block calibration.
+#'
+#' @param Lambda vector or matrix of penalty parameters.
+#' @param lambda_other_blocks optional vector of penalty parameters to use for other blocks
+#' in the iterative multi-block procedure.
+#'
+#' @return A list with:
+#' \item{Lambda}{a matrix of
+#' (block-specific) penalty parameters.
+#' In multi-block stability selection,
+#' rows correspond to sets of penalty parameters and
+#' columns correspond to different blocks.}
+#' \item{Sequential_template}{logical matrix encoding the type of procedure for data
+#' with multiple blocks in stability selection graphical modelling.
+#' For multi-block estimation, the procedure is separately calibrating
+#' each block while the others are weakly penalised (TRUE only for the
+#' block currently being calibrated and FALSE for other blocks).
+#' Other approaches with joint calibration of the blocks are allowed
+#' (all entries are set to TRUE).}
+BlockLambdaGrid=function(Lambda, lambda_other_blocks=NULL){
   if ((is.null(lambda_other_blocks))&(!is.vector(Lambda))){
     Lambda_blocks=Lambda
     Sequential_template=matrix(TRUE, ncol=ncol(Lambda), nrow=nrow(Lambda))

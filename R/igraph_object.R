@@ -1,5 +1,61 @@
+#' Graph visualisation
+#'
+#' Produces an igraph object from a adjacency matrix.
+#'
+#' @param adjacency adjacency matrix or output
+#' from \code{\link{GraphicalModel}}.
+#' @param node_label optional vector of node labels.
+#' This vector must contain as many entries as there are
+#' rows/columns in the adjacency matrix
+#' and must be in the same order
+#' (the order is used to assign labels to nodes).
+#' @param node_colour optional vector of node colours.
+#' This vector must contain as many entries as there are
+#' rows/columns in the adjacency matrix
+#' and must be in the same order
+#' (the order is used to assign colours to nodes).
+#' Integers, named colours or RGB values can be used.
+#' @param node_shape optional vector of node shapes.
+#' This vector must contain as many entries as there are
+#' rows/columns in the adjacency matrix
+#' and must be in the same order
+#' (the order is used to assign shapes to nodes).
+#' Possible values are "circle", "square", "triangle" or "star".
+#' @param weighted indicating if entries of the adjacency matrix
+#' should define edge width. If weighted=FALSE, an unweigthed igraph
+#' object is created and all edges have the same width.
+#' If weighted=TRUE, edge width is defined by the corresponding value
+#' in the adjacency matrix.
+#' If weighted=NULL, nodes are linked by as many edges as indicated in the
+#' adjacency matrix (integer values are needed).
+#' @param satellites logical indicating if unconnected nodes (satellites)
+#' should be included in the igraph object.
+#'
+#' @return an igraph object.
+#'
+#' @examples
+#' ## From adjacency matrix
+#' # Un-weighted
+#' adjacency=SimulateAdjacency(pk=20, topology="scale-free")
+#' plot(Graph(adjacency))
+#'
+#' # Weighted
+#' adjacency=adjacency*runif(prod(dim(adjacency)))
+#' adjacency=adjacency+t(adjacency)
+#' plot(Graph(adjacency, weighted=TRUE))
+#'
+#' # Node colours and shapes
+#' plot(Graph(adjacency, weighted=TRUE, node_shape="star", node_colour="red"))
+#'
+#' ## From stability selection output
+#' set.seed(1)
+#' simul=SimulateGraphical(pk=20)
+#' stab=GraphicalModel(data=simul$data)
+#' plot(Graph(stab))
+#'
+#' @export
 Graph=function(adjacency, node_label=NULL, node_colour=NULL, node_shape=NULL,
-               weighted=NULL, satellites=FALSE){
+               weighted=FALSE, satellites=FALSE){
   # Checking input values (weighted)
   if (!is.null(weighted)){
     if (!weighted%in%c(TRUE,FALSE)){
@@ -99,6 +155,8 @@ Graph=function(adjacency, node_label=NULL, node_colour=NULL, node_shape=NULL,
       adjacency=ifelse(adjacency!=0,yes=1,no=0)
       weighted=NULL
     }
+  } else {
+    adjacency=round(adjacency)
   }
 
   # Estimating igraph object
@@ -133,6 +191,20 @@ Graph=function(adjacency, node_label=NULL, node_colour=NULL, node_shape=NULL,
 }
 
 
+#' Star-shaped nodes
+#'
+#' Produces star-shaped nodes in an igraph object.
+#'
+#' @param coords a matrix of coordinates
+#' (see \code{\link{add_shape}} from the igraph package).
+#' @param v a vector of node IDs
+#' (see \code{\link{add_shape}} from the igraph package).
+#' @param params node graphical parameters
+#' (see \code{\link{add_shape}} from the igraph package).
+#'
+#' @seealso \code{\link{add_shape}}
+#'
+#' @keywords internal
 mystar=function(coords, v=NULL, params) {
   vertex.color=params("vertex", "color")
   if ((length(vertex.color)!=1)&!is.null(v)) {
@@ -155,6 +227,20 @@ mystar=function(coords, v=NULL, params) {
 }
 
 
+#' Triangular nodes
+#'
+#' Produces triangular nodes in an igraph object.
+#'
+#' @param coords a matrix of coordinates
+#' (see \code{\link{add_shape}} from the igraph package).
+#' @param v a vector of node IDs
+#' (see \code{\link{add_shape}} from the igraph package).
+#' @param params node graphical parameters
+#' (see \code{\link{add_shape}} from the igraph package).
+#'
+#' @seealso \code{\link{add_shape}}
+#'
+#' @keywords internal
 mytriangle=function(coords, v=NULL, params) {
   vertex.color=params("vertex", "color")
   if ((length(vertex.color)!=1)&!is.null(v)) {

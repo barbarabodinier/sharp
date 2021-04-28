@@ -1,4 +1,63 @@
-SelectionFunction=function(x, y, lambda, family, implementation="glmnet", ...){
+#' Variable selection algorithm
+#'
+#' Runs the variable selection algorithm specified in the argument
+#' "implementation" and returns matrices of model coefficients.
+#' This function is not using stability.
+#'
+#' @param x matrix of predictors with observations as rows and variables as columns.
+#' @param y vector or matrix of outcome(s).
+#' @param lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glmnet", these are penalty parameters
+#' controlling the regularised model.
+#' @param family type of regression model. This argument is defined as in the
+#' \code{\link{glmnet}} function from the glmnet package. Possible values include
+#' "gaussian" (linear regression), "binomial" (logistic regression),
+#' "multinomial" (multinomial regression), and "cox" (survival analysis).
+#' This argument is only used with implementation="glmnet", or with functions
+#' using the family argument in the same way (see example below).
+#' @param implementation name of the function to use for variable selection.
+#' With implementation="glmnet", the function \code{\link{glmnet}}
+#' is called. Alternatively, this argument can be
+#' a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "y", "lambda" and "family"
+#' and return matrices of model coefficients (see example below).
+#' @param ... additional parameters passed to the function provided in
+#' "implementation".
+#'
+#' @return A list with:
+#' \item{selected}{matrix of binary selection status.
+#' Rows correspond to
+#' different model parameters.
+#' Columns correspond to predictors.}
+#' \item{beta_full}{array of model coefficients.
+#' Rows correspond to
+#' different model parameters.
+#' Columns correspond to predictors.
+#' Indices along the third dimension correspond to
+#' outcome variable(s).}
+#'
+#' @examples
+#' # Data simulation
+#' set.seed(1)
+#' simul=SimulateRegression(pk=50)
+#'
+#' # Running the LASSO
+#' mylasso=SelectionAlgo(x=simul$X, y=simul$Y, lambda=c(0.1,0.2), family="gaussian")
+#'
+#' # Simulation of additional outcomes
+#' set.seed(2)
+#' Y=cbind(simul$Y, matrix(rnorm(nrow(simul$Y)*2),ncol=2))
+#'
+#' # Running multivariate Gaussian LASSO
+#' mylasso=SelectionAlgo(x=simul$X, y=Y, lambda=c(0.1,0.2), family="mgaussian")
+#' str(mylasso)
+#'
+#' stab=VariableSelection(xdata=simul$X, ydata=Y, family="mgaussian")
+#' SelectionPerformance(SelectedVariables(stab), simul$theta)
+#'
+#' @export
+SelectionAlgo=function(x, y, lambda, family, implementation="glmnet", ...){
   # Making sure none of the variables has a null standard deviation
   mysd=apply(x,2,stats::sd)
   if (any(mysd==0)){
@@ -29,7 +88,8 @@ SelectionFunction=function(x, y, lambda, family, implementation="glmnet", ...){
         }
 
         # Preparing the outputs
-        beta=beta_full=mybeta
+        selected=ifelse(mybeta!=0, yes=1, no=0)
+        beta_full=mybeta
       } else {
         mybeta=array(NA, dim=c(length(lambda), ncol(x), ncol(y)),
                      dimnames=list(paste0("s",0:(length(lambda)-1)), colnames(x), colnames(y)))
@@ -46,37 +106,99 @@ SelectionFunction=function(x, y, lambda, family, implementation="glmnet", ...){
         }
 
         # Preparing the outputs
+        selected=ifelse(mybeta[,,1,drop=FALSE]!=0, yes=1, no=0)
         beta_full=mybeta
-        beta=mybeta[,,1,drop=FALSE]
       }
     } else {
       # Returning infinite beta is the model failed
-      beta=beta_full=Inf
+      selected=beta_full=Inf
     }
   } else {
     # Applying user-defined function for variable selection
     mybeta=do.call(get(implementation), args=list(x=x, y=y, lambda=lambda, family=family, ...))
-    beta=mybeta$beta
+    selected=mybeta$selected
     beta_full=mybeta$beta_full
 
     # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
     if (any(mysd==0)){
       if (length(dim(beta_full))==2){
-        beta[,which(mysd==0)]=0
+        selected[,which(mysd==0)]=0
         beta_full[,which(mysd==0)]=0
       }
       if (length(dim(beta_full))==3){
-        beta[,which(mysd==0)]=0
+        selected[,which(mysd==0)]=0
         beta_full[,which(mysd==0),]=0
       }
     }
   }
 
-  return(list(beta=beta, beta_full=beta_full))
+  return(list(selected=selected, beta_full=beta_full))
 }
 
 
-NetworkFunction=function(x, pk=NULL, Lambda, Sequential_template, scale=TRUE, implementation="glassoFast", start="cold", ...){
+#' Graph estimation algorithm
+#'
+#' Runs the algorithm for estimation of an undirected graph with no self-loops
+#' specified in the argument "implementation"
+#' and returns the estimated adjacency matrix.
+#' This function is not using stability.
+#'
+#' @param x matrix with observations as rows and variables as columns.
+#' @param pk vector encoding the grouping structure.
+#' Only used for multi-block stability selection.
+#' For this, the variables in data have to be ordered
+#' by group and argument "pk" has to be a vector
+#' indicating the number of variables
+#' in each of the groups (see example below).
+#' If pk=NULL, single-block stability selection is performed.
+#' @param Lambda matrix of parameters controlling the underlying
+#' feature selection algorithm specified in "implementation".
+#' With implementation="glassoFast", these are penalty parameters
+#' controlling the regularised model.
+#' Lambda must be a matrix with as many columns as there are entries in "pk".
+#' @param Sequential_template logical matrix encoding the type of procedure
+#' to use for data with multiple blocks in stability selection graphical modelling.
+#' For multi-block estimation, the stability selection model is
+#' constructed as the union of block-specific stable edges estimated
+#' while the others are weakly penalised (TRUE only for the
+#' block currently being calibrated and FALSE for other blocks).
+#' Other approaches with joint calibration of the blocks are allowed
+#' (all entries are set to TRUE).
+#' @param scale logical indicating if the correlation (if scale=TRUE)
+#' or covariance (if scale=FALSE) matrix should be used as input
+#' for the graphical LASSO. If implementation is not set to "glassoFast",
+#' this argument must be used as input of the function provided instead.
+#' @param implementation name of the function to use for graphical modelling.
+#' With implementation="glassoFast", the function \code{\link{glassoFast}}
+#' is used for regularised estimation of a conditional independence graph.
+#' Alternatively, this argument can be a character string indicating the name of a function.
+#' The function provided must use arguments called "x", "lambda" and "scale"
+#' and return a binary and symmetric adjacency matrix (see example below).
+#' @param start character string indicating if the algorithm should be
+#' initialised at the estimated (inverse) covariance with previous
+#' penalty parameters (start="warm") or not (start="cold").
+#' Using start="warm" can speed-up the computations.
+#' Only used for implementation="glassoFast" (see argument "start"
+#' in \code{\link{glassoFast}}).
+#' @param ... additional parameters passed to the function provided in
+#' "implementation".
+#'
+#' @return a binary and symmetric adjacency matrix.
+#'
+#' @details
+#' The use of the procedure from Equation (4) or (5)
+#' is controlled by the argument "Sequential_template".
+#'
+#' @examples
+#' # Data simulation
+#' set.seed(1)
+#' simul=SimulateGraphical()
+#'
+#' # Running graphical LASSO
+#' myglasso=GraphicalAlgo(x=simul$data, Lambda=matrix(c(0.1, 0.2),ncol=1))
+#'
+#' @export
+GraphicalAlgo=function(x, pk=NULL, Lambda, Sequential_template, scale=TRUE, implementation="glassoFast", start="cold", ...){
   if (is.null(pk)){
     pk=ncol(x)
   }
@@ -90,7 +212,7 @@ NetworkFunction=function(x, pk=NULL, Lambda, Sequential_template, scale=TRUE, im
   }
 
   # Create matrix with block indices
-  bigblocks=GetBlockMatrix(pk)
+  bigblocks=BlockMatrix(pk)
   bigblocks_vect=bigblocks[upper.tri(bigblocks)]
   N_blocks=unname(table(bigblocks_vect))
   blocks=unique(as.vector(bigblocks_vect))
@@ -122,7 +244,7 @@ NetworkFunction=function(x, pk=NULL, Lambda, Sequential_template, scale=TRUE, im
 
       # Estimation of the sparse inverse covariance
       if ((start=="warm")&(k!=1)){
-        if (which(Sequential_template[k,])==which(Sequential_template[k-1,])){
+        if (all(which(Sequential_template[k,])==which(Sequential_template[k-1,]))){
           g_sub=glassoFast::glassoFast(S=cov_sub, rho=lambdamat,
                                        start="warm", w.init=sigma, wi.init=omega)
         } else {
@@ -139,14 +261,15 @@ NetworkFunction=function(x, pk=NULL, Lambda, Sequential_template, scale=TRUE, im
       A=ifelse(omega!=0, yes=1, no=0)
       A=A+t(A)
       A=ifelse(A!=0, yes=1, no=0)
+      diag(A)=0
     } else {
       A=do.call(get(implementation), args=list(x=x, lambda=lambdamat, scale=scale, ...))
     }
 
     # Ensuring that there is no edge for variables with always the same value (null standard deviation)
     if (any(mysd==0)){
-        A[which(mysd==0),]=0
-        A[,which(mysd==0)]=0
+      A[which(mysd==0),]=0
+      A[,which(mysd==0)]=0
     }
 
     # Storing the estimated adjacency matrix
