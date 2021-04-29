@@ -32,12 +32,12 @@ LambdaGridGraphical(
 \item{pk}{vector encoding the grouping structure. Only used for multi-block
 stability selection. For this, the variables in data have to be ordered by
 group and argument "pk" has to be a vector indicating the number of
-variables in each of the groups (see example below). If pk=NULL,
-single-block stability selection is performed.}
+variables in each of the groups. If pk=NULL, single-block stability
+selection is performed.}
 
 \item{lambda_other_blocks}{vector of penalty parameters to use for other
-blocks in the iterative multi-block procedure (see example below). Only
-used for multi-block graphical models, i.e. when pk is not set to NULL.}
+blocks in the iterative multi-block procedure. Only used for multi-block
+graphical models, i.e. when pk is not set to NULL.}
 
 \item{K}{number of resampling iterations.}
 
@@ -55,8 +55,7 @@ expected PFER is below the value given in "PFER_thr" or that the expected
 PFER is below the number of selected edges if "FDP_thr" is not set to Inf.
 Alternatively, this argument can be a character string indicating the name
 of a function. The function provided must use arguments called "x",
-"lambda" and "scale" and return a binary and symmetric adjacency matrix
-(see example below).}
+"lambda" and "scale" and return a binary and symmetric adjacency matrix.}
 
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty
@@ -135,14 +134,18 @@ Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10)
 # Ensuring PFER < 5
 Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10, PFER_thr=5)
 
-# Multi-block
+# Multi-block simulation
 set.seed(1)
 simul=SimulateGraphical(pk=c(10,10))
 
-Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
-Lambda_cardinal=10, lambda_other_blocks=0.1)
+# Multi-block grid
+Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10), Lambda_cardinal=10)
 
-# Block-specific lambda_0
+# Denser neighbouring blocks
+Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
+Lambda_cardinal=10, lambda_other_blocks=0)
+
+# Using different neighbour penalties
 Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
 Lambda_cardinal=10, lambda_other_blocks=c(0.1, 0, 0.1))
 stab=GraphicalModel(data=simul$data, pk=c(10,10),
@@ -151,13 +154,12 @@ stab$Lambda
 
 # Visiting from empty to full graphs with max_density=1
 Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
-Lambda_cardinal=10, lambda_other_blocks=0, max_density=1)
+Lambda_cardinal=10, max_density=1)
 bigblocks=BlockMatrix(pk=c(10,10))
 bigblocks_vect=bigblocks[upper.tri(bigblocks)]
 N_blocks=unname(table(bigblocks_vect))
 N_blocks # max number of edges per block
-stab=GraphicalModel(data=simul$data, pk=c(10,10),
-Lambda=Lambda, lambda_other_blocks=rep(0,3))
+stab=GraphicalModel(data=simul$data, pk=c(10,10),Lambda=Lambda)
 apply(stab$Q,2,max,na.rm=TRUE) # max average number of edges from underlying algo
 
 }

@@ -13,7 +13,7 @@
 #'   values include "gaussian" (linear regression), "binomial" (logistic
 #'   regression), "multinomial" (multinomial regression), and "cox" (survival
 #'   analysis). This argument is only used with implementation="glmnet", or with
-#'   functions using the family argument in the same way (see example below).
+#'   functions using the family argument in the same way.
 #' @param implementation name of the function to use for definition of the grid
 #'   of lambda values. With implementation="glmnet", the function
 #'   \code{\link[glmnet]{glmnet}} is used to define the path of lambda values.
@@ -41,7 +41,28 @@
 #'
 #' @family lambda grid functions
 #'
-#' @example examples/example_lambdagridregression.R
+#' @examples
+#' # Lambda grid for linear regression
+#' simul=SimulateRegression(n=100, pk=20, family="gaussian") # simulated data
+#' Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y,
+#' family="gaussian", Lambda_cardinal=20)
+#'
+#' # Grid can be used in VariableSelection()
+#' out=VariableSelection(xdata=simul$X, ydata=simul$Y,
+#' family="gaussian", Lambda=Lambda)
+#' SelectedVariables(out)
+#'
+#' # For use with gglasso (group LASSO)
+#' require(gglasso)
+#' ManualGridGroupLasso=function(x, y, family, ...){
+#' if (family=="gaussian"){
+#' return(cv.gglasso(x=x, y=y, pred.loss="L1", ...))
+#' }
+#' }
+#' Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y,
+#' family="gaussian", Lambda_cardinal=20,
+#' implementation="ManualGridGroupLasso",
+#' group=rep(1:4, each=5))
 #'
 #' @export
 LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
@@ -108,11 +129,11 @@ LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
 #' @param pk vector encoding the grouping structure. Only used for multi-block
 #'   stability selection. For this, the variables in data have to be ordered by
 #'   group and argument "pk" has to be a vector indicating the number of
-#'   variables in each of the groups (see example below). If pk=NULL,
-#'   single-block stability selection is performed.
+#'   variables in each of the groups. If pk=NULL, single-block stability
+#'   selection is performed.
 #' @param lambda_other_blocks vector of penalty parameters to use for other
-#'   blocks in the iterative multi-block procedure (see example below). Only
-#'   used for multi-block graphical models, i.e. when pk is not set to NULL.
+#'   blocks in the iterative multi-block procedure. Only used for multi-block
+#'   graphical models, i.e. when pk is not set to NULL.
 #' @param K number of resampling iterations.
 #' @param tau subsample size. Only used with resampling="subsampling".
 #' @param n_cat number of categories used to compute the stability score.
@@ -126,8 +147,7 @@ LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
 #'   PFER is below the number of selected edges if "FDP_thr" is not set to Inf.
 #'   Alternatively, this argument can be a character string indicating the name
 #'   of a function. The function provided must use arguments called "x",
-#'   "lambda" and "scale" and return a binary and symmetric adjacency matrix
-#'   (see example below).
+#'   "lambda" and "scale" and return a binary and symmetric adjacency matrix.
 #' @param start character string indicating if the algorithm should be
 #'   initialised at the estimated (inverse) covariance with previous penalty
 #'   parameters (start="warm") or not (start="cold"). Using start="warm" can

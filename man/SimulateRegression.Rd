@@ -60,9 +60,9 @@ signal (if equal to 1) or noise (if equal to 0) variables.}
 \item{beta}{true beta coefficients used in the linear model for simulation of the outcome Y.}
 }
 \description{
-This function can be used to simulate (i) a matrix X of n observations
-for pk normally distributed variables, and (ii) an outcome Y obtained
-from the linear combination of (a subset of) the pk variables in X.
+Simulate (i) a matrix X of n observations
+for \code{pk} normally distributed variables, and (ii) an outcome Y obtained
+from a linear combination of (a subset of) the pk variables in X.
 The outputs of this function can be used to
 evaluate the ability of variable selection algorithms to identify,
 among the variables in X, relevant predictors of the outcome Y.

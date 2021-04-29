@@ -92,7 +92,10 @@
 #'
 #' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}}
 #'
-#' @example examples/example_variableselection.R
+#' @examples
+#' # Variable selection in linear regression
+#' simul=SimulateRegression(n=100, pk=20, family="gaussian") # simulated data
+#' out=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian")
 #'
 #' @export
 VariableSelection=function(xdata, ydata=NULL, Lambda=NULL, pi_list=seq(0.6,0.9,by=0.01),

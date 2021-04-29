@@ -10,14 +10,13 @@ SimulateAdjacency(pk = 10, topology = "random", nu = 0.1, ...)
 \item{pk}{number of nodes.}
 
 \item{topology}{topology of the simulated graph. If using
-implementation="huge", possible values are listed for the argument "graph"
-of \code{\link[huge]{huge.generator}}. These are: "random", "hub",
-"cluster", "band" and "scale-free".}
+implementation="huge", possible values are listed for the argument
+\code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
+"hub", "cluster", "band" and "scale-free".}
 
-\item{nu}{density of the graph, i.e. expected number of edges over possible
-number of edges (px(p-1)/2 where p is the number of nodes). If
-implementation="huge", this argument is only used for topology="random" and
-topology="cluster".}
+\item{nu}{expected density of the graph. If implementation="huge", this
+argument is only used for topology="random" or topology="cluster" (see
+argument \code{prob} in \code{\link[huge]{huge.generator}}).}
 
 \item{...}{additional arguments to be passed to
 \code{\link[huge]{huge.generator}}.}

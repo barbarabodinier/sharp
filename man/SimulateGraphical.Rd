@@ -24,30 +24,27 @@ SimulateGraphical(
 \arguments{
 \item{n}{number of observations in the simulated data.}
 
-\item{pk}{number of variables in the simulated data. If pk is a vector, the
-number of variables is the sum of its entries. In this case, the (partial)
-correlation matrix of the simulated data will have a block structure, where
-blocks arise from the integration of as many groups of variables as there
-are entries in pk, and the numbers in pk define the number of variables in
-each of the groups.}
+\item{pk}{vector of the number of variables per group in the simulated data.
+The number of nodes in the simulated graph is \code{sum(pk)}. With multiple
+groups, the simulated (partial) correlation matrix has a block structure,
+where blocks arise from the integration of the \code{length(pk)} groups.}
 
 \item{implementation}{name of the function to use for simulation of the
 graph. With implementation="huge", functionalities implemented in
-\code{\link[huge]{huge.generator}} are used (see
-\code{\link{SimulateAdjacency}}). Alternatively, this argument can be a
-character string indicating the name of a function. This function must use
-arguments called "pk", "topology" and "nu" and return a (pxp) binary and
-symmetric matrix where p is the sum of the entries in pk.}
+\code{\link[huge]{huge.generator}} are used. Alternatively, this argument
+can be a character string indicating the name of a function. This function
+must use arguments \code{pk}, \code{topology} and \code{nu} and return a
+\code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
+entries are all equal to zero.}
 
 \item{topology}{topology of the simulated graph. If using
-implementation="huge", possible values are listed for the argument "graph"
-of \code{\link[huge]{huge.generator}}. These are: "random", "hub",
-"cluster", "band" and "scale-free".}
+implementation="huge", possible values are listed for the argument
+\code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
+"hub", "cluster", "band" and "scale-free".}
 
-\item{nu}{density of the graph, i.e. expected number of edges over possible
-number of edges (px(p-1)/2 where p is the number of nodes). If
-implementation="huge", this argument is only used for topology="random" and
-topology="cluster".}
+\item{nu}{expected density of the graph. If implementation="huge", this
+argument is only used for topology="random" or topology="cluster" (see
+argument \code{prob} in \code{\link[huge]{huge.generator}}).}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
@@ -99,11 +96,12 @@ A list with: \item{data}{simulated data with n observation and
   u_grid. Only returned if output_matrices=TRUE.}
 }
 \description{
-This function can be used to (i) simulate a graph, and (ii) simulate
-multivariate Normal data for which the graph structure is encoded in the
-nonzero entries of the true partial correlation matrix (i.e. ensuring that
-the conditional independence structure between the variables is encoded in
-the simulated graph).
+Simulates (i) a graph, and (ii) multivariate Normal data for which the graph
+structure is encoded in the nonzero entries of the true partial correlation
+matrix. This procedure ensures that the conditional independence structure
+between the variables is encoded in the simulated graph. The outputs of this
+function can be used to evaluate the ability of a graphical model to identify
+edges of a conditional independence graph.
 }
 \examples{
 # Simulation of random graph with 50 nodes
@@ -118,6 +116,11 @@ set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free")
 plot(Graph(simul$theta))
 
+# Extracting true precision/correlation matrices
+set.seed(1)
+simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free", output_matrices=TRUE)
+str(simul)
+
 # Using user-defined function for graph simulation
 CentralNode <- function(pk, topology = NULL, nu = NULL, hub = 1) {
   theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
@@ -130,9 +133,10 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode")
 plot(Graph(simul$theta)) # star
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
+
 }
 \seealso{
-\code{\link{MakePositiveDefinite}}
+\code{\link{MakePositiveDefinite}}, \code{\link{Contrast}}
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
