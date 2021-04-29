@@ -24,13 +24,13 @@
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
 #' @param family type of regression model. This argument is defined as in the
-#'   \code{\link{glmnet}} function from the glmnet package. Possible values
+#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
 #'   include "gaussian" (linear regression), "binomial" (logistic regression),
 #'   "multinomial" (multinomial regression), and "cox" (survival analysis). This
 #'   argument is only used with implementation="glmnet", or with functions using
 #'   the family argument in the same way (see example below).
 #' @param implementation name of the function to use for variable selection.
-#'   With implementation="glmnet", the function \code{\link{glmnet}} is called.
+#'   With implementation="glmnet", the function \code{\link[glmnet]{glmnet}} is called.
 #'   Alternatively, this argument can be a character string indicating the name
 #'   of a function. The function provided must use arguments called "x", "y",
 #'   "lambda" and "family" and return matrices of model coefficients (see
@@ -162,13 +162,13 @@ VariableSelection=function(xdata, ydata=NULL, Lambda=NULL, pi_list=seq(0.6,0.9,b
 #' @param n_cat number of categories used to compute the stability score.
 #' Possible values are 2 or 3.
 #' @param family type of regression model. This argument is defined as in the
-#' \code{\link{glmnet}} function from the glmnet package. Possible values include
+#' \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values include
 #' "gaussian" (linear regression), "binomial" (logistic regression),
 #' "multinomial" (multinomial regression), and "cox" (survival analysis).
 #' This argument is only used with implementation="glmnet", or with functions
 #' using the family argument in the same way (see example below).
 #' @param implementation name of the function to use for variable selection.
-#' With implementation="glmnet", the function \code{\link{glmnet}}
+#' With implementation="glmnet", the function \code{\link[glmnet]{glmnet}}
 #' is called. Alternatively, this argument can be
 #' a character string indicating the name of a function.
 #' The function provided must use arguments called "x", "y", "lambda" and "family"

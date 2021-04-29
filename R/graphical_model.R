@@ -34,7 +34,7 @@
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
 #' @param implementation name of the function to use for graphical modelling.
-#'   With implementation="glassoFast", the function \code{\link{glassoFast}} is
+#'   With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}} is
 #'   used for regularised estimation of a conditional independence graph.
 #'   Alternatively, this argument can be a character string indicating the name
 #'   of a function. The function provided must use arguments called "x",
@@ -44,7 +44,7 @@
 #'   initialised at the estimated (inverse) covariance with previous penalty
 #'   parameters (start="warm") or not (start="cold"). Using start="warm" can
 #'   speed-up the computations. Only used for implementation="glassoFast" (see
-#'   argument "start" in \code{\link{glassoFast}}).
+#'   argument "start" in \code{\link[glassoFast]{glassoFast}}).
 #' @param scale logical indicating if the correlation (if scale=TRUE) or
 #'   covariance (if scale=FALSE) matrix should be used as input for the
 #'   graphical LASSO. If implementation is not set to "glassoFast", this
@@ -271,7 +271,7 @@ GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
 #' @param n_cat number of categories used to compute the stability score.
 #' Possible values are 2 or 3.
 #' @param implementation name of the function to use for definition of the grid
-#' of lambda values. With implementation="glassoFast", the function \code{\link{glassoFast}}
+#' of lambda values. With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
 #' is called and iteratively applied on possible penalty values until the constraint are verified,
 #' i.e. that the expected density is below the value given in "max_density",
 #' that the expected PFER is below the value given in "PFER_thr"
@@ -284,7 +284,7 @@ GraphicalModel=function(data, pk=NULL, Lambda=NULL, lambda_other_blocks=NULL,
 #' penalty parameters (start="warm") or not (start="cold").
 #' Using start="warm" can speed-up the computations.
 #' Only used for implementation="glassoFast" (see argument "start"
-#' in \code{\link{glassoFast}}).
+#' in \code{\link[glassoFast]{glassoFast}}).
 #' @param scale logical indicating if the correlation (if scale=TRUE)
 #' or covariance (if scale=FALSE) matrix should be used as input
 #' for the graphical LASSO. If implementation is not set to "glassoFast",

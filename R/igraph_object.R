@@ -189,13 +189,13 @@ Graph=function(adjacency, node_label=NULL, node_colour=NULL, node_shape=NULL,
 #' Produces star-shaped nodes in an igraph object.
 #'
 #' @param coords a matrix of coordinates
-#' (see \code{\link{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}} from the igraph package).
 #' @param v a vector of node IDs
-#' (see \code{\link{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}} from the igraph package).
 #' @param params node graphical parameters
-#' (see \code{\link{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}} from the igraph package).
 #'
-#' @seealso \code{\link{add_shape}}
+#' @seealso \code{\link[igraph]{add_shape}}
 #'
 #' @keywords internal
 mystar=function(coords, v=NULL, params) {
@@ -225,13 +225,13 @@ mystar=function(coords, v=NULL, params) {
 #' Produces triangular nodes in an igraph object.
 #'
 #' @param coords a matrix of coordinates
-#' (see \code{\link{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}} from the igraph package).
 #' @param v a vector of node IDs
-#' (see \code{\link{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}} from the igraph package).
 #' @param params node graphical parameters
-#' (see \code{\link{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}} from the igraph package).
 #'
-#' @seealso \code{\link{add_shape}}
+#' @seealso \code{\link[igraph]{add_shape}}
 #'
 #' @keywords internal
 mytriangle=function(coords, v=NULL, params) {

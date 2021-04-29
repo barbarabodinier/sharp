@@ -9,14 +9,14 @@
 #' @param tau subsample size. Only used with resampling="subsampling".
 #' @param seed used in set.seed() to ensure reproducibility of the analyses.
 #' @param family type of regression model. This argument is defined as in the
-#'   \code{\link{glmnet}} function from the glmnet package. Possible values
+#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
 #'   include "gaussian" (linear regression), "binomial" (logistic regression),
 #'   "multinomial" (multinomial regression), and "cox" (survival analysis). This
 #'   argument is only used with implementation="glmnet", or with functions using
 #'   the family argument in the same way (see example below).
 #' @param implementation name of the function to use for definition of the grid
 #'   of lambda values. With implementation="glmnet", the function
-#'   \code{\link{glmnet}} is used to define the path of lambda values.
+#'   \code{\link[glmnet]{glmnet}} is used to define the path of lambda values.
 #'   Alternatively, this argument can be a character string indicating the name
 #'   of a function. The function provided must use arguments called "x", "y" and
 #'   "family" and return a list in which the entry named "lambda" contains a
@@ -118,7 +118,7 @@ LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
 #' @param n_cat number of categories used to compute the stability score.
 #' Possible values are 2 or 3.
 #' @param implementation name of the function to use for definition of the grid
-#' of lambda values. With implementation="glassoFast", the function \code{\link{glassoFast}}
+#' of lambda values. With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
 #' is called and iteratively applied on possible penalty values until the constraint are verified,
 #' i.e. that the expected density is below the value given in "max_density",
 #' that the expected PFER is below the value given in "PFER_thr"
@@ -131,7 +131,7 @@ LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
 #' penalty parameters (start="warm") or not (start="cold").
 #' Using start="warm" can speed-up the computations.
 #' Only used for implementation="glassoFast" (see argument "start"
-#' in \code{\link{glassoFast}}).
+#' in \code{\link[glassoFast]{glassoFast}}).
 #' @param scale logical indicating if the correlation (if scale=TRUE)
 #' or covariance (if scale=FALSE) matrix should be used as input
 #' for the graphical LASSO. If implementation is not set to "glassoFast",
