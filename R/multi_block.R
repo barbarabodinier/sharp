@@ -1,7 +1,7 @@
 #' Block matrix
 #'
-#' Generates a symmetric matrix of the size of the adjacency matrix
-#' encoding the block structure from the numbers of variables in each group.
+#' Generates a symmetric matrix of the size of the adjacency matrix encoding the
+#' block structure from the numbers of variables in each group.
 #'
 #' @param pk vector encoding the grouping structure.
 #'

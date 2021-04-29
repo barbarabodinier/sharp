@@ -28,29 +28,29 @@ CalibrationPlot(
 )
 }
 \arguments{
-\item{stability}{output from \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.}
+\item{stability}{output from \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}.}
 
-\item{metric}{parameter to visualise. Possible values are "lambda" (parameter controlling
-the level of sparsity in underlying algorithm), "pi" (threshold in selection proportion) or "both".}
+\item{metric}{parameter to visualise. Possible values are "lambda" (parameter
+controlling the level of sparsity in underlying algorithm), "pi" (threshold
+in selection proportion) or "both".}
 
-\item{block_id}{ID of the block to visualise.
-Only used for multi-block stability selection graphical models.
-With block_id=NULL, all blocks are represented in separate panels.}
+\item{block_id}{ID of the block to visualise. Only used for multi-block
+stability selection graphical models. With block_id=NULL, all blocks are
+represented in separate panels.}
 
 \item{lines}{logical indicating if the points should be linked by lines.}
 
-\item{colours}{vector of colours used for the heatmap.
-By default a gradient of colours ranging from ivory to dark red is used.
-Only used with metric="both".}
+\item{colours}{vector of colours used for the heatmap. By default a gradient
+of colours ranging from ivory to dark red is used. Only used with
+metric="both".}
 
-\item{legend}{logical indicating if the colour bar should be included.
-Only used with metric="both".}
+\item{legend}{logical indicating if the colour bar should be included. Only
+used with metric="both".}
 
-\item{legend_length}{length of the colour bar.
-Only used with metric="both".}
+\item{legend_length}{length of the colour bar. Only used with metric="both".}
 
-\item{legend_range}{range of the colour bar.
-Only used with metric="both".}
+\item{legend_range}{range of the colour bar. Only used with metric="both".}
 
 \item{xlab}{label of the x-axis.}
 
@@ -58,54 +58,46 @@ Only used with metric="both".}
 
 \item{zlab}{label of the z-axis.}
 
-\item{filename}{file path to saved figure.
-With filename=NULL, the plot is not saved.}
+\item{filename}{file path to saved figure. With filename=NULL, the plot is
+not saved.}
 
-\item{fileformat}{format of the saved figure.
-Possible values are "pdf" or "png".
-Only used if argument "filename" is not NULL.}
+\item{fileformat}{format of the saved figure. Possible values are "pdf" or
+"png". Only used if argument "filename" is not NULL.}
 
-\item{res}{resolution of the png figure
-(see \code{\link{png}} from the grDevices package).
-Only used if argument "filename" is not NULL and
+\item{res}{resolution of the png figure (see \code{\link{png}} from the
+grDevices package). Only used if argument "filename" is not NULL and
 fileformat="png".}
 
-\item{width}{width of the saved figure.
-Only used if argument "filename" is not NULL.}
+\item{width}{width of the saved figure. Only used if argument "filename" is
+not NULL.}
 
-\item{height}{height of the saved figure.
-Only used if argument "filename" is not NULL.}
+\item{height}{height of the saved figure. Only used if argument "filename" is
+not NULL.}
 
-\item{units}{units of width and height.
-Possible values are "px", "in", "cm" and "mm"
-(see \code{\link{png}} from the grDevices package).
-Only used if argument "filename" is not NULL and
-fileformat="png".}
+\item{units}{units of width and height. Possible values are "px", "in", "cm"
+and "mm" (see \code{\link{png}} from the grDevices package). Only used if
+argument "filename" is not NULL and fileformat="png".}
 
-\item{mar}{vector of margins
-(see \code{\link{par}} from the graphics package).
-With mar=NULL, margins are automatically defined.}
+\item{mar}{vector of margins (see \code{\link{par}} from the graphics
+package). With mar=NULL, margins are automatically defined.}
 
-\item{mfrow}{vector defining the layout of the figure
-(see \code{\link{par}} from the graphics package).
-With mfrow=NULL, the generated figure has as many panels
-as there blocks in the model.}
+\item{mfrow}{vector defining the layout of the figure (see \code{\link{par}}
+from the graphics package). With mfrow=NULL, the generated figure has as
+many panels as there blocks in the model.}
 
-\item{...}{additional arguments to be passed to
-\code{\link{Heatmap}} or
+\item{...}{additional arguments to be passed to \code{\link{Heatmap}} or
 \code{\link{axis}} from the graphics package.}
 }
 \value{
 a calibration plot.
 }
 \description{
-Returns a heatmap or plot showing the stability score as a function
-of the parameter controlling the sparsity and/or thereshold in selection proportion.
+Returns a heatmap or plot showing the stability score as a function of the
+parameter controlling the sparsity and/or thereshold in selection proportion.
 }
 \details{
-When selecting a single parameter, each point represents the
-best (maximum) stability score across all visited values of the
-other parameter.
+When selecting a single parameter, each point represents the best
+(maximum) stability score across all visited values of the other parameter.
 }
 \examples{
 # Data simulation

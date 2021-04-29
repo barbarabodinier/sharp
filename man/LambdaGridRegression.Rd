@@ -18,7 +18,8 @@ LambdaGridRegression(
 )
 }
 \arguments{
-\item{xdata}{matrix of predictors with observations as rows and variables as columns.}
+\item{xdata}{matrix of predictors with observations as rows and variables as
+columns.}
 
 \item{ydata}{vector or matrix of outcome(s).}
 
@@ -27,44 +28,45 @@ LambdaGridRegression(
 \item{seed}{used in set.seed() to ensure reproducibility of the analyses.}
 
 \item{family}{type of regression model. This argument is defined as in the
-\code{\link{glmnet}} function from the glmnet package. Possible values include
-"gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis).
-This argument is only used with implementation="glmnet", or with functions
-using the family argument in the same way (see example below).}
+\code{\link{glmnet}} function from the glmnet package. Possible values
+include "gaussian" (linear regression), "binomial" (logistic regression),
+"multinomial" (multinomial regression), and "cox" (survival analysis). This
+argument is only used with implementation="glmnet", or with functions using
+the family argument in the same way (see example below).}
 
 \item{implementation}{name of the function to use for definition of the grid
-of lambda values. With implementation="glmnet", the function \code{\link{glmnet}}
-is used to define the path of lambda values.
-Alternatively, this argument can be
-a character string indicating the name of a function.
-The function provided must use arguments called "x", "y" and "family"
-and return a list in which the entry named "lambda" contains a vector of lambda values.}
+of lambda values. With implementation="glmnet", the function
+\code{\link{glmnet}} is used to define the path of lambda values.
+Alternatively, this argument can be a character string indicating the name
+of a function. The function provided must use arguments called "x", "y" and
+"family" and return a list in which the entry named "lambda" contains a
+vector of lambda values.}
 
-\item{resampling}{resampling approach. Possible values are: "subsampling"
-for sampling without replacement of a proportion tau of the observations, or
-"bootstrap" for sampling with replacement generating a resampled dataset with
-as many observations as in the full sample. Alternatively, this argument can be
-a character string indicating the name of a function to use for resampling.
-This function must use arguments called "data" and "tau" and return
-IDs of observations to be included in the resampled dataset
-(see example in \code{\link{Resample}}).}
+\item{resampling}{resampling approach. Possible values are: "subsampling" for
+sampling without replacement of a proportion tau of the observations, or
+"bootstrap" for sampling with replacement generating a resampled dataset
+with as many observations as in the full sample. Alternatively, this
+argument can be a character string indicating the name of a function to use
+for resampling. This function must use arguments called "data" and "tau"
+and return IDs of observations to be included in the resampled dataset (see
+example in \code{\link{Resample}}).}
 
 \item{Lambda_cardinal}{number of values in the grid.}
 
 \item{verbose}{logical indicating if a message with minimum and maximum
-numbers of selected variables on one instance of resampled data should be printed.}
+numbers of selected variables on one instance of resampled data should be
+printed.}
 
 \item{...}{additional parameters passed to the functions provided in
 "implementation" or "resampling".}
 }
 \value{
-a matrix of lambda values with one column and as many rows
-as indicated in "Lambda_cardinal".
+a matrix of lambda values with one column and as many rows as
+  indicated in "Lambda_cardinal".
 }
 \description{
-Generates a relevant grid of penalty parameter values
-for penalised regression.
+Generates a relevant grid of penalty parameter values for penalised
+regression.
 }
 \examples{
 # Lambda grid for linear regression

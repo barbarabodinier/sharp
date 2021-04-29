@@ -2,24 +2,29 @@ Package: focus
 Type: Package
 Title: Feature selectiOn and Clustering Using Stability
 Version: 0.1.0
-Author: Barbara Bodinier
+Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
-Description: Implementation of stability-enhanced models for variable selection in regression, network estimation and clustering. These methods are based on resampling approaches to compute selection proportions. Calibration of the models is done via maximisation of a stability score measuring how unlikely it is that the selection procedure is uniform.
+BugReports: https://github.com/barbarabodinier/focus/issues
+Description: Implementation of stability-enhanced models 
+  for variable selection in regression, network estimation and clustering. 
+  These methods are based on resampling approaches to compute selection proportions. 
+  Calibration of the models is done via maximisation of a stability score 
+  measuring how unlikely it is that the selection procedure is uniform.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 RdMacros: Rdpack
-Imports:
-  Rdpack, 
-  glmnet,
-  glassoFast,
-  huge,
-  abind,
-  MASS,
-  parallel,
-  grDevices,
-  igraph
+Imports: 
+    glassoFast (>= 1.0.0),
+    abind,
+    glmnet,
+    grDevices,
+    huge,
+    igraph,
+    MASS,
+    parallel
 Suggests: 
+    Rdpack,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

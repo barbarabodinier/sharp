@@ -1,62 +1,53 @@
 #' Calibration plot
 #'
-#' Returns a heatmap or plot showing the stability score as a function
-#' of the parameter controlling the sparsity and/or thereshold in selection proportion.
+#' Returns a heatmap or plot showing the stability score as a function of the
+#' parameter controlling the sparsity and/or thereshold in selection proportion.
 #'
-#' @param stability output from \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.
-#' @param metric parameter to visualise. Possible values are "lambda" (parameter controlling
-#' the level of sparsity in underlying algorithm), "pi" (threshold in selection proportion) or "both".
-#' @param block_id ID of the block to visualise.
-#' Only used for multi-block stability selection graphical models.
-#' With block_id=NULL, all blocks are represented in separate panels.
+#' @param stability output from \code{\link{VariableSelection}} or
+#'   \code{\link{GraphicalModel}}.
+#' @param metric parameter to visualise. Possible values are "lambda" (parameter
+#'   controlling the level of sparsity in underlying algorithm), "pi" (threshold
+#'   in selection proportion) or "both".
+#' @param block_id ID of the block to visualise. Only used for multi-block
+#'   stability selection graphical models. With block_id=NULL, all blocks are
+#'   represented in separate panels.
 #' @param lines logical indicating if the points should be linked by lines.
-#' @param colours vector of colours used for the heatmap.
-#' By default a gradient of colours ranging from ivory to dark red is used.
-#' Only used with metric="both".
-#' @param legend logical indicating if the colour bar should be included.
-#' Only used with metric="both".
-#' @param legend_length length of the colour bar.
-#' Only used with metric="both".
-#' @param legend_range range of the colour bar.
-#' Only used with metric="both".
+#' @param colours vector of colours used for the heatmap. By default a gradient
+#'   of colours ranging from ivory to dark red is used. Only used with
+#'   metric="both".
+#' @param legend logical indicating if the colour bar should be included. Only
+#'   used with metric="both".
+#' @param legend_length length of the colour bar. Only used with metric="both".
+#' @param legend_range range of the colour bar. Only used with metric="both".
 #' @param xlab label of the x-axis.
 #' @param ylab label of the y-axis.
 #' @param zlab label of the z-axis.
-#' @param filename file path to saved figure.
-#' With filename=NULL, the plot is not saved.
-#' @param fileformat format of the saved figure.
-#' Possible values are "pdf" or "png".
-#' Only used if argument "filename" is not NULL.
-#' @param res resolution of the png figure
-#' (see \code{\link{png}} from the grDevices package).
-#' Only used if argument "filename" is not NULL and
-#' fileformat="png".
-#' @param width width of the saved figure.
-#' Only used if argument "filename" is not NULL.
-#' @param height height of the saved figure.
-#' Only used if argument "filename" is not NULL.
-#' @param units units of width and height.
-#' Possible values are "px", "in", "cm" and "mm"
-#' (see \code{\link{png}} from the grDevices package).
-#' Only used if argument "filename" is not NULL and
-#' fileformat="png".
-#' @param mar vector of margins
-#' (see \code{\link{par}} from the graphics package).
-#' With mar=NULL, margins are automatically defined.
-#' @param mfrow vector defining the layout of the figure
-#' (see \code{\link{par}} from the graphics package).
-#' With mfrow=NULL, the generated figure has as many panels
-#' as there blocks in the model.
-#' @param ... additional arguments to be passed to
-#' \code{\link{Heatmap}} or
-#' \code{\link{axis}} from the graphics package.
+#' @param filename file path to saved figure. With filename=NULL, the plot is
+#'   not saved.
+#' @param fileformat format of the saved figure. Possible values are "pdf" or
+#'   "png". Only used if argument "filename" is not NULL.
+#' @param res resolution of the png figure (see \code{\link{png}} from the
+#'   grDevices package). Only used if argument "filename" is not NULL and
+#'   fileformat="png".
+#' @param width width of the saved figure. Only used if argument "filename" is
+#'   not NULL.
+#' @param height height of the saved figure. Only used if argument "filename" is
+#'   not NULL.
+#' @param units units of width and height. Possible values are "px", "in", "cm"
+#'   and "mm" (see \code{\link{png}} from the grDevices package). Only used if
+#'   argument "filename" is not NULL and fileformat="png".
+#' @param mar vector of margins (see \code{\link{par}} from the graphics
+#'   package). With mar=NULL, margins are automatically defined.
+#' @param mfrow vector defining the layout of the figure (see \code{\link{par}}
+#'   from the graphics package). With mfrow=NULL, the generated figure has as
+#'   many panels as there blocks in the model.
+#' @param ... additional arguments to be passed to \code{\link{Heatmap}} or
+#'   \code{\link{axis}} from the graphics package.
 #'
 #' @return a calibration plot.
 #'
-#' @details
-#' When selecting a single parameter, each point represents the
-#' best (maximum) stability score across all visited values of the
-#' other parameter.
+#' @details When selecting a single parameter, each point represents the best
+#' (maximum) stability score across all visited values of the other parameter.
 #'
 #' @examples
 #' # Data simulation

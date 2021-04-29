@@ -2,34 +2,27 @@
 #'
 #' Produces an igraph object from a adjacency matrix.
 #'
-#' @param adjacency adjacency matrix or output
-#' from \code{\link{GraphicalModel}}.
-#' @param node_label optional vector of node labels.
-#' This vector must contain as many entries as there are
-#' rows/columns in the adjacency matrix
-#' and must be in the same order
-#' (the order is used to assign labels to nodes).
-#' @param node_colour optional vector of node colours.
-#' This vector must contain as many entries as there are
-#' rows/columns in the adjacency matrix
-#' and must be in the same order
-#' (the order is used to assign colours to nodes).
-#' Integers, named colours or RGB values can be used.
-#' @param node_shape optional vector of node shapes.
-#' This vector must contain as many entries as there are
-#' rows/columns in the adjacency matrix
-#' and must be in the same order
-#' (the order is used to assign shapes to nodes).
-#' Possible values are "circle", "square", "triangle" or "star".
-#' @param weighted indicating if entries of the adjacency matrix
-#' should define edge width. If weighted=FALSE, an unweigthed igraph
-#' object is created and all edges have the same width.
-#' If weighted=TRUE, edge width is defined by the corresponding value
-#' in the adjacency matrix.
-#' If weighted=NULL, nodes are linked by as many edges as indicated in the
-#' adjacency matrix (integer values are needed).
-#' @param satellites logical indicating if unconnected nodes (satellites)
-#' should be included in the igraph object.
+#' @param adjacency adjacency matrix or output from
+#'   \code{\link{GraphicalModel}}.
+#' @param node_label optional vector of node labels. This vector must contain as
+#'   many entries as there are rows/columns in the adjacency matrix and must be
+#'   in the same order (the order is used to assign labels to nodes).
+#' @param node_colour optional vector of node colours. This vector must contain
+#'   as many entries as there are rows/columns in the adjacency matrix and must
+#'   be in the same order (the order is used to assign colours to nodes).
+#'   Integers, named colours or RGB values can be used.
+#' @param node_shape optional vector of node shapes. This vector must contain as
+#'   many entries as there are rows/columns in the adjacency matrix and must be
+#'   in the same order (the order is used to assign shapes to nodes). Possible
+#'   values are "circle", "square", "triangle" or "star".
+#' @param weighted indicating if entries of the adjacency matrix should define
+#'   edge width. If weighted=FALSE, an unweigthed igraph object is created and
+#'   all edges have the same width. If weighted=TRUE, edge width is defined by
+#'   the corresponding value in the adjacency matrix. If weighted=NULL, nodes
+#'   are linked by as many edges as indicated in the adjacency matrix (integer
+#'   values are needed).
+#' @param satellites logical indicating if unconnected nodes (satellites) should
+#'   be included in the igraph object.
 #'
 #' @return an igraph object.
 #'

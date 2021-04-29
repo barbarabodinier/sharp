@@ -1,17 +1,17 @@
 #' Stability score
 #'
-#' Computes the stability score from selection proportions
-#' of models with a given penalty parameter and for different
-#' thresholds in selection proportions.
+#' Computes the stability score from selection proportions of models with a
+#' given penalty parameter and for different thresholds in selection
+#' proportions.
 #'
 #' @param stab_iter matrix or vector of selection proportions.
 #' @param pi vector of thresholds in selection proportions.
 #' @param K number of resampling iterations.
 #' @param n_cat number of categories used to compute the stability score.
-#' Possible values are 2 or 3.
+#'   Possible values are 2 or 3.
 #'
-#' @return a vector of stability scores obtained with the different
-#' thresholds in selection proportions.
+#' @return a vector of stability scores obtained with the different thresholds
+#'   in selection proportions.
 #'
 #' @examples
 #' # Simulating set of selection proportions

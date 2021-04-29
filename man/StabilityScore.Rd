@@ -17,13 +17,13 @@ StabilityScore(stab_iter, pi, K, n_cat = 3)
 Possible values are 2 or 3.}
 }
 \value{
-a vector of stability scores obtained with the different
-thresholds in selection proportions.
+a vector of stability scores obtained with the different thresholds
+  in selection proportions.
 }
 \description{
-Computes the stability score from selection proportions
-of models with a given penalty parameter and for different
-thresholds in selection proportions.
+Computes the stability score from selection proportions of models with a
+given penalty parameter and for different thresholds in selection
+proportions.
 }
 \examples{
 # Simulating set of selection proportions

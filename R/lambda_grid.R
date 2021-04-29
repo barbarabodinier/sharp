@@ -1,41 +1,43 @@
 #' Grid of penalty parameters (regression model)
 #'
-#' Generates a relevant grid of penalty parameter values
-#' for penalised regression.
+#' Generates a relevant grid of penalty parameter values for penalised
+#' regression.
 #'
-#' @param xdata matrix of predictors with observations as rows and variables as columns.
+#' @param xdata matrix of predictors with observations as rows and variables as
+#'   columns.
 #' @param ydata vector or matrix of outcome(s).
 #' @param tau subsample size. Only used with resampling="subsampling".
 #' @param seed used in set.seed() to ensure reproducibility of the analyses.
 #' @param family type of regression model. This argument is defined as in the
-#' \code{\link{glmnet}} function from the glmnet package. Possible values include
-#' "gaussian" (linear regression), "binomial" (logistic regression),
-#' "multinomial" (multinomial regression), and "cox" (survival analysis).
-#' This argument is only used with implementation="glmnet", or with functions
-#' using the family argument in the same way (see example below).
+#'   \code{\link{glmnet}} function from the glmnet package. Possible values
+#'   include "gaussian" (linear regression), "binomial" (logistic regression),
+#'   "multinomial" (multinomial regression), and "cox" (survival analysis). This
+#'   argument is only used with implementation="glmnet", or with functions using
+#'   the family argument in the same way (see example below).
 #' @param implementation name of the function to use for definition of the grid
-#' of lambda values. With implementation="glmnet", the function \code{\link{glmnet}}
-#' is used to define the path of lambda values.
-#' Alternatively, this argument can be
-#' a character string indicating the name of a function.
-#' The function provided must use arguments called "x", "y" and "family"
-#' and return a list in which the entry named "lambda" contains a vector of lambda values.
-#' @param resampling resampling approach. Possible values are: "subsampling"
-#' for sampling without replacement of a proportion tau of the observations, or
-#' "bootstrap" for sampling with replacement generating a resampled dataset with
-#' as many observations as in the full sample. Alternatively, this argument can be
-#' a character string indicating the name of a function to use for resampling.
-#' This function must use arguments called "data" and "tau" and return
-#' IDs of observations to be included in the resampled dataset
-#' (see example in \code{\link{Resample}}).
+#'   of lambda values. With implementation="glmnet", the function
+#'   \code{\link{glmnet}} is used to define the path of lambda values.
+#'   Alternatively, this argument can be a character string indicating the name
+#'   of a function. The function provided must use arguments called "x", "y" and
+#'   "family" and return a list in which the entry named "lambda" contains a
+#'   vector of lambda values.
+#' @param resampling resampling approach. Possible values are: "subsampling" for
+#'   sampling without replacement of a proportion tau of the observations, or
+#'   "bootstrap" for sampling with replacement generating a resampled dataset
+#'   with as many observations as in the full sample. Alternatively, this
+#'   argument can be a character string indicating the name of a function to use
+#'   for resampling. This function must use arguments called "data" and "tau"
+#'   and return IDs of observations to be included in the resampled dataset (see
+#'   example in \code{\link{Resample}}).
 #' @param Lambda_cardinal number of values in the grid.
 #' @param verbose logical indicating if a message with minimum and maximum
-#' numbers of selected variables on one instance of resampled data should be printed.
+#'   numbers of selected variables on one instance of resampled data should be
+#'   printed.
 #' @param ... additional parameters passed to the functions provided in
-#' "implementation" or "resampling".
+#'   "implementation" or "resampling".
 #'
-#' @return a matrix of lambda values with one column and as many rows
-#' as indicated in "Lambda_cardinal".
+#' @return a matrix of lambda values with one column and as many rows as
+#'   indicated in "Lambda_cardinal".
 #'
 #' @example examples/example_lambdagridregression.R
 #'

@@ -33,16 +33,15 @@ the absolute value of the smallest eigenvalue.
 }
 \examples{
 # Simulation of a symmetric matrix
-p=5
+p <- 5
 set.seed(1)
-sigma=matrix(rnorm(p*p), ncol=p)
-sigma=sigma+t(sigma)
+sigma <- matrix(rnorm(p * p), ncol = p)
+sigma <- sigma + t(sigma)
 
 # Diagonal dominance
-sigma_pd=MakePositiveDefinite(sigma, pd="diagonally_dominant")
+sigma_pd <- MakePositiveDefinite(sigma, pd = "diagonally_dominant")
 
 # Non-negative eigenvalues
-sigma_pd=MakePositiveDefinite(sigma, pd="nonnegative_eigenvalues")
+sigma_pd <- MakePositiveDefinite(sigma, pd = "nonnegative_eigenvalues")
 eigen(sigma_pd)$values
-
 }

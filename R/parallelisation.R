@@ -1,29 +1,25 @@
 #' Merging stability selection outputs
 #'
-#' Merges the outputs from \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.
-#' This can be useful for parallelisation.
+#' Merges the outputs from \code{\link{VariableSelection}} or
+#' \code{\link{GraphicalModel}}. This can be useful for parallelisation.
 #'
-#' @param stability1 output from a first run of
-#' \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.
-#' @param stability2 output from a second run of
-#' \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.
-#' @param graph logical indicating if \code{\link{GraphicalModel}}
-#' (graph=TRUE) or \code{\link{VariableSelection}} (graph=FALSE)
-#' were used to generate the "stability1" and "stability2".
+#' @param stability1 output from a first run of \code{\link{VariableSelection}}
+#'   or \code{\link{GraphicalModel}}.
+#' @param stability2 output from a second run of \code{\link{VariableSelection}}
+#'   or \code{\link{GraphicalModel}}.
+#' @param graph logical indicating if \code{\link{GraphicalModel}} (graph=TRUE)
+#'   or \code{\link{VariableSelection}} (graph=FALSE) were used to generate the
+#'   "stability1" and "stability2".
 #'
 #' @return a single output with the same format.
 #'
-#' @details
-#' The two runs must have been done using the same data,
-#' the same grids of parameters, the same methods
-#' (arguments "implementation", "resampling", "PFER_method",
-#' as well as "start" for graphical models),
-#' the same "tau" and "pk" (graphical models only),
-#' and the same thresholds in PFER and FDP, but with
-#' different seeds. The combined output will be the equivalent
-#' of running the model for which the number of iterations
-#' is the sum of the number of iterations used for
-#' "stability1" and "stability2".
+#' @details The two runs must have been done using the same data, the same grids
+#' of parameters, the same methods (arguments "implementation", "resampling",
+#' "PFER_method", as well as "start" for graphical models), the same "tau" and
+#' "pk" (graphical models only), and the same thresholds in PFER and FDP, but
+#' with different seeds. The combined output will be the equivalent of running
+#' the model for which the number of iterations is the sum of the number of
+#' iterations used for "stability1" and "stability2".
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'

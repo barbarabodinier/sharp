@@ -24,125 +24,115 @@ SimulateGraphical(
 \arguments{
 \item{n}{number of observations in the simulated data.}
 
-\item{pk}{number of variables in the simulated data.
-If pk is a vector, the number of variables is the sum of its entries.
-In this case, the (partial) correlation matrix of the simulated data
-will have a block structure, where blocks arise from
-the integration of as many groups of variables as there are
-entries in pk, and the numbers in pk define the number of variables
-in each of the groups.}
+\item{pk}{number of variables in the simulated data. If pk is a vector, the
+number of variables is the sum of its entries. In this case, the (partial)
+correlation matrix of the simulated data will have a block structure, where
+blocks arise from the integration of as many groups of variables as there
+are entries in pk, and the numbers in pk define the number of variables in
+each of the groups.}
 
-\item{implementation}{name of the function to use for
-simulation of the graph. By default, functionalities
-implemented in the huge.generator() function
-from the huge package is used. Alternatively, this argument can be
-a character string indicating the name of a function.
-This function must use arguments called "pk", "topology" and "nu"
-and return a (pxp) binary and symmetric matrix
-where p is the sum of the entries in pk.
-To use extra arguments in this function, the function can have
-... as input and the extra arguments can be used directly as
-input of SimulateGraphical().}
+\item{implementation}{name of the function to use for simulation of the
+graph. By default, functionalities implemented in the huge.generator()
+function from the huge package is used. Alternatively, this argument can be
+a character string indicating the name of a function. This function must
+use arguments called "pk", "topology" and "nu" and return a (pxp) binary
+and symmetric matrix where p is the sum of the entries in pk. To use extra
+arguments in this function, the function can have ... as input and the
+extra arguments can be used directly as input of SimulateGraphical().}
 
 \item{topology}{topology of the simulated graph. If using
-implementation="huge", possible values are listed for the
-argument "graph" of the huge.generator() function. These are:
-"random", "hub", "cluster", "band" and "scale-free".}
+implementation="huge", possible values are listed for the argument "graph"
+of the huge.generator() function. These are: "random", "hub", "cluster",
+"band" and "scale-free".}
 
-\item{nu}{density of the graph, i.e. expected number of edges
-over possible number of edges (px(p-1)/2 where p is the number of nodes).
-This argument is only used for topology="random" and topology="cluster"
-if implementation="huge".}
+\item{nu}{density of the graph, i.e. expected number of edges over possible
+number of edges (px(p-1)/2 where p is the number of nodes). This argument
+is only used for topology="random" and topology="cluster" if
+implementation="huge".}
 
 \item{output_matrices}{logical indicating whether the true precision and
 (partial) correlation matrices should be included in the output.}
 
-\item{v_within}{multiplicative factor used for diagonal blocks
-in simulation of the precision matrix.}
+\item{v_within}{multiplicative factor used for diagonal blocks in simulation
+of the precision matrix.}
 
-\item{v_between}{multiplicative factor used for off-diagonal blocks
-in simulation of the precision matrix.}
+\item{v_between}{multiplicative factor used for off-diagonal blocks in
+simulation of the precision matrix.}
 
-\item{pd_strategy}{method to ensure that the generated precision matrix
-is positive definite (and hence can be a covariance matrix). With
-pd_strategy="diagonally_dominant", the precision matrix is made diagonally dominant
-by setting the diagonal entries to the sum of absolute values on the
-corresponding row and a constant u. With pd_strategy="nonnegative_eigenvalues",
-diagonal entries are set to the sum of the absolute value of the smallest
-eigenvalue and a constant u.}
+\item{pd_strategy}{method to ensure that the generated precision matrix is
+positive definite (and hence can be a covariance matrix). With
+pd_strategy="diagonally_dominant", the precision matrix is made diagonally
+dominant by setting the diagonal entries to the sum of absolute values on
+the corresponding row and a constant u. With
+pd_strategy="nonnegative_eigenvalues", diagonal entries are set to the sum
+of the absolute value of the smallest eigenvalue and a constant u.}
 
 \item{u}{vector of constant u used to ensure positive definiteness of the
-simulated precision matrix. The proposed value that maximises the contrast of
-the simulated correlation matrix is used. If u=NULL,
-a grid of values is automatically generated
-and iteratively shifted to ensure that the chosen value is not an extreme value.}
+simulated precision matrix. The proposed value that maximises the contrast
+of the simulated correlation matrix is used. If u=NULL, a grid of values is
+automatically generated and iteratively shifted to ensure that the chosen
+value is not an extreme value.}
 
-\item{niter_max_u_grid}{maximum number of iterations where the grid of u values is shifted.
-This parameter is only used with u=NULL.}
+\item{niter_max_u_grid}{maximum number of iterations where the grid of u
+values is shifted. This parameter is only used with u=NULL.}
 
 \item{tolerance_u_grid}{number of values between the chosen value for u and
-the end of the grid (first or last value). This parameter is only used with u=NULL.}
+the end of the grid (first or last value). This parameter is only used with
+u=NULL.}
 
-\item{u_delta}{difference in log10-scale between the smallest (or largest)
-u values in the grid used in the current iteration and the one built for next iteration.
-This parameter is only used with u=NULL.}
+\item{u_delta}{difference in log10-scale between the smallest (or largest) u
+values in the grid used in the current iteration and the one built for next
+iteration. This parameter is only used with u=NULL.}
 
 \item{...}{additional arguments passed to the graph simulation function
 provided in "implementation".}
 }
 \value{
-A list with:
-\item{data}{simulated data with n observation and sum(pk) variables}
-\item{theta}{adjacency matrix of the simulated graph}
-\item{omega}{true simulated precision matrix.
-Only returned if output_matrices=TRUE.}
-\item{phi}{true simulated partial correlation matrix.
-Only returned if output_matrices=TRUE.}
-\item{C}{true simulated correlation matrix.
-Only returned if output_matrices=TRUE.}
-\item{u}{chosen value of u.
-Only returned if output_matrices=TRUE.}
-\item{u_grid}{grid of u values.
-Only returned if output_matrices=TRUE.}
-\item{contrast_path}{contrast values obtained for the values of u
-listed in u_grid. Only returned if output_matrices=TRUE.}
+A list with: \item{data}{simulated data with n observation and
+  sum(pk) variables} \item{theta}{adjacency matrix of the simulated graph}
+  \item{omega}{true simulated precision matrix. Only returned if
+  output_matrices=TRUE.} \item{phi}{true simulated partial correlation
+  matrix. Only returned if output_matrices=TRUE.} \item{C}{true simulated
+  correlation matrix. Only returned if output_matrices=TRUE.} \item{u}{chosen
+  value of u. Only returned if output_matrices=TRUE.} \item{u_grid}{grid of u
+  values. Only returned if output_matrices=TRUE.}
+  \item{contrast_path}{contrast values obtained for the values of u listed in
+  u_grid. Only returned if output_matrices=TRUE.}
 }
 \description{
-This function can be used to (i) simulate a graph, and
-(ii) simulate multivariate Normal data for which
-the graph structure is encoded in the nonzero entries of
-the true partial correlation matrix
-(i.e. ensuring that the conditional independence structure between
-the variables is encoded in the simulated graph).
+This function can be used to (i) simulate a graph, and (ii) simulate
+multivariate Normal data for which the graph structure is encoded in the
+nonzero entries of the true partial correlation matrix (i.e. ensuring that
+the conditional independence structure between the variables is encoded in
+the simulated graph).
 }
 \examples{
 # Simulation of random graph with 50 nodes
 set.seed(1)
-simul=SimulateGraphical(n=100, pk=50, topology="random", nu=0.05)
+simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu = 0.05)
 dim(simul$data) # dimension of simulated dataset
-sum(simul$theta)/2 # number of edges
+sum(simul$theta) / 2 # number of edges
 plot(Graph(simul$theta))
 
 # Simulation of scale-free graph with 20 nodes
 set.seed(1)
-simul=SimulateGraphical(n=100, pk=20, topology="scale-free")
+simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free")
 plot(Graph(simul$theta))
 
 # Using user-defined function for graph simulation
-CentralNode=function(pk, topology=NULL, nu=NULL, hub=1){
-  theta=matrix(0, nrow=sum(pk), ncol=sum(pk))
-  theta[hub,]=1
-  theta[,hub]=1
-  diag(theta)=0
+CentralNode <- function(pk, topology = NULL, nu = NULL, hub = 1) {
+  theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
+  theta[hub, ] <- 1
+  theta[, hub] <- 1
+  diag(theta) <- 0
   return(theta)
 }
-simul=SimulateGraphical(n=100, pk=10, implementation="CentralNode")
+simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode")
 plot(Graph(simul$theta)) # star
-simul=SimulateGraphical(n=100, pk=10, implementation="CentralNode", hub=2)
+simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
-
 }
 \seealso{
-\code{\link{SimulateAdjacency}} for simulation of unweighted, undirected graphs
-with no self-loops
+\code{\link{SimulateAdjacency}} for simulation of unweighted,
+  undirected graphs with no self-loops
 }

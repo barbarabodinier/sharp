@@ -7,25 +7,26 @@
 Resample(data, family = NULL, tau = 0.5, resampling = "subsampling", ...)
 }
 \arguments{
-\item{data}{vector or matrix of data. In regression, this
-should be the outcome data.}
+\item{data}{vector or matrix of data. In regression, this should be the
+outcome data.}
 
 \item{family}{type of regression model. This argument is defined as in the
-\code{\link{glmnet}} function from the glmnet package. Possible values include
-"gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis).
-This argument is only used with implementation="glmnet", or with functions
-using the family argument in the same way.}
+\code{\link{glmnet}} function from the glmnet package. Possible values
+include "gaussian" (linear regression), "binomial" (logistic regression),
+"multinomial" (multinomial regression), and "cox" (survival analysis). This
+argument is only used with implementation="glmnet", or with functions using
+the family argument in the same way.}
 
 \item{tau}{subsample size. Only used with resampling="subsampling".}
 
-\item{resampling}{resampling approach. Possible values are: "subsampling"
-for sampling without replacement of a proportion tau of the observations, or
-"bootstrap" for sampling with replacement generating a resampled dataset with
-as many observations as in the full sample. Alternatively, this argument can be
-a character string indicating the name of a function to use for resampling.
-This function must use arguments called "data" and "tau" and return
-IDs of observations to be included in the resampled dataset (see example below).}
+\item{resampling}{resampling approach. Possible values are: "subsampling" for
+sampling without replacement of a proportion tau of the observations, or
+"bootstrap" for sampling with replacement generating a resampled dataset
+with as many observations as in the full sample. Alternatively, this
+argument can be a character string indicating the name of a function to use
+for resampling. This function must use arguments called "data" and "tau"
+and return IDs of observations to be included in the resampled dataset (see
+example below).}
 
 \item{...}{additional parameters passed to the functions provided in
 "resampling".}
@@ -37,10 +38,10 @@ a vector of resampled IDs.
 Generates a vector of resampled observation IDs.
 }
 \details{
-With categorical outcomes
-(i.e. "family" argument is set to "binomial", "multinomial" or "cox"),
-the resampling is done such that the proportion of observations
-from each of the categories is representative of that of the full sample.
+With categorical outcomes (i.e. "family" argument is set to
+  "binomial", "multinomial" or "cox"), the resampling is done such that the
+  proportion of observations from each of the categories is representative of
+  that of the full sample.
 }
 \examples{
 ## Linear regression framework

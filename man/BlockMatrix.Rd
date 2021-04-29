@@ -13,8 +13,8 @@ BlockMatrix(pk)
 a symmetric block matrix.
 }
 \description{
-Generates a symmetric matrix of the size of the adjacency matrix
-encoding the block structure from the numbers of variables in each group.
+Generates a symmetric matrix of the size of the adjacency matrix encoding the
+block structure from the numbers of variables in each group.
 }
 \examples{
 # Small example

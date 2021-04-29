@@ -7,25 +7,22 @@
 ArgmaxId(stability = NULL, S = NULL)
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}}
-or \code{\link{GraphicalModel}}.
-If stability=NULL, argument "S" must be provided.}
+\item{stability}{output of \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}. If stability=NULL, argument "S" must be
+provided.}
 
-\item{S}{matrix of stability scores obtained
-with different combinations of parameters.
-Rows correspond to different penalty parameters and
-columns correspond to different thresholds in selection proportions.
-If S=NULL, argument "stability" must be provided.}
+\item{S}{matrix of stability scores obtained with different combinations of
+parameters. Rows correspond to different penalty parameters and columns
+correspond to different thresholds in selection proportions. If S=NULL,
+argument "stability" must be provided.}
 }
 \value{
-a matrix of (block-specific) parameter IDs.
-In multi-block graphical modelling, rows correspond to
-different blocks.
+a matrix of (block-specific) parameter IDs. In multi-block graphical
+  modelling, rows correspond to different blocks.
 }
 \description{
-Extracts the IDs of calibrated parameters
-with respect to the grids provided in "Lambda"
-and "pi_list".
+Extracts the IDs of calibrated parameters with respect to the grids provided
+in "Lambda" and "pi_list".
 }
 \examples{
 # Data simulation

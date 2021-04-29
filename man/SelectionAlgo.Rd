@@ -7,49 +7,44 @@
 SelectionAlgo(x, y, lambda, family, implementation = "glmnet", ...)
 }
 \arguments{
-\item{x}{matrix of predictors with observations as rows and variables as columns.}
+\item{x}{matrix of predictors with observations as rows and variables as
+columns.}
 
 \item{y}{vector or matrix of outcome(s).}
 
-\item{lambda}{matrix of parameters controlling the underlying
-feature selection algorithm specified in "implementation".
-With implementation="glmnet", these are penalty parameters
-controlling the regularised model.}
+\item{lambda}{matrix of parameters controlling the underlying feature
+selection algorithm specified in "implementation". With
+implementation="glmnet", these are penalty parameters controlling the
+regularised model.}
 
 \item{family}{type of regression model. This argument is defined as in the
-\code{\link{glmnet}} function from the glmnet package. Possible values include
-"gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis).
-This argument is only used with implementation="glmnet", or with functions
-using the family argument in the same way (see example below).}
+\code{\link{glmnet}} function from the glmnet package. Possible values
+include "gaussian" (linear regression), "binomial" (logistic regression),
+"multinomial" (multinomial regression), and "cox" (survival analysis). This
+argument is only used with implementation="glmnet", or with functions using
+the family argument in the same way (see example below).}
 
 \item{implementation}{name of the function to use for variable selection.
-With implementation="glmnet", the function \code{\link{glmnet}}
-is called. Alternatively, this argument can be
-a character string indicating the name of a function.
-The function provided must use arguments called "x", "y", "lambda" and "family"
-and return matrices of model coefficients (see example below).}
+With implementation="glmnet", the function \code{\link{glmnet}} is called.
+Alternatively, this argument can be a character string indicating the name
+of a function. The function provided must use arguments called "x", "y",
+"lambda" and "family" and return matrices of model coefficients (see
+example below).}
 
 \item{...}{additional parameters passed to the function provided in
 "implementation".}
 }
 \value{
-A list with:
-\item{selected}{matrix of binary selection status.
-Rows correspond to
-different model parameters.
-Columns correspond to predictors.}
-\item{beta_full}{array of model coefficients.
-Rows correspond to
-different model parameters.
-Columns correspond to predictors.
-Indices along the third dimension correspond to
-outcome variable(s).}
+A list with: \item{selected}{matrix of binary selection status. Rows
+  correspond to different model parameters. Columns correspond to
+  predictors.} \item{beta_full}{array of model coefficients. Rows correspond
+  to different model parameters. Columns correspond to predictors. Indices
+  along the third dimension correspond to outcome variable(s).}
 }
 \description{
 Runs the variable selection algorithm specified in the argument
-"implementation" and returns matrices of model coefficients.
-This function is not using stability.
+"implementation" and returns matrices of model coefficients. This function is
+not using stability.
 }
 \examples{
 # Data simulation

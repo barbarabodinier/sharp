@@ -24,20 +24,20 @@ CheckInputRegression(
 )
 }
 \arguments{
-\item{xdata}{matrix of predictors with observations as rows and variables as columns.}
+\item{xdata}{matrix of predictors with observations as rows and variables as
+columns.}
 
 \item{ydata}{vector or matrix of outcome(s).}
 
-\item{Lambda}{matrix of parameters controlling the underlying
-feature selection algorithm specified in "implementation".
-With implementation="glmnet", these are penalty parameters
-controlling the regularised model.
-If Lambda=NULL, \code{\link{LambdaGridRegression}} is used to define
-a relevant grid.}
+\item{Lambda}{matrix of parameters controlling the underlying feature
+selection algorithm specified in "implementation". With
+implementation="glmnet", these are penalty parameters controlling the
+regularised model. If Lambda=NULL, \code{\link{LambdaGridRegression}} is
+used to define a relevant grid.}
 
-\item{pi_list}{grid of values for the threshold in selection proportion.
-With n_cat=3, these values must be between 0.5 and 1.
-With n_cat=2, these values must be between 0 and 1.}
+\item{pi_list}{grid of values for the threshold in selection proportion. With
+n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
+must be between 0 and 1.}
 
 \item{K}{number of resampling iterations.}
 
@@ -49,50 +49,52 @@ With n_cat=2, these values must be between 0 and 1.}
 Possible values are 2 or 3.}
 
 \item{family}{type of regression model. This argument is defined as in the
-\code{\link{glmnet}} function from the glmnet package. Possible values include
-"gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis).
-This argument is only used with implementation="glmnet", or with functions
-using the family argument in the same way (see example below).}
+\code{\link{glmnet}} function from the glmnet package. Possible values
+include "gaussian" (linear regression), "binomial" (logistic regression),
+"multinomial" (multinomial regression), and "cox" (survival analysis). This
+argument is only used with implementation="glmnet", or with functions using
+the family argument in the same way (see example below).}
 
 \item{implementation}{name of the function to use for variable selection.
-With implementation="glmnet", the function \code{\link{glmnet}}
-is called. Alternatively, this argument can be
-a character string indicating the name of a function.
-The function provided must use arguments called "x", "y", "lambda" and "family"
-and return matrices of model coefficients (see \code{\link{SelectionAlgo}}).}
+With implementation="glmnet", the function \code{\link{glmnet}} is called.
+Alternatively, this argument can be a character string indicating the name
+of a function. The function provided must use arguments called "x", "y",
+"lambda" and "family" and return matrices of model coefficients (see
+\code{\link{SelectionAlgo}}).}
 
-\item{resampling}{resampling approach. Possible values are: "subsampling"
-for sampling without replacement of a proportion tau of the observations, or
-"bootstrap" for sampling with replacement generating a resampled dataset with
-as many observations as in the full sample. Alternatively, this argument can be
-a character string indicating the name of a function to use for resampling.
-This function must use arguments called "data" and "tau" and return
-IDs of observations to be included in the resampled dataset
-(see example in \code{\link{Resample}}).}
+\item{resampling}{resampling approach. Possible values are: "subsampling" for
+sampling without replacement of a proportion tau of the observations, or
+"bootstrap" for sampling with replacement generating a resampled dataset
+with as many observations as in the full sample. Alternatively, this
+argument can be a character string indicating the name of a function to use
+for resampling. This function must use arguments called "data" and "tau"
+and return IDs of observations to be included in the resampled dataset (see
+example in \code{\link{Resample}}).}
 
-\item{PFER_method}{method used to compute the expected number of False Positives,
-(or Per Family Error Rate, PFER). With PFER_method="MB", the method
-proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
-the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.}
+\item{PFER_method}{method used to compute the expected number of False
+Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
+method proposed by Meinshausen and Bühlmann (2010) is used. With
+PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
+assumption of unimodality is used.}
 
-\item{PFER_thr}{threshold in PFER for constrained calibration by error control.
-With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.}
+\item{PFER_thr}{threshold in PFER for constrained calibration by error
+control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
+used.}
 
-\item{FDP_thr}{threshold in the expected proportion of falsely selected features
-(or False Discovery Proportion, FDP)
-for constrained calibration by error control.
-With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.}
+\item{FDP_thr}{threshold in the expected proportion of falsely selected
+features (or False Discovery Proportion, FDP) for constrained calibration
+by error control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained
+calibration is used.}
 
 \item{Lambda_cardinal}{number of values in the grid.}
 
 \item{verbose}{logical indicating if a message with minimum and maximum
-numbers of selected variables on one instance of resampled data should be printed.}
+numbers of selected variables on one instance of resampled data should be
+printed.}
 }
 \description{
-Checks if input parameters are valid.
-For invalid parameters, this function (i) stops the run and generates
-an error message, or (ii) sets the invalid parameter to its default value
-and reports it in a warning message.
+Checks if input parameters are valid. For invalid parameters, this function
+(i) stops the run and generates an error message, or (ii) sets the invalid
+parameter to its default value and reports it in a warning message.
 }
 \keyword{internal}

@@ -1,24 +1,24 @@
 #' Per Family Error Rate
 #'
-#' Computes the upper-bound of the PFER of a stability selection model
-#' using the methods proposed by Meinshausen and Bühlmann (2010) or
-#' Shah and Samworth (2013).
-#' In stability selection, the PFER corresponds to the expected number of stably selected
-#' features that are not relevant to the outcome (i.e. False Positives).
+#' Computes the upper-bound of the PFER of a stability selection model using the
+#' methods proposed by Meinshausen and Bühlmann (2010) or Shah and Samworth
+#' (2013). In stability selection, the PFER corresponds to the expected number
+#' of stably selected features that are not relevant to the outcome (i.e. False
+#' Positives).
 #'
 #' @param q average number of features selected by the underlying algorithm.
 #' @param pi vector of thresholds in selection proportions.
 #' @param N total number of features.
 #' @param K number of resampling iterations.
-#' @param PFER_method method used to compute the expected number of False Positives,
-#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
-#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
-#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
+#' @param PFER_method method used to compute the expected number of False
+#'   Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
+#'   method proposed by Meinshausen and Bühlmann (2010) is used. With
+#'   PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
+#'   assumption of unimodality is used.
 #'
 #' @return The upper-bound of the PFER.
 #'
-#' @references
-#' \insertRef{stabilityselectionMB}{focus}
+#' @references \insertRef{stabilityselectionMB}{focus}
 #'
 #' \insertRef{stabilityselectionSS}{focus}
 #'

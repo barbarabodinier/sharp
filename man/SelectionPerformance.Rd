@@ -7,59 +7,48 @@
 SelectionPerformance(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5)
 }
 \arguments{
-\item{theta}{binary vector of selected variables
-(in a regression framework)
+\item{theta}{binary vector of selected variables (in a regression framework)
 or binary adjacency matrix (in graphical modelling).}
 
-\item{theta_star}{binary vector of true predictors
-(in a regression framework)
-or true binary adjacency matrix (in graphical modelling).}
+\item{theta_star}{binary vector of true predictors (in a regression
+framework) or true binary adjacency matrix (in graphical modelling).}
 
-\item{pk}{vector encoding the grouping structure.
-Only used for multi-block stability selection.
-For this, the nodes in "theta" have to be ordered
-by group and argument "pk" has to be a vector
-indicating the number of variables
-in each of the groups (see example below).
-If pk=NULL, overall performances are reported.}
+\item{pk}{vector encoding the grouping structure. Only used for multi-block
+stability selection. For this, the nodes in "theta" have to be ordered by
+group and argument "pk" has to be a vector indicating the number of
+variables in each of the groups (see example below). If pk=NULL, overall
+performances are reported.}
 
-\item{cor}{optional correlation matrix.
-Only used in graphical modelling.}
+\item{cor}{optional correlation matrix. Only used in graphical modelling.}
 
-\item{thr}{optional threshold in correlation.
-Only used in graphical modelling and when argument "cor" is not NULL.}
+\item{thr}{optional threshold in correlation. Only used in graphical
+modelling and when argument "cor" is not NULL.}
 }
 \value{
 A matrix of selection metrics including:
 
-\item{TP}{number of True Positives (TP)}
-\item{FN}{number of False Negatives (TN)}
-\item{FP}{number of False Positives (FP)}
-\item{TN}{number of True Negatives (TN)}
-\item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
-\item{specificity}{specificity, i.e. TN/(TN+FP)}
-\item{accuracy}{accuracy, i.e. (TP+TN)/(TP+TN+FP+FN)}
-\item{precision}{precision (p), i.e. TP/(TP+FP)}
-\item{recall}{recall (r), i.e. TP/(TP+FN)}
-\item{F1_score}{F1-score, i.e. 2*p*r/(p+r)}
+  \item{TP}{number of True Positives (TP)} \item{FN}{number of False
+  Negatives (TN)} \item{FP}{number of False Positives (FP)} \item{TN}{number
+  of True Negatives (TN)} \item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
+  \item{specificity}{specificity, i.e. TN/(TN+FP)} \item{accuracy}{accuracy,
+  i.e. (TP+TN)/(TP+TN+FP+FN)} \item{precision}{precision (p), i.e.
+  TP/(TP+FP)} \item{recall}{recall (r), i.e. TP/(TP+FN)}
+  \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)}
 
-If argument "cor" is provided, the number of False Positives
-among correlated (FP_c) and uncorrelated (FP_i) pairs,
-defined as having correlations (provided in "cor")
-above or below the threshold "thr", are also reported.
+  If argument "cor" is provided, the number of False Positives among
+  correlated (FP_c) and uncorrelated (FP_i) pairs, defined as having
+  correlations (provided in "cor") above or below the threshold "thr", are
+  also reported.
 
-Block-specific performances are reported if "pk" is not NULL.
-In this case, the first row of the matrix corresponds
-to the overall performances, and subsequent rows correspond
-to each of the blocks.
-The order of the blocks is defined as in \code{\link{BlockStructure}}.
+  Block-specific performances are reported if "pk" is not NULL. In this case,
+  the first row of the matrix corresponds to the overall performances, and
+  subsequent rows correspond to each of the blocks. The order of the blocks
+  is defined as in \code{\link{BlockStructure}}.
 }
 \description{
-Computes different metrics of selection performance
-by comparing the set of selected features to the
-set of true predictors/edges. This function can
-only be used in simulation studies (i.e. when the
-true model is known).
+Computes different metrics of selection performance by comparing the set of
+selected features to the set of true predictors/edges. This function can only
+be used in simulation studies (i.e. when the true model is known).
 }
 \examples{
 # Variable selection model

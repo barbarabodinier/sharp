@@ -1,113 +1,81 @@
 #' Stability selection metrics
 #'
-#' This function can be used to compute the
-#' stability score and upper-bounds of the PFER and FDP
-#' for stability selection models.
+#' This function can be used to compute the stability score and upper-bounds of
+#' the PFER and FDP for stability selection models.
 #'
 #' @param bigstab array of selection proportions.
-#' @param pk vector encoding the grouping structure.
-#' Only used for multi-block stability selection graphical models,
-#' see \code{\link{GraphicalModel}}.
-#' @param pi_list grid of values for the threshold in selection proportion.
-#' With n_cat=3, these values must be between 0.5 and 1.
-#' With n_cat=2, these values must be between 0 and 1.
+#' @param pk vector encoding the grouping structure. Only used for multi-block
+#'   stability selection graphical models, see \code{\link{GraphicalModel}}.
+#' @param pi_list grid of values for the threshold in selection proportion. With
+#'   n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
+#'   must be between 0 and 1.
 #' @param K number of resampling iterations.
 #' @param n_cat number of categories used to compute the stability score.
-#' Possible values are 2 or 3.
-#' @param PFER_method method used to compute the expected number of False Positives,
-#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
-#' proposed by Meinshausen and Bühlmann (2010) is used. With PFER_method="SS",
-#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
-#' @param PFER_thr_blocks (block-specific) thresholds in PFER
-#' for constrained calibration by error control.
-#' With PFER_thr_blocks=Inf and FDP_thr_blocks=Inf, unconstrained calibration is used.
-#' @param FDP_thr_blocks (block-specific) thresholds in
-#' the expected proportion of falsely selected edges
-#' (or False Discovery Proportion, FDP)
-#' for constrained calibration by error control.
-#' With PFER_thr_blocks=Inf and FDP_thr_blocks=Inf, unconstrained calibration is used.
-#' @param Sequential_template logical matrix encoding the type of procedure
-#' to use for data with multiple blocks in stability selection graphical modelling.
-#' For multi-block estimation, the stability selection model is
-#' constructed as the union of block-specific stable edges estimated
-#' while the others are weakly penalised (TRUE only for the
-#' block currently being calibrated and FALSE for other blocks).
-#' Other approaches with joint calibration of the blocks are allowed
-#' (all entries are set to TRUE).
-#' @param graph logical indicating if stability selection
-#' is performed in a regression (FALSE) or graphical (TRUE) framework.
+#'   Possible values are 2 or 3.
+#' @param PFER_method method used to compute the expected number of False
+#'   Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
+#'   method proposed by Meinshausen and Bühlmann (2010) is used. With
+#'   PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
+#'   assumption of unimodality is used.
+#' @param PFER_thr_blocks (block-specific) thresholds in PFER for constrained
+#'   calibration by error control. With PFER_thr_blocks=Inf and
+#'   FDP_thr_blocks=Inf, unconstrained calibration is used.
+#' @param FDP_thr_blocks (block-specific) thresholds in the expected proportion
+#'   of falsely selected edges (or False Discovery Proportion, FDP) for
+#'   constrained calibration by error control. With PFER_thr_blocks=Inf and
+#'   FDP_thr_blocks=Inf, unconstrained calibration is used.
+#' @param Sequential_template logical matrix encoding the type of procedure to
+#'   use for data with multiple blocks in stability selection graphical
+#'   modelling. For multi-block estimation, the stability selection model is
+#'   constructed as the union of block-specific stable edges estimated while the
+#'   others are weakly penalised (TRUE only for the block currently being
+#'   calibrated and FALSE for other blocks). Other approaches with joint
+#'   calibration of the blocks are allowed (all entries are set to TRUE).
+#' @param graph logical indicating if stability selection is performed in a
+#'   regression (FALSE) or graphical (TRUE) framework.
 #'
-#' @return A list with:
-#' \item{S}{a matrix of
-#' the best (block-specific) stability scores
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{Lambda}{a matrix of
-#' (block-specific) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to sets of penalty parameters and
-#' columns correspond to different blocks.}
-#' \item{Q}{a matrix of
-#' average numbers of (block-specific) edges
-#' selected by the underlying algorihm
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{Q_s}{a matrix of
-#' calibrated numbers of (block-specific) stable edges
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{P}{a matrix of
-#' calibrated (block-specific) thresholds in selection proportions
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{PFER}{a matrix of
-#' computed (block-specific) upper-bounds in PFER of
-#' calibrated graphs
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{FDP}{a matrix of
-#' computed (block-specific) upper-bounds in FDP of
-#' calibrated stability selection models
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{S_2d}{an array of
-#' (block-specific) stability scores obtained
-#' with different combinations of parameters.
-#' Rows correspond to different (sets of) penalty parameters and
-#' columns correspond to different tresholds in selection proportions.
-#' In multi-block stability selection,
-#' indices along the third dimension
-#' correspond to different blocks.}
-#' \item{PFER_2d}{an array of
-#' computed upper-bounds of PFER obtained
-#' with different combinations of parameters.
-#' Rows correspond to different penalty parameters and
-#' columns correspond to different thresholds in selection proportions.
-#' Not available in multi-block stability selection graphical modelling.}
-#' \item{FDP_2d}{an array of
-#' computed upper-bounds of FDP obtained
-#' with different combinations of parameters.
-#' Rows correspond to different penalty parameters and
-#' columns correspond to different thresholds in selection proportions.
-#' Not available in multi-block stability selection graphical modelling.}
+#' @return A list with: \item{S}{a matrix of the best (block-specific) stability
+#'   scores for different (sets of) penalty parameters. In multi-block stability
+#'   selection, rows correspond to different sets of penalty parameters, (values
+#'   are stored in the output "Lambda") and columns correspond to different
+#'   blocks.} \item{Lambda}{a matrix of (block-specific) penalty parameters. In
+#'   multi-block stability selection, rows correspond to sets of penalty
+#'   parameters and columns correspond to different blocks.} \item{Q}{a matrix
+#'   of average numbers of (block-specific) edges selected by the underlying
+#'   algorihm for different (sets of) penalty parameters. In multi-block
+#'   stability selection, rows correspond to different sets of penalty
+#'   parameters, (values are stored in the output "Lambda") and columns
+#'   correspond to different blocks.} \item{Q_s}{a matrix of calibrated numbers
+#'   of (block-specific) stable edges for different (sets of) penalty
+#'   parameters. In multi-block stability selection, rows correspond to
+#'   different sets of penalty parameters, (values are stored in the output
+#'   "Lambda") and columns correspond to different blocks.} \item{P}{a matrix of
+#'   calibrated (block-specific) thresholds in selection proportions for
+#'   different (sets of) penalty parameters. In multi-block stability selection,
+#'   rows correspond to different sets of penalty parameters, (values are stored
+#'   in the output "Lambda") and columns correspond to different blocks.}
+#'   \item{PFER}{a matrix of computed (block-specific) upper-bounds in PFER of
+#'   calibrated graphs for different (sets of) penalty parameters. In
+#'   multi-block stability selection, rows correspond to different sets of
+#'   penalty parameters, (values are stored in the output "Lambda") and columns
+#'   correspond to different blocks.} \item{FDP}{a matrix of computed
+#'   (block-specific) upper-bounds in FDP of calibrated stability selection
+#'   models for different (sets of) penalty parameters. In multi-block stability
+#'   selection, rows correspond to different sets of penalty parameters, (values
+#'   are stored in the output "Lambda") and columns correspond to different
+#'   blocks.} \item{S_2d}{an array of (block-specific) stability scores obtained
+#'   with different combinations of parameters. Rows correspond to different
+#'   (sets of) penalty parameters and columns correspond to different tresholds
+#'   in selection proportions. In multi-block stability selection, indices along
+#'   the third dimension correspond to different blocks.} \item{PFER_2d}{an
+#'   array of computed upper-bounds of PFER obtained with different combinations
+#'   of parameters. Rows correspond to different penalty parameters and columns
+#'   correspond to different thresholds in selection proportions. Not available
+#'   in multi-block stability selection graphical modelling.} \item{FDP_2d}{an
+#'   array of computed upper-bounds of FDP obtained with different combinations
+#'   of parameters. Rows correspond to different penalty parameters and columns
+#'   correspond to different thresholds in selection proportions. Not available
+#'   in multi-block stability selection graphical modelling.}
 StabilityMetrics=function(bigstab, pk=NULL, pi_list=seq(0.6,0.9,by=0.01),
                         K=100, n_cat=3,
                         PFER_method="MB", PFER_thr_blocks=Inf, FDP_thr_blocks=Inf,
