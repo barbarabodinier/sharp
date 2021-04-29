@@ -14,23 +14,22 @@
 #'   are entries in pk, and the numbers in pk define the number of variables in
 #'   each of the groups.
 #' @param implementation name of the function to use for simulation of the
-#'   graph. By default, functionalities implemented in the huge.generator()
-#'   function from the huge package is used. Alternatively, this argument can be
-#'   a character string indicating the name of a function. This function must
-#'   use arguments called "pk", "topology" and "nu" and return a (pxp) binary
-#'   and symmetric matrix where p is the sum of the entries in pk. To use extra
-#'   arguments in this function, the function can have ... as input and the
-#'   extra arguments can be used directly as input of SimulateGraphical().
+#'   graph. With implementation="huge", functionalities implemented in
+#'   \code{\link[huge]{huge.generator}} are used (see
+#'   \code{\link{SimulateAdjacency}}). Alternatively, this argument can be a
+#'   character string indicating the name of a function. This function must use
+#'   arguments called "pk", "topology" and "nu" and return a (pxp) binary and
+#'   symmetric matrix where p is the sum of the entries in pk.
 #' @param topology topology of the simulated graph. If using
 #'   implementation="huge", possible values are listed for the argument "graph"
-#'   of the huge.generator() function. These are: "random", "hub", "cluster",
-#'   "band" and "scale-free".
+#'   of \code{\link[huge]{huge.generator}}. These are: "random", "hub",
+#'   "cluster", "band" and "scale-free".
 #' @param nu density of the graph, i.e. expected number of edges over possible
-#'   number of edges (px(p-1)/2 where p is the number of nodes). This argument
-#'   is only used for topology="random" and topology="cluster" if
-#'   implementation="huge".
-#' @param output_matrices logical indicating whether the true precision and
-#'   (partial) correlation matrices should be included in the output.
+#'   number of edges (px(p-1)/2 where p is the number of nodes). If
+#'   implementation="huge", this argument is only used for topology="random" and
+#'   topology="cluster".
+#' @param output_matrices logical indicating if the true precision and (partial)
+#'   correlation matrices should be included in the output.
 #' @param v_within multiplicative factor used for diagonal blocks in simulation
 #'   of the precision matrix.
 #' @param v_between multiplicative factor used for off-diagonal blocks in
@@ -42,11 +41,11 @@
 #'   the corresponding row and a constant u. With
 #'   pd_strategy="nonnegative_eigenvalues", diagonal entries are set to the sum
 #'   of the absolute value of the smallest eigenvalue and a constant u.
-#' @param u vector of constant u used to ensure positive definiteness of the
-#'   simulated precision matrix. The proposed value that maximises the contrast
-#'   of the simulated correlation matrix is used. If u=NULL, a grid of values is
-#'   automatically generated and iteratively shifted to ensure that the chosen
-#'   value is not an extreme value.
+#' @param u optional vector of values for constant u used to ensure positive
+#'   definiteness of the simulated precision matrix. The value that maximises
+#'   the contrast of the simulated correlation matrix is used. If u=NULL, a grid
+#'   of values is automatically generated and iteratively shifted to ensure that
+#'   the chosen value is not an extreme value.
 #' @param niter_max_u_grid maximum number of iterations where the grid of u
 #'   values is shifted. This parameter is only used with u=NULL.
 #' @param tolerance_u_grid number of values between the chosen value for u and
@@ -58,6 +57,7 @@
 #' @param ... additional arguments passed to the graph simulation function
 #'   provided in "implementation".
 #'
+#' @seealso \code{\link{MakePositiveDefinite}}
 #' @family simulation functions
 #'
 #' @return A list with: \item{data}{simulated data with n observation and
@@ -237,13 +237,13 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
 #'
 #' This function can be used to simulate (i) a matrix X of n observations
 #' for pk normally distributed variables, and (ii) an outcome Y obtained
-#' from the linear combination of (a subset of) the pk variables.
+#' from the linear combination of (a subset of) the pk variables in X.
 #' The outputs of this function can be used to
 #' evaluate the ability of variable selection algorithms to identify,
 #' among the variables in X, relevant predictors of the outcome Y.
 #'
-#' @param n number of observations in the simulated data.
-#' @param pk number of variables in the simulated data.
+#' @inheritParams SimulateGraphical
+#' @param pk number of variables in the simulated dataset X.
 #' @param X matrix of predictors. With X=NULL, the matrix of predictors
 #' is simulated for pk variables and n observations. If X is provided,
 #' (a subset of) its variables will be used to simulate the outcome data.
@@ -278,6 +278,7 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
 #' \item{beta}{true beta coefficients used in the linear model for simulation of the outcome Y.}
 #'
 #' @family simulation functions
+#' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
 #' # Data simulation (continuous outcome)
@@ -353,27 +354,20 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 
 #' Simulation of an undirected graph
 #'
-#' Simulation of the adjacency matrix encoding an
-#' unweighted, undirected graph with no self-loops.
+#' Simulation of the adjacency matrix encoding an unweighted, undirected graph
+#' with no self-loops.
 #'
+#' @inheritParams SimulateGraphical
 #' @param pk number of nodes.
-#' @param topology topology of the simulated graph. If using
-#' implementation="huge", possible values are listed for the
-#' argument "graph" of the huge.generator() function. These are:
-#' "random", "hub", "cluster", "band" and "scale-free".
-#' @param nu density of the graph, i.e. expected number of edges
-#' over possible number of edges (px(p-1)/2 where p is the number of nodes).
-#' This argument is only used for topology="random" and topology="cluster"
-#' if implementation="huge".
-#' @param ... additional arguments to be passed to the
-#' \code{\link{huge.generator}} function from the huge package.
+#' @param ... additional arguments to be passed to
+#'   \code{\link[huge]{huge.generator}}.
 #'
-#' @return a symmetric adjacency matrix encoding an
-#' unweighted, undirected graph with no self-loops.
+#' @return a symmetric adjacency matrix encoding an unweighted, undirected graph
+#'   with no self-loops.
 #'
 #' @family simulation functions
 #'
-#' #' @examples
+#' @examples
 #' # Simulation of a scale-free graph with 20 nodes
 #' adjacency=SimulateAdjacency(pk=20, topology="scale-free")
 #' plot(Graph(adjacency))
@@ -396,23 +390,15 @@ SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 
 #' Making positive definite
 #'
-#' Determines the diagonal entries of a symmetric matrix to
-#' ensure it is positive definite.
-#' For this, diagonal entries of the matrix are (i) defined to be higher than
-#' the sum of entries on the corresponding rows, which ensure
-#' it is diagonally dominant, or (ii) set to
-#' the absolute value of the smallest eigenvalue.
+#' Determines the diagonal entries of a symmetric matrix to ensure it is
+#' positive definite. For this, diagonal entries of the matrix are (i) defined
+#' to be higher than the sum of entries on the corresponding rows, which ensure
+#' it is diagonally dominant, or (ii) set to the absolute value of the smallest
+#' eigenvalue.
 #'
+#' @inheritParams SimulateGraphical
 #' @param omega input matrix.
-#' @param u_value constant used in the transformation.
-#' @param pd_strategy method to ensure that the output matrix
-#' is positive definite.
-#' With pd_strategy="diagonally_dominant", the matrix is made diagonally dominant
-#' by setting the diagonal entries to the sum of absolute values on the
-#' corresponding row and the constant u_value.
-#' With pd_strategy="nonnegative_eigenvalues",
-#' diagonal entries are set to the sum of the absolute value of the smallest
-#' eigenvalue and the constant u_value.
+#' @param u_value numeric value for constant u.
 #'
 #' @return A positive definite matrix.
 #'

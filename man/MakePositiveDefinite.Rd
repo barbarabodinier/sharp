@@ -9,27 +9,25 @@ MakePositiveDefinite(omega, u_value = 0.1, pd_strategy = "diagonally_dominant")
 \arguments{
 \item{omega}{input matrix.}
 
-\item{u_value}{constant used in the transformation.}
+\item{u_value}{numeric value for constant u.}
 
-\item{pd_strategy}{method to ensure that the output matrix
-is positive definite.
-With pd_strategy="diagonally_dominant", the matrix is made diagonally dominant
-by setting the diagonal entries to the sum of absolute values on the
-corresponding row and the constant u_value.
-With pd_strategy="nonnegative_eigenvalues",
-diagonal entries are set to the sum of the absolute value of the smallest
-eigenvalue and the constant u_value.}
+\item{pd_strategy}{method to ensure that the generated precision matrix is
+positive definite (and hence can be a covariance matrix). With
+pd_strategy="diagonally_dominant", the precision matrix is made diagonally
+dominant by setting the diagonal entries to the sum of absolute values on
+the corresponding row and a constant u. With
+pd_strategy="nonnegative_eigenvalues", diagonal entries are set to the sum
+of the absolute value of the smallest eigenvalue and a constant u.}
 }
 \value{
 A positive definite matrix.
 }
 \description{
-Determines the diagonal entries of a symmetric matrix to
-ensure it is positive definite.
-For this, diagonal entries of the matrix are (i) defined to be higher than
-the sum of entries on the corresponding rows, which ensure
-it is diagonally dominant, or (ii) set to
-the absolute value of the smallest eigenvalue.
+Determines the diagonal entries of a symmetric matrix to ensure it is
+positive definite. For this, diagonal entries of the matrix are (i) defined
+to be higher than the sum of entries on the corresponding rows, which ensure
+it is diagonally dominant, or (ii) set to the absolute value of the smallest
+eigenvalue.
 }
 \examples{
 # Simulation of a symmetric matrix

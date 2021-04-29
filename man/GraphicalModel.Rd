@@ -8,7 +8,7 @@ GraphicalModel(
   data,
   pk = NULL,
   Lambda = NULL,
-  lambda_other_blocks = NULL,
+  lambda_other_blocks = 0.1,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
   tau = 0.5,
@@ -51,6 +51,8 @@ and examples below).}
 
 \item{lambda_other_blocks}{optional vector of (penalty) parameters to use for
 other blocks in the iterative multi-block procedure (see example below).
+To use jointly a specific set of parameters for each block,
+\code{lambda_other_blocks} must be set to NULL (see example below).
 Only used for multi-block graphical models, i.e. when pk is a vector.}
 
 \item{pi_list}{grid of values for the threshold in selection proportion. With
@@ -198,6 +200,19 @@ number of falsely stably selected features).
 set.seed(1)
 simul=SimulateGraphical(n=100, pk=20, nu=0.1)
 out=GraphicalModel(data=simul$data)
+
+# Multi-block
+set.seed(1)
+simul=SimulateGraphical(pk=c(10,10))
+stab=GraphicalModel(data=simul$data, pk=c(10,10), Lambda_cardinal=10)
+stab$Lambda # sets of penalty parameters used jointly
+
+# Multi-parameter stability selection
+Lambda=matrix(c(0.8,0.6,0.3,0.5,0.4,0.3,0.7,0.5,0.1), ncol=3)
+stab=GraphicalModel(data=simul$data, pk=c(10,10),
+Lambda=Lambda, lambda_other_blocks=NULL)
+stab$Lambda
+
 }
 \seealso{
 \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},

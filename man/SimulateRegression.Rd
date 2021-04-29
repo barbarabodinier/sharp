@@ -18,7 +18,7 @@ SimulateRegression(
 \arguments{
 \item{n}{number of observations in the simulated data.}
 
-\item{pk}{number of variables in the simulated data.}
+\item{pk}{number of variables in the simulated dataset X.}
 
 \item{X}{matrix of predictors. With X=NULL, the matrix of predictors
 is simulated for pk variables and n observations. If X is provided,
@@ -62,7 +62,7 @@ signal (if equal to 1) or noise (if equal to 0) variables.}
 \description{
 This function can be used to simulate (i) a matrix X of n observations
 for pk normally distributed variables, and (ii) an outcome Y obtained
-from the linear combination of (a subset of) the pk variables.
+from the linear combination of (a subset of) the pk variables in X.
 The outputs of this function can be used to
 evaluate the ability of variable selection algorithms to identify,
 among the variables in X, relevant predictors of the outcome Y.
@@ -79,7 +79,10 @@ simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
 boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
 }
 \seealso{
+\code{\link{VariableSelection}}
+
 Other simulation functions: 
+\code{\link{SimulateAdjacency}()},
 \code{\link{SimulateGraphical}()}
 }
 \concept{simulation functions}

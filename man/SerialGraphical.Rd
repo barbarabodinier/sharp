@@ -8,7 +8,7 @@ SerialGraphical(
   data,
   pk = NULL,
   Lambda,
-  lambda_other_blocks = NULL,
+  lambda_other_blocks = 0.1,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
   tau = 0.5,

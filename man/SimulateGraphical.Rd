@@ -32,26 +32,25 @@ are entries in pk, and the numbers in pk define the number of variables in
 each of the groups.}
 
 \item{implementation}{name of the function to use for simulation of the
-graph. By default, functionalities implemented in the huge.generator()
-function from the huge package is used. Alternatively, this argument can be
-a character string indicating the name of a function. This function must
-use arguments called "pk", "topology" and "nu" and return a (pxp) binary
-and symmetric matrix where p is the sum of the entries in pk. To use extra
-arguments in this function, the function can have ... as input and the
-extra arguments can be used directly as input of SimulateGraphical().}
+graph. With implementation="huge", functionalities implemented in
+\code{\link[huge]{huge.generator}} are used (see
+\code{\link{SimulateAdjacency}}). Alternatively, this argument can be a
+character string indicating the name of a function. This function must use
+arguments called "pk", "topology" and "nu" and return a (pxp) binary and
+symmetric matrix where p is the sum of the entries in pk.}
 
 \item{topology}{topology of the simulated graph. If using
 implementation="huge", possible values are listed for the argument "graph"
-of the huge.generator() function. These are: "random", "hub", "cluster",
-"band" and "scale-free".}
+of \code{\link[huge]{huge.generator}}. These are: "random", "hub",
+"cluster", "band" and "scale-free".}
 
 \item{nu}{density of the graph, i.e. expected number of edges over possible
-number of edges (px(p-1)/2 where p is the number of nodes). This argument
-is only used for topology="random" and topology="cluster" if
-implementation="huge".}
+number of edges (px(p-1)/2 where p is the number of nodes). If
+implementation="huge", this argument is only used for topology="random" and
+topology="cluster".}
 
-\item{output_matrices}{logical indicating whether the true precision and
-(partial) correlation matrices should be included in the output.}
+\item{output_matrices}{logical indicating if the true precision and (partial)
+correlation matrices should be included in the output.}
 
 \item{v_within}{multiplicative factor used for diagonal blocks in simulation
 of the precision matrix.}
@@ -67,11 +66,11 @@ the corresponding row and a constant u. With
 pd_strategy="nonnegative_eigenvalues", diagonal entries are set to the sum
 of the absolute value of the smallest eigenvalue and a constant u.}
 
-\item{u}{vector of constant u used to ensure positive definiteness of the
-simulated precision matrix. The proposed value that maximises the contrast
-of the simulated correlation matrix is used. If u=NULL, a grid of values is
-automatically generated and iteratively shifted to ensure that the chosen
-value is not an extreme value.}
+\item{u}{optional vector of values for constant u used to ensure positive
+definiteness of the simulated precision matrix. The value that maximises
+the contrast of the simulated correlation matrix is used. If u=NULL, a grid
+of values is automatically generated and iteratively shifted to ensure that
+the chosen value is not an extreme value.}
 
 \item{niter_max_u_grid}{maximum number of iterations where the grid of u
 values is shifted. This parameter is only used with u=NULL.}
@@ -133,7 +132,10 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub
 plot(Graph(simul$theta)) # variable 2 is the central node
 }
 \seealso{
+\code{\link{MakePositiveDefinite}}
+
 Other simulation functions: 
+\code{\link{SimulateAdjacency}()},
 \code{\link{SimulateRegression}()}
 }
 \concept{simulation functions}

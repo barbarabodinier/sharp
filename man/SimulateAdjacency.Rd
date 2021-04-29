@@ -10,29 +10,35 @@ SimulateAdjacency(pk = 10, topology = "random", nu = 0.1, ...)
 \item{pk}{number of nodes.}
 
 \item{topology}{topology of the simulated graph. If using
-implementation="huge", possible values are listed for the
-argument "graph" of the huge.generator() function. These are:
-"random", "hub", "cluster", "band" and "scale-free".}
+implementation="huge", possible values are listed for the argument "graph"
+of \code{\link[huge]{huge.generator}}. These are: "random", "hub",
+"cluster", "band" and "scale-free".}
 
-\item{nu}{density of the graph, i.e. expected number of edges
-over possible number of edges (px(p-1)/2 where p is the number of nodes).
-This argument is only used for topology="random" and topology="cluster"
-if implementation="huge".}
+\item{nu}{density of the graph, i.e. expected number of edges over possible
+number of edges (px(p-1)/2 where p is the number of nodes). If
+implementation="huge", this argument is only used for topology="random" and
+topology="cluster".}
 
-\item{...}{additional arguments to be passed to the
-\code{\link{huge.generator}} function from the huge package.}
+\item{...}{additional arguments to be passed to
+\code{\link[huge]{huge.generator}}.}
 }
 \value{
-a symmetric adjacency matrix encoding an
-unweighted, undirected graph with no self-loops.
+a symmetric adjacency matrix encoding an unweighted, undirected graph
+  with no self-loops.
 }
 \description{
-Simulation of the adjacency matrix encoding an
-unweighted, undirected graph with no self-loops.
+Simulation of the adjacency matrix encoding an unweighted, undirected graph
+with no self-loops.
 }
-\concept{simulation functions
-
-#' @examples
+\examples{
 # Simulation of a scale-free graph with 20 nodes
 adjacency=SimulateAdjacency(pk=20, topology="scale-free")
-plot(Graph(adjacency))}
+plot(Graph(adjacency))
+
+}
+\seealso{
+Other simulation functions: 
+\code{\link{SimulateGraphical}()},
+\code{\link{SimulateRegression}()}
+}
+\concept{simulation functions}

@@ -101,90 +101,130 @@ LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
 
 #' Grid of penalty parameters (graphical model)
 #'
-#' Generates a relevant grid of penalty parameter values
-#' for penalised graphical models.
+#' Generates a relevant grid of penalty parameter values for penalised graphical
+#' models.
 #'
 #' @param data matrix with observations as rows and variables as columns.
-#' @param pk vector encoding the grouping structure.
-#' Only used for multi-block stability selection.
-#' For this, the variables in data have to be ordered
-#' by group and argument "pk" has to be a vector
-#' indicating the number of variables
-#' in each of the groups (see example below).
-#' If pk=NULL, single-block stability selection is performed.
-#' @param lambda_other_blocks vector of penalty parameters to use for other blocks
-#' in the iterative multi-block procedure (see example below).
-#' Only used for multi-block graphical models, i.e. when pk is not set to NULL.
+#' @param pk vector encoding the grouping structure. Only used for multi-block
+#'   stability selection. For this, the variables in data have to be ordered by
+#'   group and argument "pk" has to be a vector indicating the number of
+#'   variables in each of the groups (see example below). If pk=NULL,
+#'   single-block stability selection is performed.
+#' @param lambda_other_blocks vector of penalty parameters to use for other
+#'   blocks in the iterative multi-block procedure (see example below). Only
+#'   used for multi-block graphical models, i.e. when pk is not set to NULL.
 #' @param K number of resampling iterations.
 #' @param tau subsample size. Only used with resampling="subsampling".
 #' @param n_cat number of categories used to compute the stability score.
-#' Possible values are 2 or 3.
+#'   Possible values are 2 or 3.
 #' @param implementation name of the function to use for definition of the grid
-#' of lambda values. With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
-#' is called and iteratively applied on possible penalty values until the constraint are verified,
-#' i.e. that the expected density is below the value given in "max_density",
-#' that the expected PFER is below the value given in "PFER_thr"
-#' or that the expected PFER is below the number of selected edges if "FDP_thr" is not set to Inf.
-#' Alternatively, this argument can be a character string indicating the name of a function.
-#' The function provided must use arguments called "x", "lambda" and "scale"
-#' and return a binary and symmetric adjacency matrix (see example below).
+#'   of lambda values. With implementation="glassoFast", the function
+#'   \code{\link[glassoFast]{glassoFast}} is called and iteratively applied on
+#'   possible penalty values until the constraint are verified, i.e. that the
+#'   expected density is below the value given in "max_density", that the
+#'   expected PFER is below the value given in "PFER_thr" or that the expected
+#'   PFER is below the number of selected edges if "FDP_thr" is not set to Inf.
+#'   Alternatively, this argument can be a character string indicating the name
+#'   of a function. The function provided must use arguments called "x",
+#'   "lambda" and "scale" and return a binary and symmetric adjacency matrix
+#'   (see example below).
 #' @param start character string indicating if the algorithm should be
-#' initialised at the estimated (inverse) covariance with previous
-#' penalty parameters (start="warm") or not (start="cold").
-#' Using start="warm" can speed-up the computations.
-#' Only used for implementation="glassoFast" (see argument "start"
-#' in \code{\link[glassoFast]{glassoFast}}).
-#' @param scale logical indicating if the correlation (if scale=TRUE)
-#' or covariance (if scale=FALSE) matrix should be used as input
-#' for the graphical LASSO. If implementation is not set to "glassoFast",
-#' this argument must be used as input of the function provided instead.
-#' @param resampling resampling approach. Possible values are: "subsampling"
-#' for sampling without replacement of a proportion tau of the observations, or
-#' "bootstrap" for sampling with replacement generating a resampled dataset with
-#' as many observations as in the full sample. Alternatively, this argument can be
-#' a character string indicating the name of a function to use for resampling.
-#' This function must use arguments called "data" and "tau" and return
-#' IDs of observations to be included in the resampled dataset
-#' (see example in \code{\link{Resample}}).
-#' @param PFER_method method used to compute the expected number of False Positives,
-#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
-#' proposed by Meinshausen and Buhlmann (2010) is used. With PFER_method="SS",
-#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
-#' @param PFER_thr threshold in PFER for constrained calibration by error control.
-#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
-#' The grid is defined such that the estimated graph does not generate an upper-bound in
-#' PFER above PFER_thr.
+#'   initialised at the estimated (inverse) covariance with previous penalty
+#'   parameters (start="warm") or not (start="cold"). Using start="warm" can
+#'   speed-up the computations. Only used for implementation="glassoFast" (see
+#'   argument "start" in \code{\link[glassoFast]{glassoFast}}).
+#' @param scale logical indicating if the correlation (if scale=TRUE) or
+#'   covariance (if scale=FALSE) matrix should be used as input for the
+#'   graphical LASSO. If implementation is not set to "glassoFast", this
+#'   argument must be used as input of the function provided instead.
+#' @param resampling resampling approach. Possible values are: "subsampling" for
+#'   sampling without replacement of a proportion tau of the observations, or
+#'   "bootstrap" for sampling with replacement generating a resampled dataset
+#'   with as many observations as in the full sample. Alternatively, this
+#'   argument can be a character string indicating the name of a function to use
+#'   for resampling. This function must use arguments called "data" and "tau"
+#'   and return IDs of observations to be included in the resampled dataset (see
+#'   example in \code{\link{Resample}}).
+#' @param PFER_method method used to compute the expected number of False
+#'   Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
+#'   method proposed by Meinshausen and Buhlmann (2010) is used. With
+#'   PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
+#'   assumption of unimodality is used.
+#' @param PFER_thr threshold in PFER for constrained calibration by error
+#'   control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
+#'   used. The grid is defined such that the estimated graph does not generate
+#'   an upper-bound in PFER above PFER_thr.
 #' @param FDP_thr threshold in the expected proportion of falsely selected edges
-#' (or False Discovery Proportion, FDP)
-#' for constrained calibration by error control.
-#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
-#' If FDP_thr is not infinite, the grid is defined such that the estimated graph
-#' does not generate an upper-bound in PFER above the number of node pairs.
+#'   (or False Discovery Proportion, FDP) for constrained calibration by error
+#'   control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
+#'   used. If FDP_thr is not infinite, the grid is defined such that the
+#'   estimated graph does not generate an upper-bound in PFER above the number
+#'   of node pairs.
 #' @param Lambda_cardinal number of values in the grid.
-#' @param lambda_max maximum value in the grid. With lambda_max=NULL,
-#' the maximum value is set to the maximum covariance in absolute value.
-#' @param lambda_path_factor multiplicative factor used to define the minimum value in the grid.
-#' @param max_density threshold on the density. The grid is defined such that the density
-#' of the estimated graph does not exceed max_density.
+#' @param lambda_max maximum value in the grid. With lambda_max=NULL, the
+#'   maximum value is set to the maximum covariance in absolute value.
+#' @param lambda_path_factor multiplicative factor used to define the minimum
+#'   value in the grid. The grid is defined iteratively by multiplying the
+#'   smallest value at current iteration by \code{lambda_path_factor} until one
+#'   of the \code{max_density} or \code{PFER_thr} stopping criteria is met.
+#' @param max_density threshold on the density. The grid is defined such that
+#'   the density of the estimated graph does not exceed \code{max_density}.
 #' @param verbose logical indicating if a message with minimum and maximum
-#' numbers of selected variables on one instance of resampled data should be printed.
+#'   numbers of selected variables on one instance of resampled data should be
+#'   printed.
 #' @param ... additional parameters passed to the functions provided in
-#' "implementation" or "resampling".
+#'   "implementation" or "resampling".
 #'
-#' @return a matrix of lambda values with as many columns as there are entries in "pk"
-#' and as many rows as indicated in "Lambda_cardinal".
+#' @return a matrix of lambda values with as many columns as there are entries
+#'   in "pk" and as many rows as indicated in "Lambda_cardinal".
 #'
 #' @family lambda grid functions
 #'
-#' @references
-#' \insertRef{stabilityselectionMB}{focus}
+#' @references \insertRef{stabilityselectionMB}{focus}
 #'
-#' \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{focus}
 #'
-#' @example examples/example_lambdagridgraphical.R
+#' @examples
+#' # Single-block simulation
+#' set.seed(1)
+#' simul=SimulateGraphical()
+#'
+#' # Generating grid of 10 values
+#' Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10)
+#'
+#' # Ensuring PFER < 5
+#' Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10, PFER_thr=5)
+#'
+#' # Multi-block simulation
+#' set.seed(1)
+#' simul=SimulateGraphical(pk=c(10,10))
+#'
+#' # Multi-block grid
+#' Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10), Lambda_cardinal=10)
+#'
+#' # Denser neighbouring blocks
+#' Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
+#' Lambda_cardinal=10, lambda_other_blocks=0)
+#'
+#' # Using different neighbour penalties
+#' Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
+#' Lambda_cardinal=10, lambda_other_blocks=c(0.1, 0, 0.1))
+#' stab=GraphicalModel(data=simul$data, pk=c(10,10),
+#' Lambda=Lambda, lambda_other_blocks=c(0.1,0,0.1))
+#' stab$Lambda
+#'
+#' # Visiting from empty to full graphs with max_density=1
+#' Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
+#' Lambda_cardinal=10, max_density=1)
+#' bigblocks=BlockMatrix(pk=c(10,10))
+#' bigblocks_vect=bigblocks[upper.tri(bigblocks)]
+#' N_blocks=unname(table(bigblocks_vect))
+#' N_blocks # max number of edges per block
+#' stab=GraphicalModel(data=simul$data, pk=c(10,10),Lambda=Lambda)
+#' apply(stab$Q,2,max,na.rm=TRUE) # max average number of edges from underlying algo
 #'
 #' @export
-LambdaGridGraphical=function(data, pk=NULL, lambda_other_blocks=NULL, K=100, tau=0.5, n_cat=3,
+LambdaGridGraphical=function(data, pk=NULL, lambda_other_blocks=0.1, K=100, tau=0.5, n_cat=3,
                            implementation="glassoFast", start="cold", scale=TRUE,
                            resampling="subsampling", PFER_method="MB", PFER_thr=Inf, FDP_thr=Inf,
                            Lambda_cardinal=50, lambda_max=NULL, lambda_path_factor=0.001, max_density=0.5,
@@ -194,7 +234,7 @@ LambdaGridGraphical=function(data, pk=NULL, lambda_other_blocks=NULL, K=100, tau
   bigblocks=bigblocks_vect=blocks=N_blocks=nblocks=PFER_thr_blocks=FDP_thr_blocks=NULL
   Lambda=NULL
   seed=1 # To keep to allow for reproducible parallelisation
-  pi_list=seq(0.6,0.9,by=0.01)
+  pi_list=0.75 # only used for screening
   CheckInputGraphical(data=data, pk=pk, Lambda=Lambda, lambda_other_blocks=lambda_other_blocks,
                     pi_list=pi_list, K=K, tau=tau, seed=seed, n_cat=n_cat,
                     implementation=implementation, start=start, scale=scale,
@@ -203,7 +243,6 @@ LambdaGridGraphical=function(data, pk=NULL, lambda_other_blocks=NULL, K=100, tau
                     lambda_max=lambda_max, lambda_path_factor=lambda_path_factor, max_density=max_density,
                     verbose=verbose)
   rm(Lambda)
-  pi_list=0.75 # only used for screening
 
   # Preparing lambda_dense
   ldense=lambda_other_blocks
