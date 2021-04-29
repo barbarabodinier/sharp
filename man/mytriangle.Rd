@@ -8,18 +8,18 @@ mytriangle(coords, v = NULL, params)
 }
 \arguments{
 \item{coords}{a matrix of coordinates
-(see \code{\link{add_shape}} from the igraph package).}
+(see \code{\link[igraph]{add_shape}} from the igraph package).}
 
 \item{v}{a vector of node IDs
-(see \code{\link{add_shape}} from the igraph package).}
+(see \code{\link[igraph]{add_shape}} from the igraph package).}
 
 \item{params}{node graphical parameters
-(see \code{\link{add_shape}} from the igraph package).}
+(see \code{\link[igraph]{add_shape}} from the igraph package).}
 }
 \description{
 Produces triangular nodes in an igraph object.
 }
 \seealso{
-\code{\link{add_shape}}
+\code{\link[igraph]{add_shape}}
 }
 \keyword{internal}

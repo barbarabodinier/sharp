@@ -66,7 +66,7 @@ With n_cat=2, these values must be between 0 and 1.}
 Possible values are 2 or 3.}
 
 \item{implementation}{name of the function to use for definition of the grid
-of lambda values. With implementation="glassoFast", the function \code{\link{glassoFast}}
+of lambda values. With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
 is called and iteratively applied on possible penalty values until the constraint are verified,
 i.e. that the expected density is below the value given in "max_density",
 that the expected PFER is below the value given in "PFER_thr"
@@ -80,7 +80,7 @@ initialised at the estimated (inverse) covariance with previous
 penalty parameters (start="warm") or not (start="cold").
 Using start="warm" can speed-up the computations.
 Only used for implementation="glassoFast" (see argument "start"
-in \code{\link{glassoFast}}).}
+in \code{\link[glassoFast]{glassoFast}}).}
 
 \item{scale}{logical indicating if the correlation (if scale=TRUE)
 or covariance (if scale=FALSE) matrix should be used as input

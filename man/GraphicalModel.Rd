@@ -67,7 +67,7 @@ must be between 0 and 1.}
 Possible values are 2 or 3.}
 
 \item{implementation}{name of the function to use for graphical modelling.
-With implementation="glassoFast", the function \code{\link{glassoFast}} is
+With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}} is
 used for regularised estimation of a conditional independence graph.
 Alternatively, this argument can be a character string indicating the name
 of a function. The function provided must use arguments called "x",
@@ -78,7 +78,7 @@ of a function. The function provided must use arguments called "x",
 initialised at the estimated (inverse) covariance with previous penalty
 parameters (start="warm") or not (start="cold"). Using start="warm" can
 speed-up the computations. Only used for implementation="glassoFast" (see
-argument "start" in \code{\link{glassoFast}}).}
+argument "start" in \code{\link[glassoFast]{glassoFast}}).}
 
 \item{scale}{logical indicating if the correlation (if scale=TRUE) or
 covariance (if scale=FALSE) matrix should be used as input for the

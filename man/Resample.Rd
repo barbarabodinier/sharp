@@ -11,7 +11,7 @@ Resample(data, family = NULL, tau = 0.5, resampling = "subsampling", ...)
 outcome data.}
 
 \item{family}{type of regression model. This argument is defined as in the
-\code{\link{glmnet}} function from the glmnet package. Possible values
+\code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
 include "gaussian" (linear regression), "binomial" (logistic regression),
 "multinomial" (multinomial regression), and "cox" (survival analysis). This
 argument is only used with implementation="glmnet", or with functions using

@@ -47,7 +47,7 @@ for the graphical LASSO. If implementation is not set to "glassoFast",
 this argument must be used as input of the function provided instead.}
 
 \item{implementation}{name of the function to use for graphical modelling.
-With implementation="glassoFast", the function \code{\link{glassoFast}}
+With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
 is used for regularised estimation of a conditional independence graph.
 Alternatively, this argument can be a character string indicating the name of a function.
 The function provided must use arguments called "x", "lambda" and "scale"
@@ -58,7 +58,7 @@ initialised at the estimated (inverse) covariance with previous
 penalty parameters (start="warm") or not (start="cold").
 Using start="warm" can speed-up the computations.
 Only used for implementation="glassoFast" (see argument "start"
-in \code{\link{glassoFast}}).}
+in \code{\link[glassoFast]{glassoFast}}).}
 
 \item{...}{additional parameters passed to the function provided in
 "implementation".}
