@@ -25,13 +25,14 @@ if implementation="huge".}
 \value{
 a symmetric adjacency matrix encoding an
 unweighted, undirected graph with no self-loops.
-
-#' @examples
-# Simulation of a scale-free graph with 20 nodes
-adjacency=SimulateAdjacency(pk=20, topology="scale-free")
-plot(Graph(adjacency))
 }
 \description{
 Simulation of the adjacency matrix encoding an
 unweighted, undirected graph with no self-loops.
 }
+\concept{simulation functions
+
+#' @examples
+# Simulation of a scale-free graph with 20 nodes
+adjacency=SimulateAdjacency(pk=20, topology="scale-free")
+plot(Graph(adjacency))}

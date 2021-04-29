@@ -58,8 +58,7 @@
 #' @param ... additional arguments passed to the graph simulation function
 #'   provided in "implementation".
 #'
-#' @seealso \code{\link{SimulateAdjacency}} for simulation of unweighted,
-#'   undirected graphs with no self-loops
+#' @family simulation functions
 #'
 #' @return A list with: \item{data}{simulated data with n observation and
 #'   sum(pk) variables} \item{theta}{adjacency matrix of the simulated graph}
@@ -278,6 +277,8 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
 #' signal (if equal to 1) or noise (if equal to 0) variables.}
 #' \item{beta}{true beta coefficients used in the linear model for simulation of the outcome Y.}
 #'
+#' @family simulation functions
+#'
 #' @examples
 #' # Data simulation (continuous outcome)
 #' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian")
@@ -369,6 +370,8 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 #'
 #' @return a symmetric adjacency matrix encoding an
 #' unweighted, undirected graph with no self-loops.
+#'
+#' @family simulation functions
 #'
 #' #' @examples
 #' # Simulation of a scale-free graph with 20 nodes

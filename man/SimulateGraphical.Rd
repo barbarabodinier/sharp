@@ -133,6 +133,7 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub
 plot(Graph(simul$theta)) # variable 2 is the central node
 }
 \seealso{
-\code{\link{SimulateAdjacency}} for simulation of unweighted,
-  undirected graphs with no self-loops
+Other simulation functions: 
+\code{\link{SimulateRegression}()}
 }
+\concept{simulation functions}
