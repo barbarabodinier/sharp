@@ -84,7 +84,7 @@
 #'
 #' # Extracting true precision/correlation matrices
 #' set.seed(1)
-#' simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free", output_matrices=TRUE)
+#' simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free", output_matrices = TRUE)
 #' str(simul)
 #'
 #' # Using user-defined function for graph simulation
@@ -99,7 +99,6 @@
 #' plot(Graph(simul$theta)) # star
 #' simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 #' plot(Graph(simul$theta)) # variable 2 is the central node
-#'
 #' @export
 SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topology = "random", nu = 0.1,
                               output_matrices = FALSE,
@@ -373,9 +372,8 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 #'
 #' @examples
 #' # Simulation of a scale-free graph with 20 nodes
-#' adjacency=SimulateAdjacency(pk=20, topology="scale-free")
+#' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
-#'
 #' @export
 SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   # Simulating the adjacency matrix using huge

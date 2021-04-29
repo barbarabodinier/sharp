@@ -20,84 +20,77 @@ SelectionPerformanceGraph(
 )
 }
 \arguments{
-\item{theta}{binary vector of selected variables
-(in a regression framework)
+\item{theta}{binary vector of selected variables (in a regression framework)
 or binary adjacency matrix (in graphical modelling).}
 
-\item{theta_star}{binary vector of true predictors
-(in a regression framework)
-or true binary adjacency matrix (in graphical modelling).}
+\item{theta_star}{binary vector of true predictors (in a regression
+framework) or true binary adjacency matrix (in graphical modelling).}
 
-\item{colours}{vector of edge colours.
-The first entry of the vector defines the colour
-of False Positive edges, second entry is for True Negatives
-and third entry is for True Positives.}
+\item{colours}{vector of edge colours. The first entry of the vector defines
+the colour of False Positive edges, second entry is for True Negatives and
+third entry is for True Positives.}
 
-\item{lty}{vector of line types for edges.
-The first entry of the vector defines the colour
-of False Positive edges, second entry is for True Negatives
-and third entry is for True Positives.}
+\item{lty}{vector of line types for edges. The first entry of the vector
+defines the colour of False Positive edges, second entry is for True
+Negatives and third entry is for True Positives.}
 
-\item{plot}{logical indicating if the generated graph
-should be plotted.}
+\item{plot}{logical indicating if the generated graph should be plotted.}
 
-\item{filename}{file path to saved figure.
-With filename=NULL, the plot is not saved.}
+\item{filename}{file path to saved figure. With filename=NULL, the plot is
+not saved.}
 
-\item{fileformat}{format of the saved figure.
-Possible values are "pdf" or "png".
-Only used if argument "filename" is not NULL.}
+\item{fileformat}{format of the saved figure. Possible values are "pdf" or
+"png". Only used if argument "filename" is not NULL.}
 
-\item{res}{resolution of the png figure
-(see \code{\link{png}} from the grDevices package).
-Only used if argument "filename" is not NULL and
+\item{res}{resolution of the png figure (see \code{\link{png}} from the
+grDevices package). Only used if argument "filename" is not NULL and
 fileformat="png".}
 
-\item{width}{width of the saved figure.
-Only used if argument "filename" is not NULL.}
+\item{width}{width of the saved figure. Only used if argument "filename" is
+not NULL.}
 
-\item{height}{height of the saved figure.
-Only used if argument "filename" is not NULL.}
+\item{height}{height of the saved figure. Only used if argument "filename" is
+not NULL.}
 
-\item{units}{units of width and height.
-Possible values are "px", "in", "cm" and "mm"
-(see \code{\link{png}} from the grDevices package).
-Only used if argument "filename" is not NULL and
-fileformat="png".}
+\item{units}{units of width and height. Possible values are "px", "in", "cm"
+and "mm" (see \code{\link{png}} from the grDevices package). Only used if
+argument "filename" is not NULL and fileformat="png".}
 
-\item{...}{additional arguments to be passed to
-\code{\link{Graph}}.}
+\item{...}{additional arguments to be passed to \code{\link{Graph}}.}
 }
 \description{
-Generates an igraph object representing the
-True Positive, False Positive and False Negative
-edges by comparing the set of selected edges to the
-set of true edges. This function can
-only be used in simulation studies (i.e. when the
-true model is known).
+Generates an igraph object representing the True Positive, False Positive and
+False Negative edges by comparing the set of selected edges to the set of
+true edges. This function can only be used in simulation studies (i.e. when
+the true model is known).
 }
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(pk=30)
+simul <- SimulateGraphical(pk = 30)
 
 # Stability selection
-stab=GraphicalModel(data=simul$data, K=10)
+stab <- GraphicalModel(data = simul$data, K = 10)
 
 # Performance graph
-perfgraph=SelectionPerformanceGraph(theta=Adjacency(stab), theta_star=simul$theta, plot=TRUE)
+perfgraph <- SelectionPerformanceGraph(theta = Adjacency(stab),
+theta_star = simul$theta, plot = TRUE)
 
 # User-defined colours/shapes
-perfgraph=SelectionPerformanceGraph(theta=Adjacency(stab), theta_star=simul$theta, plot=TRUE,
-colours=c("forestgreen", "orange", "black"), node_colour="red", node_shape="star")
-perfgraph=SelectionPerformanceGraph(theta=Adjacency(stab), theta_star=simul$theta, plot=TRUE,
-colours=c("forestgreen", "orange", "black"), lty=c(4,2,3))
+perfgraph <- SelectionPerformanceGraph(
+  theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
+  colours = c("forestgreen", "orange", "black"),
+  node_colour = "red", node_shape = "star"
+)
+perfgraph <- SelectionPerformanceGraph(
+  theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
+  colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
+)
 
 # Using and re-formatting igraph object
 require(igraph)
-igraph::V(perfgraph)$size=10
-plot(perfgraph, layout=layout_with_kk(perfgraph))
-
+igraph::V(perfgraph)$size <- 10
+plot(perfgraph, layout = layout_with_kk(perfgraph))
 }
 \seealso{
 \code{\link{Graph}}

@@ -22,18 +22,17 @@ Builds the (calibrated) set of stably selected variables.
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateRegression(pk=50)
+simul <- SimulateRegression(pk = 50)
 
 # Stability selection
-stab=VariableSelection(xdata=simul$X, ydata=simul$Y)
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
 
 # Calibrated set
-A=SelectedVariables(stab)
+A <- SelectedVariables(stab)
 
 # User-defined parameters
-myids=matrix(c(80,10), nrow=1)
-stab$Lambda[myids[1],1] # corresponding penalty
+myids <- matrix(c(80, 10), nrow = 1)
+stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
-A=SelectedVariables(stab, argmax_id=myids)
-
+A <- SelectedVariables(stab, argmax_id = myids)
 }

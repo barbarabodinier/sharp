@@ -35,99 +35,100 @@
 #' @examples
 #' # Data simulation
 #' set.seed(1)
-#' simul=SimulateRegression(pk=50)
+#' simul <- SimulateRegression(pk = 50)
 #'
 #' # Running the LASSO
-#' mylasso=SelectionAlgo(x=simul$X, y=simul$Y, lambda=c(0.1,0.2), family="gaussian")
+#' mylasso <- SelectionAlgo(x = simul$X, y = simul$Y, lambda = c(0.1, 0.2), family = "gaussian")
 #'
 #' # Simulation of additional outcomes
 #' set.seed(2)
-#' Y=cbind(simul$Y, matrix(rnorm(nrow(simul$Y)*2),ncol=2))
+#' Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
 #'
 #' # Running multivariate Gaussian LASSO
-#' mylasso=SelectionAlgo(x=simul$X, y=Y, lambda=c(0.1,0.2), family="mgaussian")
+#' mylasso <- SelectionAlgo(x = simul$X, y = Y, lambda = c(0.1, 0.2), family = "mgaussian")
 #' str(mylasso)
 #'
-#' stab=VariableSelection(xdata=simul$X, ydata=Y, family="mgaussian")
+#' stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
 #' SelectionPerformance(SelectedVariables(stab), simul$theta)
-#'
 #' @export
-SelectionAlgo=function(x, y, lambda, family, implementation="glmnet", ...){
+SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) {
   # Making sure none of the variables has a null standard deviation
-  mysd=apply(x,2,stats::sd)
-  if (any(mysd==0)){
-    for (k in which(mysd==0)){
-      x[,k]=x[,k]+stats::rnorm(n=nrow(x), sd=min(mysd[mysd!=0])/100)
+  mysd <- apply(x, 2, stats::sd)
+  if (any(mysd == 0)) {
+    for (k in which(mysd == 0)) {
+      x[, k] <- x[, k] + stats::rnorm(n = nrow(x), sd = min(mysd[mysd != 0]) / 100)
     }
   }
-  x=scale(x)
+  x <- scale(x)
 
-  if (implementation=="glmnet"){
+  if (implementation == "glmnet") {
     # Running the regression
-    if (family=="multinomial"){
-      mymodel=glmnet::glmnet(x=x, y=y, lambda=lambda, family=family, type.multinomial="grouped", ...)
+    if (family == "multinomial") {
+      mymodel <- glmnet::glmnet(x = x, y = y, lambda = lambda, family = family, type.multinomial = "grouped", ...)
     } else {
-      mymodel=glmnet::glmnet(x=x, y=y, lambda=lambda, family=family, ...)
+      mymodel <- glmnet::glmnet(x = x, y = y, lambda = lambda, family = family, ...)
     }
 
-    if (!is.infinite(mymodel$lambda[1])){
+    if (!is.infinite(mymodel$lambda[1])) {
       # Extracting and formatting the beta coefficients
-      if (!family%in%c("mgaussian", "multinomial")){
-        mybeta=stats::coef(mymodel)
-        mybeta=t(as.matrix(mybeta))
-        mybeta=mybeta[,colnames(x)] # removing the intercept if included
+      if (!family %in% c("mgaussian", "multinomial")) {
+        mybeta <- stats::coef(mymodel)
+        mybeta <- t(as.matrix(mybeta))
+        mybeta <- mybeta[, colnames(x)] # removing the intercept if included
 
         # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-        if (any(mysd==0)){
-          mybeta[,which(mysd==0)]=0
+        if (any(mysd == 0)) {
+          mybeta[, which(mysd == 0)] <- 0
         }
 
         # Preparing the outputs
-        selected=ifelse(mybeta!=0, yes=1, no=0)
-        beta_full=mybeta
+        selected <- ifelse(mybeta != 0, yes = 1, no = 0)
+        beta_full <- mybeta
       } else {
-        mybeta=array(NA, dim=c(length(lambda), ncol(x), ncol(y)),
-                     dimnames=list(paste0("s",0:(length(lambda)-1)), colnames(x), colnames(y)))
-        for (y_id in 1:ncol(y)){
-          tmpbeta=stats::coef(mymodel)[[y_id]]
-          tmpbeta=t(as.matrix(tmpbeta))
-          tmpbeta=tmpbeta[,colnames(x),drop=FALSE] # removing the intercept if included
-          mybeta[rownames(tmpbeta),colnames(tmpbeta),y_id]=tmpbeta
+        mybeta <- array(NA,
+          dim = c(length(lambda), ncol(x), ncol(y)),
+          dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x), colnames(y))
+        )
+        for (y_id in 1:ncol(y)) {
+          tmpbeta <- stats::coef(mymodel)[[y_id]]
+          tmpbeta <- t(as.matrix(tmpbeta))
+          tmpbeta <- tmpbeta[, colnames(x), drop = FALSE] # removing the intercept if included
+          mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
 
           # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-          if (any(mysd==0)){
-            mybeta[,which(mysd==0),y_id]=0
+          if (any(mysd == 0)) {
+            mybeta[, which(mysd == 0), y_id] <- 0
           }
         }
 
         # Preparing the outputs
-        selected=ifelse(mybeta[,,1,drop=FALSE]!=0, yes=1, no=0)
-        beta_full=mybeta
+        selected <- ifelse(mybeta[, , 1, drop = FALSE] != 0, yes = 1, no = 0)
+        beta_full <- mybeta
       }
     } else {
       # Returning infinite beta is the model failed
-      selected=beta_full=Inf
+      selected <- beta_full <- Inf
     }
   } else {
     # Applying user-defined function for variable selection
-    mybeta=do.call(get(implementation), args=list(x=x, y=y, lambda=lambda, family=family, ...))
-    selected=mybeta$selected
-    beta_full=mybeta$beta_full
+    mybeta <- do.call(get(implementation), args = list(x = x, y = y, lambda = lambda, family = family, ...))
+    selected <- mybeta$selected
+    beta_full <- mybeta$beta_full
 
     # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-    if (any(mysd==0)){
-      if (length(dim(beta_full))==2){
-        selected[,which(mysd==0)]=0
-        beta_full[,which(mysd==0)]=0
+    if (any(mysd == 0)) {
+      if (length(dim(beta_full)) == 2) {
+        selected[, which(mysd == 0)] <- 0
+        beta_full[, which(mysd == 0)] <- 0
       }
-      if (length(dim(beta_full))==3){
-        selected[,which(mysd==0)]=0
-        beta_full[,which(mysd==0),]=0
+      if (length(dim(beta_full)) == 3) {
+        selected[, which(mysd == 0)] <- 0
+        beta_full[, which(mysd == 0), ] <- 0
       }
     }
   }
 
-  return(list(selected=selected, beta_full=beta_full))
+  return(list(selected = selected, beta_full = beta_full))
 }
 
 
@@ -187,93 +188,90 @@ SelectionAlgo=function(x, y, lambda, family, implementation="glmnet", ...){
 #' @examples
 #' # Data simulation
 #' set.seed(1)
-#' simul=SimulateGraphical()
+#' simul <- SimulateGraphical()
 #'
 #' # Running graphical LASSO
-#' myglasso=GraphicalAlgo(x=simul$data, Lambda=matrix(c(0.1, 0.2),ncol=1))
-#'
+#' myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
 #' @export
-GraphicalAlgo=function(x, pk=NULL, Lambda, Sequential_template, scale=TRUE, implementation="glassoFast", start="cold", ...){
-  if (is.null(pk)){
-    pk=ncol(x)
+GraphicalAlgo <- function(x, pk = NULL, Lambda, Sequential_template, scale = TRUE, implementation = "glassoFast", start = "cold", ...) {
+  if (is.null(pk)) {
+    pk <- ncol(x)
   }
 
   # Identifying potential variables with null standard deviation in the subsample
-  mysd=apply(x,2,stats::sd)
-  if (any(mysd==0)){
-    for (k in which(mysd==0)){
-      x[,k]=x[,k]+stats::rnorm(n=nrow(x), sd=min(mysd[mysd!=0])/100)
+  mysd <- apply(x, 2, stats::sd)
+  if (any(mysd == 0)) {
+    for (k in which(mysd == 0)) {
+      x[, k] <- x[, k] + stats::rnorm(n = nrow(x), sd = min(mysd[mysd != 0]) / 100)
     }
   }
 
   # Create matrix with block indices
-  bigblocks=BlockMatrix(pk)
-  bigblocks_vect=bigblocks[upper.tri(bigblocks)]
-  N_blocks=unname(table(bigblocks_vect))
-  blocks=unique(as.vector(bigblocks_vect))
-  names(N_blocks)=blocks
-  nblocks=max(blocks)
+  bigblocks <- BlockMatrix(pk)
+  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+  N_blocks <- unname(table(bigblocks_vect))
+  blocks <- unique(as.vector(bigblocks_vect))
+  names(N_blocks) <- blocks
+  nblocks <- max(blocks)
 
   # Initialisation of array storing adjacency matrices
-  adjacency=array(NA, dim=c(ncol(x), ncol(x), nrow(Lambda)))
+  adjacency <- array(NA, dim = c(ncol(x), ncol(x), nrow(Lambda)))
 
   # Going over different (sets) of penalty parameters
-  for (k in 1:nrow(Lambda)){
+  for (k in 1:nrow(Lambda)) {
     # Creating penalisation matrix
-    if (nblocks>1){
-      lambdamat=bigblocks
-      for (b in 1:nblocks){
-        lambdamat[bigblocks==b]=Lambda[k,b]
+    if (nblocks > 1) {
+      lambdamat <- bigblocks
+      for (b in 1:nblocks) {
+        lambdamat[bigblocks == b] <- Lambda[k, b]
       }
     } else {
-      lambdamat=Lambda[k,1]
+      lambdamat <- Lambda[k, 1]
     }
 
-    if (implementation=="glassoFast"){
+    if (implementation == "glassoFast") {
       # Estimation of the covariance
-      if (scale){
-        cov_sub=stats::cor(x)
+      if (scale) {
+        cov_sub <- stats::cor(x)
       } else {
-        cov_sub=stats::cov(x)
+        cov_sub <- stats::cov(x)
       }
 
       # Estimation of the sparse inverse covariance
-      if ((start=="warm")&(k!=1)){
-        if (all(which(Sequential_template[k,])==which(Sequential_template[k-1,]))){
-          g_sub=glassoFast::glassoFast(S=cov_sub, rho=lambdamat,
-                                       start="warm", w.init=sigma, wi.init=omega)
+      if ((start == "warm") & (k != 1)) {
+        if (all(which(Sequential_template[k, ]) == which(Sequential_template[k - 1, ]))) {
+          g_sub <- glassoFast::glassoFast(
+            S = cov_sub, rho = lambdamat,
+            start = "warm", w.init = sigma, wi.init = omega
+          )
         } else {
           # Cold start if first iteration for the block
-          g_sub=glassoFast::glassoFast(S=cov_sub, rho=lambdamat)
+          g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
         }
       } else {
-        g_sub=glassoFast::glassoFast(S=cov_sub, rho=lambdamat)
+        g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
       }
-      omega=g_sub$wi
-      sigma=g_sub$w
+      omega <- g_sub$wi
+      sigma <- g_sub$w
 
       # Creating adjacency matrix
-      A=ifelse(omega!=0, yes=1, no=0)
-      A=A+t(A)
-      A=ifelse(A!=0, yes=1, no=0)
-      diag(A)=0
+      A <- ifelse(omega != 0, yes = 1, no = 0)
+      A <- A + t(A)
+      A <- ifelse(A != 0, yes = 1, no = 0)
+      diag(A) <- 0
     } else {
-      A=do.call(get(implementation), args=list(x=x, lambda=lambdamat, scale=scale, ...))
+      A <- do.call(get(implementation), args = list(x = x, lambda = lambdamat, scale = scale, ...))
     }
 
     # Ensuring that there is no edge for variables with always the same value (null standard deviation)
-    if (any(mysd==0)){
-      A[which(mysd==0),]=0
-      A[,which(mysd==0)]=0
+    if (any(mysd == 0)) {
+      A[which(mysd == 0), ] <- 0
+      A[, which(mysd == 0)] <- 0
     }
 
     # Storing the estimated adjacency matrix
-    adjacency[,,k]=A
+    adjacency[, , k] <- A
   }
 
   return(adjacency)
 }
-
-
-
-

@@ -198,21 +198,22 @@ number of falsely stably selected features).
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(n=100, pk=20, nu=0.1)
-out=GraphicalModel(data=simul$data)
+simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
+out <- GraphicalModel(data = simul$data)
 
 # Multi-block
 set.seed(1)
-simul=SimulateGraphical(pk=c(10,10))
-stab=GraphicalModel(data=simul$data, pk=c(10,10), Lambda_cardinal=10)
+simul <- SimulateGraphical(pk = c(10, 10))
+stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 stab$Lambda # sets of penalty parameters used jointly
 
 # Multi-parameter stability selection
-Lambda=matrix(c(0.8,0.6,0.3,0.5,0.4,0.3,0.7,0.5,0.1), ncol=3)
-stab=GraphicalModel(data=simul$data, pk=c(10,10),
-Lambda=Lambda, lambda_other_blocks=NULL)
+Lambda <- matrix(c(0.8, 0.6, 0.3, 0.5, 0.4, 0.3, 0.7, 0.5, 0.1), ncol = 3)
+stab <- GraphicalModel(
+  data = simul$data, pk = c(10, 10),
+  Lambda = Lambda, lambda_other_blocks = NULL
+)
 stab$Lambda
-
 }
 \seealso{
 \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},

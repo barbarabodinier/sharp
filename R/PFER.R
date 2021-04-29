@@ -26,47 +26,46 @@
 #'
 #' # Example: 10 out of 50 features selected on average by underlying algorithm
 #' # for stability selection with 100 iterations and threshold of 0.8
-#' pfer_mb=PFER(q=10, pi=0.8, N=50, K=100, PFER_method="MB")
-#' pfer_ss=PFER(q=10, pi=0.8, N=50, K=100, PFER_method="SS")
-#'
+#' pfer_mb <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "MB")
+#' pfer_ss <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "SS")
 #' @export
-PFER=function(q, pi, N, K, PFER_method="MB"){
+PFER <- function(q, pi, N, K, PFER_method = "MB") {
   # Checking the inputs (PFER_method)
-  PFER_method=as.character(PFER_method)
-  if ((length(PFER_method)!=1)|(!PFER_method%in%c("MB","SS"))){
+  PFER_method <- as.character(PFER_method)
+  if ((length(PFER_method) != 1) | (!PFER_method %in% c("MB", "SS"))) {
     stop("Invalid input for argument 'PFER_method'. Possible values are: 'MB' or 'SS'.")
   }
 
-  if (pi>0.5){
+  if (pi > 0.5) {
     # Computing upper-bound of the PFER using approach proposed by MB
-    if (PFER_method=="MB"){
-      upperbound=1/(2*pi-1)*q^2/N
+    if (PFER_method == "MB") {
+      upperbound <- 1 / (2 * pi - 1) * q^2 / N
     }
 
     # Computing upper-bound of the PFER using approach proposed by SS
-    if (PFER_method=="SS"){
-      cutoff=pi
-      B=ceiling(K/2)
-      theta=q/N
-      if (cutoff <= 3/4) {
-        tmp=2*(2*cutoff-1-1/(2*B))
+    if (PFER_method == "SS") {
+      cutoff <- pi
+      B <- ceiling(K / 2)
+      theta <- q / N
+      if (cutoff <= 3 / 4) {
+        tmp <- 2 * (2 * cutoff - 1 - 1 / (2 * B))
       } else {
-        tmp=(1+1/B)/(4*(1-cutoff+1/(2*B)))
+        tmp <- (1 + 1 / B) / (4 * (1 - cutoff + 1 / (2 * B)))
       }
-      upperbound=q^2/N/tmp
+      upperbound <- q^2 / N / tmp
 
       # Setting to Inf if "out of bounds"
-      if ((cutoff<1/2+min(theta^2, 1/(2*B)+3/4*theta^2))|(cutoff>1)){
-        upperbound=Inf
+      if ((cutoff < 1 / 2 + min(theta^2, 1 / (2 * B) + 3 / 4 * theta^2)) | (cutoff > 1)) {
+        upperbound <- Inf
       }
     }
   } else {
-    upperbound=Inf
+    upperbound <- Inf
   }
 
   # Re-formatting the upperbound
-  if (is.na(upperbound)){
-    upperbound=Inf
+  if (is.na(upperbound)) {
+    upperbound <- Inf
   }
 
   return(upperbound)
@@ -96,20 +95,20 @@ PFER=function(q, pi, N, K, PFER_method="MB"){
 #' fdp=FDP(PFER=3, stab_iter=selprop, pi=0.8)
 #'
 #' @export
-FDP=function(PFER, stab_iter, pi){
+FDP <- function(PFER, stab_iter, pi) {
   # Preparing objects
-  if (is.matrix(stab_iter)){
-    stab_iter=stab_iter[upper.tri(stab_iter)]
+  if (is.matrix(stab_iter)) {
+    stab_iter <- stab_iter[upper.tri(stab_iter)]
   }
 
   # Computing the number of stable edges
-  S=sum(stab_iter>=pi,na.rm=TRUE)
+  S <- sum(stab_iter >= pi, na.rm = TRUE)
 
   # Computing the proportion of false discoveries among discoveries (False Discovery Proportion)
-  if (S!=0){
-    FDP=PFER/S
+  if (S != 0) {
+    FDP <- PFER / S
   } else {
-    FDP=0
+    FDP <- 0
   }
 
   return(FDP)

@@ -27,19 +27,18 @@ in "Lambda" and "pi_list".
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(pk=20)
+simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab=GraphicalModel(data=simul$data)
+stab <- GraphicalModel(data = simul$data)
 
 # Extracting IDs of calibrated parameters
-ids=ArgmaxId(stab)
-stab$Lambda[ids[1],1]
+ids <- ArgmaxId(stab)
+stab$Lambda[ids[1], 1]
 stab$params$pi_list[ids[2]]
 
 # Link with Argmax() function
-args=Argmax(stab)
-
+args <- Argmax(stab)
 }
 \seealso{
 \code{\link{Argmax}}

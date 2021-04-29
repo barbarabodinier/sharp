@@ -26,35 +26,34 @@ Extracts the selection proportions of the
 ## Variable selection
 # Data simulation
 set.seed(1)
-simul=SimulateRegression(pk=50)
+simul <- SimulateRegression(pk = 50)
 
 # Stability selection
-stab=VariableSelection(xdata=simul$X, ydata=simul$Y)
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
 
 # Calibrated selection proportions
-prop=SelectionProportions(stab)
+prop <- SelectionProportions(stab)
 
 # User-defined parameters
-myids=matrix(c(80,10), nrow=1)
-stab$Lambda[myids[1],1] # corresponding penalty
+myids <- matrix(c(80, 10), nrow = 1)
+stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
-prop=SelectionProportions(stab, argmax_id=myids)
+prop <- SelectionProportions(stab, argmax_id = myids)
 
 ## Graphical model
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(pk=20)
+simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab=GraphicalModel(data=simul$data)
+stab <- GraphicalModel(data = simul$data)
 
 # Calibrated adjacency matrix
-prop=SelectionProportions(stab)
+prop <- SelectionProportions(stab)
 
 # User-defined parameters
-myids=matrix(c(20,10), nrow=1)
-stab$Lambda[myids[1],1] # corresponding penalty
+myids <- matrix(c(20, 10), nrow = 1)
+stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
-prop=SelectionProportions(stab, argmax_id=myids)
-
+prop <- SelectionProportions(stab, argmax_id = myids)
 }

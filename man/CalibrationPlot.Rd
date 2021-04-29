@@ -102,20 +102,21 @@ When selecting a single parameter, each point represents the best
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(pk=20, nu=0.1)
+simul <- SimulateGraphical(pk = 20, nu = 0.1)
 
 # Stability selection
-stab=GraphicalModel(data=simul$data)
+stab <- GraphicalModel(data = simul$data)
 
 # Calibration plots
 CalibrationPlot(stab)
-CalibrationPlot(stab, metric="lambda")
-CalibrationPlot(stab, metric="pi")
+CalibrationPlot(stab, metric = "lambda")
+CalibrationPlot(stab, metric = "pi")
 
 # User-defined colours (heatmap)
-CalibrationPlot(stab, colours=c("lightgrey", "blue"))
-CalibrationPlot(stab, colours=c("lightgrey", "blue", "black"))
-CalibrationPlot(stab, colours=c("lightgrey", "blue", "black"),
-legend_length=25, legend_range=c(0,4000))
-
+CalibrationPlot(stab, colours = c("lightgrey", "blue"))
+CalibrationPlot(stab, colours = c("lightgrey", "blue", "black"))
+CalibrationPlot(stab,
+  colours = c("lightgrey", "blue", "black"),
+  legend_length = 25, legend_range = c(0, 4000)
+)
 }

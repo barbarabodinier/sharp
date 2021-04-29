@@ -27,9 +27,8 @@ proportions.
 }
 \examples{
 # Simulating set of selection proportions
-selprop=round(runif(n=20), digits=2)
+selprop <- round(runif(n = 20), digits = 2)
 
 # Computing stability scores for different thresholds
-score=StabilityScore(selprop, pi=c(0.6,0.7,0.8), K=100)
-
+score <- StabilityScore(selprop, pi = c(0.6, 0.7, 0.8), K = 100)
 }

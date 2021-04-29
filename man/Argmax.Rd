@@ -21,14 +21,13 @@ Extracts calibrated parameters in stability selection.
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(pk=20)
+simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab=GraphicalModel(data=simul$data)
+stab <- GraphicalModel(data = simul$data)
 
 # Extracting calibrated parameters
-args=Argmax(stab)
-
+args <- Argmax(stab)
 }
 \seealso{
 \code{\link{ArgmaxId}}

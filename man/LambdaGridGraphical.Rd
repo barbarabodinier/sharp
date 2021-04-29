@@ -126,42 +126,49 @@ models.
 \examples{
 # Single-block simulation
 set.seed(1)
-simul=SimulateGraphical()
+simul <- SimulateGraphical()
 
 # Generating grid of 10 values
-Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10)
+Lambda <- LambdaGridGraphical(data = simul$data, Lambda_cardinal = 10)
 
 # Ensuring PFER < 5
-Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10, PFER_thr=5)
+Lambda <- LambdaGridGraphical(data = simul$data, Lambda_cardinal = 10, PFER_thr = 5)
 
 # Multi-block simulation
 set.seed(1)
-simul=SimulateGraphical(pk=c(10,10))
+simul <- SimulateGraphical(pk = c(10, 10))
 
 # Multi-block grid
-Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10), Lambda_cardinal=10)
+Lambda <- LambdaGridGraphical(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 
 # Denser neighbouring blocks
-Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
-Lambda_cardinal=10, lambda_other_blocks=0)
+Lambda <- LambdaGridGraphical(
+  data = simul$data, pk = c(10, 10),
+  Lambda_cardinal = 10, lambda_other_blocks = 0
+)
 
 # Using different neighbour penalties
-Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
-Lambda_cardinal=10, lambda_other_blocks=c(0.1, 0, 0.1))
-stab=GraphicalModel(data=simul$data, pk=c(10,10),
-Lambda=Lambda, lambda_other_blocks=c(0.1,0,0.1))
+Lambda <- LambdaGridGraphical(
+  data = simul$data, pk = c(10, 10),
+  Lambda_cardinal = 10, lambda_other_blocks = c(0.1, 0, 0.1)
+)
+stab <- GraphicalModel(
+  data = simul$data, pk = c(10, 10),
+  Lambda = Lambda, lambda_other_blocks = c(0.1, 0, 0.1)
+)
 stab$Lambda
 
 # Visiting from empty to full graphs with max_density=1
-Lambda=LambdaGridGraphical(data=simul$data, pk=c(10,10),
-Lambda_cardinal=10, max_density=1)
-bigblocks=BlockMatrix(pk=c(10,10))
-bigblocks_vect=bigblocks[upper.tri(bigblocks)]
-N_blocks=unname(table(bigblocks_vect))
+Lambda <- LambdaGridGraphical(
+  data = simul$data, pk = c(10, 10),
+  Lambda_cardinal = 10, max_density = 1
+)
+bigblocks <- BlockMatrix(pk = c(10, 10))
+bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+N_blocks <- unname(table(bigblocks_vect))
 N_blocks # max number of edges per block
-stab=GraphicalModel(data=simul$data, pk=c(10,10),Lambda=Lambda)
-apply(stab$Q,2,max,na.rm=TRUE) # max average number of edges from underlying algo
-
+stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda = Lambda)
+apply(stab$Q, 2, max, na.rm = TRUE) # max average number of edges from underlying algo
 }
 \references{
 \insertRef{stabilityselectionMB}{focus}

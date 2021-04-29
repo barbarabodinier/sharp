@@ -36,12 +36,11 @@ Produces a heatmap from a matrix.
 \examples{
 # Data simulation
 set.seed(1)
-mat=matrix(rnorm(200),ncol=20)
+mat <- matrix(rnorm(200), ncol = 20)
 
 # Generating heatmaps
-Heatmap(mat=mat)
-Heatmap(mat=mat, colours=c("lightgrey", "blue", "black"), legend=FALSE)
-
+Heatmap(mat = mat)
+Heatmap(mat = mat, colours = c("lightgrey", "blue", "black"), legend = FALSE)
 }
 \seealso{
 \code{\link{CalibrationPlot}}

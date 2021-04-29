@@ -53,26 +53,29 @@ be used in simulation studies (i.e. when the true model is known).
 \examples{
 # Variable selection model
 set.seed(1)
-simul=SimulateRegression(pk=30)
-stab=VariableSelection(xdata=simul$X, ydata=simul$Y)
-perf=SelectionPerformance(theta=SelectedVariables(stab), theta_star=simul$theta)
+simul <- SimulateRegression(pk = 30)
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+perf <- SelectionPerformance(theta = SelectedVariables(stab), theta_star = simul$theta)
 
 # Single-block graphical model
 set.seed(1)
-simul=SimulateGraphical(pk=20)
-stab=GraphicalModel(data=simul$data)
-perf=SelectionPerformance(theta=Adjacency(stab), theta_star=simul$theta)
-perf=SelectionPerformance(theta=Adjacency(stab), theta_star=simul$theta,
-cor=cor(simul$data), thr=0.5)
+simul <- SimulateGraphical(pk = 20)
+stab <- GraphicalModel(data = simul$data)
+perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta)
+perf <- SelectionPerformance(
+  theta = Adjacency(stab), theta_star = simul$theta,
+  cor = cor(simul$data), thr = 0.5
+)
 
 # Multi-block graphical model
 set.seed(1)
-simul=SimulateGraphical(pk=c(10,10))
-stab=GraphicalModel(data=simul$data, pk=c(10,10), lambda_other_blocks=rep(0,3))
-perf=SelectionPerformance(theta=Adjacency(stab), theta_star=simul$theta, pk=c(10,10))
-perf=SelectionPerformance(theta=Adjacency(stab), theta_star=simul$theta, pk=c(10,10),
-cor=cor(simul$data), thr=0.5)
-
+simul <- SimulateGraphical(pk = c(10, 10))
+stab <- GraphicalModel(data = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
+perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10))
+perf <- SelectionPerformance(
+  theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
+  cor = cor(simul$data), thr = 0.5
+)
 }
 \seealso{
 \code{\link{SelectionPerformanceGraph}}

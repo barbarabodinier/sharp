@@ -23,18 +23,17 @@ stability selection graphical model.
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(pk=20)
+simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab=GraphicalModel(data=simul$data)
+stab <- GraphicalModel(data = simul$data)
 
 # Calibrated adjacency matrix
-A=Adjacency(stab)
+A <- Adjacency(stab)
 
 # User-defined parameters
-myids=matrix(c(20,10), nrow=1)
-stab$Lambda[myids[1],1] # corresponding penalty
+myids <- matrix(c(20, 10), nrow = 1)
+stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
-A=Adjacency(stab, argmax_id=myids)
-
+A <- Adjacency(stab, argmax_id = myids)
 }

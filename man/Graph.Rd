@@ -50,21 +50,20 @@ Produces an igraph object from a adjacency matrix.
 \examples{
 ## From adjacency matrix
 # Un-weighted
-adjacency=SimulateAdjacency(pk=20, topology="scale-free")
+adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 plot(Graph(adjacency))
 
 # Weighted
-adjacency=adjacency*runif(prod(dim(adjacency)))
-adjacency=adjacency+t(adjacency)
-plot(Graph(adjacency, weighted=TRUE))
+adjacency <- adjacency * runif(prod(dim(adjacency)))
+adjacency <- adjacency + t(adjacency)
+plot(Graph(adjacency, weighted = TRUE))
 
 # Node colours and shapes
-plot(Graph(adjacency, weighted=TRUE, node_shape="star", node_colour="red"))
+plot(Graph(adjacency, weighted = TRUE, node_shape = "star", node_colour = "red"))
 
 ## From stability selection output
 set.seed(1)
-simul=SimulateGraphical(pk=20)
-stab=GraphicalModel(data=simul$data)
+simul <- SimulateGraphical(pk = 20)
+stab <- GraphicalModel(data = simul$data)
 plot(Graph(stab))
-
 }

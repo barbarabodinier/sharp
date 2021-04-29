@@ -35,16 +35,15 @@ iterations used for "stability1" and "stability2".
 }
 \examples{
 # Data simulation
-simul=SimulateGraphical(pk=20)
+simul <- SimulateGraphical(pk = 20)
 
 # Two runs
-stab1=GraphicalModel(data=simul$data, seed=1, K=10)
-stab2=GraphicalModel(data=simul$data, seed=2, K=10)
+stab1 <- GraphicalModel(data = simul$data, seed = 1, K = 10)
+stab2 <- GraphicalModel(data = simul$data, seed = 2, K = 10)
 
 # Merging the outputs
-stab=Combine(stability1=stab1, stability2=stab2, graph=TRUE)
+stab <- Combine(stability1 = stab1, stability2 = stab2, graph = TRUE)
 print(stab$params$K)
-
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}

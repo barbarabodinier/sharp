@@ -46,46 +46,47 @@ With categorical outcomes (i.e. "family" argument is set to
 \examples{
 ## Linear regression framework
 # Data simulation
-simul=SimulateRegression()
+simul <- SimulateRegression()
 
 # Subsampling
-ids=Resample(data=simul$Y, family="gaussian")
+ids <- Resample(data = simul$Y, family = "gaussian")
 sum(duplicated(ids))
 
 # Bootstrapping
-ids=Resample(data=simul$Y, family="gaussian", resampling="bootstrap")
+ids <- Resample(data = simul$Y, family = "gaussian", resampling = "bootstrap")
 sum(duplicated(ids))
 
 ## Logistic regression framework
 # Data simulation
-simul=SimulateRegression(family="binomial")
+simul <- SimulateRegression(family = "binomial")
 
 # Subsampling
-ids=Resample(data=simul$Y, family="binomial")
+ids <- Resample(data = simul$Y, family = "binomial")
 sum(duplicated(ids))
 prop.table(table(simul$Y))
 prop.table(table(simul$Y[ids]))
 
 # Data simulation for a binary confounder
-conf=ifelse(runif(n=100)>0.5, yes=1, no=0)
+conf <- ifelse(runif(n = 100) > 0.5, yes = 1, no = 0)
 
 # User-defined resampling function
-BalancedResampling=function(data, tau, Z, ...){
-s=NULL
-for (z in unique(Z)){
-s=c(s, sample(which((data=="0")&(Z==z)), size=tau*sum((data=="0")&(Z==z))))
-s=c(s, sample(which((data=="1")&(Z==z)), size=tau*sum((data=="1")&(Z==z))))
-}
-return(s)
+BalancedResampling <- function(data, tau, Z, ...) {
+  s <- NULL
+  for (z in unique(Z)) {
+    s <- c(s, sample(which((data == "0") & (Z == z)), size = tau * sum((data == "0") & (Z == z))))
+    s <- c(s, sample(which((data == "1") & (Z == z)), size = tau * sum((data == "1") & (Z == z))))
+  }
+  return(s)
 }
 
 # Resampling keeping proportions by Y and Z
-ids=Resample(data=simul$Y, family="binomial", resampling="BalancedResampling", Z=conf)
-prop.table(table(simul$Y,conf))
+ids <- Resample(data = simul$Y, family = "binomial", resampling = "BalancedResampling", Z = conf)
+prop.table(table(simul$Y, conf))
 prop.table(table(simul$Y[ids], conf[ids]))
 
 # User-defined resampling for stability selection
-stab=VariableSelection(xdata=simul$X, ydata=simul$Y, family="binomial",
-resampling="BalancedResampling", Z=conf)
-
+stab <- VariableSelection(
+  xdata = simul$X, ydata = simul$Y, family = "binomial",
+  resampling = "BalancedResampling", Z = conf
+)
 }

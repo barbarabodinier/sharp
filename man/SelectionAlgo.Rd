@@ -49,20 +49,19 @@ not using stability.
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateRegression(pk=50)
+simul <- SimulateRegression(pk = 50)
 
 # Running the LASSO
-mylasso=SelectionAlgo(x=simul$X, y=simul$Y, lambda=c(0.1,0.2), family="gaussian")
+mylasso <- SelectionAlgo(x = simul$X, y = simul$Y, lambda = c(0.1, 0.2), family = "gaussian")
 
 # Simulation of additional outcomes
 set.seed(2)
-Y=cbind(simul$Y, matrix(rnorm(nrow(simul$Y)*2),ncol=2))
+Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
 
 # Running multivariate Gaussian LASSO
-mylasso=SelectionAlgo(x=simul$X, y=Y, lambda=c(0.1,0.2), family="mgaussian")
+mylasso <- SelectionAlgo(x = simul$X, y = Y, lambda = c(0.1, 0.2), family = "mgaussian")
 str(mylasso)
 
-stab=VariableSelection(xdata=simul$X, ydata=Y, family="mgaussian")
+stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
 SelectionPerformance(SelectedVariables(stab), simul$theta)
-
 }

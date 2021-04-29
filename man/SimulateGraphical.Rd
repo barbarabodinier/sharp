@@ -118,7 +118,7 @@ plot(Graph(simul$theta))
 
 # Extracting true precision/correlation matrices
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free", output_matrices=TRUE)
+simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free", output_matrices = TRUE)
 str(simul)
 
 # Using user-defined function for graph simulation
@@ -133,7 +133,6 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode")
 plot(Graph(simul$theta)) # star
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
-
 }
 \seealso{
 \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}}

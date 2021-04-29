@@ -79,9 +79,8 @@ is controlled by the argument "Sequential_template".
 \examples{
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical()
+simul <- SimulateGraphical()
 
 # Running graphical LASSO
-myglasso=GraphicalAlgo(x=simul$data, Lambda=matrix(c(0.1, 0.2),ncol=1))
-
+myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
 }

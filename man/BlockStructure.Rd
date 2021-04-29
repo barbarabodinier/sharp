@@ -19,9 +19,8 @@ This can be used to visualise block IDs.
 }
 \examples{
 # Example with 2 groups
-mat=BlockStructure(pk=rep(10,2))
+mat <- BlockStructure(pk = rep(10, 2))
 
 # Example with 5 groups
-mat=BlockStructure(pk=rep(10,5))
-
+mat <- BlockStructure(pk = rep(10, 5))
 }
