@@ -130,3 +130,9 @@ Lambda=LambdaGridGraphical(data=simul$data, Lambda_cardinal=10)
 
 \insertRef{stabilityselectionSS}{focus}
 }
+\seealso{
+Other lambda grid functions: 
+\code{\link{LambdaGridRegression}()},
+\code{\link{LambdaSequence}()}
+}
+\concept{lambda grid functions}

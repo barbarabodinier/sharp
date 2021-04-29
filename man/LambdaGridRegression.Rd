@@ -28,11 +28,11 @@ columns.}
 \item{seed}{used in set.seed() to ensure reproducibility of the analyses.}
 
 \item{family}{type of regression model. This argument is defined as in the
-\code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
-include "gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis). This
-argument is only used with implementation="glmnet", or with functions using
-the family argument in the same way (see example below).}
+\code{\link[glmnet]{glmnet}} function from the glmnet package. Possible
+values include "gaussian" (linear regression), "binomial" (logistic
+regression), "multinomial" (multinomial regression), and "cox" (survival
+analysis). This argument is only used with implementation="glmnet", or with
+functions using the family argument in the same way (see example below).}
 
 \item{implementation}{name of the function to use for definition of the grid
 of lambda values. With implementation="glmnet", the function
@@ -91,3 +91,9 @@ Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y,
                             implementation="ManualGridGroupLasso",
                             group=rep(1:4, each=5))
 }
+\seealso{
+Other lambda grid functions: 
+\code{\link{LambdaGridGraphical}()},
+\code{\link{LambdaSequence}()}
+}
+\concept{lambda grid functions}

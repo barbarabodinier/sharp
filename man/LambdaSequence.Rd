@@ -14,12 +14,16 @@ LambdaSequence(lmax, lmin, cardinal = 100)
 \item{cardinal}{number of values in the grid.}
 }
 \value{
-a vector with values between "lmin" and "lmax"
-and as many values as indicated by "cardinal".
+a vector with values between "lmin" and "lmax" and as many values as
+  indicated by "cardinal".
 }
 \description{
-Generates a sequence of
-penalty parameters from extreme values
-and the required number of elements.
-The sequence is defined on the log-scale.
+Generates a sequence of penalty parameters from extreme values and the
+required number of elements. The sequence is defined on the log-scale.
 }
+\seealso{
+Other lambda grid functions: 
+\code{\link{LambdaGridGraphical}()},
+\code{\link{LambdaGridRegression}()}
+}
+\concept{lambda grid functions}

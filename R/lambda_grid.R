@@ -9,11 +9,11 @@
 #' @param tau subsample size. Only used with resampling="subsampling".
 #' @param seed used in set.seed() to ensure reproducibility of the analyses.
 #' @param family type of regression model. This argument is defined as in the
-#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
-#'   include "gaussian" (linear regression), "binomial" (logistic regression),
-#'   "multinomial" (multinomial regression), and "cox" (survival analysis). This
-#'   argument is only used with implementation="glmnet", or with functions using
-#'   the family argument in the same way (see example below).
+#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible
+#'   values include "gaussian" (linear regression), "binomial" (logistic
+#'   regression), "multinomial" (multinomial regression), and "cox" (survival
+#'   analysis). This argument is only used with implementation="glmnet", or with
+#'   functions using the family argument in the same way (see example below).
 #' @param implementation name of the function to use for definition of the grid
 #'   of lambda values. With implementation="glmnet", the function
 #'   \code{\link[glmnet]{glmnet}} is used to define the path of lambda values.
@@ -38,6 +38,8 @@
 #'
 #' @return a matrix of lambda values with one column and as many rows as
 #'   indicated in "Lambda_cardinal".
+#'
+#' @family lambda grid functions
 #'
 #' @example examples/example_lambdagridregression.R
 #'
@@ -171,6 +173,8 @@ LambdaGridRegression=function(xdata, ydata, tau=0.5, seed=1,
 #'
 #' @return a matrix of lambda values with as many columns as there are entries in "pk"
 #' and as many rows as indicated in "Lambda_cardinal".
+#'
+#' @family lambda grid functions
 #'
 #' @references
 #' \insertRef{stabilityselectionMB}{focus}
@@ -374,17 +378,17 @@ LambdaGridGraphical=function(data, pk=NULL, lambda_other_blocks=NULL, K=100, tau
 
 #' Sequence of penalty parameters
 #'
-#' Generates a sequence of
-#' penalty parameters from extreme values
-#' and the required number of elements.
-#' The sequence is defined on the log-scale.
+#' Generates a sequence of penalty parameters from extreme values and the
+#' required number of elements. The sequence is defined on the log-scale.
 #'
 #' @param lmax maximum value in the grid.
 #' @param lmin minimum value in the grid.
 #' @param cardinal number of values in the grid.
 #'
-#' @return a vector with values between "lmin" and "lmax"
-#' and as many values as indicated by "cardinal".
+#' @return a vector with values between "lmin" and "lmax" and as many values as
+#'   indicated by "cardinal".
+#'
+#' @family lambda grid functions
 #'
 #' @export
 LambdaSequence=function(lmax, lmin, cardinal=100){
