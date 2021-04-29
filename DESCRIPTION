@@ -4,6 +4,7 @@ Title: Feature selectiOn and Clustering Using Stability
 Version: 0.1.0
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
+URL: https://github.com/barbarabodinier/focus
 BugReports: https://github.com/barbarabodinier/focus/issues
 Description: Implementation of stability-enhanced models 
   for variable selection in regression, network estimation and clustering. 
