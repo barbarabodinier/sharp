@@ -7,7 +7,11 @@
 
 <!-- badges: end -->
 
-The goal of focus is to …
+Implementation of stability-enhanced models for variable selection in
+regression, graphical modelling and clustering. These methods are based
+on resampling approaches to compute selection proportions. Calibration
+of the models is done via maximisation of a stability score measuring
+how unlikely it is that the selection procedure is uniform.
 
 ## Installation
 
@@ -19,7 +23,8 @@ The goal of focus is to …
 
 <!-- ``` -->
 
-And the development version from [GitHub](https://github.com/) with:
+The development version can be installed from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")

@@ -13,12 +13,16 @@ knitr::opts_chunk$set(
 )
 ```
 
-# focus
+# focus: Feature selectiOn and Clustering Using Stability
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of focus is to ...
+Implementation of stability-enhanced models 
+for variable selection in regression, graphical modelling and clustering. 
+These methods are based on resampling approaches to compute selection proportions. 
+Calibration of the models is done via maximisation of a stability score 
+measuring how unlikely it is that the selection procedure is uniform.
 
 ## Installation
 
@@ -28,25 +32,20 @@ The goal of focus is to ...
 <!-- install.packages("focus") -->
 <!-- ``` -->
 
-And the development version from [GitHub](https://github.com/) with:
+The development version can be installed from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("barbarabodinier/focus")
 ```
-## Example
+
+## Variable selection
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(focus)
 ## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
 ```
 
 You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
