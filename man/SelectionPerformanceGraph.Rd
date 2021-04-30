@@ -91,7 +91,12 @@ perfgraph <- SelectionPerformanceGraph(
 require(igraph)
 igraph::V(perfgraph)$size <- 10
 plot(perfgraph, layout = layout_with_kk(perfgraph))
+
 }
 \seealso{
 \code{\link{Graph}}
+
+Other selection performance functions: 
+\code{\link{SelectionPerformance}()}
 }
+\concept{selection performance functions}

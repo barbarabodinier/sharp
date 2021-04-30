@@ -45,7 +45,7 @@ be included in the igraph object.}
 an igraph object.
 }
 \description{
-Produces an igraph object from a adjacency matrix.
+Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object from a adjacency matrix.
 }
 \examples{
 ## From adjacency matrix
@@ -66,4 +66,8 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 20)
 stab <- GraphicalModel(data = simul$data)
 plot(Graph(stab))
+
+}
+\seealso{
+\code{\link{Adjacency}}, \code{\link{GraphicalModel}}, \href{https://igraph.org/r/}{igraph manual}
 }

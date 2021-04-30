@@ -1,6 +1,6 @@
 #' Graph visualisation
 #'
-#' Produces an igraph object from a adjacency matrix.
+#' Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object from a adjacency matrix.
 #'
 #' @param adjacency adjacency matrix or output from
 #'   \code{\link{GraphicalModel}}.
@@ -26,6 +26,8 @@
 #'
 #' @return an igraph object.
 #'
+#' @seealso \code{\link{Adjacency}}, \code{\link{GraphicalModel}}, \href{https://igraph.org/r/}{igraph manual}
+#'
 #' @examples
 #' ## From adjacency matrix
 #' # Un-weighted
@@ -45,6 +47,7 @@
 #' simul <- SimulateGraphical(pk = 20)
 #' stab <- GraphicalModel(data = simul$data)
 #' plot(Graph(stab))
+#'
 #' @export
 Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape = NULL,
                   weighted = FALSE, satellites = FALSE) {
@@ -198,11 +201,11 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
 #' Produces star-shaped nodes in an igraph object.
 #'
 #' @param coords a matrix of coordinates
-#' (see \code{\link[igraph]{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}}).
 #' @param v a vector of node IDs
-#' (see \code{\link[igraph]{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}}).
 #' @param params node graphical parameters
-#' (see \code{\link[igraph]{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}}).
 #'
 #' @seealso \code{\link[igraph]{add_shape}}
 #'
@@ -238,11 +241,11 @@ mystar <- function(coords, v = NULL, params) {
 #' Produces triangular nodes in an igraph object.
 #'
 #' @param coords a matrix of coordinates
-#' (see \code{\link[igraph]{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}}).
 #' @param v a vector of node IDs
-#' (see \code{\link[igraph]{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}}).
 #' @param params node graphical parameters
-#' (see \code{\link[igraph]{add_shape}} from the igraph package).
+#' (see \code{\link[igraph]{add_shape}}).
 #'
 #' @seealso \code{\link[igraph]{add_shape}}
 #'

@@ -37,7 +37,7 @@
 #'   subsequent rows correspond to each of the blocks. The order of the blocks
 #'   is defined as in \code{\link{BlockStructure}}.
 #'
-#' @seealso \code{\link{SelectionPerformanceGraph}}
+#' @family selection performance functions
 #'
 #' @examples
 #' # Variable selection model
@@ -65,6 +65,7 @@
 #'   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
 #'   cor = cor(simul$data), thr = 0.5
 #' )
+#'
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
   # Storing similarities/differences between estimated and true sets
@@ -72,7 +73,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 
   # Extracting block-specific performances
   if (is.null(pk)) {
-    return(GetPerformance(Asum, cor = cor, thr = thr))
+    return(SelectionPerformanceSingle(Asum, cor = cor, thr = thr))
   } else {
     Asum_vect <- Asum[upper.tri(Asum)]
     bigblocks <- BlockMatrix(pk)
@@ -84,12 +85,125 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
     }
 
     return(rbind(
-      GetPerformance(Asum, cor = cor, thr = thr),
-      GetPerformance(Asum_vect[bigblocks_vect == 1], cor = cor_vect[bigblocks_vect == 1], thr = thr),
-      GetPerformance(Asum_vect[bigblocks_vect == 2], cor = cor_vect[bigblocks_vect == 2], thr = thr),
-      GetPerformance(Asum_vect[bigblocks_vect == 3], cor = cor_vect[bigblocks_vect == 3], thr = thr)
+      SelectionPerformanceSingle(Asum, cor = cor, thr = thr),
+      SelectionPerformanceSingle(Asum_vect[bigblocks_vect == 1], cor = cor_vect[bigblocks_vect == 1], thr = thr),
+      SelectionPerformanceSingle(Asum_vect[bigblocks_vect == 2], cor = cor_vect[bigblocks_vect == 2], thr = thr),
+      SelectionPerformanceSingle(Asum_vect[bigblocks_vect == 3], cor = cor_vect[bigblocks_vect == 3], thr = thr)
     ))
   }
+}
+
+
+#' Graph representation of selection performance
+#'
+#' Generates an igraph object representing the True Positive, False Positive and
+#' False Negative edges by comparing the set of selected edges to the set of
+#' true edges. This function can only be used in simulation studies (i.e. when
+#' the true model is known).
+#'
+#' @param theta binary vector of selected variables (in a regression framework)
+#'   or binary adjacency matrix (in graphical modelling).
+#' @param theta_star binary vector of true predictors (in a regression
+#'   framework) or true binary adjacency matrix (in graphical modelling).
+#' @param colours vector of edge colours. The first entry of the vector defines
+#'   the colour of False Positive edges, second entry is for True Negatives and
+#'   third entry is for True Positives.
+#' @param lty vector of line types for edges. The first entry of the vector
+#'   defines the colour of False Positive edges, second entry is for True
+#'   Negatives and third entry is for True Positives.
+#' @param plot logical indicating if the generated graph should be plotted.
+#' @param filename file path to saved figure. With filename=NULL, the plot is
+#'   not saved.
+#' @param fileformat format of the saved figure. Possible values are "pdf" or
+#'   "png". Only used if argument "filename" is not NULL.
+#' @param res resolution of the png figure (see \code{\link{png}} from the
+#'   grDevices package). Only used if argument "filename" is not NULL and
+#'   fileformat="png".
+#' @param width width of the saved figure. Only used if argument "filename" is
+#'   not NULL.
+#' @param height height of the saved figure. Only used if argument "filename" is
+#'   not NULL.
+#' @param units units of width and height. Possible values are "px", "in", "cm"
+#'   and "mm" (see \code{\link{png}} from the grDevices package). Only used if
+#'   argument "filename" is not NULL and fileformat="png".
+#' @param ... additional arguments to be passed to \code{\link{Graph}}.
+#'
+#' @family selection performance functions
+#' @seealso \code{\link{Graph}}
+#'
+#' @examples
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateGraphical(pk = 30)
+#'
+#' # Stability selection
+#' stab <- GraphicalModel(data = simul$data, K = 10)
+#'
+#' # Performance graph
+#' perfgraph <- SelectionPerformanceGraph(theta = Adjacency(stab),
+#' theta_star = simul$theta, plot = TRUE)
+#'
+#' # User-defined colours/shapes
+#' perfgraph <- SelectionPerformanceGraph(
+#'   theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
+#'   colours = c("forestgreen", "orange", "black"),
+#'   node_colour = "red", node_shape = "star"
+#' )
+#' perfgraph <- SelectionPerformanceGraph(
+#'   theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
+#'   colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
+#' )
+#'
+#' # Using and re-formatting igraph object
+#' require(igraph)
+#' igraph::V(perfgraph)$size <- 10
+#' plot(perfgraph, layout = layout_with_kk(perfgraph))
+#'
+#' @export
+SelectionPerformanceGraph <- function(theta, theta_star,
+                                      colours = c("tomato", "forestgreen", "navy"),
+                                      lty = c(2, 3, 1),
+                                      plot = FALSE,
+                                      filename = NULL, fileformat = "pdf", res = 500,
+                                      width = 7, height = 7, units = "in", ...) {
+  # Storing similarities/differences between estimated and true sets
+  Asum <- theta + 2 * theta_star
+
+  # Refining inputs
+  names(colours) <- names(lty) <- c("FP", "TN", "TP")
+
+  # Making consensus graph
+  g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), ...)
+
+  # Formatting vertices
+  igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
+  igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
+
+  # Formatting edges
+  myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
+  myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
+  igraph::E(g)$color <- myedgecolour
+  igraph::E(g)$width <- 1
+  igraph::E(g)$lty <- myedgelty
+
+  # Plotting graph
+  if (plot | (!is.null(filename))) {
+    if (!is.null(filename)) {
+      if (fileformat == "pdf") {
+        grDevices::pdf(filename, width = width, height = height)
+      } else {
+        grDevices::png(filename, width = width, height = height, res = res, units = units)
+      }
+    }
+    graphics::par(mar = rep(0, 4))
+    igraph::plot.igraph(g, layout = igraph::layout_with_kk(g))
+    if (!is.null(filename)) {
+      grDevices::dev.off()
+    }
+  }
+
+  # Returning output graph
+  return(g)
 }
 
 
@@ -127,7 +241,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' above or below the threshold "thr", are also reported.
 #'
 #' @keywords internal
-GetPerformance <- function(Asum, cor = NULL, thr = 0.5) {
+SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   # Asum is an adjacency matrix with 3 for TP, 2 for FN, 1 for FP, and 0 for TN
 
   # Preparing objects
@@ -192,112 +306,3 @@ GetPerformance <- function(Asum, cor = NULL, thr = 0.5) {
 }
 
 
-#' Graph representation of selection performance
-#'
-#' Generates an igraph object representing the True Positive, False Positive and
-#' False Negative edges by comparing the set of selected edges to the set of
-#' true edges. This function can only be used in simulation studies (i.e. when
-#' the true model is known).
-#'
-#' @param theta binary vector of selected variables (in a regression framework)
-#'   or binary adjacency matrix (in graphical modelling).
-#' @param theta_star binary vector of true predictors (in a regression
-#'   framework) or true binary adjacency matrix (in graphical modelling).
-#' @param colours vector of edge colours. The first entry of the vector defines
-#'   the colour of False Positive edges, second entry is for True Negatives and
-#'   third entry is for True Positives.
-#' @param lty vector of line types for edges. The first entry of the vector
-#'   defines the colour of False Positive edges, second entry is for True
-#'   Negatives and third entry is for True Positives.
-#' @param plot logical indicating if the generated graph should be plotted.
-#' @param filename file path to saved figure. With filename=NULL, the plot is
-#'   not saved.
-#' @param fileformat format of the saved figure. Possible values are "pdf" or
-#'   "png". Only used if argument "filename" is not NULL.
-#' @param res resolution of the png figure (see \code{\link{png}} from the
-#'   grDevices package). Only used if argument "filename" is not NULL and
-#'   fileformat="png".
-#' @param width width of the saved figure. Only used if argument "filename" is
-#'   not NULL.
-#' @param height height of the saved figure. Only used if argument "filename" is
-#'   not NULL.
-#' @param units units of width and height. Possible values are "px", "in", "cm"
-#'   and "mm" (see \code{\link{png}} from the grDevices package). Only used if
-#'   argument "filename" is not NULL and fileformat="png".
-#' @param ... additional arguments to be passed to \code{\link{Graph}}.
-#'
-#' @seealso \code{\link{Graph}}
-#'
-#' @examples
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = 30)
-#'
-#' # Stability selection
-#' stab <- GraphicalModel(data = simul$data, K = 10)
-#'
-#' # Performance graph
-#' perfgraph <- SelectionPerformanceGraph(theta = Adjacency(stab),
-#' theta_star = simul$theta, plot = TRUE)
-#'
-#' # User-defined colours/shapes
-#' perfgraph <- SelectionPerformanceGraph(
-#'   theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
-#'   colours = c("forestgreen", "orange", "black"),
-#'   node_colour = "red", node_shape = "star"
-#' )
-#' perfgraph <- SelectionPerformanceGraph(
-#'   theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
-#'   colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
-#' )
-#'
-#' # Using and re-formatting igraph object
-#' require(igraph)
-#' igraph::V(perfgraph)$size <- 10
-#' plot(perfgraph, layout = layout_with_kk(perfgraph))
-#' @export
-SelectionPerformanceGraph <- function(theta, theta_star,
-                                      colours = c("tomato", "forestgreen", "navy"),
-                                      lty = c(2, 3, 1),
-                                      plot = FALSE,
-                                      filename = NULL, fileformat = "pdf", res = 500,
-                                      width = 7, height = 7, units = "in", ...) {
-  # Storing similarities/differences between estimated and true sets
-  Asum <- theta + 2 * theta_star
-
-  # Refining inputs
-  names(colours) <- names(lty) <- c("FP", "TN", "TP")
-
-  # Making consensus graph
-  g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), ...)
-
-  # Formatting vertices
-  igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
-  igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
-
-  # Formatting edges
-  myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
-  myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
-  igraph::E(g)$color <- myedgecolour
-  igraph::E(g)$width <- 1
-  igraph::E(g)$lty <- myedgelty
-
-  # Plotting graph
-  if (plot | (!is.null(filename))) {
-    if (!is.null(filename)) {
-      if (fileformat == "pdf") {
-        grDevices::pdf(filename, width = width, height = height)
-      } else {
-        grDevices::png(filename, width = width, height = height, res = res, units = units)
-      }
-    }
-    graphics::par(mar = rep(0, 4))
-    igraph::plot.igraph(g, layout = igraph::layout_with_kk(g))
-    if (!is.null(filename)) {
-      grDevices::dev.off()
-    }
-  }
-
-  # Returning output graph
-  return(g)
-}

@@ -8,13 +8,13 @@ mystar(coords, v = NULL, params)
 }
 \arguments{
 \item{coords}{a matrix of coordinates
-(see \code{\link[igraph]{add_shape}} from the igraph package).}
+(see \code{\link[igraph]{add_shape}}).}
 
 \item{v}{a vector of node IDs
-(see \code{\link[igraph]{add_shape}} from the igraph package).}
+(see \code{\link[igraph]{add_shape}}).}
 
 \item{params}{node graphical parameters
-(see \code{\link[igraph]{add_shape}} from the igraph package).}
+(see \code{\link[igraph]{add_shape}}).}
 }
 \description{
 Produces star-shaped nodes in an igraph object.
