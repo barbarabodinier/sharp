@@ -49,6 +49,8 @@
 #' @details When selecting a single parameter, each point represents the best
 #' (maximum) stability score across all visited values of the other parameter.
 #'
+#' @family calibration functions
+#'
 #' @examples
 #' # Data simulation
 #' set.seed(1)
@@ -69,6 +71,7 @@
 #'   colours = c("lightgrey", "blue", "black"),
 #'   legend_length = 25, legend_range = c(0, 4000)
 #' )
+#'
 #' @export
 CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
                             lines = TRUE, colours = c("ivory", "navajowhite", "tomato", "darkred"),
@@ -318,6 +321,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #' # Generating heatmaps
 #' Heatmap(mat = mat)
 #' Heatmap(mat = mat, colours = c("lightgrey", "blue", "black"), legend = FALSE)
+#'
 #' @export
 Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"),
                     resolution = 10000, legend = TRUE, legend_length = 15, legend_range = NULL) {

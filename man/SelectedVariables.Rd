@@ -35,4 +35,14 @@ myids <- matrix(c(80, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 A <- SelectedVariables(stab, argmax_id = myids)
+
 }
+\seealso{
+Other calibration functions: 
+\code{\link{Adjacency}()},
+\code{\link{ArgmaxId}()},
+\code{\link{Argmax}()},
+\code{\link{CalibrationPlot}()},
+\code{\link{SelectionProportions}()}
+}
+\concept{calibration functions}

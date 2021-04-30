@@ -41,6 +41,7 @@ mat <- matrix(rnorm(200), ncol = 20)
 # Generating heatmaps
 Heatmap(mat = mat)
 Heatmap(mat = mat, colours = c("lightgrey", "blue", "black"), legend = FALSE)
+
 }
 \seealso{
 \code{\link{CalibrationPlot}}

@@ -39,7 +39,14 @@ stab$params$pi_list[ids[2]]
 
 # Link with Argmax() function
 args <- Argmax(stab)
+
 }
 \seealso{
-\code{\link{Argmax}}
+Other calibration functions: 
+\code{\link{Adjacency}()},
+\code{\link{Argmax}()},
+\code{\link{CalibrationPlot}()},
+\code{\link{SelectedVariables}()},
+\code{\link{SelectionProportions}()}
 }
+\concept{calibration functions}

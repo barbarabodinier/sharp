@@ -56,4 +56,16 @@ myids <- matrix(c(20, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 prop <- SelectionProportions(stab, argmax_id = myids)
+
 }
+\seealso{
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+
+Other calibration functions: 
+\code{\link{Adjacency}()},
+\code{\link{ArgmaxId}()},
+\code{\link{Argmax}()},
+\code{\link{CalibrationPlot}()},
+\code{\link{SelectedVariables}()}
+}
+\concept{calibration functions}

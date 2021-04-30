@@ -14,7 +14,7 @@
 #' @return a matrix of (block-specific) parameter IDs. In multi-block graphical
 #'   modelling, rows correspond to different blocks.
 #'
-#' @seealso \code{\link{Argmax}}
+#' @family calibration functions
 #'
 #' @examples
 #' # Data simulation
@@ -31,6 +31,7 @@
 #'
 #' # Link with Argmax() function
 #' args <- Argmax(stab)
+#'
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
   if ((is.null(stability)) & (is.null(S))) {
@@ -74,14 +75,13 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' Extracts calibrated parameters in stability selection.
 #'
-#' @param stability output of \code{\link{VariableSelection}}
-#' or \code{\link{GraphicalModel}}.
+#' @param stability output of \code{\link{VariableSelection}} or
+#'   \code{\link{GraphicalModel}}.
 #'
-#' @return a matrix of (block-specific) parameters.
-#' In multi-block graphical modelling, rows correspond to
-#' different blocks.
+#' @return a matrix of (block-specific) parameters. In multi-block graphical
+#'   modelling, rows correspond to different blocks.
 #'
-#' @seealso \code{\link{ArgmaxId}}
+#' @family calibration functions
 #'
 #' @examples
 #' # Data simulation
@@ -93,6 +93,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' # Extracting calibrated parameters
 #' args <- Argmax(stab)
+#'
 #' @export
 Argmax <- function(stability) {
   argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
@@ -129,6 +130,8 @@ Argmax <- function(stability) {
 #' @return a binary and symmetric adjacency matrix encoding
 #' an undirected graph with no self-loops.
 #'
+#' @family calibration functions
+#'
 #' @examples
 #' # Data simulation
 #' set.seed(1)
@@ -145,6 +148,7 @@ Argmax <- function(stability) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' A <- Adjacency(stab, argmax_id = myids)
+#'
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
   A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
@@ -186,6 +190,8 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' @return a binary vector encoding the selection status
 #' of the variables.
 #'
+#' @family calibration functions
+#'
 #' @examples
 #' # Data simulation
 #' set.seed(1)
@@ -202,6 +208,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' A <- SelectedVariables(stab, argmax_id = myids)
+#'
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
   if (is.null(argmax_id)) {
@@ -260,6 +267,11 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' prop <- SelectionProportions(stab, argmax_id = myids)
+#'
+#' @family calibration functions
+#'
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+#'
 #' @export
 SelectionProportions <- function(stability, argmax_id = NULL) {
   if ("data" %in% names(stability$params)) {
@@ -282,6 +294,7 @@ SelectionProportions <- function(stability, argmax_id = NULL) {
 #' stability selection model are returned.
 #'
 #' @return a symmetric matrix.
+#'
 #'
 #' @keywords internal
 SelectionProportionsGraphical <- function(stability, argmax_id = NULL) {

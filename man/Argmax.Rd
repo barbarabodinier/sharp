@@ -7,13 +7,12 @@
 Argmax(stability)
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}}
-or \code{\link{GraphicalModel}}.}
+\item{stability}{output of \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}.}
 }
 \value{
-a matrix of (block-specific) parameters.
-In multi-block graphical modelling, rows correspond to
-different blocks.
+a matrix of (block-specific) parameters. In multi-block graphical
+  modelling, rows correspond to different blocks.
 }
 \description{
 Extracts calibrated parameters in stability selection.
@@ -28,7 +27,14 @@ stab <- GraphicalModel(data = simul$data)
 
 # Extracting calibrated parameters
 args <- Argmax(stab)
+
 }
 \seealso{
-\code{\link{ArgmaxId}}
+Other calibration functions: 
+\code{\link{Adjacency}()},
+\code{\link{ArgmaxId}()},
+\code{\link{CalibrationPlot}()},
+\code{\link{SelectedVariables}()},
+\code{\link{SelectionProportions}()}
 }
+\concept{calibration functions}
