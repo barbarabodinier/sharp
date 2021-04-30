@@ -61,9 +61,7 @@ Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
 # Running multivariate Gaussian LASSO
 mylasso <- SelectionAlgo(x = simul$X, y = Y, lambda = c(0.1, 0.2), family = "mgaussian")
 str(mylasso)
-
 stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
-SelectionPerformance(SelectedVariables(stab), simul$theta)
 }
 \seealso{
 Other underlying algorithm functions: 

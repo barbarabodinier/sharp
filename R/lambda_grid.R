@@ -3,78 +3,74 @@
 #' Generates a relevant grid of penalty parameter values for penalised
 #' regression.
 #'
-#' @param xdata matrix of predictors with observations as rows and variables as
-#'   columns.
-#' @param ydata vector or matrix of outcome(s).
-#' @param tau subsample size. Only used with resampling="subsampling".
-#' @param seed used in set.seed() to ensure reproducibility of the analyses.
-#' @param family type of regression model. This argument is defined as in the
-#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible
-#'   values include "gaussian" (linear regression), "binomial" (logistic
-#'   regression), "multinomial" (multinomial regression), and "cox" (survival
-#'   analysis). This argument is only used with implementation="glmnet", or with
-#'   functions using the family argument in the same way.
-#' @param implementation name of the function to use for definition of the grid
-#'   of lambda values. With implementation="glmnet", the function
-#'   \code{\link[glmnet]{glmnet}} is used to define the path of lambda values.
-#'   Alternatively, this argument can be a character string indicating the name
-#'   of a function. The function provided must use arguments called "x", "y" and
-#'   "family" and return a list in which the entry named "lambda" contains a
-#'   vector of lambda values.
-#' @param resampling resampling approach. Possible values are: "subsampling" for
-#'   sampling without replacement of a proportion tau of the observations, or
-#'   "bootstrap" for sampling with replacement generating a resampled dataset
-#'   with as many observations as in the full sample. Alternatively, this
-#'   argument can be a character string indicating the name of a function to use
-#'   for resampling. This function must use arguments called "data" and "tau"
-#'   and return IDs of observations to be included in the resampled dataset (see
-#'   example in \code{\link{Resample}}).
-#' @param Lambda_cardinal number of values in the grid.
-#' @param verbose logical indicating if a message with minimum and maximum
-#'   numbers of selected variables on one instance of resampled data should be
-#'   printed.
-#' @param ... additional parameters passed to the functions provided in
-#'   "implementation" or "resampling".
+#' @inheritParams VariableSelection
 #'
-#' @return a matrix of lambda values with one column and as many rows as
-#'   indicated in "Lambda_cardinal".
+#' @return A matrix of lambda values with one column and as many rows as
+#'   indicated in \code{Lambda_cardinal}.
 #'
 #' @family lambda grid functions
 #'
 #' @examples
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated data
+#'
 #' # Lambda grid for linear regression
-#' simul <- SimulateRegression(n = 100, pk = 20, family = "gaussian") # simulated data
 #' Lambda <- LambdaGridRegression(
 #'   xdata = simul$X, ydata = simul$Y,
 #'   family = "gaussian", Lambda_cardinal = 20
 #' )
 #'
 #' # Grid can be used in VariableSelection()
-#' out <- VariableSelection(
+#' stab <- VariableSelection(
 #'   xdata = simul$X, ydata = simul$Y,
 #'   family = "gaussian", Lambda = Lambda
 #' )
-#' SelectedVariables(out)
+#' print(SelectedVariables(stab))
 #'
-#' # For use with gglasso (group LASSO)
-#' require(gglasso)
+#' # Example with group-LASSO (gglasso implementation)
+#' if (requireNamespace("gglasso", quietly=TRUE)){
 #' ManualGridGroupLasso <- function(x, y, family, ...) {
 #'   if (family == "gaussian") {
-#'     return(cv.gglasso(x = x, y = y, pred.loss = "L1", ...))
+#'     return(gglasso::cv.gglasso(x = x, y = y, pred.loss = "L1", ...))
 #'   }
 #' }
 #' Lambda <- LambdaGridRegression(
 #'   xdata = simul$X, ydata = simul$Y,
 #'   family = "gaussian", Lambda_cardinal = 20,
 #'   implementation = "ManualGridGroupLasso",
-#'   group = rep(1:4, each = 5)
+#'   group = sort(rep(1:4, length.out=ncol(simul$X)))
 #' )
+#' GroupLasso=function(x, y, lambda, family, ...){
+#' # Running the regression
+#' if (family=="binomial"){
+#' ytmp=y
+#' ytmp[ytmp==min(ytmp)]=-1
+#' ytmp[ytmp==max(ytmp)]=1
+#' mymodel=gglasso::gglasso(x, ytmp, lambda=lambda, loss="logit", ...)
+#' }
+#' if (family=="gaussian"){
+#' mymodel=gglasso::gglasso(x, y, lambda=lambda, loss="ls", ...)
+#' }
+#' # Extracting and formatting the beta coefficients
+#' beta_full=t(as.matrix(mymodel$beta))
+#' beta_full=beta_full[,colnames(x)]
+#'
+#' selected=ifelse(beta_full!=0, yes=1, no=0)
+#'
+#' return(list(selected=selected, beta_full=beta_full))
+#' }
+#' stab=VariableSelection(xdata = simul$X, ydata = simul$Y,
+#' implementation="GroupLasso", Lambda=Lambda,
+#' group = sort(rep(1:4, length.out=ncol(simul$X))))
+#' print(SelectedVariables(stab))
+#' }
 #' @export
 LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
                                  family = "gaussian", implementation = "glmnet",
                                  resampling = "subsampling",
                                  Lambda_cardinal = 100,
-                                 verbose = TRUE, ...) {
+                                 ...) {
   # Object preparation, error and warning messages
   Lambda <- NULL
   pi_list <- seq(0.6, 0.9, by = 0.01)
@@ -83,6 +79,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   PFER_method <- "MB"
   PFER_thr <- Inf
   FDP_thr <- Inf
+  verbose <- TRUE
   CheckInputRegression(
     xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
     K = K, tau = tau, seed = seed, n_cat = n_cat,
@@ -108,14 +105,6 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   } else {
     # Applying user-defined function for variable selection
     mycv <- do.call(get(implementation), args = list(x = xdata[s, ], y = ydata[s, ], family = family, ...))
-  }
-
-  # Printing messages
-  if (verbose) {
-    if (implementation == "glmnet") {
-      print(paste("Minimum number of selected variables:", min(mycv$nzero)))
-      print(paste("Maximum number of selected variables:", max(mycv$nzero)))
-    }
   }
 
   # Creating a grid of lambda values from min and max

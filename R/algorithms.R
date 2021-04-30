@@ -49,9 +49,7 @@
 #' # Running multivariate Gaussian LASSO
 #' mylasso <- SelectionAlgo(x = simul$X, y = Y, lambda = c(0.1, 0.2), family = "mgaussian")
 #' str(mylasso)
-#'
 #' stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
-#' SelectionPerformance(SelectedVariables(stab), simul$theta)
 #' @export
 SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) {
   # Making sure none of the variables has a null standard deviation
@@ -87,6 +85,11 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
         selected <- ifelse(mybeta != 0, yes = 1, no = 0)
         beta_full <- mybeta
       } else {
+        print(ncol(y))
+        print(head(y))
+        if (is.null(colnames(y))){
+          colnames(y)=paste0("Y",1:ncol(y))
+        }
         mybeta <- array(NA,
           dim = c(length(lambda), ncol(x), ncol(y)),
           dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x), colnames(y))

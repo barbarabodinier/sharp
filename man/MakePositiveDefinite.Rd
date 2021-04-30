@@ -13,11 +13,11 @@ MakePositiveDefinite(omega, u_value = 0.1, pd_strategy = "diagonally_dominant")
 
 \item{pd_strategy}{method to ensure that the generated precision matrix is
 positive definite (and hence can be a covariance matrix). With
-pd_strategy="diagonally_dominant", the precision matrix is made diagonally
-dominant by setting the diagonal entries to the sum of absolute values on
-the corresponding row and a constant u. With
-pd_strategy="nonnegative_eigenvalues", diagonal entries are set to the sum
-of the absolute value of the smallest eigenvalue and a constant u.}
+\code{pd_strategy="diagonally_dominant"}, the precision matrix is made
+diagonally dominant by setting the diagonal entries to the sum of absolute
+values on the corresponding row and a constant u. With
+\code{pd_strategy="nonnegative_eigenvalues"}, diagonal entries are set to
+the sum of the absolute value of the smallest eigenvalue and a constant u.}
 }
 \value{
 A positive definite matrix.
@@ -42,4 +42,5 @@ sigma_pd <- MakePositiveDefinite(sigma, pd = "diagonally_dominant")
 # Non-negative eigenvalues
 sigma_pd <- MakePositiveDefinite(sigma, pd = "nonnegative_eigenvalues")
 eigen(sigma_pd)$values
+
 }

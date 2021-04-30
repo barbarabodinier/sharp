@@ -2,12 +2,12 @@
 % Please edit documentation in R/simulations.R
 \name{Contrast}
 \alias{Contrast}
-\title{Contrast of a matrix}
+\title{Matrix contrast}
 \usage{
 Contrast(mat, digits = 3)
 }
 \arguments{
-\item{mat}{input matrix for which to compute the contrast.}
+\item{mat}{input matrix.}
 
 \item{digits}{number of digits to use.}
 }
@@ -15,6 +15,6 @@ Contrast(mat, digits = 3)
 A single number, the contrast of the input matrix.
 }
 \description{
-Computes the contrast of a matrix, defined as the number of visited bins of entries
-with a specified number of digits.
+Computes the matrix contrast, defined as the number of visited bins of
+entries with a specified number of digits.
 }

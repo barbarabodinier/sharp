@@ -10,92 +10,126 @@
 #' @param xdata matrix of predictors with observations as rows and variables as
 #'   columns.
 #' @param ydata vector or matrix of outcome(s).
-#' @param Lambda matrix of parameters controlling the underlying feature
-#'   selection algorithm specified in "implementation". With
-#'   implementation="glmnet", these are penalty parameters controlling the
-#'   regularised model. If Lambda=NULL, \code{\link{LambdaGridRegression}} is
+#' @param Lambda matrix of parameters controlling the level of sparsity in the
+#'   underlying feature selection algorithm specified in \code{implementation}.
+#'   With \code{implementation="glmnet"}, \code{Lambda} contains penalty
+#'   parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
 #'   used to define a relevant grid.
-#' @param pi_list grid of values for the threshold in selection proportion. With
-#'   n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
-#'   must be between 0 and 1.
+#' @param pi_list vector of thresholds in selection proportions. If
+#'   \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
+#'   \code{n_cat=2}, these values must be \code{>0} and \code{<1}.
 #' @param K number of resampling iterations.
-#' @param tau subsample size. Only used with resampling="subsampling".
-#' @param seed value of the seed to use to ensure reproducibility.
+#' @param tau subsample size. Only used with \code{resampling="subsampling"}.
+#' @param seed value of the seed.
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
-#' @param family type of regression model. This argument is defined as in the
-#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
-#'   include "gaussian" (linear regression), "binomial" (logistic regression),
-#'   "multinomial" (multinomial regression), and "cox" (survival analysis). This
-#'   argument is only used with implementation="glmnet", or with functions using
-#'   the family argument in the same way (see example below).
-#' @param implementation name of the function to use for variable selection.
-#'   With implementation="glmnet", the function \code{\link[glmnet]{glmnet}} is called.
-#'   Alternatively, this argument can be a character string indicating the name
-#'   of a function. The function provided must use arguments called "x", "y",
-#'   "lambda" and "family" and return matrices of model coefficients (see
-#'   \code{\link{SelectionAlgo}}).
-#' @param resampling resampling approach. Possible values are: "subsampling" for
-#'   sampling without replacement of a proportion tau of the observations, or
-#'   "bootstrap" for sampling with replacement generating a resampled dataset
-#'   with as many observations as in the full sample. Alternatively, this
-#'   argument can be a character string indicating the name of a function to use
-#'   for resampling. This function must use arguments called "data" and "tau"
-#'   and return IDs of observations to be included in the resampled dataset (see
-#'   example in \code{\link{Resample}}).
-#' @param PFER_method method used to compute the expected number of False
-#'   Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
-#'   method proposed by Meinshausen and Bühlmann (2010) is used. With
-#'   PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
-#'   assumption of unimodality is used.
+#' @param family type of regression model. This argument is defined as in
+#'   \code{\link[glmnet]{glmnet}}. If \code{implementation="glmnet"}, possible
+#'   values include \code{"gaussian"} (linear regression), \code{"binomial"}
+#'   (logistic regression), \code{"multinomial"} (multinomial regression), and
+#'   \code{"cox"} (survival analysis).
+#' @param implementation character string indicating the name of the function to
+#'   use for variable selection. If \code{implementation="glmnet"},
+#'   \code{\link[glmnet]{glmnet}} is used for regularised regression.
+#'   Alternatively, a function with arguments \code{"x"}, \code{"y"},
+#'   \code{"lambda"}, \code{"family"} and \code{...}, and returning a list of
+#'   two matrices named "selected" and "beta_full" of the correct dimensions can
+#'   be used (more details in \code{\link{SelectionAlgo}}).
+#' @param resampling resampling approach. Possible values are:
+#'   \code{"subsampling"} for sampling without replacement of a proportion
+#'   \code{tau} of the observations, or \code{"bootstrap"} for sampling with
+#'   replacement generating a resampled dataset with as many observations as in
+#'   the full sample. Alternatively, this argument can be a character string
+#'   indicating the name of a function to use for resampling. This function must
+#'   use arguments named \code{"data"} and \code{"tau"} and return IDs of
+#'   observations to be included in the resampled dataset (see example in
+#'   \code{\link{Resample}}).
+#' @param PFER_method method used to compute the upper-bound of the expected
+#'   number of False Positives (or Per Family Error Rate, PFER). With
+#'   \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
+#'   (2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+#'   and Samworth (2013) under the assumption of unimodality is used.
 #' @param PFER_thr threshold in PFER for constrained calibration by error
-#'   control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
-#'   used.
+#'   control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+#'   calibration is used.
 #' @param FDP_thr threshold in the expected proportion of falsely selected
 #'   features (or False Discovery Proportion, FDP) for constrained calibration
-#'   by error control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained
-#'   calibration is used.
-#' @param Lambda_cardinal number of values in the grid.
+#'   by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
+#'   unconstrained calibration is used.
+#' @param Lambda_cardinal number of values in the grid of parameters controlling
+#'   the level of sparsity in the underlying algorithm.
 #' @param n_cores number of cores to use for parallel computing. Only available
 #'   on Unix systems.
-#' @param verbose logical indicating if a message with minimum and maximum
-#'   numbers of selected variables on one instance of resampled data should be
+#' @param verbose logical indicating if a loading bar and messages should be
 #'   printed.
 #' @param ... additional parameters passed to the functions provided in
-#'   "implementation" or "resampling".
+#'   \code{"implementation"} or \code{"resampling"}.
+#'
+#' @details To ensure reproducibility of the results, the state of the random
+#'   number generator is fixed to \code{seed}. For parallelisation of the code,
+#'   stability selection results produced with different \code{seed}s and all
+#'   other parameters equal can be combined (more details in
+#'   \code{\link{Combine}}).
 #'
 #' @return A list with: \item{S}{a matrix of the best stability scores for
-#'   different penalty parameters. Rows correspond to different sets of penalty
-#'   parameters, (values are stored in the output "Lambda").} \item{Lambda}{a
-#'   matrix with different penalty parameters as rows.} \item{Q}{a matrix of
-#'   average numbers of features selected by the underlying algorihm for
-#'   different penalty parameters (as rows).} \item{Q_s}{a matrix of calibrated
-#'   numbers of stable features for different penalty parameters (as rows).}
-#'   \item{P}{a matrix of calibrated thresholds in selection proportions for
-#'   different penalty parameters (as rows).} \item{PFER}{a matrix of computed
-#'   upper-bounds in PFER of calibrated stability selection models for different
-#'   penalty parameters.} \item{PFER}{a matrix of computed upper-bounds in FDP
-#'   of calibrated stability selection models for different penalty parameters.}
-#'   \item{S_2d}{a matrix of stability scores obtained with different
-#'   combinations of parameters. Rows correspond to different penalty parameters
-#'   and columns correspond to different tresholds in selection proportions.}
-#'   \item{selprop}{a matrix of selection proportions. Columns correspond to
-#'   predictors. Rows correspond to different penalty parameters.}
-#'   \item{Beta}{an array of model coefficients. Rows correspond to different
-#'   model parameters. Columns correspond to predictors. Indices along the third
-#'   dimension correspond to different resampling iterations. With multivariate
-#'   outcomes, indices along the fourth dimension correspond to outcome-specific
-#'   coefficients.} \item{method}{a list with input values for the arguments
-#'   "implementation", "family", "resampling" and "PFER_method".} \item{param}{a
-#'   list with input values for the arguments "K", "pi_list", "tau", "n_cat",
-#'   "pk", "PFER_thr", "FDP_thr", "seed", "xdata" and "ydata".}
+#'   different parameters controlling the level of sparsity in the underlying
+#'   algorithm.} \item{Lambda}{a matrix of parameters controlling the level of
+#'   sparsity in the underlying algorithm.} \item{Q}{a matrix of the average
+#'   number of selected features by underlying algorithm with different
+#'   parameters controlling the level of sparsity.} \item{Q_s}{a matrix of the
+#'   calibrated number of stably selected features with different parameters
+#'   controlling the level of sparsity.} \item{PFER}{a matrix of the
+#'   upper-bounds in PFER of calibrated stability selection models with
+#'   different parameters controlling the level of sparsity.} \item{FDP}{a
+#'   matrix of the upper-bounds in FDP of calibrated stability selection models
+#'   with different parameters controlling the level of sparsity.} \item{S_2d}{a
+#'   matrix of stability scores obtained with different combinations of
+#'   parameters. Columns correspond to different tresholds in selection
+#'   proportions.} \item{selprop}{a matrix of selection proportions. Columns
+#'   correspond to predictors from \code{xdata}.} \item{Beta}{an array of model
+#'   coefficients. Columns correspond to predictors from \code{xdata}. Indices
+#'   along the third dimension correspond to different resampling iterations.
+#'   With multivariate outcomes, indices along the fourth dimension correspond
+#'   to outcome-specific coefficients.} \item{method}{a list with input values
+#'   for the arguments "implementation", "family", "resampling" and
+#'   "PFER_method".} \item{param}{a list with input values for the arguments
+#'   "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr", "seed",
+#'   "xdata" and "ydata".} For all objects except those stored in \code{methods}
+#'   or \code{params}, rows correspond to parameter values stored in the output
+#'   \code{Lambda}.
 #'
-#' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}}
+#' @family stability selection functions
+#' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
+#'   \code{\link{Combine}}
 #'
 #' @examples
-#' # Variable selection in linear regression
-#' simul <- SimulateRegression(n = 100, pk = 20, family = "gaussian") # simulated data
+#' # Linear regression
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' out <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian")
+#' print(SelectedVariables(stab))
+#'
+#' # Regression with multivariate outcomes
+#' set.seed(2)
+#' Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
+#' stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
+#' print(SelectedVariables(stab))
+#' dim(stab$Beta)
+#'
+#' # Logistic regression
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
+#' out <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
+#' print(SelectedVariables(stab))
+#'
+#' # Multinomial regression
+#' set.seed(2)
+#' Y=simul$Y+sample(c(0,1,2),size=nrow(simul$Y), replace=TRUE)
+#' Y=model.matrix(~as.factor(Y))[,-1]
+#' SelectionAlgo(x = simul$X, y=Y, family="multinomial", lambda=c(0.05, 0.1))
+#' out <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial")
+#' print(SelectedVariables(stab))
+#'
 #' @export
 VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,

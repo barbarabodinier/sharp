@@ -10,29 +10,31 @@ SimulateAdjacency(pk = 10, topology = "random", nu = 0.1, ...)
 \item{pk}{number of nodes.}
 
 \item{topology}{topology of the simulated graph. If using
-implementation="huge", possible values are listed for the argument
+\code{implementation="huge"}, possible values are listed for the argument
 \code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
 "hub", "cluster", "band" and "scale-free".}
 
-\item{nu}{expected density of the graph. If implementation="huge", this
-argument is only used for topology="random" or topology="cluster" (see
-argument \code{prob} in \code{\link[huge]{huge.generator}}).}
+\item{nu}{expected density of the graph. If \code{implementation="huge"},
+this argument is only used for \code{topology="random"} or
+\code{topology="cluster"} (see argument \code{prob} in
+\code{\link[huge]{huge.generator}}).}
 
 \item{...}{additional arguments to be passed to
 \code{\link[huge]{huge.generator}}.}
 }
 \value{
-a symmetric adjacency matrix encoding an unweighted, undirected graph
+A symmetric adjacency matrix encoding an unweighted, undirected graph
   with no self-loops.
 }
 \description{
-Simulation of the adjacency matrix encoding an unweighted, undirected graph
+Simulates the adjacency matrix encoding an unweighted, undirected graph
 with no self-loops.
 }
 \examples{
 # Simulation of a scale-free graph with 20 nodes
 adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 plot(Graph(adjacency))
+
 }
 \seealso{
 Other simulation functions: 

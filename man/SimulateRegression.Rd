@@ -20,51 +20,53 @@ SimulateRegression(
 
 \item{pk}{number of variables in the simulated dataset X.}
 
-\item{X}{matrix of predictors. With X=NULL, the matrix of predictors
-is simulated for pk variables and n observations. If X is provided,
-(a subset of) its variables will be used to simulate the outcome data.}
+\item{X}{matrix of predictors. With \code{X=NULL}, the matrix of predictors
+is simulated for \code{pk} variables and \code{n} observations. If \code{X}
+is provided, (a subset of) its variables will be used to simulate the
+outcome data.}
 
-\item{nu_pred}{density of the set of variables to be used for the
-simulation of the outcome data (i.e. number of true predictors over the
-number of potential predictors).}
+\item{nu_pred}{density of the set of variables to be used for the simulation
+of the outcome data (i.e. number of true predictors over the number of
+potential predictors).}
 
-\item{beta_set}{related to beta coefficients used in the linear combination.
-If continuous=FALSE, beta_set is the set of possible beta coefficients.
-If continuous=FALSE, beta_set is the range of possible beta coefficients.}
+\item{beta_set}{vector defining the (range of) coefficients used in the
+linear combination. If \code{continuous=FALSE}, \code{beta_set} is the set
+of possible coefficients. If \code{continuous=FALSE}, \code{beta_set} is
+the range of possible coefficients.}
 
-\item{continuous}{logical indicating whether to sample from proposed
-beta coefficients in "beta_set" (if continuous=FALSE) or to sample continuous
-values between the minimum and maximum values in "beta_set" (if continuous=TRUE).}
+\item{continuous}{logical indicating whether to sample coefficients from a
+uniform distribution between the minimum and maximum values in
+\code{beta_set} (\code{continuous=TRUE}) or from proposed values in
+\code{beta_set} (\code{continuous=FALSE}).}
 
-\item{sd_pred_error}{residual standard deviation. Used only if family="gaussian".}
+\item{sd_pred_error}{residual standard deviation. Used only if
+\code{family="gaussian"}.}
 
-\item{family}{type of outcome. If family="gaussian", a normally distributed
-outcome is simulated. If family="binomial", a binary outcome is simulated from
-a Bernouilli distribution where the probability is defined as a linear combination
-of (a subset of) the pk variables.}
+\item{family}{type of outcome. If \code{family="gaussian"}, a normally
+distributed outcome is simulated. If \code{family="binomial"}, a binary
+outcome is simulated from a Bernouilli distribution where the probability
+is defined as a linear combination of (a subset of) the \code{pk}
+variables.}
 }
 \value{
-A list with:
-\item{X}{simulated data among which some variables were used in the linear combination
-from which the outcome Y is derived. This dataset includes both signal
-and noise variables.}
-\item{Y}{simulated outcome Y.}
-\item{proba}{true probability that the outcome is equal to 1.
-Only returned if family="binomial".}
-\item{logit_proba}{logit of the true probability that the outcome is equal to 1.
-This is obtained as a linear combination of (a subset of) the variables in X.
-Only returned if family="binomial".}
-\item{theta_pred}{binary vector indicating which variables in X were used in the
-linear combination to obtain the outcome Y, i.e. indicating which variables in X are
-signal (if equal to 1) or noise (if equal to 0) variables.}
-\item{beta}{true beta coefficients used in the linear model for simulation of the outcome Y.}
+A list with: \item{X}{simulated dataset. A subset of these variables
+  were used in the linear combination defining the outcome Y.}
+  \item{Y}{simulated outcome Y.} \item{proba}{true probability that the
+  outcome is equal to 1. Only returned if \code{family="binomial"}.}
+  \item{logit_proba}{logit of the true probability that the outcome is equal
+  to 1. This is obtained as a linear combination of (a subset of) the
+  variables in X. Only returned if \code{family="binomial"}.}
+  \item{theta_pred}{binary vector indicating which variables in X were used
+  in the linear combination to obtain the outcome Y, i.e. indicating which
+  variables in X are signal (if equal to 1) or noise (if equal to 0)
+  variables in association with the outcome Y.} \item{beta}{true coefficients
+  used in the linear model for simulation of the outcome Y.}
 }
 \description{
-Simulate (i) a matrix X of n observations
-for \code{pk} normally distributed variables, and (ii) an outcome Y obtained
-from a linear combination of (a subset of) the pk variables in X.
-The outputs of this function can be used to
-evaluate the ability of variable selection algorithms to identify,
+Simulate (i) a matrix X of n observations for \code{pk} normally distributed
+variables, and (ii) an outcome Y obtained from a linear combination of (a
+subset of) the \code{pk} variables in X. The outputs of this function can be
+used to evaluate the ability of variable selection algorithms to identify,
 among the variables in X, relevant predictors of the outcome Y.
 }
 \examples{
@@ -77,6 +79,7 @@ plot(simul$Y_pred, simul$Y) # larger residual error
 # Data simulation (binary outcome)
 simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
 boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
+
 }
 \seealso{
 \code{\link{VariableSelection}}
