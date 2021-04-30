@@ -14,7 +14,8 @@
 #'   underlying feature selection algorithm specified in \code{implementation}.
 #'   With \code{implementation="glmnet"}, \code{Lambda} contains penalty
 #'   parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
-#'   used to define a relevant grid.
+#'   used to define a relevant grid. If \code{implementation} is not
+#'   set to \code{"glmnet"}, \code{Lambda} must be provided.
 #' @param pi_list vector of thresholds in selection proportions. If
 #'   \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
 #'   \code{n_cat=2}, these values must be \code{>0} and \code{<1}.
@@ -23,18 +24,18 @@
 #' @param seed value of the seed.
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
-#' @param family type of regression model. This argument is defined as in
-#'   \code{\link[glmnet]{glmnet}}. If \code{implementation="glmnet"}, possible
+#' @param family type of regression model. If \code{implementation="glmnet"},
+#'   this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
 #'   values include \code{"gaussian"} (linear regression), \code{"binomial"}
 #'   (logistic regression), \code{"multinomial"} (multinomial regression), and
 #'   \code{"cox"} (survival analysis).
 #' @param implementation character string indicating the name of the function to
 #'   use for variable selection. If \code{implementation="glmnet"},
 #'   \code{\link[glmnet]{glmnet}} is used for regularised regression.
-#'   Alternatively, a function with arguments \code{"x"}, \code{"y"},
-#'   \code{"lambda"}, \code{"family"} and \code{...}, and returning a list of
-#'   two matrices named "selected" and "beta_full" of the correct dimensions can
-#'   be used (more details in \code{\link{SelectionAlgo}}).
+#'   Alternatively, a function with arguments \code{x}, \code{y}, \code{lambda},
+#'   \code{family} and \code{...}, and returning a list of two matrices named
+#'   \code{selected} and \code{beta_full} of the correct dimensions can be used
+#'   (more details in \code{\link{SelectionAlgo}}).
 #' @param resampling resampling approach. Possible values are:
 #'   \code{"subsampling"} for sampling without replacement of a proportion
 #'   \code{tau} of the observations, or \code{"bootstrap"} for sampling with
@@ -90,13 +91,14 @@
 #'   coefficients. Columns correspond to predictors from \code{xdata}. Indices
 #'   along the third dimension correspond to different resampling iterations.
 #'   With multivariate outcomes, indices along the fourth dimension correspond
-#'   to outcome-specific coefficients.} \item{method}{a list of values
-#'   for \code{implementation}, \code{family}, \code{resampling} and
-#'   \code{PFER_method} used for the run.} \item{param}{a list with input values for the arguments
-#'   "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr", "seed",
-#'   "xdata" and "ydata".} For all objects except those stored in \code{methods}
-#'   or \code{params}, rows correspond to parameter values stored in the output
-#'   \code{Lambda}.
+#'   to outcome-specific coefficients.} \item{method}{a list of
+#'   \code{implementation}, \code{family}, \code{resampling} and
+#'   \code{PFER_method} values used for the run.} \item{param}{a list of
+#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk},
+#'   \code{PFER_thr}, \code{FDP_thr}, \code{seed}, \code{xdata} and \code{ydata}
+#'   values used for the run.} For all objects except those stored in
+#'   \code{methods} or \code{params}, rows correspond to parameter values stored
+#'   in the output \code{Lambda}.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},

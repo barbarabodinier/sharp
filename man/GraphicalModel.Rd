@@ -42,14 +42,15 @@ selection is performed.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-With \code{implementation="glassoFast"}, \code{Lambda} contains penalty
+If \code{implementation="glassoFast"}, \code{Lambda} contains penalty
 parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
 used to define a relevant grid. \code{Lambda} can be provided as a vector
-or a matrix with \code{length(pk)} columns.}
+or a matrix with \code{length(pk)} columns. If \code{implementation} is not
+set to \code{"glassoFast"}, \code{Lambda} must be provided.}
 
 \item{lambda_other_blocks}{optional vector of parameters controlling the
-level of sparsity in neighbour blocks during the iterative multi-block
-procedure. To use jointly a specific set of parameters for each block,
+level of sparsity in neighbour blocks for the multi-block procedure. To use
+jointly a specific set of parameters for each block,
 \code{lambda_other_blocks} must be set to \code{NULL} (not recommended).
 Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 
@@ -70,7 +71,7 @@ Possible values are 2 or 3.}
 use for graphical modelling. With \code{implementation="glassoFast"},
 \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
 a conditional independence graph. Alternatively, a function with arguments
-\code{"x"}, \code{"lambda"}, \code{"scale"} and \code{...}, and returning a
+\code{x}, \code{lambda}, \code{scale} and \code{...}, and returning a
 binary and symmetric matrix for which diagonal elements are equal to zero
 can be used (more details in \code{\link{GraphicalAlgo}}).}
 
@@ -114,8 +115,10 @@ unconstrained calibration is used.}
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
 the level of sparsity in the underlying algorithm.}
 
-\item{lambda_max}{maximum value in the grid. With lambda_max=NULL, the
-maximum value is set to the maximum covariance in absolute value.}
+\item{lambda_max}{optional maximum value for the grid in penalty parameters.
+If \code{lambda_max=NULL}, the maximum value is set to the maximum
+covariance in absolute value. Only used if
+\code{implementation="glassoFast"} and \code{Lambda=NULL}.}
 
 \item{lambda_path_factor}{multiplicative factor used to define the minimum
 value in the grid.}
@@ -134,55 +137,45 @@ printed.}
 }
 \value{
 A list with: \item{S}{a matrix of the best (block-specific) stability
-  scores for different (sets of) penalty parameters. In multi-block stability
-  selection, rows correspond to different sets of penalty parameters, (values
-  are stored in the output "Lambda") and columns correspond to different
-  blocks.} \item{Lambda}{a matrix of (block-specific) penalty parameters. In
-  multi-block stability selection, rows correspond to sets of penalty
-  parameters and columns correspond to different blocks.} \item{Q}{a matrix
-  of average numbers of (block-specific) edges selected by the underlying
-  algorihm for different (sets of) penalty parameters. In multi-block
-  stability selection, rows correspond to different sets of penalty
-  parameters, (values are stored in the output "Lambda") and columns
-  correspond to different blocks.} \item{Q_s}{a matrix of calibrated numbers
-  of (block-specific) stable edges for different (sets of) penalty
-  parameters. In multi-block stability selection, rows correspond to
-  different sets of penalty parameters, (values are stored in the output
-  "Lambda") and columns correspond to different blocks.} \item{P}{a matrix of
-  calibrated (block-specific) thresholds in selection proportions for
-  different (sets of) penalty parameters. In multi-block stability selection,
-  rows correspond to different sets of penalty parameters, (values are stored
-  in the output "Lambda") and columns correspond to different blocks.}
-  \item{PFER}{a matrix of computed (block-specific) upper-bounds in PFER of
-  calibrated graphs for different (sets of) penalty parameters. In
-  multi-block stability selection, rows correspond to different sets of
-  penalty parameters, (values are stored in the output "Lambda") and columns
-  correspond to different blocks.} \item{FDP}{a matrix of computed
-  (block-specific) upper-bounds in FDP of calibrated graphs for different
-  (sets of) penalty parameters. In multi-block stability selection, rows
-  correspond to different sets of penalty parameters, (values are stored in
-  the output "Lambda") and columns correspond to different blocks.}
+  scores for different (sets of) parameters controlling the level of sparsity
+  in the underlying algorithm. } \item{Lambda}{a matrix of (block-specific)
+  parameters controlling the level of sparsity. } \item{Q}{a matrix of
+  average numbers of (block-specific) edges selected by the underlying
+  algorihm for different (sets of) parameters controlling the level of
+  sparsity.} \item{Q_s}{a matrix of calibrated numbers of (block-specific)
+  stable edges for different (sets of) parameters controlling the level of
+  sparsity in the underlying algorithm. } \item{P}{a matrix of calibrated
+  (block-specific) thresholds in selection proportions for different (sets
+  of) parameters controlling the level of sparsity in the underlying
+  algorithm. } \item{PFER}{a matrix of the (block-specific) upper-bounds in
+  PFER of calibrated stability selection models with different (sets of)
+  parameters controlling the level of sparsity in the underlying algorithm.}
+  \item{FDP}{a matrix of the (block-specific) upper-bounds in FDP of
+  calibrated stability selection models with different (sets of) parameters
+  controlling the level of sparsity in the underlying algorithm.}
   \item{S_2d}{an array of (block-specific) stability scores obtained with
-  different combinations of parameters. Rows correspond to different (sets
-  of) penalty parameters and columns correspond to different thresholds in
-  selection proportions. In multi-block stability selection, indices along
-  the third dimension correspond to different blocks.} \item{PFER_2d}{an
-  array of computed upper-bounds of PFER obtained with different combinations
-  of parameters. Rows correspond to different penalty parameters and columns
-  correspond to different thresholds in selection proportions. Only available
-  for single-block stability selection.} \item{FDP_2d}{an array of computed
-  upper-bounds of FDP obtained with different combinations of parameters.
-  Rows correspond to different penalty parameters and columns correspond to
-  different thresholds in selection proportions. Only available for
+  different combinations of parameters. Columns correspond to different
+  thresholds in selection proportions. In multi-block stability selection,
+  indices along the third dimension correspond to different blocks.}
+  \item{PFER_2d}{an array of computed upper-bounds of PFER obtained with
+  different combinations of parameters. Columns correspond to different
+  thresholds in selection proportions. Only available for single-block
+  stability selection.} \item{FDP_2d}{an array of computed upper-bounds of
+  FDP obtained with different combinations of parameters. Columns correspond
+  to different thresholds in selection proportions. Only available for
   single-block stability selection.} \item{selprop}{an array of selection
   proportions. Rows and columns correspond to nodes in the graph. Indices
-  along the third dimension correspond to different (sets of) penalty
-  parameters.} \item{sign}{a matrix of signs of Pearson's correlations.}
-  \item{method}{a list with input values for the arguments "implementation",
-  "start", "resampling" and "PFER_method".} \item{param}{a list with input
-  values for the arguments "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr",
-  "FDP_thr", "seed", "lambda_other_blocks" and "data". The object
-  "Sequential_template" is also returned (for internal use).}
+  along the third dimension correspond to different (sets of) parameters
+  controlling the level of sparsity in the underlying algorithm.}
+  \item{sign}{a matrix of signs of Pearson's correlations estimated from
+  \code{data}.} \item{method}{a list with \code{implementation},
+  \code{start}, \code{resampling} and \code{PFER_method} values used for the
+  run.} \item{param}{a list with values of other objects used for the run.}
+  For all objects except \code{selprop},
+  \code{sign} and those stored in \code{methods} or \code{params}, rows
+  correspond to parameter values stored in the output \code{Lambda}. In
+  multi-block stability selection, columns of these same objects except
+  correspond to different blocks.
 }
 \description{
 Runs stability selection graphical models with different combinations of
@@ -203,9 +196,10 @@ To ensure reproducibility of the results, the state of the random
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
-out <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(data = simul$data)
+plot(Graph(stab))
 
-# Multi-block
+# Multi-block stability selection
 set.seed(1)
 simul <- SimulateGraphical(pk = c(10, 10))
 stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)

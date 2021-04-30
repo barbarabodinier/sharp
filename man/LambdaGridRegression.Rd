@@ -27,8 +27,8 @@ columns.}
 
 \item{seed}{value of the seed.}
 
-\item{family}{type of regression model. This argument is defined as in
-\code{\link[glmnet]{glmnet}}. If \code{implementation="glmnet"}, possible
+\item{family}{type of regression model. If \code{implementation="glmnet"},
+this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
 values include \code{"gaussian"} (linear regression), \code{"binomial"}
 (logistic regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis).}
@@ -36,10 +36,10 @@ values include \code{"gaussian"} (linear regression), \code{"binomial"}
 \item{implementation}{character string indicating the name of the function to
 use for variable selection. If \code{implementation="glmnet"},
 \code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{"x"}, \code{"y"},
-\code{"lambda"}, \code{"family"} and \code{...}, and returning a list of
-two matrices named "selected" and "beta_full" of the correct dimensions can
-be used (more details in \code{\link{SelectionAlgo}}).}
+Alternatively, a function with arguments \code{x}, \code{y}, \code{lambda},
+\code{family} and \code{...}, and returning a list of two matrices named
+\code{selected} and \code{beta_full} of the correct dimensions can be used
+(more details in \code{\link{SelectionAlgo}}).}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
