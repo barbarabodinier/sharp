@@ -24,9 +24,9 @@ Imports:
     huge,
     igraph,
     MASS,
-    parallel
+    parallel,
+    Rdpack
 Suggests: 
     gglasso,
-    Rdpack,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
