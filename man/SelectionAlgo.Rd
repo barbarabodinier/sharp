@@ -65,3 +65,8 @@ str(mylasso)
 stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
 SelectionPerformance(SelectedVariables(stab), simul$theta)
 }
+\seealso{
+Other underlying algorithm functions: 
+\code{\link{GraphicalAlgo}()}
+}
+\concept{underlying algorithm functions}

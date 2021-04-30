@@ -11,6 +11,7 @@
 #' # Small example
 #' mat <- BlockMatrix(pk = c(2, 3))
 #' dim(mat)
+#'
 #' @export
 BlockMatrix <- function(pk) {
   nblocks <- sum(upper.tri(matrix(NA, ncol = length(pk), nrow = length(pk)), diag = TRUE))

@@ -83,4 +83,10 @@ simul <- SimulateGraphical()
 
 # Running graphical LASSO
 myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+
 }
+\seealso{
+Other underlying algorithm functions: 
+\code{\link{SelectionAlgo}()}
+}
+\concept{underlying algorithm functions}

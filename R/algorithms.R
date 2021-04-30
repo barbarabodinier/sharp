@@ -32,6 +32,8 @@
 #'   to different model parameters. Columns correspond to predictors. Indices
 #'   along the third dimension correspond to outcome variable(s).}
 #'
+#' @family underlying algorithm functions
+#'
 #' @examples
 #' # Data simulation
 #' set.seed(1)
@@ -181,6 +183,8 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
 #'
 #' @return a binary and symmetric adjacency matrix.
 #'
+#' @family underlying algorithm functions
+#'
 #' @details
 #' The use of the procedure from Equation (4) or (5)
 #' is controlled by the argument "Sequential_template".
@@ -192,6 +196,7 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
 #'
 #' # Running graphical LASSO
 #' myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+#'
 #' @export
 GraphicalAlgo <- function(x, pk = NULL, Lambda, Sequential_template, scale = TRUE, implementation = "glassoFast", start = "cold", ...) {
   if (is.null(pk)) {
