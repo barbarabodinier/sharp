@@ -13,6 +13,7 @@ LambdaGridRegression(
   implementation = "glmnet",
   resampling = "subsampling",
   Lambda_cardinal = 100,
+  check_input = TRUE,
   ...
 )
 }
@@ -52,6 +53,9 @@ observations to be included in the resampled dataset (see example in
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
 the level of sparsity in the underlying algorithm.}
+
+\item{check_input}{logical indicating if input values should be checked
+(recommended).}
 
 \item{...}{additional parameters passed to the functions provided in
 \code{"implementation"} or \code{"resampling"}.}

@@ -85,24 +85,40 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
         selected <- ifelse(mybeta != 0, yes = 1, no = 0)
         beta_full <- mybeta
       } else {
-        print(ncol(y))
-        print(head(y))
-        if (is.null(colnames(y))){
-          colnames(y)=paste0("Y",1:ncol(y))
-        }
-        mybeta <- array(NA,
-          dim = c(length(lambda), ncol(x), ncol(y)),
-          dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x), colnames(y))
-        )
-        for (y_id in 1:ncol(y)) {
-          tmpbeta <- stats::coef(mymodel)[[y_id]]
-          tmpbeta <- t(as.matrix(tmpbeta))
-          tmpbeta <- tmpbeta[, colnames(x), drop = FALSE] # removing the intercept if included
-          mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
+        if (family=="mgaussian"){
+          mybeta <- array(NA,
+                          dim = c(length(lambda), ncol(x), ncol(y)),
+                          dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x), colnames(y))
+          )
+          for (y_id in 1:ncol(y)) {
+            tmpbeta <- stats::coef(mymodel)[[y_id]]
+            tmpbeta <- t(as.matrix(tmpbeta))
+            tmpbeta <- tmpbeta[, colnames(x), drop = FALSE] # removing the intercept if included
+            mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
 
-          # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-          if (any(mysd == 0)) {
-            mybeta[, which(mysd == 0), y_id] <- 0
+            # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
+            if (any(mysd == 0)) {
+              mybeta[, which(mysd == 0), y_id] <- 0
+            }
+          }
+        }
+        if (family=="multinomial"){
+          y_levels=sort(unique(y))
+          mybeta <- array(NA,
+                          dim = c(length(lambda), ncol(x), length(y_levels)),
+                          dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x),
+                                          paste0("Y", y_levels))
+          )
+          for (y_id in 1:length(y_levels)) {
+            tmpbeta <- stats::coef(mymodel)[[y_id]]
+            tmpbeta <- t(as.matrix(tmpbeta))
+            tmpbeta <- tmpbeta[, colnames(x), drop = FALSE] # removing the intercept if included
+            mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
+
+            # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
+            if (any(mysd == 0)) {
+              mybeta[, which(mysd == 0), y_id] <- 0
+            }
           }
         }
 

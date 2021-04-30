@@ -121,9 +121,9 @@ A list with: \item{S}{a matrix of the best stability scores for
   coefficients. Columns correspond to predictors from \code{xdata}. Indices
   along the third dimension correspond to different resampling iterations.
   With multivariate outcomes, indices along the fourth dimension correspond
-  to outcome-specific coefficients.} \item{method}{a list with input values
-  for the arguments "implementation", "family", "resampling" and
-  "PFER_method".} \item{param}{a list with input values for the arguments
+  to outcome-specific coefficients.} \item{method}{a list of values
+  for \code{implementation}, \code{family}, \code{resampling} and
+  \code{PFER_method} used for the run.} \item{param}{a list with input values for the arguments
   "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr", "seed",
   "xdata" and "ydata".} For all objects except those stored in \code{methods}
   or \code{params}, rows correspond to parameter values stored in the output
@@ -148,7 +148,7 @@ To ensure reproducibility of the results, the state of the random
 # Linear regression
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-out <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian")
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian")
 print(SelectedVariables(stab))
 
 # Regression with multivariate outcomes
@@ -160,16 +160,14 @@ dim(stab$Beta)
 
 # Logistic regression
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
-out <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
 print(SelectedVariables(stab))
 
 # Multinomial regression
 set.seed(2)
-Y=simul$Y+sample(c(0,1,2),size=nrow(simul$Y), replace=TRUE)
-Y=model.matrix(~as.factor(Y))[,-1]
-SelectionAlgo(x = simul$X, y=Y, family="multinomial", lambda=c(0.05, 0.1))
-out <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial")
+Y=simul$Y+sample(c(0,1),size=nrow(simul$Y), replace=TRUE)
+stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio=0.1)
 print(SelectedVariables(stab))
 
 }

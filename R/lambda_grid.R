@@ -4,6 +4,8 @@
 #' regression.
 #'
 #' @inheritParams VariableSelection
+#' @param check_input logical indicating if input values should be checked
+#' (recommended).
 #'
 #' @return A matrix of lambda values with one column and as many rows as
 #'   indicated in \code{Lambda_cardinal}.
@@ -69,7 +71,7 @@
 LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
                                  family = "gaussian", implementation = "glmnet",
                                  resampling = "subsampling",
-                                 Lambda_cardinal = 100,
+                                 Lambda_cardinal = 100, check_input=TRUE,
                                  ...) {
   # Object preparation, error and warning messages
   Lambda <- NULL
@@ -80,19 +82,23 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   PFER_thr <- Inf
   FDP_thr <- Inf
   verbose <- TRUE
-  CheckInputRegression(
-    xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
-    K = K, tau = tau, seed = seed, n_cat = n_cat,
-    family = family, implementation = implementation,
-    resampling = resampling, PFER_method = PFER_method,
-    PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-    Lambda_cardinal = Lambda_cardinal,
-    verbose = verbose
-  )
+  # Checks are not re-run if coming from VariableSelection to avoid printing twice the same messages
+  if (check_input){
+    CheckInputRegression(
+      xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+      K = K, tau = tau, seed = seed, n_cat = n_cat,
+      family = family, implementation = implementation,
+      resampling = resampling, PFER_method = PFER_method,
+      PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+      Lambda_cardinal = Lambda_cardinal,
+      verbose = verbose
+    )
+  }
   rm(n_cat)
   rm(Lambda)
   rm(pi_list)
   rm(K)
+
 
   # Taking one subsample/boostrap sample of the data
   set.seed(1) # To keep to allow for reproducible parallelisation
@@ -185,9 +191,6 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #'   of the \code{max_density} or \code{PFER_thr} stopping criteria is met.
 #' @param max_density threshold on the density. The grid is defined such that
 #'   the density of the estimated graph does not exceed \code{max_density}.
-#' @param verbose logical indicating if a message with minimum and maximum
-#'   numbers of selected variables on one instance of resampled data should be
-#'   printed.
 #' @param ... additional parameters passed to the functions provided in
 #'   "implementation" or "resampling".
 #'
@@ -250,14 +253,17 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 100, tau = 0.5, n_cat = 3,
                                 implementation = "glassoFast", start = "cold", scale = TRUE,
                                 resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                                Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001, max_density = 0.5,
-                                verbose = TRUE, ...) {
+                                Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001,
+                                max_density = 0.5, ...) {
   # K to keep for PFER computations with PFER_method set to "SS"
   # Error and warning messages
   bigblocks <- bigblocks_vect <- blocks <- N_blocks <- nblocks <- PFER_thr_blocks <- FDP_thr_blocks <- NULL
   Lambda <- NULL
   seed <- 1 # To keep to allow for reproducible parallelisation
   pi_list <- 0.75 # only used for screening
+  verbose=TRUE
+
+  # Need to run to define some of the objects
   CheckInputGraphical(
     data = data, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
     pi_list = pi_list, K = K, tau = tau, seed = seed, n_cat = n_cat,
@@ -273,18 +279,6 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
   ldense <- lambda_other_blocks
   p <- sum(pk)
   N <- p * (p - 1) / 2
-
-  # Printing message
-  if (verbose) {
-    if (all(!is.infinite(PFER_thr_blocks))) {
-      print("Threshold(s) in PFER:")
-      print(PFER_thr_blocks)
-    }
-    if (all(!is.infinite(FDP_thr_blocks))) {
-      print("Threshold(s) in FDP:")
-      print(FDP_thr_blocks)
-    }
-  }
 
   # Making sure none of the variables has a null standard deviation
   mysd <- apply(data, 2, stats::sd)
@@ -351,7 +345,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
           # Updating the smallest lambda if the density of the block is still below max_density
           for (b in 1:nblocks) {
             lmin[b] <- ifelse((myscreen$Q[b, b] < (max_density * N_blocks)[b]) & (done[b] == 0),
-              yes = Lambda[l + 1, b], no = lmin[b]
+                              yes = Lambda[l + 1, b], no = lmin[b]
             )
             done[b] <- ifelse(myscreen$Q[b, b] >= (max_density * N_blocks)[b], yes = 1, no = 0)
           }

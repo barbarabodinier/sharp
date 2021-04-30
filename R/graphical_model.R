@@ -174,7 +174,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
       implementation = implementation, start = "cold", scale = scale,
       resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       lambda_max = lambda_max, lambda_path_factor = lambda_path_factor, max_density = max_density,
-      Lambda_cardinal = Lambda_cardinal, verbose = FALSE, ...
+      Lambda_cardinal = Lambda_cardinal, ...
     )
   }
 

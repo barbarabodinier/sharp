@@ -22,7 +22,6 @@ LambdaGridGraphical(
   lambda_max = NULL,
   lambda_path_factor = 0.001,
   max_density = 0.5,
-  verbose = TRUE,
   ...
 )
 }
@@ -107,10 +106,6 @@ of the \code{max_density} or \code{PFER_thr} stopping criteria is met.}
 
 \item{max_density}{threshold on the density. The grid is defined such that
 the density of the estimated graph does not exceed \code{max_density}.}
-
-\item{verbose}{logical indicating if a message with minimum and maximum
-numbers of selected variables on one instance of resampled data should be
-printed.}
 
 \item{...}{additional parameters passed to the functions provided in
 "implementation" or "resampling".}
