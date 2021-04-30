@@ -33,6 +33,8 @@ devtools::install_github("barbarabodinier/focus")
 
 ## Variable selection
 
+### Data simulation
+
 A dataset with n=100 observations for p=50 potential predictors and a
 continuous outcome is simulated:
 
@@ -42,13 +44,19 @@ library(focus)
 # Data simulation
 set.seed(1)
 simul=SimulateRegression(n=100, pk=50)
-X=simul$X # potential predictors
+
+# Potential predictors
+X=simul$X 
 print(dim(X))
 #> [1] 100  50
-Y=simul$Y # continuous outcome
+
+# Continuous outcome
+Y=simul$Y 
 print(dim(Y))
 #> [1] 100   1
 ```
+
+### Stability selection
 
 Stability selection in a regression framework is implemented in the
 function `VariableSelection()`. The predictor and outcome datasets are
@@ -87,6 +95,8 @@ print(nrow(stab$Lambda)*length(stab$params$pi_list))
 #> [1] 3100
 ```
 
+### Calibration
+
 The two parameters are jointly calibrated by maximising the stability
 score, measuring how unlikely it is that features are uniformly
 selected:
@@ -104,6 +114,8 @@ algorithm (here, LASSO models) are reported on the z-axis and denoted by
 represented on the y-axis. The stability score obtained for different
 pairs of parameters \((\lambda, \pi)\) are colour-coded and ranging from
 \(0\) to \(1,200\) on this example.
+
+### Outputs
 
 The calibrated set of stably selected variables is obtained from:
 
@@ -158,6 +170,8 @@ axis(side=1, at=1:length(selprop_ranked), labels=names(selprop_ranked), las=2)
 
 ## Graphical modelling
 
+### Data simulation
+
 A dataset with n=100 observations of p=20 nodes with an underlying graph
 structure is simulated:
 
@@ -165,10 +179,14 @@ structure is simulated:
 # Data simulation
 set.seed(1)
 simul=SimulateGraphical(n=100, pk=20, topology="scale-free")
-X=simul$data # nodes
+
+# Variables are nodes
+X=simul$data
 print(dim(X))
 #> [1] 100  20
 ```
+
+### Stability selection
 
 Stability selection for graphical modelling is implemented in
 `GraphicalModel()`. It takes the data as input:
@@ -176,6 +194,8 @@ Stability selection for graphical modelling is implemented in
 ``` r
 stab=GraphicalModel(data=X)
 ```
+
+### Calibration
 
 As for variable selection, the stability selection graphical model is
 controlled by two parameters controlling the sparsity of the underlying
@@ -187,6 +207,8 @@ CalibrationPlot(stab)
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="80%" style="display: block; margin: auto;" />
+
+### Outputs
 
 The adjacency matrix of the calibrated stability selection graphical
 model is obtained with:

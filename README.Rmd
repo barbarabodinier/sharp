@@ -41,6 +41,8 @@ devtools::install_github("barbarabodinier/focus")
 
 ## Variable selection
 
+### Data simulation
+
 A dataset with n=100 observations for p=50 potential predictors and a continuous outcome is simulated:
 
 ```{r}
@@ -49,11 +51,18 @@ library(focus)
 # Data simulation
 set.seed(1)
 simul=SimulateRegression(n=100, pk=50)
-X=simul$X # potential predictors
+
+# Potential predictors
+X=simul$X 
 print(dim(X))
-Y=simul$Y # continuous outcome
+
+# Continuous outcome
+Y=simul$Y 
 print(dim(Y))
 ```
+
+
+### Stability selection
 
 Stability selection in a regression framework is implemented in the function `VariableSelection()`. The predictor and outcome datasets are provided as input:
 
@@ -74,6 +83,9 @@ print(stab$params$pi_list)
 print(nrow(stab$Lambda)*length(stab$params$pi_list))
 ```
 
+
+### Calibration 
+
 The two parameters are jointly calibrated by maximising the stability score, measuring how unlikely it is that features are uniformly selected:
 
 ```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"}
@@ -81,6 +93,9 @@ CalibrationPlot(stab)
 ```
 
 Visited penalty parameters $\lambda$ are represented on the x-axis. The corresponding average number of selected features by the underlying algorithm (here, LASSO models) are reported on the z-axis and denoted by $q$. The different thresholds in selection proportions $\pi$ are represented on the y-axis. The stability score obtained for different pairs of parameters $(\lambda, \pi)$ are colour-coded and ranging from $0$ to $1,200$ on this example. 
+
+
+### Outputs
 
 The calibrated set of stably selected variables is obtained from:
 
@@ -114,15 +129,21 @@ axis(side=1, at=1:length(selprop_ranked), labels=names(selprop_ranked), las=2)
 
 ## Graphical modelling
 
+### Data simulation
+
 A dataset with n=100 observations of p=20 nodes with an underlying graph structure is simulated:
 
 ```{r}
 # Data simulation
 set.seed(1)
 simul=SimulateGraphical(n=100, pk=20, topology="scale-free")
-X=simul$data # nodes
+
+# Variables are nodes
+X=simul$data
 print(dim(X))
 ```
+
+### Stability selection
 
 Stability selection for graphical modelling is implemented in `GraphicalModel()`. It takes the data as input:
 
@@ -130,11 +151,17 @@ Stability selection for graphical modelling is implemented in `GraphicalModel()`
 stab=GraphicalModel(data=X)
 ```
 
+
+### Calibration 
+
 As for variable selection, the stability selection graphical model is controlled by two parameters controlling the sparsity of the underlying algorithm and threshold in selection proportion. These parameters are jointly calibrated by maximising the stability score:
 
 ```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"}
 CalibrationPlot(stab)
 ```
+
+
+### Outputs
 
 The adjacency matrix of the calibrated stability selection graphical model is obtained with:
 
@@ -145,7 +172,7 @@ print(myadjacency)
 
 For visualisation, it can be converted into an igraph object:
 
-```{r fig.height=6, fig.width=6, out.width="100%", fig.align="center"}
+```{r fig.height=10, fig.width=10, out.width="100%", fig.align="center"}
 mygraph=Graph(myadjacency)
 plot(mygraph)
 ```
