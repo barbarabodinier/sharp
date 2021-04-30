@@ -23,12 +23,10 @@ In stability selection, the FDP corresponds to the expected proportion of stably
 features that are not relevant to the outcome
 (i.e. proportion of False Positives among stably selected features).
 }
-\seealso{
-\code{\link{PFER}}
+\concept{stability metric functions
 
 # Simulating set of selection proportions
 selprop=round(runif(n=20), digits=2)
 
 # Computing the FDP with a threshold of 0.8
-fdp=FDP(PFER=3, stab_iter=selprop, pi=0.8)
-}
+fdp=FDP(PFER=3, stab_iter=selprop, pi=0.8)}

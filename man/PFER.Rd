@@ -43,3 +43,8 @@ pfer_ss <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "SS")
 
 \insertRef{stabilityselectionSS}{focus}
 }
+\seealso{
+Other stability metric functions: 
+\code{\link{StabilityScore}()}
+}
+\concept{stability metric functions}

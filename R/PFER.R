@@ -22,6 +22,8 @@
 #'
 #' \insertRef{stabilityselectionSS}{focus}
 #'
+#' @family stability metric functions
+#'
 #' @examples
 #'
 #' # Example: 10 out of 50 features selected on average by underlying algorithm
@@ -86,7 +88,7 @@ PFER <- function(q, pi, N, K, PFER_method = "MB") {
 #'
 #' @return the (upper-bound) of the FDP.
 #'
-#' @seealso \code{\link{PFER}}
+#' @family stability metric functions
 #'
 #' # Simulating set of selection proportions
 #' selprop=round(runif(n=20), digits=2)

@@ -214,6 +214,7 @@ stab <- GraphicalModel(
   Lambda = Lambda, lambda_other_blocks = NULL
 )
 stab$Lambda
+
 }
 \seealso{
 \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
