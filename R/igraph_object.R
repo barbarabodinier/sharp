@@ -47,7 +47,6 @@
 #' simul <- SimulateGraphical(pk = 20)
 #' stab <- GraphicalModel(data = simul$data)
 #' plot(Graph(stab))
-#'
 #' @export
 Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape = NULL,
                   weighted = FALSE, satellites = FALSE) {

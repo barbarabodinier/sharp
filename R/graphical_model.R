@@ -124,7 +124,6 @@
 #'   Lambda = Lambda, lambda_other_blocks = NULL
 #' )
 #' stab$Lambda
-#'
 #' @export
 GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,
                            pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,

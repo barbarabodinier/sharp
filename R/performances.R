@@ -65,7 +65,6 @@
 #'   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
 #'   cor = cor(simul$data), thr = 0.5
 #' )
-#'
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
   # Storing similarities/differences between estimated and true sets
@@ -140,8 +139,10 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' stab <- GraphicalModel(data = simul$data, K = 10)
 #'
 #' # Performance graph
-#' perfgraph <- SelectionPerformanceGraph(theta = Adjacency(stab),
-#' theta_star = simul$theta, plot = TRUE)
+#' perfgraph <- SelectionPerformanceGraph(
+#'   theta = Adjacency(stab),
+#'   theta_star = simul$theta, plot = TRUE
+#' )
 #'
 #' # User-defined colours/shapes
 #' perfgraph <- SelectionPerformanceGraph(
@@ -158,7 +159,6 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' require(igraph)
 #' igraph::V(perfgraph)$size <- 10
 #' plot(perfgraph, layout = layout_with_kk(perfgraph))
-#'
 #' @export
 SelectionPerformanceGraph <- function(theta, theta_star,
                                       colours = c("tomato", "forestgreen", "navy"),
@@ -304,5 +304,3 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
     ))
   }
 }
-
-

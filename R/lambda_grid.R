@@ -31,47 +31,49 @@
 #' print(SelectedVariables(stab))
 #'
 #' # Example with group-LASSO (gglasso implementation)
-#' if (requireNamespace("gglasso", quietly=TRUE)){
-#' ManualGridGroupLasso <- function(x, y, family, ...) {
-#'   if (family == "gaussian") {
-#'     return(gglasso::cv.gglasso(x = x, y = y, pred.loss = "L1", ...))
+#' if (requireNamespace("gglasso", quietly = TRUE)) {
+#'   ManualGridGroupLasso <- function(x, y, family, ...) {
+#'     if (family == "gaussian") {
+#'       return(gglasso::cv.gglasso(x = x, y = y, pred.loss = "L1", ...))
+#'     }
 #'   }
-#' }
-#' Lambda <- LambdaGridRegression(
-#'   xdata = simul$X, ydata = simul$Y,
-#'   family = "gaussian", Lambda_cardinal = 20,
-#'   implementation = "ManualGridGroupLasso",
-#'   group = sort(rep(1:4, length.out=ncol(simul$X)))
-#' )
-#' GroupLasso=function(x, y, lambda, family, ...){
-#' # Running the regression
-#' if (family=="binomial"){
-#' ytmp=y
-#' ytmp[ytmp==min(ytmp)]=-1
-#' ytmp[ytmp==max(ytmp)]=1
-#' mymodel=gglasso::gglasso(x, ytmp, lambda=lambda, loss="logit", ...)
-#' }
-#' if (family=="gaussian"){
-#' mymodel=gglasso::gglasso(x, y, lambda=lambda, loss="ls", ...)
-#' }
-#' # Extracting and formatting the beta coefficients
-#' beta_full=t(as.matrix(mymodel$beta))
-#' beta_full=beta_full[,colnames(x)]
+#'   Lambda <- LambdaGridRegression(
+#'     xdata = simul$X, ydata = simul$Y,
+#'     family = "gaussian", Lambda_cardinal = 20,
+#'     implementation = "ManualGridGroupLasso",
+#'     group = sort(rep(1:4, length.out = ncol(simul$X)))
+#'   )
+#'   GroupLasso <- function(x, y, lambda, family, ...) {
+#'     # Running the regression
+#'     if (family == "binomial") {
+#'       ytmp <- y
+#'       ytmp[ytmp == min(ytmp)] <- -1
+#'       ytmp[ytmp == max(ytmp)] <- 1
+#'       mymodel <- gglasso::gglasso(x, ytmp, lambda = lambda, loss = "logit", ...)
+#'     }
+#'     if (family == "gaussian") {
+#'       mymodel <- gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...)
+#'     }
+#'     # Extracting and formatting the beta coefficients
+#'     beta_full <- t(as.matrix(mymodel$beta))
+#'     beta_full <- beta_full[, colnames(x)]
 #'
-#' selected=ifelse(beta_full!=0, yes=1, no=0)
+#'     selected <- ifelse(beta_full != 0, yes = 1, no = 0)
 #'
-#' return(list(selected=selected, beta_full=beta_full))
-#' }
-#' stab=VariableSelection(xdata = simul$X, ydata = simul$Y,
-#' implementation="GroupLasso", Lambda=Lambda,
-#' group = sort(rep(1:4, length.out=ncol(simul$X))))
-#' print(SelectedVariables(stab))
+#'     return(list(selected = selected, beta_full = beta_full))
+#'   }
+#'   stab <- VariableSelection(
+#'     xdata = simul$X, ydata = simul$Y,
+#'     implementation = "GroupLasso", Lambda = Lambda,
+#'     group = sort(rep(1:4, length.out = ncol(simul$X)))
+#'   )
+#'   print(SelectedVariables(stab))
 #' }
 #' @export
 LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
                                  family = "gaussian", implementation = "glmnet",
                                  resampling = "subsampling",
-                                 Lambda_cardinal = 100, check_input=TRUE,
+                                 Lambda_cardinal = 100, check_input = TRUE,
                                  ...) {
   # Object preparation, error and warning messages
   Lambda <- NULL
@@ -83,7 +85,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   FDP_thr <- Inf
   verbose <- TRUE
   # Checks are not re-run if coming from VariableSelection to avoid printing twice the same messages
-  if (check_input){
+  if (check_input) {
     CheckInputRegression(
       xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
       K = K, tau = tau, seed = seed, n_cat = n_cat,
@@ -196,7 +198,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
   Lambda <- NULL
   seed <- 1 # To keep to allow for reproducible parallelisation
   pi_list <- 0.75 # only used for screening
-  verbose=TRUE
+  verbose <- TRUE
 
   # Need to run to define some of the objects
   CheckInputGraphical(
@@ -280,7 +282,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
           # Updating the smallest lambda if the density of the block is still below max_density
           for (b in 1:nblocks) {
             lmin[b] <- ifelse((myscreen$Q[b, b] < (max_density * N_blocks)[b]) & (done[b] == 0),
-                              yes = Lambda[l + 1, b], no = lmin[b]
+              yes = Lambda[l + 1, b], no = lmin[b]
             )
             done[b] <- ifelse(myscreen$Q[b, b] >= (max_density * N_blocks)[b], yes = 1, no = 0)
           }

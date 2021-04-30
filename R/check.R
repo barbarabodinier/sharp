@@ -175,7 +175,7 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   }
 
   # Checking the inputs (Lambda)
-  if (!is.null(Lambda)){
+  if (!is.null(Lambda)) {
     if (is.matrix(Lambda)) {
       Lambda_copy <- Lambda
       Lambda <- NULL

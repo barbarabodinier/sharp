@@ -126,10 +126,9 @@
 #'
 #' # Multinomial regression
 #' set.seed(2)
-#' Y=simul$Y+sample(c(0,1),size=nrow(simul$Y), replace=TRUE)
-#' stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio=0.1)
+#' Y <- simul$Y + sample(c(0, 1), size = nrow(simul$Y), replace = TRUE)
+#' stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio = 0.1)
 #' print(SelectedVariables(stab))
-#'
 #' @export
 VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,
@@ -154,7 +153,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
       xdata = xdata, ydata = ydata, tau = tau, seed = seed,
       family = family, implementation = implementation,
       resampling = resampling,
-      Lambda_cardinal = Lambda_cardinal, check_input=FALSE, ...
+      Lambda_cardinal = Lambda_cardinal, check_input = FALSE, ...
     )
   }
 

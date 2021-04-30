@@ -85,10 +85,10 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
         selected <- ifelse(mybeta != 0, yes = 1, no = 0)
         beta_full <- mybeta
       } else {
-        if (family=="mgaussian"){
+        if (family == "mgaussian") {
           mybeta <- array(NA,
-                          dim = c(length(lambda), ncol(x), ncol(y)),
-                          dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x), colnames(y))
+            dim = c(length(lambda), ncol(x), ncol(y)),
+            dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x), colnames(y))
           )
           for (y_id in 1:ncol(y)) {
             tmpbeta <- stats::coef(mymodel)[[y_id]]
@@ -102,12 +102,14 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
             }
           }
         }
-        if (family=="multinomial"){
-          y_levels=sort(unique(y))
+        if (family == "multinomial") {
+          y_levels <- sort(unique(y))
           mybeta <- array(NA,
-                          dim = c(length(lambda), ncol(x), length(y_levels)),
-                          dimnames = list(paste0("s", 0:(length(lambda) - 1)), colnames(x),
-                                          paste0("Y", y_levels))
+            dim = c(length(lambda), ncol(x), length(y_levels)),
+            dimnames = list(
+              paste0("s", 0:(length(lambda) - 1)), colnames(x),
+              paste0("Y", y_levels)
+            )
           )
           for (y_id in 1:length(y_levels)) {
             tmpbeta <- stats::coef(mymodel)[[y_id]]
@@ -215,7 +217,6 @@ SelectionAlgo <- function(x, y, lambda, family, implementation = "glmnet", ...) 
 #'
 #' # Running graphical LASSO
 #' myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
-#'
 #' @export
 GraphicalAlgo <- function(x, pk = NULL, Lambda, Sequential_template, scale = TRUE, implementation = "glassoFast", start = "cold", ...) {
   if (is.null(pk)) {

@@ -31,7 +31,6 @@
 #'
 #' # Link with Argmax() function
 #' args <- Argmax(stab)
-#'
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
   if ((is.null(stability)) & (is.null(S))) {
@@ -93,7 +92,6 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' # Extracting calibrated parameters
 #' args <- Argmax(stab)
-#'
 #' @export
 Argmax <- function(stability) {
   argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
@@ -148,7 +146,6 @@ Argmax <- function(stability) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' A <- Adjacency(stab, argmax_id = myids)
-#'
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
   A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
@@ -208,7 +205,6 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' A <- SelectedVariables(stab, argmax_id = myids)
-#'
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
   if (is.null(argmax_id)) {
@@ -267,7 +263,6 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' prop <- SelectionProportions(stab, argmax_id = myids)
-#'
 #' @family calibration functions
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
