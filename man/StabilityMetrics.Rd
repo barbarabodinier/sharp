@@ -104,5 +104,13 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
 }
 \description{
 This function can be used to compute the stability score and upper-bounds of
-the PFER and FDP for stability selection models.
+the PFER and FDP from selection proportions of models with a given penalty
+parameter and for different thresholds in selection proportions.
 }
+\seealso{
+Other stability metric functions: 
+\code{\link{FDP}()},
+\code{\link{PFER}()},
+\code{\link{StabilityScore}()}
+}
+\concept{stability metric functions}

@@ -31,3 +31,9 @@ Other approaches with joint calibration of the blocks are allowed
 Generates a matrix of penalty parameters
 for multi-block calibration.
 }
+\seealso{
+Other multi-block functions: 
+\code{\link{BlockMatrix}()},
+\code{\link{BlockStructure}()}
+}
+\concept{multi-block functions}

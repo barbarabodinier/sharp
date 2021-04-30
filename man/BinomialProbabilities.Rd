@@ -27,3 +27,4 @@ Computes the probabilities of observing each category of
 selection proportions under the assumption of a uniform selection
 procedure.
 }
+\keyword{internal}

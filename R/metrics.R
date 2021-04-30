@@ -1,7 +1,8 @@
 #' Stability selection metrics
 #'
 #' This function can be used to compute the stability score and upper-bounds of
-#' the PFER and FDP for stability selection models.
+#' the PFER and FDP from selection proportions of models with a given penalty
+#' parameter and for different thresholds in selection proportions.
 #'
 #' @param bigstab array of selection proportions.
 #' @param pk vector encoding the grouping structure. Only used for multi-block
@@ -76,6 +77,10 @@
 #'   of parameters. Rows correspond to different penalty parameters and columns
 #'   correspond to different thresholds in selection proportions. Not available
 #'   in multi-block stability selection graphical modelling.}
+#'
+#' @family stability metric functions
+#'
+#' @export
 StabilityMetrics <- function(bigstab, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                              K = 100, n_cat = 3,
                              PFER_method = "MB", PFER_thr_blocks = Inf, FDP_thr_blocks = Inf,
@@ -185,3 +190,4 @@ StabilityMetrics <- function(bigstab, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
     ))
   }
 }
+

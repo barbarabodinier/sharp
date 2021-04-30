@@ -22,3 +22,9 @@ mat <- BlockMatrix(pk = c(2, 3))
 dim(mat)
 
 }
+\seealso{
+Other multi-block functions: 
+\code{\link{BlockLambdaGrid}()},
+\code{\link{BlockStructure}()}
+}
+\concept{multi-block functions}

@@ -107,6 +107,8 @@ StabilityScore <- function(stab_iter, pi, K, n_cat = 3) {
 #'
 #' @return a list of probabilities for each of the 2 or 3 categories of
 #' selection proportions.
+#'
+#' @keywords internal
 BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
   if (n_cat == 2) {
     # Definition of the threshold in selection counts

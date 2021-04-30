@@ -24,3 +24,9 @@ mat <- BlockStructure(pk = rep(10, 2))
 # Example with 5 groups
 mat <- BlockStructure(pk = rep(10, 5))
 }
+\seealso{
+Other multi-block functions: 
+\code{\link{BlockLambdaGrid}()},
+\code{\link{BlockMatrix}()}
+}
+\concept{multi-block functions}

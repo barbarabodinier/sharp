@@ -7,6 +7,8 @@
 #'
 #' @return a symmetric block matrix.
 #'
+#' @family multi-block functions
+#'
 #' @examples
 #' # Small example
 #' mat <- BlockMatrix(pk = c(2, 3))
@@ -58,6 +60,8 @@ BlockMatrix <- function(pk) {
 #'
 #' @return a symmetric matrix.
 #'
+#' @family multi-block functions
+#'
 #' @examples
 #' # Example with 2 groups
 #' mat <- BlockStructure(pk = rep(10, 2))
@@ -84,6 +88,8 @@ BlockStructure <- function(pk) {
 #' @param lambda_other_blocks optional vector of penalty parameters to use for other blocks
 #' in the iterative multi-block procedure.
 #'
+#' @family multi-block functions
+#'
 #' @return A list with:
 #' \item{Lambda}{a matrix of
 #' (block-specific) penalty parameters.
@@ -97,6 +103,8 @@ BlockStructure <- function(pk) {
 #' block currently being calibrated and FALSE for other blocks).
 #' Other approaches with joint calibration of the blocks are allowed
 #' (all entries are set to TRUE).}
+#'
+#' @export
 BlockLambdaGrid <- function(Lambda, lambda_other_blocks = NULL) {
   if ((is.null(lambda_other_blocks)) & (!is.vector(Lambda))) {
     Lambda_blocks <- Lambda

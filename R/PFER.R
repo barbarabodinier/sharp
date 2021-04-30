@@ -90,6 +90,7 @@ PFER <- function(q, pi, N, K, PFER_method = "MB") {
 #'
 #' @family stability metric functions
 #'
+#' @examples
 #' # Simulating set of selection proportions
 #' selprop=round(runif(n=20), digits=2)
 #'
