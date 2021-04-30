@@ -55,7 +55,7 @@
 #' @param ... additional arguments passed to the graph simulation function
 #'   provided in "implementation".
 #'
-#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}}
+#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}}, \code{\link{GraphicalModel}}
 #' @family simulation functions
 #'
 #' @return A list with: \item{data}{simulated data with n observation and
@@ -281,6 +281,7 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
 #' \item{beta}{true beta coefficients used in the linear model for simulation of the outcome Y.}
 #'
 #' @family simulation functions
+#'
 #' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
