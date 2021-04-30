@@ -9,27 +9,24 @@ BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
 \arguments{
 \item{Lambda}{vector or matrix of penalty parameters.}
 
-\item{lambda_other_blocks}{optional vector of penalty parameters to use for other blocks
-in the iterative multi-block procedure.}
+\item{lambda_other_blocks}{optional vector of penalty parameters to use for
+other blocks in the iterative multi-block procedure.}
 }
 \value{
-A list with:
-\item{Lambda}{a matrix of
-(block-specific) penalty parameters.
-In multi-block stability selection,
-rows correspond to sets of penalty parameters and
-columns correspond to different blocks.}
-\item{Sequential_template}{logical matrix encoding the type of procedure for data
-with multiple blocks in stability selection graphical modelling.
-For multi-block estimation, the procedure is separately calibrating
-each block while the others are weakly penalised (TRUE only for the
-block currently being calibrated and FALSE for other blocks).
-Other approaches with joint calibration of the blocks are allowed
-(all entries are set to TRUE).}
+A list with: \item{Lambda}{a matrix of (block-specific) penalty
+  parameters. In multi-block stability selection, rows correspond to sets of
+  penalty parameters and columns correspond to different blocks.}
+  \item{Sequential_template}{logical matrix encoding the type of procedure
+  for data with multiple blocks in stability selection graphical modelling.
+  For multi-block estimation, the procedure is separately calibrating each
+  block while the others are weakly penalised (TRUE only for the block
+  currently being calibrated and FALSE for other blocks). Other approaches
+  with joint calibration of the blocks are allowed (all entries are set to
+  TRUE).}
 }
 \description{
-Generates a matrix of penalty parameters
-for multi-block calibration.
+Generates a matrix of parameters controlling the sparsity of the underlying
+selection algorithm for multi-block calibration.
 }
 \seealso{
 Other multi-block functions: 
