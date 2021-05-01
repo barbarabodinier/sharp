@@ -100,6 +100,8 @@ When selecting a single parameter, each point represents the best
 (maximum) stability score across all visited values of the other parameter.
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20, nu = 0.1)
@@ -119,6 +121,7 @@ CalibrationPlot(stab,
   colours = c("lightgrey", "blue", "black"),
   legend_length = 25, legend_range = c(0, 4000)
 )
+}
 }
 \seealso{
 Other calibration functions: 

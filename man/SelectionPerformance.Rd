@@ -51,6 +51,8 @@ selected features to the set of true predictors/edges. This function can only
 be used in simulation studies (i.e. when the true model is known).
 }
 \examples{
+\dontrun{
+
 # Variable selection model
 set.seed(1)
 simul <- SimulateRegression(pk = 30)
@@ -76,6 +78,7 @@ perf <- SelectionPerformance(
   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
   cor = cor(simul$data), thr = 0.5
 )
+}
 }
 \seealso{
 Other selection performance functions: 

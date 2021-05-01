@@ -25,9 +25,7 @@
 #' @family stability metric functions
 #'
 #' @examples
-#'
-#' # Example: 10 out of 50 features selected on average by underlying algorithm
-#' # for stability selection with 100 iterations and threshold of 0.8
+#' # Computing PFER for 10/50 selected features and threshold of 0.8
 #' pfer_mb <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "MB")
 #' pfer_ss <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "SS")
 #' @export

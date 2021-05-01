@@ -1,4 +1,4 @@
-#' Resampling
+#' Resampling observations
 #'
 #' Generates a vector of resampled observation IDs.
 #'
@@ -30,6 +30,8 @@
 #'   that of the full sample.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' ## Linear regression framework
 #' # Data simulation
 #' simul <- SimulateRegression()
@@ -75,6 +77,7 @@
 #'   xdata = simul$X, ydata = simul$Y, family = "binomial",
 #'   resampling = "BalancedResampling", Z = conf
 #' )
+#' }
 #' @export
 Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling", ...) {
   # Preparing the data

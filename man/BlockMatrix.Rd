@@ -19,7 +19,6 @@ block structure from the numbers of variables in each group.
 \examples{
 # Small example
 mat <- BlockMatrix(pk = c(2, 3))
-dim(mat)
 }
 \seealso{
 Other multi-block functions: 

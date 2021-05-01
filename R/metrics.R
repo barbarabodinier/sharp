@@ -5,7 +5,7 @@
 #' parameter and for different thresholds in selection proportions.
 #'
 #' @param bigstab array of selection proportions.
-#' @param pk vector encoding the grouping structure. Only used for multi-block
+#' @param pk optional vector encoding the grouping structure. Only used for multi-block
 #'   stability selection graphical models, see \code{\link{GraphicalModel}}.
 #' @param pi_list grid of values for the threshold in selection proportion. With
 #'   n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
@@ -80,6 +80,12 @@
 #'
 #' @family stability metric functions
 #'
+#' @examples
+#' # Simulating set of selection proportions
+#' selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
+#'
+#' # Computing stability scores for different thresholds
+#' metrics <- StabilityMetrics(bigstab = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
 #' @export
 StabilityMetrics <- function(bigstab, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                              K = 100, n_cat = 3,

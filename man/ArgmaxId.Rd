@@ -25,6 +25,8 @@ Extracts the IDs of calibrated parameters with respect to the grids provided
 in "Lambda" and "pi_list".
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
@@ -39,6 +41,7 @@ stab$params$pi_list[ids[2]]
 
 # Link with Argmax() function
 args <- Argmax(stab)
+}
 }
 \seealso{
 Other calibration functions: 

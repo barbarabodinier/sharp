@@ -147,6 +147,16 @@ To ensure reproducibility of the results, the state of the random
   \code{\link{Combine}}).
 }
 \examples{
+\dontshow{
+# Linear regression
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = 10, family = "gaussian")
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian", K = 5, verbose = FALSE)
+myselected <- SelectedVariables(stab)
+perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta)
+}
+\dontrun{
+
 # Linear regression
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -169,8 +179,12 @@ print(SelectedVariables(stab))
 # Multinomial regression
 set.seed(2)
 Y <- simul$Y + sample(c(0, 1), size = nrow(simul$Y), replace = TRUE)
-stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio = 0.1)
+stab <- VariableSelection(
+  xdata = simul$X, ydata = Y,
+  family = "multinomial", lambda.min.ratio = 0.1
+)
 print(SelectedVariables(stab))
+}
 }
 \seealso{
 \code{\link{LambdaGridRegression}}, \code{\link{Resample}},

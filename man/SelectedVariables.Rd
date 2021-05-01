@@ -20,6 +20,8 @@ of the variables.
 Builds the (calibrated) set of stably selected variables.
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(pk = 50)
@@ -28,13 +30,14 @@ simul <- SimulateRegression(pk = 50)
 stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
 
 # Calibrated set
-A <- SelectedVariables(stab)
+selected <- SelectedVariables(stab)
 
 # User-defined parameters
 myids <- matrix(c(80, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
-A <- SelectedVariables(stab, argmax_id = myids)
+selected <- SelectedVariables(stab, argmax_id = myids)
+}
 }
 \seealso{
 Other calibration functions: 

@@ -193,7 +193,31 @@ To ensure reproducibility of the results, the state of the random
   \code{\link{Combine}}).
 }
 \examples{
-# Data simulation
+\dontshow{
+# Single-block stability selection
+set.seed(1)
+simul <- SimulateGraphical(n = 50, pk = 10, nu = 0.1)
+stab <- GraphicalModel(data = simul$data, K = 5, verbose = FALSE)
+A <- Adjacency(stab)
+mygraph <- Graph(A)
+perf <- SelectionPerformance(theta = A, theta_star = simul$theta)
+perfgraph <- SelectionPerformanceGraph(
+  theta = Adjacency(stab),
+  theta_star = simul$theta, plot = TRUE
+)
+
+# Multi-block stability selection
+set.seed(1)
+pk <- c(10, 10)
+simul <- SimulateGraphical(n = 50, pk = pk)
+stab <- GraphicalModel(data = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
+A <- Adjacency(stab)
+mygraph <- Graph(A)
+perf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
+}
+\dontrun{
+
+# Single-block stability selection
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
 stab <- GraphicalModel(data = simul$data)
@@ -205,13 +229,14 @@ simul <- SimulateGraphical(pk = c(10, 10))
 stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 stab$Lambda # sets of penalty parameters used jointly
 
-# Multi-parameter stability selection
+# Multi-parameter stability selection (not recommended)
 Lambda <- matrix(c(0.8, 0.6, 0.3, 0.5, 0.4, 0.3, 0.7, 0.5, 0.1), ncol = 3)
 stab <- GraphicalModel(
   data = simul$data, pk = c(10, 10),
   Lambda = Lambda, lambda_other_blocks = NULL
 )
 stab$Lambda
+}
 }
 \seealso{
 \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},

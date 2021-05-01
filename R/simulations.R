@@ -74,6 +74,8 @@
 #'   \code{output_matrices=TRUE}.}
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Simulation of random graph with 50 nodes
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu = 0.05)
@@ -106,12 +108,14 @@
 #' for (i in 1:2) {
 #'   axis(side = i, at = c(0.5, pk[1] - 0.5), labels = NA)
 #'   axis(
-#'     side = i, at = mean(c(0.5, pk[1] - 0.5)), labels = ifelse(i == 1, yes = "Group 1", no = "Group 2"),
+#'     side = i, at = mean(c(0.5, pk[1] - 0.5)),
+#'     labels = ifelse(i == 1, yes = "Group 1", no = "Group 2"),
 #'     tick = FALSE, cex.axis = 1.5
 #'   )
 #'   axis(side = i, at = c(pk[1] + 0.5, sum(pk) - 0.5), labels = NA)
 #'   axis(
-#'     side = i, at = mean(c(pk[1] + 0.5, sum(pk) - 0.5)), labels = ifelse(i == 1, yes = "Group 2", no = "Group 1"),
+#'     side = i, at = mean(c(pk[1] + 0.5, sum(pk) - 0.5)),
+#'     labels = ifelse(i == 1, yes = "Group 2", no = "Group 1"),
 #'     tick = FALSE, cex.axis = 1.5
 #'   )
 #' }
@@ -128,6 +132,7 @@
 #' plot(Graph(simul$theta)) # star
 #' simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 #' plot(Graph(simul$theta)) # variable 2 is the central node
+#' }
 #' @export
 SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topology = "random", nu = 0.1,
                               output_matrices = FALSE,
@@ -316,6 +321,8 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
 #' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation (continuous outcome)
 #' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian")
 #' plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
@@ -325,6 +332,7 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
 #' # Data simulation (binary outcome)
 #' simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
 #' boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
+#' }
 #' @export
 SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
                                beta_set = c(-1, 1), continuous = FALSE,
@@ -403,9 +411,12 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 #' @family simulation functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Simulation of a scale-free graph with 20 nodes
 #' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
+#' }
 #' @export
 SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   # Simulating the adjacency matrix using huge
@@ -437,6 +448,8 @@ SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #' @return A positive definite matrix.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Simulation of a symmetric matrix
 #' p <- 5
 #' set.seed(1)
@@ -449,6 +462,7 @@ SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #' # Non-negative eigenvalues
 #' sigma_pd <- MakePositiveDefinite(sigma, pd = "nonnegative_eigenvalues")
 #' eigen(sigma_pd)$values
+#' }
 #' @export
 MakePositiveDefinite <- function(omega, u_value = 0.1, pd_strategy = "diagonally_dominant") {
   # Adding a small number (u) to the diagonal

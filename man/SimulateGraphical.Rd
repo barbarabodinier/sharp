@@ -107,6 +107,8 @@ function can be used to evaluate the ability of a graphical model to identify
 edges of a conditional independence graph.
 }
 \examples{
+\dontrun{
+
 # Simulation of random graph with 50 nodes
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu = 0.05)
@@ -139,12 +141,14 @@ Heatmap(mycor,
 for (i in 1:2) {
   axis(side = i, at = c(0.5, pk[1] - 0.5), labels = NA)
   axis(
-    side = i, at = mean(c(0.5, pk[1] - 0.5)), labels = ifelse(i == 1, yes = "Group 1", no = "Group 2"),
+    side = i, at = mean(c(0.5, pk[1] - 0.5)),
+    labels = ifelse(i == 1, yes = "Group 1", no = "Group 2"),
     tick = FALSE, cex.axis = 1.5
   )
   axis(side = i, at = c(pk[1] + 0.5, sum(pk) - 0.5), labels = NA)
   axis(
-    side = i, at = mean(c(pk[1] + 0.5, sum(pk) - 0.5)), labels = ifelse(i == 1, yes = "Group 2", no = "Group 1"),
+    side = i, at = mean(c(pk[1] + 0.5, sum(pk) - 0.5)),
+    labels = ifelse(i == 1, yes = "Group 2", no = "Group 1"),
     tick = FALSE, cex.axis = 1.5
   )
 }
@@ -161,6 +165,7 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode")
 plot(Graph(simul$theta)) # star
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
+}
 }
 \seealso{
 \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},

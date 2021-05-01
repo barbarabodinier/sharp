@@ -17,6 +17,8 @@ it is that the selection procedure is uniform.
 Barbara Bodinier \email{b.bodinier@imperial.ac.uk}}
 }
 \examples{
+\dontrun{
+
 ## Regression models
 # Data simulation
 set.seed(1)
@@ -39,4 +41,5 @@ CalibrationPlot(stab)
 argmax <- Argmax(stab) # calibrated parameters
 stably_selected <- Adjacency(stab)
 plot(Graph(stably_selected))
+}
 }

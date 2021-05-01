@@ -30,6 +30,8 @@ it is diagonally dominant, or (ii) set to the absolute value of the smallest
 eigenvalue.
 }
 \examples{
+\dontrun{
+
 # Simulation of a symmetric matrix
 p <- 5
 set.seed(1)
@@ -42,4 +44,5 @@ sigma_pd <- MakePositiveDefinite(sigma, pd = "diagonally_dominant")
 # Non-negative eigenvalues
 sigma_pd <- MakePositiveDefinite(sigma, pd = "nonnegative_eigenvalues")
 eigen(sigma_pd)$values
+}
 }

@@ -12,7 +12,6 @@
 #' @examples
 #' # Small example
 #' mat <- BlockMatrix(pk = c(2, 3))
-#' dim(mat)
 #' @export
 BlockMatrix <- function(pk) {
   nblocks <- sum(upper.tri(matrix(NA, ncol = length(pk), nrow = length(pk)), diag = TRUE))
@@ -100,8 +99,34 @@ BlockStructure <- function(pk) {
 #'   with joint calibration of the blocks are allowed (all entries are set to
 #'   TRUE).}
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # Multi-block grid
+#' Lambda <- matrix(c(
+#'   0.8, 0.6, 0.3,
+#'   0.5, 0.4, 0.2,
+#'   0.7, 0.5, 0.1
+#' ),
+#' ncol = 3, byrow = TRUE
+#' )
+#' mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = 0.1)
+#'
+#' # Multi-parameter grid (not recommended)
+#' Lambda <- matrix(c(
+#'   0.8, 0.6, 0.3,
+#'   0.5, 0.4, 0.2,
+#'   0.7, 0.5, 0.1
+#' ),
+#' ncol = 3, byrow = TRUE
+#' )
+#' mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
+#' }
 #' @export
 BlockLambdaGrid <- function(Lambda, lambda_other_blocks = NULL) {
+  if ((length(lambda_other_blocks) == 1) & (!is.vector(Lambda))) {
+    lambda_other_blocks <- rep(lambda_other_blocks, ncol(Lambda))
+  }
   if ((is.null(lambda_other_blocks)) & (!is.vector(Lambda))) {
     Lambda_blocks <- Lambda
     Sequential_template <- matrix(TRUE, ncol = ncol(Lambda), nrow = nrow(Lambda))

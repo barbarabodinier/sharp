@@ -20,7 +20,7 @@ StabilityMetrics(
 \arguments{
 \item{bigstab}{array of selection proportions.}
 
-\item{pk}{vector encoding the grouping structure. Only used for multi-block
+\item{pk}{optional vector encoding the grouping structure. Only used for multi-block
 stability selection graphical models, see \code{\link{GraphicalModel}}.}
 
 \item{pi_list}{grid of values for the threshold in selection proportion. With
@@ -106,6 +106,13 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
 This function can be used to compute the stability score and upper-bounds of
 the PFER and FDP from selection proportions of models with a given penalty
 parameter and for different thresholds in selection proportions.
+}
+\examples{
+# Simulating set of selection proportions
+selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
+
+# Computing stability scores for different thresholds
+metrics <- StabilityMetrics(bigstab = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
 }
 \seealso{
 Other stability metric functions: 

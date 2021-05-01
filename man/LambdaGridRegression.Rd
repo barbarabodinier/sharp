@@ -69,6 +69,8 @@ Generates a relevant grid of penalty parameter values for penalised
 regression.
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated data
@@ -124,6 +126,7 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
     group = sort(rep(1:4, length.out = ncol(simul$X)))
   )
   print(SelectedVariables(stab))
+}
 }
 }
 \seealso{

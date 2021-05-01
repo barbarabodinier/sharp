@@ -130,7 +130,7 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
 
   # Further checking/preparing ydata
   if ((implementation == "glmnet") & (family == "binomial")) {
-    if (length(unique(ydata))>2){
+    if (length(unique(ydata)) > 2) {
       stop("Arguments 'ydata' and 'family' are not compatible. For logistic regression using glmnet, the argument 'ydata' needs to be binary.")
     }
     ydata <- as.factor(ydata)
@@ -175,8 +175,8 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
       ydata <- as.numeric(ydata) - 1
     }
     ydata <- matrix(ydata, ncol = 1)
-    ytmp=as.numeric(table(ydata))
-    if (any(ytmp==1)){
+    ytmp <- as.numeric(table(ydata))
+    if (any(ytmp == 1)) {
       stop("At least one category in 'ydata' with only one observation.")
     }
   }
@@ -302,16 +302,18 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   }
 
   # Checking the inputs (PFER_thr and FDP_thr)
-  if ((!is.infinite(PFER_thr))&(!is.infinite(FDP_thr))){
+  if ((!is.infinite(PFER_thr)) & (!is.infinite(FDP_thr))) {
     warning("Arguments 'PFER_thr' and 'FDP_thr' are not compatible. Only one of these two arguments can be used (i.e. not set to Inf). Argument 'PFER_thr' was used.")
-    FDP_thr=Inf
+    FDP_thr <- Inf
   }
 
   # Checking the inputs (Lambda_cardinal)
   Lambda_cardinal <- as.numeric(Lambda_cardinal)
-  if ((length(Lambda_cardinal) != 1) | is.na(Lambda_cardinal) | (Lambda_cardinal < 1)) {
-    warning("Invalid input for argument 'Lambda_cardinal'. The argument 'Lambda_cardinal' must be a single positive number. The default value (100) was used.")
-    Lambda_cardinal <- 100
+  if (is.null(Lambda)) {
+    if ((length(Lambda_cardinal) != 1) | is.na(Lambda_cardinal) | (Lambda_cardinal < 2)) {
+      warning("Invalid input for argument 'Lambda_cardinal'. The argument 'Lambda_cardinal' must be a single positive number. A value of 10 was used.")
+      Lambda_cardinal <- 10
+    }
   }
 
   # Checking the inputs (verbose)
@@ -560,9 +562,11 @@ CheckInputGraphical <- function(data, pk = NULL, Lambda = NULL, lambda_other_blo
 
   # Checking the inputs (Lambda_cardinal)
   Lambda_cardinal <- as.numeric(Lambda_cardinal)
-  if ((length(Lambda_cardinal) != 1) | is.na(Lambda_cardinal) | (Lambda_cardinal < 1)) {
-    warning("Invalid input for argument 'Lambda_cardinal'. The argument 'Lambda_cardinal' must be a single positive number. The default value (50) was used.")
-    Lambda_cardinal <- 50
+  if (is.null(Lambda)) {
+    if ((length(Lambda_cardinal) != 1) | is.na(Lambda_cardinal) | (Lambda_cardinal < 2)) {
+      warning("Invalid input for argument 'Lambda_cardinal'. The argument 'Lambda_cardinal' must be a single positive number. A value of 10 was used.")
+      Lambda_cardinal <- 10
+    }
   }
 
   # Create matrix with block indices

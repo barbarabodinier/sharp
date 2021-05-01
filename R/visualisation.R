@@ -52,6 +52,8 @@
 #' @family calibration functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20, nu = 0.1)
@@ -71,6 +73,7 @@
 #'   colours = c("lightgrey", "blue", "black"),
 #'   legend_length = 25, legend_range = c(0, 4000)
 #' )
+#' }
 #' @export
 CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
                             lines = TRUE, colours = c("ivory", "navajowhite", "tomato", "darkred"),
@@ -296,7 +299,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 }
 
 
-#' Heatmap
+#' Heatmap visualisation
 #'
 #' Produces a heatmap from a matrix.
 #'
@@ -313,6 +316,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #' @seealso \code{\link{CalibrationPlot}}
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' mat <- matrix(rnorm(200), ncol = 20)
@@ -320,6 +325,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #' # Generating heatmaps
 #' Heatmap(mat = mat)
 #' Heatmap(mat = mat, colours = c("lightgrey", "blue", "black"), legend = FALSE)
+#' }
+#'
 #' @export
 Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"),
                     resolution = 10000, legend = TRUE, legend_length = 15, legend_range = NULL) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/resampling.R
 \name{Resample}
 \alias{Resample}
-\title{Resampling}
+\title{Resampling observations}
 \usage{
 Resample(data, family = NULL, tau = 0.5, resampling = "subsampling", ...)
 }
@@ -44,6 +44,8 @@ With categorical outcomes (i.e. "family" argument is set to
   that of the full sample.
 }
 \examples{
+\dontrun{
+
 ## Linear regression framework
 # Data simulation
 simul <- SimulateRegression()
@@ -89,4 +91,5 @@ stab <- VariableSelection(
   xdata = simul$X, ydata = simul$Y, family = "binomial",
   resampling = "BalancedResampling", Z = conf
 )
+}
 }

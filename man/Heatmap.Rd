@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualisation.R
 \name{Heatmap}
 \alias{Heatmap}
-\title{Heatmap}
+\title{Heatmap visualisation}
 \usage{
 Heatmap(
   mat,
@@ -34,6 +34,8 @@ a heatmap.
 Produces a heatmap from a matrix.
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 mat <- matrix(rnorm(200), ncol = 20)
@@ -41,6 +43,8 @@ mat <- matrix(rnorm(200), ncol = 20)
 # Generating heatmaps
 Heatmap(mat = mat)
 Heatmap(mat = mat, colours = c("lightgrey", "blue", "black"), legend = FALSE)
+}
+
 }
 \seealso{
 \code{\link{CalibrationPlot}}

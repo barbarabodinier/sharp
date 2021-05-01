@@ -20,11 +20,9 @@ SelectionPerformanceGraph(
 )
 }
 \arguments{
-\item{theta}{binary vector of selected variables (in a regression framework)
-or binary adjacency matrix (in graphical modelling).}
+\item{theta}{binary adjacency matrix.}
 
-\item{theta_star}{binary vector of true predictors (in a regression
-framework) or true binary adjacency matrix (in graphical modelling).}
+\item{theta_star}{true binary adjacency matrix (in graphical modelling).}
 
 \item{colours}{vector of edge colours. The first entry of the vector defines
 the colour of False Positive edges, second entry is for True Negatives and
@@ -61,10 +59,12 @@ argument "filename" is not NULL and fileformat="png".}
 \description{
 Generates an igraph object representing the True Positive, False Positive and
 False Negative edges by comparing the set of selected edges to the set of
-true edges. This function can only be used in simulation studies (i.e. when
-the true model is known).
+true edges. This function only applies to graphical models and can only be
+used in simulation studies (i.e. when the true model is known).
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 30)
@@ -93,6 +93,7 @@ perfgraph <- SelectionPerformanceGraph(
 require(igraph)
 igraph::V(perfgraph)$size <- 10
 plot(perfgraph, layout = layout_with_kk(perfgraph))
+}
 }
 \seealso{
 \code{\link{Graph}}

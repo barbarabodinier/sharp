@@ -13,6 +13,8 @@
 #' @docType package
 #' @name focus-package
 #' @examples
+#' \dontrun{
+#'
 #' ## Regression models
 #' # Data simulation
 #' set.seed(1)
@@ -35,4 +37,5 @@
 #' argmax <- Argmax(stab) # calibrated parameters
 #' stably_selected <- Adjacency(stab)
 #' plot(Graph(stably_selected))
+#' }
 NULL

@@ -13,6 +13,8 @@
 #' @family lambda grid functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated data
@@ -68,6 +70,7 @@
 #'     group = sort(rep(1:4, length.out = ncol(simul$X)))
 #'   )
 #'   print(SelectedVariables(stab))
+#' }
 #' }
 #' @export
 LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
@@ -141,6 +144,8 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #'   \insertRef{stabilityselectionSS}{focus}
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Single-block simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical()
@@ -186,6 +191,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #' N_blocks # max number of edges per block
 #' stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda = Lambda)
 #' apply(stab$Q, 2, max, na.rm = TRUE) # max average number of edges from underlying algo
+#' }
 #' @export
 LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 100, tau = 0.5, n_cat = 3,
                                 implementation = "glassoFast", start = "cold", scale = TRUE,
@@ -390,6 +396,9 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
 #'
 #' @family lambda grid functions
 #'
+#' @examples
+#' # Grid from extreme values
+#' mygrid <- LambdaSequence(lmax = 0.7, lmin = 0.001, cardinal = 10)
 #' @export
 LambdaSequence <- function(lmax, lmin, cardinal = 100) {
   return(exp(seq(log(lmax), log(lmin), length.out = cardinal)))

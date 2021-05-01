@@ -17,6 +17,8 @@
 #' @family calibration functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
@@ -31,6 +33,7 @@
 #'
 #' # Link with Argmax() function
 #' args <- Argmax(stab)
+#' }
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
   if ((is.null(stability)) & (is.null(S))) {
@@ -83,6 +86,8 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #' @family calibration functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
@@ -92,6 +97,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' # Extracting calibrated parameters
 #' args <- Argmax(stab)
+#' }
 #' @export
 Argmax <- function(stability) {
   argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
@@ -131,6 +137,8 @@ Argmax <- function(stability) {
 #' @family calibration functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
@@ -146,6 +154,7 @@ Argmax <- function(stability) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' A <- Adjacency(stab, argmax_id = myids)
+#' }
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
   A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
@@ -190,6 +199,8 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' @family calibration functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
@@ -198,13 +209,14 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
 #'
 #' # Calibrated set
-#' A <- SelectedVariables(stab)
+#' selected <- SelectedVariables(stab)
 #'
 #' # User-defined parameters
 #' myids <- matrix(c(80, 10), nrow = 1)
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
-#' A <- SelectedVariables(stab, argmax_id = myids)
+#' selected <- SelectedVariables(stab, argmax_id = myids)
+#' }
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
   if (is.null(argmax_id)) {
@@ -230,6 +242,8 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' of selection proportions.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' ## Variable selection
 #' # Data simulation
 #' set.seed(1)
@@ -263,6 +277,8 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' prop <- SelectionProportions(stab, argmax_id = myids)
+#' }
+#'
 #' @family calibration functions
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
@@ -289,7 +305,6 @@ SelectionProportions <- function(stability, argmax_id = NULL) {
 #' stability selection model are returned.
 #'
 #' @return a symmetric matrix.
-#'
 #'
 #' @keywords internal
 SelectionProportionsGraphical <- function(stability, argmax_id = NULL) {

@@ -119,6 +119,8 @@ Generates a relevant grid of penalty parameter values for penalised graphical
 models.
 }
 \examples{
+\dontrun{
+
 # Single-block simulation
 set.seed(1)
 simul <- SimulateGraphical()
@@ -164,6 +166,7 @@ N_blocks <- unname(table(bigblocks_vect))
 N_blocks # max number of edges per block
 stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda = Lambda)
 apply(stab$Q, 2, max, na.rm = TRUE) # max average number of edges from underlying algo
+}
 }
 \references{
 \insertRef{stabilityselectionMB}{focus}

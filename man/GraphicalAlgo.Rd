@@ -77,6 +77,8 @@ The use of the procedure from Equation (4) or (5)
 is controlled by the argument "Sequential_template".
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical()
@@ -84,7 +86,10 @@ simul <- SimulateGraphical()
 # Running graphical LASSO
 myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
 }
+}
 \seealso{
+\code{\link{GraphicalModel}}
+
 Other underlying algorithm functions: 
 \code{\link{SelectionAlgo}()}
 }

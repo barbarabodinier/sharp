@@ -105,6 +105,16 @@
 #'   \code{\link{Combine}}
 #'
 #' @examples
+#' \dontshow{
+#' # Linear regression
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 50, pk = 10, family = "gaussian")
+#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian", K = 5, verbose = FALSE)
+#' myselected <- SelectedVariables(stab)
+#' perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta)
+#' }
+#' \dontrun{
+#'
 #' # Linear regression
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -127,8 +137,12 @@
 #' # Multinomial regression
 #' set.seed(2)
 #' Y <- simul$Y + sample(c(0, 1), size = nrow(simul$Y), replace = TRUE)
-#' stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio = 0.1)
+#' stab <- VariableSelection(
+#'   xdata = simul$X, ydata = Y,
+#'   family = "multinomial", lambda.min.ratio = 0.1
+#' )
 #' print(SelectedVariables(stab))
+#' }
 #' @export
 VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,
@@ -308,14 +322,14 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
   if (length(dim(mybeta$beta_full)) == 2) {
     Beta_full <- array(0,
-                       dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
-                       dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL)
+      dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
+      dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL)
     )
   } else {
     if (length(dim(mybeta$beta_full)) == 3) {
       Beta_full <- array(0,
-                         dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
-                         dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
+        dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
+        dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
       )
     } else {
       stop(paste0("Invalid output from the variable selection function: ", implementation, "(). The output 'beta_full' must be an array with 2 or 3 dimensions."))

@@ -18,6 +18,8 @@ a matrix of (block-specific) parameters. In multi-block graphical
 Extracts calibrated parameters in stability selection.
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
@@ -27,6 +29,7 @@ stab <- GraphicalModel(data = simul$data)
 
 # Extracting calibrated parameters
 args <- Argmax(stab)
+}
 }
 \seealso{
 Other calibration functions: 

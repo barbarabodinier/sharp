@@ -29,6 +29,8 @@
 #' @seealso \code{\link{Adjacency}}, \code{\link{GraphicalModel}}, \href{https://igraph.org/r/}{igraph manual}
 #'
 #' @examples
+#' \dontrun{
+#'
 #' ## From adjacency matrix
 #' # Un-weighted
 #' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
@@ -47,6 +49,7 @@
 #' simul <- SimulateGraphical(pk = 20)
 #' stab <- GraphicalModel(data = simul$data)
 #' plot(Graph(stab))
+#' }
 #' @export
 Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape = NULL,
                   weighted = FALSE, satellites = FALSE) {

@@ -21,6 +21,10 @@ a vector with values between "lmin" and "lmax" and as many values as
 Generates a sequence of penalty parameters from extreme values and the
 required number of elements. The sequence is defined on the log-scale.
 }
+\examples{
+# Grid from extreme values
+mygrid <- LambdaSequence(lmax = 0.7, lmin = 0.001, cardinal = 10)
+}
 \seealso{
 Other lambda grid functions: 
 \code{\link{LambdaGridGraphical}()},

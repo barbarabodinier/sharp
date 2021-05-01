@@ -47,6 +47,8 @@ Runs the variable selection algorithm specified in the argument
 not using stability.
 }
 \examples{
+\dontrun{
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(pk = 50)
@@ -61,9 +63,11 @@ Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
 # Running multivariate Gaussian LASSO
 mylasso <- SelectionAlgo(x = simul$X, y = Y, lambda = c(0.1, 0.2), family = "mgaussian")
 str(mylasso)
-stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
+}
 }
 \seealso{
+\code{\link{VariableSelection}}
+
 Other underlying algorithm functions: 
 \code{\link{GraphicalAlgo}()}
 }

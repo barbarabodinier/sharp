@@ -40,6 +40,8 @@
 #' @family selection performance functions
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Variable selection model
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 30)
@@ -65,6 +67,7 @@
 #'   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
 #'   cor = cor(simul$data), thr = 0.5
 #' )
+#' }
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
   # Storing similarities/differences between estimated and true sets
@@ -97,13 +100,11 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'
 #' Generates an igraph object representing the True Positive, False Positive and
 #' False Negative edges by comparing the set of selected edges to the set of
-#' true edges. This function can only be used in simulation studies (i.e. when
-#' the true model is known).
+#' true edges. This function only applies to graphical models and can only be
+#' used in simulation studies (i.e. when the true model is known).
 #'
-#' @param theta binary vector of selected variables (in a regression framework)
-#'   or binary adjacency matrix (in graphical modelling).
-#' @param theta_star binary vector of true predictors (in a regression
-#'   framework) or true binary adjacency matrix (in graphical modelling).
+#' @param theta binary adjacency matrix.
+#' @param theta_star true binary adjacency matrix (in graphical modelling).
 #' @param colours vector of edge colours. The first entry of the vector defines
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
@@ -131,6 +132,8 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' @seealso \code{\link{Graph}}
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 30)
@@ -159,6 +162,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' require(igraph)
 #' igraph::V(perfgraph)$size <- 10
 #' plot(perfgraph, layout = layout_with_kk(perfgraph))
+#' }
 #' @export
 SelectionPerformanceGraph <- function(theta, theta_star,
                                       colours = c("tomato", "forestgreen", "navy"),
@@ -166,6 +170,11 @@ SelectionPerformanceGraph <- function(theta, theta_star,
                                       plot = FALSE,
                                       filename = NULL, fileformat = "pdf", res = 500,
                                       width = 7, height = 7, units = "in", ...) {
+  # Checking input is a matrix
+  if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
+    stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
+  }
+
   # Storing similarities/differences between estimated and true sets
   Asum <- theta + 2 * theta_star
 
