@@ -105,7 +105,7 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
     }
   }
 
-  # Creating dummy ydata (for resampling)
+  # Creating dummy ydata (for resampling in unsupervised models)
   if (is.null(ydata)) {
     ydata <- cbind(rep(0, nrow(xdata)))
   }
@@ -130,6 +130,9 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
 
   # Further checking/preparing ydata
   if ((implementation == "glmnet") & (family == "binomial")) {
+    if (length(unique(ydata))>2){
+      stop("Arguments 'ydata' and 'family' are not compatible. For logistic regression using glmnet, the argument 'ydata' needs to be binary.")
+    }
     ydata <- as.factor(ydata)
     if (verbose) {
       print(paste0("Reference category: ", levels(ydata)[1]))
@@ -157,8 +160,8 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
       for (j in 1:ncol(ydata)) {
         tmp <- as.factor(ydata_original[, j])
         if (verbose) {
-          print(paste0("Reference category for column ", j, ": ", levels(tmp)[1]))
-          print(paste0("Other category for column ", j, ": ", levels(tmp)[2]))
+          message(paste0("Reference category for column ", j, ": ", levels(tmp)[1]))
+          message(paste0("Other category for column ", j, ": ", levels(tmp)[2]))
         }
         ydata[, j] <- (as.numeric(tmp) - 1) * j
       }
@@ -166,12 +169,16 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
     } else {
       ydata <- as.factor(ydata)
       if (verbose) {
-        print(paste0("Reference category: ", levels(ydata)[1]))
-        print(paste0("Other categories: ", paste(levels(ydata)[-1], collapse = ", ")))
+        message(paste0("Reference category: ", levels(ydata)[1]))
+        message(paste0("Other categories: ", paste(levels(ydata)[-1], collapse = ", ")))
       }
       ydata <- as.numeric(ydata) - 1
     }
     ydata <- matrix(ydata, ncol = 1)
+    ytmp=as.numeric(table(ydata))
+    if (any(ytmp==1)){
+      stop("At least one category in 'ydata' with only one observation.")
+    }
   }
 
   # Checking the inputs (Lambda)
@@ -292,6 +299,12 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   if ((length(FDP_thr) != 1) | is.na(FDP_thr) | ((!is.infinite(FDP_thr)) & (FDP_thr <= 0)) | ((!is.infinite(FDP_thr)) & (FDP_thr > 1))) {
     warning("Invalid input for argument 'FDP_thr'. The threshold in the upper-bound of the False Discovery Proportion 'FDP_thr' must be a single number between 0 and 1 (or Inf to deactivate). The default value (Inf) was used.")
     FDP_thr <- Inf
+  }
+
+  # Checking the inputs (PFER_thr and FDP_thr)
+  if ((!is.infinite(PFER_thr))&(!is.infinite(FDP_thr))){
+    warning("Arguments 'PFER_thr' and 'FDP_thr' are not compatible. Only one of these two arguments can be used (i.e. not set to Inf). Argument 'PFER_thr' was used.")
+    FDP_thr=Inf
   }
 
   # Checking the inputs (Lambda_cardinal)
