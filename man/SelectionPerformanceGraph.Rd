@@ -73,8 +73,10 @@ simul <- SimulateGraphical(pk = 30)
 stab <- GraphicalModel(data = simul$data, K = 10)
 
 # Performance graph
-perfgraph <- SelectionPerformanceGraph(theta = Adjacency(stab),
-theta_star = simul$theta, plot = TRUE)
+perfgraph <- SelectionPerformanceGraph(
+  theta = Adjacency(stab),
+  theta_star = simul$theta, plot = TRUE
+)
 
 # User-defined colours/shapes
 perfgraph <- SelectionPerformanceGraph(
@@ -91,7 +93,6 @@ perfgraph <- SelectionPerformanceGraph(
 require(igraph)
 igraph::V(perfgraph)$size <- 10
 plot(perfgraph, layout = layout_with_kk(perfgraph))
-
 }
 \seealso{
 \code{\link{Graph}}

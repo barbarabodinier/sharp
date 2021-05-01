@@ -76,7 +76,6 @@ perf <- SelectionPerformance(
   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
   cor = cor(simul$data), thr = 0.5
 )
-
 }
 \seealso{
 Other selection performance functions: 

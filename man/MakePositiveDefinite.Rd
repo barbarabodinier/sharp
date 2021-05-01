@@ -42,5 +42,4 @@ sigma_pd <- MakePositiveDefinite(sigma, pd = "diagonally_dominant")
 # Non-negative eigenvalues
 sigma_pd <- MakePositiveDefinite(sigma, pd = "nonnegative_eigenvalues")
 eigen(sigma_pd)$values
-
 }

@@ -39,7 +39,6 @@ stab$params$pi_list[ids[2]]
 
 # Link with Argmax() function
 args <- Argmax(stab)
-
 }
 \seealso{
 Other calibration functions: 

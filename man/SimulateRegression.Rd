@@ -79,7 +79,6 @@ plot(simul$Y_pred, simul$Y) # larger residual error
 # Data simulation (binary outcome)
 simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
 boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
-
 }
 \seealso{
 \code{\link{VariableSelection}}

@@ -121,24 +121,32 @@ plot(Graph(simul$theta))
 
 # Extracting true precision/correlation matrices
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 20,
-topology = "scale-free", output_matrices = TRUE)
+simul <- SimulateGraphical(
+  n = 100, pk = 20,
+  topology = "scale-free", output_matrices = TRUE
+)
 str(simul)
 
 # Simulation of multi-block data
 set.seed(1)
-pk=c(20,30)
-simul=SimulateGraphical(n=100, pk=pk, nu=0.05)
-mycor=cor(simul$data)
-Heatmap(mycor, colours=c("darkblue","white","firebrick3"),
-legend_range=c(-1,1), legend_length=50, legend=FALSE)
-for (i in 1:2){
-axis(side=i, at=c(0.5,pk[1]-0.5), labels=NA)
-axis(side=i, at=mean(c(0.5,pk[1]-0.5)), labels=ifelse(i==1, yes="Group 1", no="Group 2"),
-tick=FALSE, cex.axis=1.5)
-axis(side=i, at=c(pk[1]+0.5,sum(pk)-0.5), labels=NA)
-axis(side=i, at=mean(c(pk[1]+0.5,sum(pk)-0.5)), labels=ifelse(i==1, yes="Group 2", no="Group 1"),
-tick=FALSE, cex.axis=1.5)
+pk <- c(20, 30)
+simul <- SimulateGraphical(n = 100, pk = pk, nu = 0.05)
+mycor <- cor(simul$data)
+Heatmap(mycor,
+  colours = c("darkblue", "white", "firebrick3"),
+  legend_range = c(-1, 1), legend_length = 50, legend = FALSE
+)
+for (i in 1:2) {
+  axis(side = i, at = c(0.5, pk[1] - 0.5), labels = NA)
+  axis(
+    side = i, at = mean(c(0.5, pk[1] - 0.5)), labels = ifelse(i == 1, yes = "Group 1", no = "Group 2"),
+    tick = FALSE, cex.axis = 1.5
+  )
+  axis(side = i, at = c(pk[1] + 0.5, sum(pk) - 0.5), labels = NA)
+  axis(
+    side = i, at = mean(c(pk[1] + 0.5, sum(pk) - 0.5)), labels = ifelse(i == 1, yes = "Group 2", no = "Group 1"),
+    tick = FALSE, cex.axis = 1.5
+  )
 }
 
 # Using user-defined function for graph simulation
@@ -153,7 +161,6 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode")
 plot(Graph(simul$theta)) # star
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
-
 }
 \seealso{
 \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},

@@ -119,7 +119,6 @@ CalibrationPlot(stab,
   colours = c("lightgrey", "blue", "black"),
   legend_length = 25, legend_range = c(0, 4000)
 )
-
 }
 \seealso{
 Other calibration functions: 

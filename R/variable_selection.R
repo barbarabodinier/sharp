@@ -308,14 +308,14 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
   if (length(dim(mybeta$beta_full)) == 2) {
     Beta_full <- array(0,
-      dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
-      dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL)
+                       dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
+                       dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL)
     )
   } else {
     if (length(dim(mybeta$beta_full)) == 3) {
       Beta_full <- array(0,
-        dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
-        dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
+                         dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
+                         dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
       )
     } else {
       stop(paste0("Invalid output from the variable selection function: ", implementation, "(). The output 'beta_full' must be an array with 2 or 3 dimensions."))
@@ -429,7 +429,10 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     }
     bigstab <- bigstab / ceiling(K / 2)
   }
-  cat("\n")
+
+  if (verbose) {
+    cat("\n")
+  }
 
   # Computation of the stability score over Lambda and pi_list
   if (K > 2) {

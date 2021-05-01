@@ -20,23 +20,23 @@ Barbara Bodinier \email{b.bodinier@imperial.ac.uk}}
 ## Regression models
 # Data simulation
 set.seed(1)
-simul=SimulateRegression(n=100, pk=50)
+simul <- SimulateRegression(n = 100, pk = 50)
 
 # Stability selection
-stab=VariableSelection(xdata=simul$X, ydata=simul$Y)
+stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
 CalibrationPlot(stab)
-argmax=Argmax(stab) # calibrated parameters
-stably_selected=SelectedVariables(stab) # stably selected variables
+argmax <- Argmax(stab) # calibrated parameters
+stably_selected <- SelectedVariables(stab) # stably selected variables
 
 ## Graphical models
 # Data simulation
 set.seed(1)
-simul=SimulateGraphical(n=100, pk=20, topology="scale-free")
+simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free")
 
 # Stability selection
-stab=GraphicalModel(data=simul$data)
+stab <- GraphicalModel(data = simul$data)
 CalibrationPlot(stab)
-argmax=Argmax(stab) # calibrated parameters
-stably_selected=Adjacency(stab)
+argmax <- Argmax(stab) # calibrated parameters
+stably_selected <- Adjacency(stab)
 plot(Graph(stably_selected))
 }

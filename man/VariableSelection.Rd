@@ -168,10 +168,9 @@ print(SelectedVariables(stab))
 
 # Multinomial regression
 set.seed(2)
-Y=simul$Y+sample(c(0,1),size=nrow(simul$Y), replace=TRUE)
-stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio=0.1)
+Y <- simul$Y + sample(c(0, 1), size = nrow(simul$Y), replace = TRUE)
+stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "multinomial", lambda.min.ratio = 0.1)
 print(SelectedVariables(stab))
-
 }
 \seealso{
 \code{\link{LambdaGridRegression}}, \code{\link{Resample}},

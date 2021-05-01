@@ -27,7 +27,6 @@ stab <- GraphicalModel(data = simul$data)
 
 # Extracting calibrated parameters
 args <- Argmax(stab)
-
 }
 \seealso{
 Other calibration functions: 
