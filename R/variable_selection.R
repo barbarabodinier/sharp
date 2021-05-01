@@ -142,6 +142,46 @@
 #'   family = "multinomial", lambda.min.ratio = 0.1
 #' )
 #' print(SelectedVariables(stab))
+#'
+#' # Example with group-LASSO (gglasso implementation)
+#' if (requireNamespace("gglasso", quietly = TRUE)) {
+#'   ManualGridGroupLasso <- function(x, y, family, ...) {
+#'     if (family == "gaussian") {
+#'       return(gglasso::gglasso(x, ytmp, loss = "logit", ...))
+#'     }
+#'   }
+#'   Lambda <- LambdaGridRegression(
+#'     xdata = simul$X, ydata = simul$Y,
+#'     family = "gaussian", Lambda_cardinal = 20,
+#'     implementation = "ManualGridGroupLasso",
+#'     group = sort(rep(1:4, length.out = ncol(simul$X)))
+#'   )
+#'   GroupLasso <- function(x, y, lambda, family, ...) {
+#'     # Running the regression
+#'     if (family == "binomial") {
+#'       ytmp <- y
+#'       ytmp[ytmp == min(ytmp)] <- -1
+#'       ytmp[ytmp == max(ytmp)] <- 1
+#'       mymodel <- gglasso::gglasso(x, ytmp, lambda = lambda, loss = "logit", ...)
+#'     }
+#'     if (family == "gaussian") {
+#'       mymodel <- gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...)
+#'     }
+#'     # Extracting and formatting the beta coefficients
+#'     beta_full <- t(as.matrix(mymodel$beta))
+#'     beta_full <- beta_full[, colnames(x)]
+#'
+#'     selected <- ifelse(beta_full != 0, yes = 1, no = 0)
+#'
+#'     return(list(selected = selected, beta_full = beta_full))
+#'   }
+#'   stab <- VariableSelection(
+#'     xdata = simul$X, ydata = simul$Y,
+#'     implementation = "GroupLasso", Lambda = Lambda,
+#'     group = sort(rep(1:4, length.out = ncol(simul$X)))
+#'   )
+#'   print(SelectedVariables(stab))
+#' }
 #' }
 #' @export
 VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
