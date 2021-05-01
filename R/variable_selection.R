@@ -376,13 +376,15 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     }
   }
 
+  # Setting seed for reproducibility
+  withr::local_seed(seed)
+
   # Computation of the selection proportions over Lambda
   if (verbose) {
     pb <- utils::txtProgressBar(style = 3)
   }
   if (PFER_method == "MB") {
     for (k in 1:K) {
-      set.seed(k)
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
       Xsub <- xdata[s, ]
       Ysub <- ydata[s, ]
@@ -419,7 +421,6 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
   if (PFER_method == "SS") {
     for (k in 1:ceiling(K / 2)) {
-      set.seed(k)
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
       # First subset

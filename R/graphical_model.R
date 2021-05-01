@@ -490,12 +490,13 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
     }
   }
 
+  # Setting seed for reproducibility
+  withr::local_seed(seed)
 
   # Initialisation of the run
   if (verbose) {
     pb <- utils::txtProgressBar(style = 3)
   }
-  set.seed(seed)
 
   # Using MB formula of the PFER
   if (PFER_method == "MB") {

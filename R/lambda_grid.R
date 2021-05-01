@@ -66,11 +66,11 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 
 
   # Taking one subsample/boostrap sample of the data
-  set.seed(1) # To keep to allow for reproducible parallelisation
+  withr::local_seed(1) # To keep to allow for reproducible parallelisation
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
   # Getting upperbound of Lambda
-  set.seed(1) # To keep to allow for reproducible parallelisation
+  withr::local_seed(1) # To keep to allow for reproducible parallelisation
   if (implementation == "glmnet") {
     mycv <- glmnet::glmnet(x = xdata[s, ], y = ydata[s, ], family = family, ...)
   } else {

@@ -25,7 +25,8 @@ Imports:
     igraph,
     MASS,
     parallel,
-    Rdpack
+    Rdpack,
+    withr
 Suggests: 
     gglasso,
     rmarkdown,
