@@ -110,7 +110,9 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
     if (is.null(mfrow)) {
       mfrow <- c(1, nblocks)
     }
-    graphics::par(mar = mar, mfrow = mfrow)
+
+    # Defining layout
+    withr::local_par(list(mar = mar, mfrow = mfrow))
 
     for (b in block_id) {
       # Extracting the stability scores
@@ -169,7 +171,9 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       if (is.null(mfrow)) {
         mfrow <- c(1, nblocks)
       }
-      graphics::par(mar = mar, mfrow = mfrow)
+
+      # Defining layout
+      withr::local_par(list(mar = mar, mfrow = mfrow))
 
       for (b in block_id) {
         # Extracting the stability scores
@@ -240,7 +244,9 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       if (is.null(mfrow)) {
         mfrow <- c(1, nblocks)
       }
-      graphics::par(mar = mar, mfrow = mfrow)
+
+      # Defining layout
+      withr::local_par(list(mar = mar, mfrow = mfrow))
 
       for (b in block_id) {
         # Extracting the stability scores
@@ -366,7 +372,7 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
 
   # Adding colour bar (legend)
   if (legend) {
-    graphics::par(xpd = TRUE)
+    withr::local_par(list(xpd = TRUE))
     legend_width_factor <- 1.05
     myrange <- round(myrange)
     mylegend_values <- seq(myrange[1], myrange[2], length.out = 100)
@@ -401,6 +407,6 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
         )
       }
     }
-    graphics::par(xpd = FALSE)
+    withr::local_par(list(xpd = FALSE)) # for abline()
   }
 }
