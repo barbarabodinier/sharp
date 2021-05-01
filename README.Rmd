@@ -70,7 +70,7 @@ Stability selection in a regression framework is implemented in the function `Va
 stab=VariableSelection(xdata=X, ydata=Y)
 ```
 
-Stability selection models are run for multiple pairs of parameters $\lambda$ (controlling the sparsity of the underlying algorithm) and $\pi$ (threshold in selection proportions). By default, stability selection is run in applied to LASSO regression, as implemented in `glmnet`. The grids of parameter values used in the run can be extracted using: 
+Stability selection models are run for multiple pairs of parameters λ (controlling the sparsity of the underlying algorithm) and π (threshold in selection proportions). By default, stability selection is run in applied to LASSO regression, as implemented in `glmnet`. The grids of parameter values used in the run can be extracted using: 
 
 ```{r}
 # First few penalty parameters
@@ -92,7 +92,7 @@ The two parameters are jointly calibrated by maximising the stability score, mea
 CalibrationPlot(stab)
 ```
 
-Visited penalty parameters $\lambda$ are represented on the x-axis. The corresponding average number of selected features by the underlying algorithm (here, LASSO models) are reported on the z-axis and denoted by $q$. The different thresholds in selection proportions $\pi$ are represented on the y-axis. The stability score obtained for different pairs of parameters $(\lambda, \pi)$ are colour-coded and ranging from $0$ to $1,200$ on this example. 
+Visited penalty parameters λ are represented on the x-axis. The corresponding average number of selected features by the underlying algorithm (here, LASSO models) are reported on the z-axis and denoted by q. The different thresholds in selection proportions π are represented on the y-axis. The stability score obtained for different pairs of parameters (λ, π) are colour-coded and ranging from 0 to 1,200 on this example. 
 
 
 ### Outputs
