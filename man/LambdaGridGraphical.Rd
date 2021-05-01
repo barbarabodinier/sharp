@@ -111,8 +111,8 @@ the density of the estimated graph does not exceed max_density.}
 \code{"implementation"} or \code{"resampling"}.}
 }
 \value{
-a matrix of lambda values with as many columns as there are entries
-  in "pk" and as many rows as indicated in "Lambda_cardinal".
+A matrix of lambda values with \code{length(pk)} columns and
+  \code{Lambda_cardinal} rows.
 }
 \description{
 Generates a relevant grid of penalty parameter values for penalised graphical

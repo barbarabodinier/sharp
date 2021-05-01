@@ -93,8 +93,8 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #'
 #' @inheritParams GraphicalModel
 #'
-#' @return a matrix of lambda values with as many columns as there are entries
-#'   in "pk" and as many rows as indicated in "Lambda_cardinal".
+#' @return A matrix of lambda values with \code{length(pk)} columns and
+#'   \code{Lambda_cardinal} rows.
 #'
 #' @family lambda grid functions
 #'
@@ -350,7 +350,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
 #' @param lmin minimum value in the grid.
 #' @param cardinal number of values in the grid.
 #'
-#' @return a vector with values between "lmin" and "lmax" and as many values as
+#' @return A vector with values between "lmin" and "lmax" and as many values as
 #'   indicated by "cardinal".
 #'
 #' @family lambda grid functions

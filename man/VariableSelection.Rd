@@ -35,8 +35,8 @@ columns.}
 underlying feature selection algorithm specified in \code{implementation}.
 With \code{implementation="glmnet"}, \code{Lambda} contains penalty
 parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
-used to define a relevant grid. If \code{implementation} is not
-set to \code{"glmnet"}, \code{Lambda} must be provided.}
+used to define a relevant grid. If \code{implementation} is not set to
+\code{"glmnet"}, \code{Lambda} must be provided.}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
 \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
@@ -110,8 +110,10 @@ A list with: \item{S}{a matrix of the best stability scores for
   number of selected features by underlying algorithm with different
   parameters controlling the level of sparsity.} \item{Q_s}{a matrix of the
   calibrated number of stably selected features with different parameters
-  controlling the level of sparsity.} \item{PFER}{a matrix of the
-  upper-bounds in PFER of calibrated stability selection models with
+  controlling the level of sparsity.} \item{P}{a matrix of calibrated
+  thresholds in selection proportions for different parameters controlling
+  the level of sparsity in the underlying algorithm.} \item{PFER}{a matrix of
+  the upper-bounds in PFER of calibrated stability selection models with
   different parameters controlling the level of sparsity.} \item{FDP}{a
   matrix of the upper-bounds in FDP of calibrated stability selection models
   with different parameters controlling the level of sparsity.} \item{S_2d}{a
@@ -186,7 +188,7 @@ stab <- VariableSelection(
 )
 print(SelectedVariables(stab))
 
-# Example with group-LASSO (gglasso implementation)
+# Example using an external function: group-LASSO with gglasso
 if (requireNamespace("gglasso", quietly = TRUE)) {
   ManualGridGroupLasso <- function(x, y, family, ...) {
     if (family == "gaussian") {

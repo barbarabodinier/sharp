@@ -201,7 +201,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
   # Check if parallelisation is possible (forking)
   if (.Platform$OS.type != "unix") {
     if (n_cores > 1) {
-      warning("Invalid input for argument 'n_cores'. Parallelisation relies on forking, it is not available on Windows.")
+      warning("Invalid input for argument 'n_cores'. Parallelisation relies on forking, it is only available on Unix systems.")
     }
     n_cores <- 1
   }
@@ -243,176 +243,60 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
 
 #' Stability selection graphical model (internal)
 #'
-#' Runs stability selection graphical models with
-#' different combinations of parameters controlling the sparsity
-#' of the underlying selection algorithm (e.g. penalty parameter for
-#' regularised models) and thresholds in selection proportions.
-#' These two parameters are jointly calibrated by maximising
-#' the stability score of the model (possibly under a constraint
-#' on the expected number of falsely stably selected features).
-#' This function uses a serial implementation and requires
-#' the grid of parameters controlling the underlying algorithm
-#' as input (for internal use only).
+#' Runs stability selection graphical models with different combinations of
+#' parameters controlling the sparsity of the underlying selection algorithm
+#' (e.g. penalty parameter for regularised models) and thresholds in selection
+#' proportions. These two parameters are jointly calibrated by maximising the
+#' stability score of the model (possibly under a constraint on the expected
+#' number of falsely stably selected features). This function uses a serial
+#' implementation and requires the grid of parameters controlling the underlying
+#' algorithm as input (for internal use only).
 #'
-#' @param data matrix with observations as rows and variables as columns.
-#' @param pk vector encoding the grouping structure.
-#' Only used for multi-block stability selection.
-#' For this, the variables in data have to be ordered
-#' by group and argument "pk" has to be a vector
-#' indicating the number of variables
-#' in each of the groups (see example below).
-#' If pk=NULL, single-block stability selection is performed.
-#' @param Lambda matrix of parameters controlling the underlying
-#' feature selection algorithm specified in "implementation".
-#' With implementation="glassoFast", these are penalty parameters
-#' controlling the regularised model.
-#' If Lambda=NULL, \code{\link{LambdaGridGraphical}} is used to define
-#' a relevant grid.
-#' For multi-block calibration (i.e. when argument "pk" is a vector),
-#' Lambda can be a vector, to use the procedure from Equation (5) (recommended),
-#' or a matrix with as many columns as there are entries in "pk",
-#' to use the procedure from Equation (4) (see details and examples below).
-#' @param lambda_other_blocks optional vector of (penalty) parameters
-#' to use for other blocks
-#' in the iterative multi-block procedure (see example below).
-#' Only used for multi-block graphical models, i.e. when pk is a vector.
-#' @param pi_list grid of values for the threshold in selection proportion.
-#' With n_cat=3, these values must be between 0.5 and 1.
-#' With n_cat=2, these values must be between 0 and 1.
-#' @param K number of resampling iterations.
-#' @param tau subsample size. Only used with resampling="subsampling".
-#' @param seed value of the seed to use to ensure reproducibility.
-#' @param n_cat number of categories used to compute the stability score.
-#' Possible values are 2 or 3.
-#' @param implementation name of the function to use for definition of the grid
-#' of lambda values. With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
-#' is called and iteratively applied on possible penalty values until the constraint are verified,
-#' i.e. that the expected density is below the value given in "max_density",
-#' that the expected PFER is below the value given in "PFER_thr"
-#' or that the expected PFER is below the number of selected edges if "FDP_thr" is not set to Inf.
-#' Alternatively, this argument can be a character string indicating the name of a function.
-#' The function provided must use arguments called "x", "lambda" and "scale"
-#' and return a binary and symmetric adjacency matrix (see example below).
-#' @param start character string indicating if the algorithm should be
-#' initialised at the estimated (inverse) covariance with previous
-#' penalty parameters (start="warm") or not (start="cold").
-#' Using start="warm" can speed-up the computations.
-#' Only used for implementation="glassoFast" (see argument "start"
-#' in \code{\link[glassoFast]{glassoFast}}).
-#' @param scale logical indicating if the correlation (if scale=TRUE)
-#' or covariance (if scale=FALSE) matrix should be used as input
-#' for the graphical LASSO. If implementation is not set to "glassoFast",
-#' this argument must be used as input of the function provided instead.
-#' @param resampling resampling approach. Possible values are: "subsampling"
-#' for sampling without replacement of a proportion tau of the observations, or
-#' "bootstrap" for sampling with replacement generating a resampled dataset with
-#' as many observations as in the full sample. Alternatively, this argument can be
-#' a character string indicating the name of a function to use for resampling.
-#' This function must use arguments called "data" and "tau" and return
-#' IDs of observations to be included in the resampled dataset
-#' (see example in \code{\link{Resample}}).
-#' @param PFER_method method used to compute the expected number of False Positives,
-#' (or Per Family Error Rate, PFER). With PFER_method="MB", the method
-#' proposed by Meinshausen and Buhlmann (2010) is used. With PFER_method="SS",
-#' the method proposed by Shah and Samworth (2013) under the assumption of unimodality is used.
-#' @param PFER_thr threshold in PFER for constrained calibration by error control.
-#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
-#' The grid is defined such that the estimated graph does not generate an upper-bound in
-#' PFER above PFER_thr.
-#' @param FDP_thr threshold in the expected proportion of falsely selected edges
-#' (or False Discovery Proportion, FDP)
-#' for constrained calibration by error control.
-#' With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is used.
-#' If FDP_thr is not infinite, the grid is defined such that the estimated graph
-#' does not generate an upper-bound in PFER above the number of node pairs.
-#' @param verbose logical indicating if a message with minimum and maximum
-#' numbers of selected variables on one instance of resampled data should be printed.
-#' @param ... additional parameters passed to the functions provided in
-#' "implementation" or "resampling".
+#' @inheritParams GraphicalModel
+#' @param Lambda matrix of parameters controlling the level of sparsity in the
+#'   underlying feature selection algorithm specified in \code{implementation}.
+#'   If \code{implementation="glassoFast"}, \code{Lambda} contains penalty
+#'   parameters.
 #'
-#' @return A list with:
-#' \item{S}{a matrix of
-#' the best (block-specific) stability scores
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{Lambda}{a matrix of
-#' (block-specific) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to sets of penalty parameters and
-#' columns correspond to different blocks.}
-#' \item{Q}{a matrix of
-#' average numbers of (block-specific) edges
-#' selected by the underlying algorihm
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{Q_s}{a matrix of
-#' calibrated numbers of (block-specific) stable edges
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{P}{a matrix of
-#' calibrated (block-specific) thresholds in selection proportions
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{PFER}{a matrix of
-#' computed (block-specific) upper-bounds in PFER of
-#' calibrated graphs
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{FDP}{a matrix of
-#' computed (block-specific) upper-bounds in FDP of
-#' calibrated stability selection models
-#' for different (sets of) penalty parameters.
-#' In multi-block stability selection,
-#' rows correspond to different sets of penalty parameters,
-#' (values are stored in the output "Lambda") and
-#' columns correspond to different blocks.}
-#' \item{S_2d}{an array of
-#' (block-specific) stability scores obtained
-#' with different combinations of parameters.
-#' Rows correspond to different (sets of) penalty parameters and
-#' columns correspond to different thresholds in selection proportions.
-#' In multi-block stability selection,
-#' indices along the third dimension
-#' correspond to different blocks.}
-#' \item{PFER_2d}{an array of
-#' computed upper-bounds of PFER obtained
-#' with different combinations of parameters.
-#' Rows correspond to different penalty parameters and
-#' columns correspond to different thresholds in selection proportions.
-#' Only available for single-block stability selection.}
-#' \item{FDP_2d}{an array of
-#' computed upper-bounds of FDP obtained
-#' with different combinations of parameters.
-#' Rows correspond to different penalty parameters and
-#' columns correspond to different thresholds in selection proportions.
-#' Only available for single-block stability selection.}
-#' \item{selprop}{an array of selection proportions.
-#' Rows and columns correspond to nodes in the graph.
-#' Indices along the third dimension correspond to
-#' different (sets of) penalty parameters.}
-#' \item{sign}{a matrix of signs of Pearson's correlations.}
-#' \item{method}{a list with input values for the arguments
-#' "implementation", "start", "resampling" and "PFER_method".}
-#' \item{param}{a list with input values for the arguments
-#' "K", "pi_list", "tau", "n_cat", "pk", "PFER_thr", "FDP_thr",
-#' "seed", "lambda_other_blocks" and "data".
-#' The object "Sequential_template" is also returned
-#' (for internal use).}
+#' @return A list with: \item{S}{a matrix of the best (block-specific) stability
+#'   scores for different (sets of) parameters controlling the level of sparsity
+#'   in the underlying algorithm. } \item{Lambda}{a matrix of (block-specific)
+#'   parameters controlling the level of sparsity. } \item{Q}{a matrix of
+#'   average numbers of (block-specific) edges selected by the underlying
+#'   algorihm for different (sets of) parameters controlling the level of
+#'   sparsity.} \item{Q_s}{a matrix of calibrated numbers of (block-specific)
+#'   stable edges for different (sets of) parameters controlling the level of
+#'   sparsity in the underlying algorithm. } \item{P}{a matrix of calibrated
+#'   (block-specific) thresholds in selection proportions for different (sets
+#'   of) parameters controlling the level of sparsity in the underlying
+#'   algorithm. } \item{PFER}{a matrix of the (block-specific) upper-bounds in
+#'   PFER of calibrated stability selection models with different (sets of)
+#'   parameters controlling the level of sparsity in the underlying algorithm.}
+#'   \item{FDP}{a matrix of the (block-specific) upper-bounds in FDP of
+#'   calibrated stability selection models with different (sets of) parameters
+#'   controlling the level of sparsity in the underlying algorithm.}
+#'   \item{S_2d}{an array of (block-specific) stability scores obtained with
+#'   different combinations of parameters. Columns correspond to different
+#'   thresholds in selection proportions. In multi-block stability selection,
+#'   indices along the third dimension correspond to different blocks.}
+#'   \item{PFER_2d}{an array of computed upper-bounds of PFER obtained with
+#'   different combinations of parameters. Columns correspond to different
+#'   thresholds in selection proportions. Only available for single-block
+#'   stability selection.} \item{FDP_2d}{an array of computed upper-bounds of
+#'   FDP obtained with different combinations of parameters. Columns correspond
+#'   to different thresholds in selection proportions. Only available for
+#'   single-block stability selection.} \item{selprop}{an array of selection
+#'   proportions. Rows and columns correspond to nodes in the graph. Indices
+#'   along the third dimension correspond to different (sets of) parameters
+#'   controlling the level of sparsity in the underlying algorithm.}
+#'   \item{sign}{a matrix of signs of Pearson's correlations estimated from
+#'   \code{data}.} \item{method}{a list with \code{implementation},
+#'   \code{start}, \code{resampling} and \code{PFER_method} values used for the
+#'   run.} \item{param}{a list with values of other objects used for the run.}
+#'   For all objects except \code{selprop}, \code{sign} and those stored in
+#'   \code{methods} or \code{params}, rows correspond to parameter values stored
+#'   in the output \code{Lambda}. In multi-block stability selection, columns of
+#'   these same objects except correspond to different blocks.
 #'
 #' @keywords internal
 SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
