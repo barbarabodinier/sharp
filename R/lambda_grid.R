@@ -64,7 +64,6 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   rm(pi_list)
   rm(K)
 
-
   # Taking one subsample/boostrap sample of the data
   withr::local_seed(1) # To keep to allow for reproducible parallelisation
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)

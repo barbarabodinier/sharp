@@ -110,6 +110,7 @@
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = 10, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian", K = 5, verbose = FALSE)
+#' CalibrationPlot(stab)
 #' myselected <- SelectedVariables(stab)
 #' perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta)
 #' }
