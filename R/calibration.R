@@ -227,6 +227,67 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 }
 
 
+#' Model coefficients
+#'
+#' Extracts the coefficients of visited models at different resampling
+#' iterations of a stability selection run. This function can be applied to the
+#' output of \code{\link{VariableSelection}}.
+#'
+#' @param stability output of \code{\link{VariableSelection}}.
+#' @param side character string indicating if coefficients of the predictor
+#'   (\code{side="X"}) or outcome (\code{side="Y"}) coefficients should be
+#'   returned. \code{side="Y"} is only applicable to PLS models.
+#' @param comp component ID. Only applicable to PLS models.
+#' @param iterations vector of iteration IDs. If \code{iterations=NULL}, the
+#'   coefficients of all visited models are returned. This number must be
+#'   smaller than the number of iterations \code{K} used for the stability
+#'   selection run.
+#'
+#' @seealso \code{\link{VariableSelection}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian")
+#'
+#' # Coefficients of visited models
+#' coefs <- Coefficients(stab)
+#' dim(coefs)
+#'
+#' # Coefficients of the first fitted model
+#' coefs <- Coefficients(stab, iterations = 1)
+#' dim(coefs)
+#' }
+#' @export
+Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
+  if (is.null(iterations)) {
+    iterations <- seq(1, dim(stability$Beta)[3])
+  } else {
+    iterations <- iterations[iterations <= dim(stability$Beta)[3]]
+  }
+  if (length(iterations) == 0) {
+    stop("Invalid input for argument 'iterations'. This argument must be a number smaller than the number of iterations used for the stability selection run.")
+  }
+  if (stability$methods$implementation == "glmnet") {
+    return(stability$Beta[, , iterations, drop = FALSE])
+  }
+  if (grepl("pls", tolower(stability$methods$implementation))) {
+    if (!side %in% c("X", "Y")) {
+      warning("Invalid input for argument 'side'. The default value ('X') was used.")
+      side <- "X"
+    }
+    side_id <- grepl(paste0(side, "_"), colnames(stability$Beta))
+    comp_id <- grepl(paste0("_PC", comp), colnames(stability$Beta))
+    return(stability$Beta[, side_id & comp_id, iterations, drop = FALSE])
+  }
+}
+
+
 #' Selection proportions
 #'
 #' Extracts the selection proportions of the

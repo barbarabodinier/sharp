@@ -301,6 +301,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   pi_list <- seq(0.6, 0.7, length.out = 15)
 
   # Binomial
+  set.seed(1)
   simul <- SimulateRegression(n = n, pk = pk, family = "binomial")
   Y <- simul$Y
   Y[Y == 0] <- sample(c(0, 2), size = sum(Y == 0), replace = TRUE)
@@ -379,4 +380,3 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
     family = "mgaussian"
   ))
 })
-

@@ -131,7 +131,11 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       }
       mat <- mat[, , drop = FALSE]
       colnames(mat) <- stability$params$pi_list
-      rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
+      if (grepl("pls", tolower(stability$methods$implementation))) {
+        rownames(mat) <- (stability$Lambda[, b])[ids]
+      } else {
+        rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
+      }
 
       # Extracting corresponding numbers of selected variables (q)
       Q <- stability$Q[, b]
@@ -153,15 +157,19 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
         side = 2, at = (1:ncol(mat)) - 0.5, las = 2,
         labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2), ...
       )
-      graphics::axis(
-        side = 3, at = (1:nrow(mat)) - 0.5, las = 2,
-        labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0)), ...
-      )
+      if (!grepl("pls", tolower(stability$methods$implementation))) {
+        graphics::axis(
+          side = 3, at = (1:nrow(mat)) - 0.5, las = 2,
+          labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0)), ...
+        )
+      }
 
       # Including axis labels
       graphics::mtext(text = xlab, side = 1, line = 5.2, cex = 1.5)
       graphics::mtext(text = ylab, side = 2, line = 3.5, cex = 1.5)
-      graphics::mtext(text = zlab, side = 3, line = 3.5, cex = 1.5)
+      if (!grepl("pls", tolower(stability$methods$implementation))) {
+        graphics::mtext(text = zlab, side = 3, line = 3.5, cex = 1.5)
+      }
     }
   } else {
     if (metric == "lambda") {
