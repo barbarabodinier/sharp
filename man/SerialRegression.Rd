@@ -19,6 +19,7 @@ SerialRegression(
   PFER_method = "MB",
   PFER_thr = Inf,
   FDP_thr = Inf,
+  output_data = FALSE,
   verbose = TRUE,
   ...
 )
@@ -86,6 +87,9 @@ features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
 unconstrained calibration is used.}
 
+\item{output_data}{logical indicating if the input datasets \code{xdata} and
+\code{ydata} should be included in the output.}
+
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
 
@@ -117,11 +121,12 @@ A list with: \item{S}{a matrix of the best stability scores for
   to outcome-specific coefficients.} \item{method}{a list of
   \code{implementation}, \code{family}, \code{resampling} and
   \code{PFER_method} values used for the run.} \item{param}{a list of
-  \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk},
-  \code{PFER_thr}, \code{FDP_thr}, \code{seed}, \code{xdata} and \code{ydata}
-  values used for the run.} For all objects except those stored in
-  \code{methods} or \code{params}, rows correspond to parameter values stored
-  in the output \code{Lambda}.
+  \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
+  (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}
+  values used for the run. The datasets \code{xdata} and \code{ydata} are
+  also included if \code{output_data=TRUE}.} For all objects except those
+  stored in \code{methods} or \code{params}, rows correspond to parameter
+  values stored in the output \code{Lambda}.
 }
 \description{
 Runs stability selection regression models with different combinations of

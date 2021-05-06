@@ -21,6 +21,7 @@ SerialGraphical(
   PFER_method = "MB",
   PFER_thr = Inf,
   FDP_thr = Inf,
+  output_data = FALSE,
   verbose = TRUE,
   ...
 )
@@ -103,6 +104,9 @@ calibration is used.}
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
 unconstrained calibration is used.}
+
+\item{output_data}{logical indicating if the input datasets \code{xdata} and
+\code{ydata} should be included in the output.}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}

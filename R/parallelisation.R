@@ -42,20 +42,11 @@ Combine <- function(stability1, stability2, graph = TRUE) {
   if (any(do.call(c, stability1$methods) != do.call(c, stability2$methods))) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They were constructed using different methods.")
   }
-  if (any(do.call(c, stability1$params[c("pk", "tau", "PFER_thr", "FDP_thr")]) != do.call(c, stability2$params[c("pk", "tau", "PFER_thr", "FDP_thr")]))) {
+  if (any(do.call(c, stability1$params[c("pk", "n", "tau", "PFER_thr", "FDP_thr")]) != do.call(c, stability2$params[c("pk", "n", "tau", "PFER_thr", "FDP_thr")]))) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They were constructed using different methods.")
   }
   if (stability1$params$seed == stability2$params$seed) {
     warning("Arguments 'stability1' and 'stability2' were obtained using the same seed.")
-  }
-  if (any(stability1$params$data != stability2$params$data)) {
-    stop("Arguments 'stability1' and 'stability2' are not compatible. They were obtained from different datasets.")
-  }
-  if (any(stability1$params$xdata != stability2$params$xdata)) {
-    stop("Arguments 'stability1' and 'stability2' are not compatible. They were obtained from different datasets.")
-  }
-  if (any(stability1$params$ydata != stability2$params$ydata)) {
-    stop("Arguments 'stability1' and 'stability2' are not compatible. They were obtained from different datasets.")
   }
   if (any(stability1$sign != stability2$sign)) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They were obtained from different datasets.")

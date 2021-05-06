@@ -76,8 +76,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
         expect_equal(stab$params$pk, pk)
         expect_equal(stab$params$PFER_thr, PFER_thr)
         expect_equal(stab$params$FDP_thr, FDP_thr)
-        expect_equal(dim(stab$params$xdata), dim(simul$X))
-        expect_equal(dim(stab$params$ydata), c(n, 1))
+        expect_equal(stab$params$n, nrow(simul$X))
       }
     }
   }
@@ -174,8 +173,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (binomial)
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(dim(stab$params$xdata), dim(simul$X))
-  expect_equal(dim(stab$params$ydata), c(n, 1))
+  expect_equal(stab$params$n, nrow(simul$X))
 
   # Checking the error messages for incompatible glmnet family
   # Cannot throw error for gaussian if wanted to consider 0/1 as continuous
@@ -250,8 +248,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(dim(stab$params$xdata), dim(simul$X))
-  expect_equal(dim(stab$params$ydata), dim(Y))
+  expect_equal(stab$params$n, nrow(simul$X))
 
   # Checking the error messages for incompatible glmnet families
   expect_error(VariableSelection(
@@ -350,8 +347,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(dim(stab$params$xdata), dim(simul$X))
-  expect_equal(dim(stab$params$ydata), dim(Y))
+  expect_equal(stab$params$n, nrow(simul$X))
 
   # Checking the error messages for incompatible glmnet families
   # Cannot throw error for gaussian if wanted to consider categories as continuous

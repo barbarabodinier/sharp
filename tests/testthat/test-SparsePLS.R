@@ -127,7 +127,7 @@ test_that("sPLSDA models are working", {
   for (comp in 1:length(unique(Y))) {
     stab <- VariableSelection(
       xdata = simul$X, ydata = Y, K = K,
-      Lambda = 1:(ncol(simul$X) - 1), ncomp=comp,
+      Lambda = 1:(ncol(simul$X) - 1), ncomp = comp,
       implementation = "SparsePLS", family = "binomial",
       verbose = FALSE
     )

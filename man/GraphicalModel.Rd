@@ -26,6 +26,7 @@ GraphicalModel(
   lambda_path_factor = 0.001,
   max_density = 0.5,
   n_cores = 1,
+  output_data = FALSE,
   verbose = TRUE,
   ...
 )
@@ -128,6 +129,9 @@ the density of the estimated graph does not exceed max_density.}
 
 \item{n_cores}{number of cores to use for parallel computing. Only available
 on Unix systems.}
+
+\item{output_data}{logical indicating if the input datasets \code{xdata} and
+\code{ydata} should be included in the output.}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}

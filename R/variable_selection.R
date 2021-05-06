@@ -61,6 +61,8 @@
 #'   the level of sparsity in the underlying algorithm.
 #' @param n_cores number of cores to use for parallel computing. Only available
 #'   on Unix systems.
+#' @param output_data logical indicating if the input datasets \code{xdata} and
+#'   \code{ydata} should be included in the output.
 #' @param verbose logical indicating if a loading bar and messages should be
 #'   printed.
 #' @param ... additional parameters passed to the functions provided in
@@ -96,11 +98,12 @@
 #'   to outcome-specific coefficients.} \item{method}{a list of
 #'   \code{implementation}, \code{family}, \code{resampling} and
 #'   \code{PFER_method} values used for the run.} \item{param}{a list of
-#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk},
-#'   \code{PFER_thr}, \code{FDP_thr}, \code{seed}, \code{xdata} and \code{ydata}
-#'   values used for the run.} For all objects except those stored in
-#'   \code{methods} or \code{params}, rows correspond to parameter values stored
-#'   in the output \code{Lambda}.
+#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
+#'   (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}
+#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
+#'   also included if \code{output_data=TRUE}.} For all objects except those
+#'   stored in \code{methods} or \code{params}, rows correspond to parameter
+#'   values stored in the output \code{Lambda}.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
@@ -246,20 +249,41 @@
 #' CalibrationPlot(stab, xlab = "")
 #' print(SelectedVariables(stab))
 #'
+#' # Sparse group PLS (1 outcome)
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#' ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
+#' colnames(ydata) <- paste0("outcome", 1:4)
+#' x <- simul$X
+#' y <- ydata
+#' alpha_list <- seq(0.1, 0.9, by = 0.1)
+#' selected <- stability_score <- NULL
+#' for (alpha in alpha_list) {
+#'   stab <- VariableSelection(
+#'     xdata = x, ydata = y, K = 10,
+#'     group_x = c(10, 10, 30), alpha.x = alpha,
+#'     Lambda = 1:3,
+#'     implementation = "SparseGroupPLS", family = "gaussian"
+#'   )
+#'   selected <- rbind(selected, SelectedVariables(stab))
+#'   stability_score <- c(stability_score, max(stab$S, na.rm = TRUE))
+#' }
+#' print(selected[which.max(stability_score), ])
+#'
 #' # Example using an external function: group-LASSO with gglasso
 #' if (requireNamespace("gglasso", quietly = TRUE)) {
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
-#' print(SelectedVariables(stab))
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+#'   stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
+#'   print(SelectedVariables(stab))
 #'   ManualGridGroupLasso <- function(x, y, family, ...) {
 #'     if (family == "binomial") {
-#'           ytmp <- y
-#'           ytmp[ytmp == min(ytmp)] <- -1
-#'           ytmp[ytmp == max(ytmp)] <- 1
+#'       ytmp <- y
+#'       ytmp[ytmp == min(ytmp)] <- -1
+#'       ytmp[ytmp == max(ytmp)] <- 1
 #'       return(gglasso::gglasso(x, ytmp, loss = "logit", ...))
 #'     } else {
-#'     return(gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...))
+#'       return(gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...))
 #'     }
 #'   }
 #'   Lambda <- LambdaGridRegression(
@@ -289,7 +313,7 @@
 #'   }
 #'   stab <- VariableSelection(
 #'     xdata = simul$X, ydata = simul$Y,
-#'     implementation = "GroupLasso", family="binomial", Lambda = Lambda,
+#'     implementation = "GroupLasso", family = "binomial", Lambda = Lambda,
 #'     group = sort(rep(1:4, length.out = ncol(simul$X)))
 #'   )
 #'   print(SelectedVariables(stab))
@@ -301,7 +325,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
                               family = "gaussian", implementation = "glmnet",
                               resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                               Lambda_cardinal = 100,
-                              n_cores = 1, verbose = TRUE, ...) {
+                              n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Object preparation, error and warning messages
   CheckInputRegression(
     xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
@@ -338,7 +362,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
       K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       family = family, implementation = implementation, resampling = resampling,
       PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-      verbose = verbose, ...
+      output_data = output_data, verbose = verbose, ...
     ))
   })
 
@@ -395,18 +419,19 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 #'   to outcome-specific coefficients.} \item{method}{a list of
 #'   \code{implementation}, \code{family}, \code{resampling} and
 #'   \code{PFER_method} values used for the run.} \item{param}{a list of
-#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk},
-#'   \code{PFER_thr}, \code{FDP_thr}, \code{seed}, \code{xdata} and \code{ydata}
-#'   values used for the run.} For all objects except those stored in
-#'   \code{methods} or \code{params}, rows correspond to parameter values stored
-#'   in the output \code{Lambda}.
+#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
+#'   (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}
+#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
+#'   also included if \code{output_data=TRUE}.} For all objects except those
+#'   stored in \code{methods} or \code{params}, rows correspond to parameter
+#'   values stored in the output \code{Lambda}.
 #'
 #' @keywords internal
 SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9, by = 0.01),
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              family = "gaussian", implementation = "glmnet",
                              resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                             verbose = TRUE, ...) {
+                             output_data = FALSE, verbose = TRUE, ...) {
   # Defining K if using complementary pairs (SS)
   if (PFER_method == "SS") {
     K <- ceiling(K / 2) * 2
@@ -575,15 +600,26 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
   # Preparing outputs
   if (K > 2) {
-    return(list(
+    out <- list(
       S = metrics$S, Lambda = Lambda,
       Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
       PFER = metrics$PFER, FDP = metrics$FDP,
       S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
       selprop = bigstab, Beta = Beta,
       methods = list(implementation = implementation, family = family, resampling = resampling, PFER_method = PFER_method),
-      params = list(K = K, pi_list = pi_list, tau = tau, n_cat = n_cat, pk = ncol(xdata), PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed, xdata = xdata, ydata = ydata)
-    ))
+      params = list(
+        K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
+        pk = ncol(xdata), n = nrow(xdata),
+        PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+        seed = seed, xdata = xdata, ydata = ydata
+      )
+    )
+
+    if (output_data) {
+      out$params <- c(out$params, list(xdata = xdata, ydata = ydata))
+    }
+
+    return(out)
   } else {
     return(list(Q = Q, Beta = Beta))
   }

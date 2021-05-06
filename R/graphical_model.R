@@ -157,7 +157,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
                            implementation = "glassoFast", start = "warm", scale = TRUE,
                            resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                            Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001, max_density = 0.5,
-                           n_cores = 1, verbose = TRUE, ...) {
+                           n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Definition of the type of approach (single or multi-block)
   if (is.null(pk)) {
     pk <- ncol(data)
@@ -213,7 +213,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
       pi_list = pi_list, K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       implementation = implementation, start = start, scale = scale,
       resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-      verbose = verbose, ...
+      output_data = output_data, verbose = verbose, ...
     ))
   })
 
@@ -303,7 +303,7 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
                             pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = n_cat,
                             implementation = "glassoFast", start = "cold", scale = TRUE,
                             resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                            verbose = TRUE, ...) {
+                            output_data = FALSE, verbose = TRUE, ...) {
   # Marginal correlation to get sign of the relationship
   mycor_for_sign <- stats::cor(data)
 
@@ -482,7 +482,7 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   # Preparing outputs
   if (K > 2) {
     if (nblocks == 1) {
-      return(list(
+      out <- list(
         S = metrics$S, Lambda = Lambda,
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
@@ -490,12 +490,17 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         selprop = bigstab, sign = sign(mycor_for_sign),
         methods = list(implementation = implementation, start = start, resampling = resampling, PFER_method = PFER_method),
         params = list(
-          K = K, pi_list = pi_list, tau = tau, n_cat = n_cat, pk = pk, PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
-          lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template, data = data
+          K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
+          pk = pk, n = nrow(data),
+          PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
+          lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
         )
-      ))
+      )
+      if (output_data) {
+        out$params <- c(out$params, list(data = data))
+      }
     } else {
-      return(list(
+      out <- list(
         S = metrics$S, Lambda = Lambda,
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
@@ -503,11 +508,17 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         selprop = bigstab, sign = sign(mycor_for_sign),
         methods = list(implementation = implementation, start = start, resampling = resampling, PFER_method = PFER_method),
         params = list(
-          K = K, pi_list = pi_list, tau = tau, n_cat = n_cat, pk = pk, PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
-          lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template, data = data
+          K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
+          pk = pk, n = nrow(data),
+          PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
+          lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
         )
-      ))
+      )
+      if (output_data) {
+        out$params <- c(out$params, list(data = data))
+      }
     }
+    return(out)
   } else {
     return(list(Q = Q))
   }

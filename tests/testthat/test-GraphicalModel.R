@@ -56,7 +56,7 @@ test_that("single-block GraphicalModel()", {
     expect_equal(stab$params$pk, pk)
     expect_equal(stab$params$PFER_thr, PFER_thr)
     expect_equal(stab$params$FDP_thr, FDP_thr)
-    expect_equal(dim(stab$params$data), dim(simul$data))
+    expect_equal(stab$params$n, nrow(simul$data))
   }
 })
 
@@ -114,7 +114,7 @@ test_that("multi-block GraphicalModel()", {
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(dim(stab$params$data), dim(simul$data))
+  expect_equal(stab$params$n, nrow(simul$data))
   expect_equal(stab$params$lambda_other_blocks, rep(0.1, 3))
 
   ### Checking consistency in calibration
@@ -178,7 +178,7 @@ test_that("parallel multi-block GraphicalModel()", {
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(dim(stab$params$data), dim(simul$data))
+  expect_equal(stab$params$n, nrow(simul$data))
   expect_equal(stab$params$lambda_other_blocks, rep(0.1, 3))
 
   ### Checking consistency in calibration

@@ -21,6 +21,7 @@ VariableSelection(
   FDP_thr = Inf,
   Lambda_cardinal = 100,
   n_cores = 1,
+  output_data = FALSE,
   verbose = TRUE,
   ...
 )
@@ -96,6 +97,9 @@ the level of sparsity in the underlying algorithm.}
 \item{n_cores}{number of cores to use for parallel computing. Only available
 on Unix systems.}
 
+\item{output_data}{logical indicating if the input datasets \code{xdata} and
+\code{ydata} should be included in the output.}
+
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
 
@@ -127,11 +131,12 @@ A list with: \item{S}{a matrix of the best stability scores for
   to outcome-specific coefficients.} \item{method}{a list of
   \code{implementation}, \code{family}, \code{resampling} and
   \code{PFER_method} values used for the run.} \item{param}{a list of
-  \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk},
-  \code{PFER_thr}, \code{FDP_thr}, \code{seed}, \code{xdata} and \code{ydata}
-  values used for the run.} For all objects except those stored in
-  \code{methods} or \code{params}, rows correspond to parameter values stored
-  in the output \code{Lambda}.
+  \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
+  (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}
+  values used for the run. The datasets \code{xdata} and \code{ydata} are
+  also included if \code{output_data=TRUE}.} For all objects except those
+  stored in \code{methods} or \code{params}, rows correspond to parameter
+  values stored in the output \code{Lambda}.
 }
 \description{
 Runs stability selection regression models with different combinations of
@@ -288,16 +293,46 @@ stab <- VariableSelection(
 CalibrationPlot(stab, xlab = "")
 print(SelectedVariables(stab))
 
+# Sparse group PLS (1 outcome)
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+alpha_list <- seq(0.1, 0.9, by = 0.1)
+selected <- stability_score <- NULL
+for (alpha in alpha_list) {
+  stab <- VariableSelection(
+    xdata = x, ydata = y, K = 10,
+    group_x = c(10, 10, 30), alpha.x = alpha,
+    Lambda = 1:3,
+    implementation = "SparseGroupPLS", family = "gaussian"
+  )
+  selected <- rbind(selected, SelectedVariables(stab))
+  stability_score <- c(stability_score, max(stab$S, na.rm = TRUE))
+}
+print(selected[which.max(stability_score), ])
+
 # Example using an external function: group-LASSO with gglasso
 if (requireNamespace("gglasso", quietly = TRUE)) {
+  set.seed(1)
+  simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+  stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
+  print(SelectedVariables(stab))
   ManualGridGroupLasso <- function(x, y, family, ...) {
-    if (family == "gaussian") {
+    if (family == "binomial") {
+      ytmp <- y
+      ytmp[ytmp == min(ytmp)] <- -1
+      ytmp[ytmp == max(ytmp)] <- 1
       return(gglasso::gglasso(x, ytmp, loss = "logit", ...))
+    } else {
+      return(gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...))
     }
   }
   Lambda <- LambdaGridRegression(
     xdata = simul$X, ydata = simul$Y,
-    family = "gaussian", Lambda_cardinal = 20,
+    family = "binomial", Lambda_cardinal = 20,
     implementation = "ManualGridGroupLasso",
     group = sort(rep(1:4, length.out = ncol(simul$X)))
   )
@@ -322,7 +357,7 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   }
   stab <- VariableSelection(
     xdata = simul$X, ydata = simul$Y,
-    implementation = "GroupLasso", Lambda = Lambda,
+    implementation = "GroupLasso", family = "binomial", Lambda = Lambda,
     group = sort(rep(1:4, length.out = ncol(simul$X)))
   )
   print(SelectedVariables(stab))
