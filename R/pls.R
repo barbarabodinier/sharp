@@ -146,6 +146,10 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
 #'   argument indicates the number of variables in each group.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
+#' @param alpha.x vector of parameters controlling the level of sparsity within
+#'   groups of predictors.
+#' @param alpha.y optional vector of parameters controlling the level of
+#'   sparsity within groups of outcomes. Only used if \code{family="gaussian"}.
 #' @param lambda matrix of parameters controlling the number of selected groups
 #'   at current component, as defined by \code{ncomp}.
 #' @param keepX_previous number of selected groups in previous components. Only
@@ -201,10 +205,11 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
 #'   x = simul$X, y = simul$Y, lambda = 1, family = "binomial",
 #'   group_x = c(20, 15, 25), alpha.x = 0.9
 #' )
+#'
 #' @export
-SparseGroupPLS <- function(x, y, group_x, group_y = NULL,
-                           lambda, family = "gaussian", ncomp = 1,
-                           keepX_previous = NULL, keepY = NULL, ...) {
+SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
+                           lambda, alpha.x, alpha.y = NULL,
+                           keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
   if (!family %in% c("binomial", "gaussian")) {
     stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
   }
@@ -268,12 +273,13 @@ SparseGroupPLS <- function(x, y, group_x, group_y = NULL,
       mymodel <- sgPLS::sgPLSda(
         X = x, Y = as.vector(y),
         ind.block.x = ind.block.x,
-        ncomp = ncomp, keepX = nvarx, ...
+        ncomp = ncomp, keepX = nvarx, alpha.x = alpha.x, ...
       ) # no sparsity in Y
     } else {
       mymodel <- sgPLS::sgPLS(
         X = x, Y = y,
         ind.block.x = ind.block.x, ind.block.y = ind.block.y,
+        alpha.x = alpha.x, alpha.y = alpha.y,
         ncomp = ncomp, keepX = nvarx, keepY = keepY, ...
       )
     }
@@ -303,3 +309,5 @@ SparseGroupPLS <- function(x, y, group_x, group_y = NULL,
 
   return(list(selected = beta, beta_full = beta_full))
 }
+
+

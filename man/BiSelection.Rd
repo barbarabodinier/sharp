@@ -137,6 +137,7 @@ number of falsely stably selected features).
 \dontshow{
 
 # Data simulation
+K <- 5
 pk <- 15
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
@@ -145,8 +146,16 @@ colnames(ydata) <- paste0("outcome", 1:4)
 x <- simul$X
 y <- ydata
 
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  family = "gaussian", K = K, ncomp = 2,
+  LambdaX = 1:2,
+  LambdaY = 1:2,
+  implementation = "SparsePLS"
+)
+
 # sgPLS: sparsity on both X and Y
-K <- 5
 stab <- BiSelection(
   xdata = x, ydata = y,
   group_x = c(10, 5), group_y = c(1, 3),
@@ -155,26 +164,11 @@ stab <- BiSelection(
   LambdaY = 1:2, AlphaY = c(0.1, 0.3),
   implementation = "SparseGroupPLS"
 )
-
-# sgPLS-DA: sparsity on X (not possible to have sparsity on Y)
-set.seed(1)
-simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-x <- simul$X
-y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
-y <- apply(y, 1, sum)
-K <- 5
-stab <- BiSelection(
-  xdata = x, ydata = cbind(y),
-  group_x = c(12, 8),
-  family = "binomial", K = K, ncomp = 2,
-  LambdaX = 1:2, AlphaX = c(0.1, 0.3),
-  implementation = "SparseGroupPLS"
-)
 }
 
 \dontrun{
 
-# Data simulation
+# Data simulation (continuous outcomes)
 pk <- 15
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
@@ -183,10 +177,27 @@ colnames(ydata) <- paste0("outcome", 1:4)
 x <- simul$X
 y <- ydata
 
+# sPLS: sparsity on X
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  implementation = "SparsePLS"
+)
+
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  LambdaY = 1:(ncol(y) - 1),
+  implementation = "SparsePLS"
+)
+
 # sgPLS: sparsity on X
 stab <- BiSelection(
   xdata = x, ydata = y, group_x = c(10, 5),
-  family = "gaussian", K = K, ncomp = 3,
+  family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
   implementation = "SparseGroupPLS",
   output_data = TRUE
@@ -196,18 +207,28 @@ stab <- BiSelection(
 stab <- BiSelection(
   xdata = x, ydata = y,
   group_x = c(10, 5), group_y = c(1, 3),
-  family = "gaussian", K = K, ncomp = 3,
+  family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
   implementation = "SparseGroupPLS"
 )
 
-# sgPLS-DA: sparsity on both X and Y
+# Data simulation (categorical outcomes)
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 x <- simul$X
 y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
 y <- apply(y, 1, sum)
+
+# sPLS-DA: sparsity on X
+stab <- BiSelection(
+  xdata = x, ydata = cbind(y),
+  family = "binomial", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  implementation = "SparsePLS"
+)
+
+# sgPLS-DA: sparsity on X
 stab <- BiSelection(
   xdata = x, ydata = cbind(y),
   group_x = c(12, 8),

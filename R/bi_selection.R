@@ -30,6 +30,7 @@
 #' \dontshow{
 #'
 #' # Data simulation
+#' K <- 5
 #' pk <- 15
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
@@ -38,8 +39,16 @@
 #' x <- simul$X
 #' y <- ydata
 #'
+#' # sPLS: sparsity on both X and Y
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   family = "gaussian", K = K, ncomp = 2,
+#'   LambdaX = 1:2,
+#'   LambdaY = 1:2,
+#'   implementation = "SparsePLS"
+#' )
+#'
 #' # sgPLS: sparsity on both X and Y
-#' K <- 5
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
 #'   group_x = c(10, 5), group_y = c(1, 3),
@@ -48,26 +57,11 @@
 #'   LambdaY = 1:2, AlphaY = c(0.1, 0.3),
 #'   implementation = "SparseGroupPLS"
 #' )
-#'
-#' # sgPLS-DA: sparsity on X (not possible to have sparsity on Y)
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-#' x <- simul$X
-#' y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
-#' y <- apply(y, 1, sum)
-#' K <- 5
-#' stab <- BiSelection(
-#'   xdata = x, ydata = cbind(y),
-#'   group_x = c(12, 8),
-#'   family = "binomial", K = K, ncomp = 2,
-#'   LambdaX = 1:2, AlphaX = c(0.1, 0.3),
-#'   implementation = "SparseGroupPLS"
-#' )
 #' }
 #'
 #' \dontrun{
 #'
-#' # Data simulation
+#' # Data simulation (continuous outcomes)
 #' pk <- 15
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
@@ -76,10 +70,27 @@
 #' x <- simul$X
 #' y <- ydata
 #'
+#' # sPLS: sparsity on X
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   implementation = "SparsePLS"
+#' )
+#'
+#' # sPLS: sparsity on both X and Y
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   LambdaY = 1:(ncol(y) - 1),
+#'   implementation = "SparsePLS"
+#' )
+#'
 #' # sgPLS: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y, group_x = c(10, 5),
-#'   family = "gaussian", K = K, ncomp = 3,
+#'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = "SparseGroupPLS",
 #'   output_data = TRUE
@@ -89,18 +100,28 @@
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
 #'   group_x = c(10, 5), group_y = c(1, 3),
-#'   family = "gaussian", K = K, ncomp = 3,
+#'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
 #'   implementation = "SparseGroupPLS"
 #' )
 #'
-#' # sgPLS-DA: sparsity on both X and Y
+#' # Data simulation (categorical outcomes)
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 #' x <- simul$X
 #' y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
 #' y <- apply(y, 1, sum)
+#'
+#' # sPLS-DA: sparsity on X
+#' stab <- BiSelection(
+#'   xdata = x, ydata = cbind(y),
+#'   family = "binomial", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   implementation = "SparsePLS"
+#' )
+#'
+#' # sgPLS-DA: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = cbind(y),
 #'   group_x = c(12, 8),
@@ -129,12 +150,16 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
   }
 
   # Reformatting inputs
-  if (family=="binomial"){
+  if (family == "binomial") {
     if (is.vector(ydata)) {
       ydata <- cbind(ydata)
     } else {
       ydata <- apply(ydata, 1, sum)
     }
+  }
+
+  if (implementation %in% c("SparsePLS")) {
+    AlphaX <- AlphaY <- NULL
   }
 
   if (is.null(LambdaY)) {
@@ -175,45 +200,77 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     # Initialisation of the run
     id <- 1
     if (verbose) {
-      print(paste0("Component ", comp))
       cat("\n")
-      pb <- utils::txtProgressBar(style = 3)
+      print(paste0("Component ", comp))
+      if (implementation == "SparseGroupPLS") {
+        pb <- utils::txtProgressBar(style = 3)
+      }
     }
 
     # For loops over different grids of parameters (done internally in VariableSelection() for LambdaX)
     for (ny in LambdaY) {
       for (alphax in AlphaX) {
         for (alphay in AlphaY) {
-          if (family == "gaussian") {
-            stab <- VariableSelection(
-              xdata = xdata, ydata = ydata,
-              Lambda = LambdaX, pi_list = pi_list,
-              K = K, tau = tau, seed = seed, n_cat = n_cat,
-              family = family, implementation = implementation,
-              resampling = resampling, PFER_method = PFER_method,
-              PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-              n_cores = n_cores, output_data = FALSE, verbose = FALSE,
-              group_x = group_x, group_y = group_y,
-              keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-              alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
-              keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
-              alpha.y = NAToNULL(c(params_comp[1:comp, "alphay"], alphay)),
-              ncomp = comp, ...
-            )
-          } else {
-            stab <- VariableSelection(
-              xdata = xdata, ydata = ydata,
-              Lambda = LambdaX, pi_list = pi_list,
-              K = K, tau = tau, seed = seed, n_cat = n_cat,
-              family = family, implementation = implementation,
-              resampling = resampling, PFER_method = PFER_method,
-              PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-              n_cores = n_cores, output_data = FALSE, verbose = FALSE,
-              group_x = group_x, group_y = group_y,
-              keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-              alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
-              ncomp = comp, ...
-            )
+          if (implementation == "SparsePLS") {
+            if (family == "gaussian") {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = verbose,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
+                ncomp = comp, ...
+              )
+            } else {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = verbose,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                ncomp = comp, ...
+              )
+            }
+          }
+          if (implementation == "SparseGroupPLS") {
+            if (family == "gaussian") {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = FALSE,
+                group_x = group_x, group_y = group_y,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
+                keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
+                alpha.y = NAToNULL(c(params_comp[1:comp, "alphay"], alphay)),
+                ncomp = comp, ...
+              )
+            } else {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = FALSE,
+                group_x = group_x, group_y = group_y,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
+                ncomp = comp, ...
+              )
+            }
           }
 
           # Storing selections (X and Y)
@@ -239,7 +296,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
           tmp_params[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX)), ] <- cbind(stab$Lambda, alphax, stab$P, ny, alphay, piy, stab$S)
 
           # Incrementing loading bar and id
-          if (verbose) {
+          if (verbose & (implementation == "SparseGroupPLS")) {
             utils::setTxtProgressBar(pb, id / (length(LambdaY) * length(AlphaX) * length(AlphaY)))
           }
           id <- id + 1
@@ -247,7 +304,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
       }
     }
 
-    if (verbose) {
+    if (verbose & (implementation == "SparseGroupPLS")) {
       cat("\n")
     }
 
@@ -276,6 +333,11 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
   }
   colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
 
+  # Assigning column names
+  colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
+  colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
+
+  # Preparing outputs
   out <- list(
     summary = params_comp,
     summary_full = params,

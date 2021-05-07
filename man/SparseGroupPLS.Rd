@@ -7,13 +7,15 @@
 SparseGroupPLS(
   x,
   y,
+  family = "gaussian",
   group_x,
   group_y = NULL,
   lambda,
-  family = "gaussian",
-  ncomp = 1,
+  alpha.x,
+  alpha.y = NULL,
   keepX_previous = NULL,
   keepY = NULL,
+  ncomp = 1,
   ...
 )
 }
@@ -22,6 +24,11 @@ SparseGroupPLS(
 columns.}
 
 \item{y}{vector or matrix of outcome(s).}
+
+\item{family}{type of PLS model. If \code{family="gaussian"}, a sparse PLS
+model as defined in \code{\link[sgPLS]{sPLS}} is run (for continuous
+outcomes). If \code{family="binomial"}, a PLS-DA model as defined in
+\code{\link[sgPLS]{sPLSda}} is run (for categorical outcomes).}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group.}
@@ -32,12 +39,11 @@ outcomes. This argument indicates the number of variables in each group.}
 \item{lambda}{matrix of parameters controlling the number of selected groups
 at current component, as defined by \code{ncomp}.}
 
-\item{family}{type of PLS model. If \code{family="gaussian"}, a sparse PLS
-model as defined in \code{\link[sgPLS]{sPLS}} is run (for continuous
-outcomes). If \code{family="binomial"}, a PLS-DA model as defined in
-\code{\link[sgPLS]{sPLSda}} is run (for categorical outcomes).}
+\item{alpha.x}{vector of parameters controlling the level of sparsity within
+groups of predictors.}
 
-\item{ncomp}{number of components.}
+\item{alpha.y}{optional vector of parameters controlling the level of
+sparsity within groups of outcomes. Only used if \code{family="gaussian"}.}
 
 \item{keepX_previous}{number of selected groups in previous components. Only
 used if \code{ncomp > 1}. The argument \code{keepX} in
@@ -47,6 +53,8 @@ used if \code{ncomp > 1}. The argument \code{keepX} in
 \item{keepY}{number of selected groups of outcome variables. This argument is
 defined as in \code{\link[sgPLS]{sgPLS}}. Only used if
 \code{family="gaussian"}.}
+
+\item{ncomp}{number of components.}
 
 \item{...}{additional arguments to be passed to \code{\link[sgPLS]{sgPLS}} or
 \code{\link[sgPLS]{sgPLSda}}.}
@@ -96,6 +104,7 @@ mypls <- SparseGroupPLS(
   x = simul$X, y = simul$Y, lambda = 1, family = "binomial",
   group_x = c(20, 15, 25), alpha.x = 0.9
 )
+
 }
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
