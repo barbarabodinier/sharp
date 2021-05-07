@@ -89,21 +89,39 @@
 #'
 #' # sgPLS: sparsity on X
 #' stab <- BiSelection(
-#'   xdata = x, ydata = y, group_x = c(10, 5),
+#'   xdata = x, ydata = y,
+#'   group_x = c(2, 10, 8),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-#'   implementation = "SparseGroupPLS",
-#'   output_data = TRUE
+#'   implementation = "SparseGroupPLS"
 #' )
 #'
 #' # sgPLS: sparsity on both X and Y
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
-#'   group_x = c(10, 5), group_y = c(1, 3),
+#'   group_x = c(2, 10, 8), group_y = c(1, 3),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
 #'   implementation = "SparseGroupPLS"
+#' )
+#'
+#' # gPLS: sparsity on X
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   group_x = c(2, 10, 8),
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:2,
+#'   implementation = "GroupPLS"
+#' )
+#'
+#' # gPLS: sparsity on both X and Y
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   group_x = c(2, 10, 8), group_y = c(1, 3),
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:2, LambdaY = 1:2,
+#'   implementation = "GroupPLS"
 #' )
 #'
 #' # Data simulation (categorical outcomes)
@@ -124,10 +142,19 @@
 #' # sgPLS-DA: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = cbind(y),
-#'   group_x = c(12, 8),
+#'   group_x = c(2, 10, 8), K = 10,
 #'   family = "binomial", ncomp = 3,
-#'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.3),
+#'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = "SparseGroupPLS"
+#' )
+#'
+#' # gPLS-DA: sparsity on Y
+#' stab <- BiSelection(
+#'   xdata = x, ydata = cbind(y),
+#'   group_x = c(2, 10, 8),
+#'   family = "binomial", ncomp = 3,
+#'   LambdaX = 1:2,
+#'   implementation = "GroupPLS"
 #' )
 #' }
 #' @export
@@ -140,13 +167,12 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
                         PFER_thr = Inf, FDP_thr = Inf,
                         n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   if (is.null(LambdaX)) {
-    if (implementation == "SparseGroupPLS") {
+    if (implementation %in% c("SparseGroupPLS", "GroupPLS")) {
       LambdaX <- 1:length(group_x)
     }
     if (implementation == "SparsePLS") {
       LambdaX <- 1:ncol(xdata)
     }
-    # TO ADD XXX
   }
 
   # Reformatting inputs
@@ -158,7 +184,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     }
   }
 
-  if (implementation %in% c("SparsePLS")) {
+  if (implementation %in% c("SparsePLS", "GroupPLS")) {
     AlphaX <- AlphaY <- NULL
   }
 
@@ -272,13 +298,43 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
               )
             }
           }
+          if (implementation == "GroupPLS") {
+            if (family == "gaussian") {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = verbose,
+                group_x = group_x, group_y = group_y,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
+                ncomp = comp, ...
+              )
+            } else {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = verbose,
+                group_x = group_x, group_y = group_y,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                ncomp = comp, ...
+              )
+            }
+          }
 
           # Storing selections (X and Y)
           piy <- NULL
           for (i in 1:length(LambdaX)) {
             tmp_selprop_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- stab$selprop[i, ]
             tmp_selected_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(stab$selprop[i, ] >= stab$P[i, ], yes = 1, no = 0)
-            mytmp <- apply(Coefficients(stab, side = "Y")[i, , ], 1, FUN = function(z) {
+            mytmp <- apply(Coefficients(stab, side = "Y", comp = comp)[i, , ], 1, FUN = function(z) {
               sum(z != 0) / length(z)
             })
             tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
