@@ -79,6 +79,7 @@ mypls <- SparsePLS(x = simul$X, y = simul$Y, lambda = 2, family = "binomial")
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 
 Other PLS functions: 
+\code{\link{GroupPLS}()},
 \code{\link{SparseGroupPLS}()}
 }
 \concept{PLS functions}
