@@ -5,6 +5,6 @@ test_that("potential side effects", {
   set.seed(1)
   a <- runif(1)
   set.seed(1)
-  stab <- GraphicalModel(data = simul$data, K = 5, Lambda_cardinal = 5, verbose = FALSE)
+  stab <- GraphicalModel(xdata = simul$data, K = 5, Lambda_cardinal = 5, verbose = FALSE)
   expect_equal(runif(1), a)
 })

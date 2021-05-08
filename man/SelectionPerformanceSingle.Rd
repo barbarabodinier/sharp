@@ -7,39 +7,33 @@
 SelectionPerformanceSingle(Asum, cor = NULL, thr = 0.5)
 }
 \arguments{
-\item{Asum}{vector (in a regression framework)
-or matrix (in graphical modelling) with values
-in 0, 1, 2 or 3.}
+\item{Asum}{vector (in variable selection) or matrix (in graphical modelling)
+containing values of \code{0}, \code{1}, \code{2} or \code{3}.}
 
-\item{cor}{optional correlation matrix.
-Only used in graphical modelling.}
+\item{cor}{optional correlation matrix. Only used in graphical modelling.}
 
-\item{thr}{optional threshold in correlation.
-Only used in graphical modelling and when argument "cor" is not NULL.}
+\item{thr}{optional threshold in correlation. Only used in graphical
+modelling and when argument "cor" is not NULL.}
 }
 \value{
 A matrix of selection metrics including:
 
-\item{TP}{number of True Positives (TP)}
-\item{FN}{number of False Negatives (TN)}
-\item{FP}{number of False Positives (FP)}
-\item{TN}{number of True Negatives (TN)}
-\item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
-\item{specificity}{specificity, i.e. TN/(TN+FP)}
-\item{accuracy}{accuracy, i.e. (TP+TN)/(TP+TN+FP+FN)}
-\item{precision}{precision (p), i.e. TP/(TP+FP)}
-\item{recall}{recall (r), i.e. TP/(TP+FN)}
-\item{F1_score}{F1-score, i.e. 2*p*r/(p+r)}
+  \item{TP}{number of True Positives (TP)} \item{FN}{number of False
+  Negatives (TN)} \item{FP}{number of False Positives (FP)} \item{TN}{number
+  of True Negatives (TN)} \item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
+  \item{specificity}{specificity, i.e. TN/(TN+FP)} \item{accuracy}{accuracy,
+  i.e. (TP+TN)/(TP+TN+FP+FN)} \item{precision}{precision (p), i.e.
+  TP/(TP+FP)} \item{recall}{recall (r), i.e. TP/(TP+FN)}
+  \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)}
 
-If argument "cor" is provided, the number of False Positives
-among correlated (FP_c) and uncorrelated (FP_i) pairs,
-defined as having correlations (provided in "cor")
-above or below the threshold "thr", are also reported.
+  If argument "cor" is provided, the number of False Positives among
+  correlated (FP_c) and uncorrelated (FP_i) pairs, defined as having
+  correlations (provided in "cor") above or below the threshold "thr", are
+  also reported.
 }
 \description{
-Computes different metrics of selection performance
-from a categorical vector/matrix with 3 for True Positive,
-2 for False Negative, 1 for False Positive and 0 for
-True Negative.
+Computes different metrics of selection performance from a categorical
+vector/matrix with 3 for True Positive, 2 for False Negative, 1 for False
+Positive and 0 for True Negative.
 }
 \keyword{internal}

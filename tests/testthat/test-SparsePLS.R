@@ -1,5 +1,5 @@
 test_that("sPLS models are working", {
-  K <- 10
+  K <- 5
   pk <- 7
   # Sparse PLS (1 outcome)
   set.seed(1)
@@ -31,19 +31,8 @@ test_that("sPLS models are working", {
 
 
 test_that("sPLSDA models are working", {
-  K <- 10
+  K <- 5
   pk <- 7
-  # Sparse PLS-DA (1 outcome)
-  set.seed(1)
-  simul <- SimulateRegression(n = 50, pk = pk, family = "binomial")
-  stab <- VariableSelection(
-    xdata = simul$X, ydata = simul$Y, K = K,
-    Lambda = 1:(ncol(simul$X) - 1),
-    implementation = "SparsePLS", family = "gaussian",
-    verbose = FALSE
-  )
-  CalibrationPlot(stab, xlab = "")
-  expect_equal(length(SelectedVariables(stab)), pk)
 
   # Sparse PLS (1 component)
   set.seed(1)

@@ -9,27 +9,27 @@ PFER(q, pi, N, K, PFER_method = "MB")
 \arguments{
 \item{q}{average number of features selected by the underlying algorithm.}
 
-\item{pi}{vector of thresholds in selection proportions.}
+\item{pi}{threshold in selection proportions.}
 
 \item{N}{total number of features.}
 
 \item{K}{number of resampling iterations.}
 
-\item{PFER_method}{method used to compute the expected number of False
-Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
-method proposed by Meinshausen and Bühlmann (2010) is used. With
-PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
-assumption of unimodality is used.}
+\item{PFER_method}{method used to compute the upper-bound of the expected
+number of False Positives (or Per Family Error Rate, PFER). With
+\code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
+(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+and Samworth (2013) under the assumption of unimodality is used.}
 }
 \value{
-The upper-bound of the PFER.
+The PFER upper-bound.
 }
 \description{
-Computes the upper-bound of the PFER of a stability selection model using the
-methods proposed by Meinshausen and Bühlmann (2010) or Shah and Samworth
-(2013). In stability selection, the PFER corresponds to the expected number
-of stably selected features that are not relevant to the outcome (i.e. False
-Positives).
+Computes the Per Family Error Rate upper-bound of a stability selection model
+using the methods proposed by Meinshausen and Bühlmann (2010) or Shah and
+Samworth (2013). In stability selection, the PFER corresponds to the expected
+number of stably selected features that are not relevant to the outcome (i.e.
+False Positives).
 }
 \examples{
 # Computing PFER for 10/50 selected features and threshold of 0.8
@@ -39,7 +39,7 @@ pfer_ss <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "SS")
 \references{
 \insertRef{stabilityselectionMB}{focus}
 
-\insertRef{stabilityselectionSS}{focus}
+  \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
 Other stability metric functions: 

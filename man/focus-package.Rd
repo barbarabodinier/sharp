@@ -30,13 +30,31 @@ CalibrationPlot(stab)
 argmax <- Argmax(stab) # calibrated parameters
 stably_selected <- SelectedVariables(stab) # stably selected variables
 
+## PLS models
+# Data simulation
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+
+# Stability selection
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  LambdaY = 1:(ncol(y) - 1),
+  implementation = "SparsePLS"
+)
+
 ## Graphical models
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free")
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 CalibrationPlot(stab)
 argmax <- Argmax(stab) # calibrated parameters
 stably_selected <- Adjacency(stab)

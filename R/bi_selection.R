@@ -1,4 +1,4 @@
-#' Variable selection in predictors and outcomes
+#' Variable selection for predictors and outcomes
 #'
 #' Runs stability selection regression models with different combinations of
 #' parameters controlling the sparsity in PLS models and thresholds in selection
@@ -25,6 +25,9 @@
 #'   groups (sparse group PLS) in X. Only used with
 #'   \code{implementation="SparseGroupPLS"} and \code{family="gaussian"}.
 #' @param ncomp number of components.
+#'
+#' @family stability selection functions
+#' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
 #'
 #' @examples
 #' \dontshow{
@@ -339,7 +342,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
             })
             tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
             if (any(mytmp != 1)) {
-              hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi = stab$params$pi_list, K = K))]
+              hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
               tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(mytmp >= hat_pi, yes = 1, no = 0)
             } else {
               tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- 1

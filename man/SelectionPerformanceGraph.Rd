@@ -22,7 +22,7 @@ SelectionPerformanceGraph(
 \arguments{
 \item{theta}{binary adjacency matrix.}
 
-\item{theta_star}{true binary adjacency matrix (in graphical modelling).}
+\item{theta_star}{true binary adjacency matrix.}
 
 \item{colours}{vector of edge colours. The first entry of the vector defines
 the colour of False Positive edges, second entry is for True Negatives and
@@ -34,25 +34,27 @@ Negatives and third entry is for True Positives.}
 
 \item{plot}{logical indicating if the generated graph should be plotted.}
 
-\item{filename}{file path to saved figure. With filename=NULL, the plot is
-not saved.}
+\item{filename}{file path to saved figure. If \code{filename=NULL}, the plot
+is not saved.}
 
-\item{fileformat}{format of the saved figure. Possible values are "pdf" or
-"png". Only used if argument "filename" is not NULL.}
+\item{fileformat}{format of the saved figure. Possible values are
+\code{"pdf"} or \code{"png"}. Only used if argument \code{filename} is
+provided.}
 
-\item{res}{resolution of the png figure (see \code{\link{png}} from the
-grDevices package). Only used if argument "filename" is not NULL and
-fileformat="png".}
+\item{res}{resolution of the png figure (see \code{\link[grDevices]{png}}).
+Only used if argument \code{filename} is provided and
+\code{fileformat="png"}.}
 
-\item{width}{width of the saved figure. Only used if argument "filename" is
-not NULL.}
+\item{width}{width of the saved figure. Only used if argument \code{filename}
+is provided.}
 
-\item{height}{height of the saved figure. Only used if argument "filename" is
-not NULL.}
+\item{height}{height of the saved figure. Only used if argument
+\code{filename} is provided.}
 
-\item{units}{units of width and height. Possible values are "px", "in", "cm"
-and "mm" (see \code{\link{png}} from the grDevices package). Only used if
-argument "filename" is not NULL and fileformat="png".}
+\item{units}{units of width and height. Possible values are \code{"px"},
+\code{"in"}, \code{"cm"} and \code{"mm"} (see
+\code{\link[grDevices]{png}}). Only used if argument \code{filename} is
+provided and \code{fileformat="png"}.}
 
 \item{...}{additional arguments to be passed to \code{\link{Graph}}.}
 }
@@ -70,7 +72,7 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 30)
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data, K = 10)
+stab <- GraphicalModel(xdata = simul$data, K = 10)
 
 # Performance graph
 perfgraph <- SelectionPerformanceGraph(
@@ -94,9 +96,10 @@ require(igraph)
 igraph::V(perfgraph)$size <- 10
 plot(perfgraph, layout = layout_with_kk(perfgraph))
 }
+
 }
 \seealso{
-\code{\link{Graph}}
+\code{\link{GraphicalModel}}, \code{\link{Graph}}
 
 Other selection performance functions: 
 \code{\link{SelectionPerformance}()}

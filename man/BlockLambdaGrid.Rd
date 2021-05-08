@@ -19,10 +19,10 @@ A list with: \item{Lambda}{a matrix of (block-specific) penalty
   \item{Sequential_template}{logical matrix encoding the type of procedure
   for data with multiple blocks in stability selection graphical modelling.
   For multi-block estimation, the procedure is separately calibrating each
-  block while the others are weakly penalised (TRUE only for the block
-  currently being calibrated and FALSE for other blocks). Other approaches
-  with joint calibration of the blocks are allowed (all entries are set to
-  TRUE).}
+  block while the others are weakly penalised (\code{TRUE} only for the block
+  currently being calibrated and \code{FALSE} for other blocks). Other
+  approaches with joint calibration of the blocks are allowed (all entries
+  are set to \code{TRUE}).}
 }
 \description{
 Generates a matrix of parameters controlling the sparsity of the underlying
@@ -51,8 +51,11 @@ ncol = 3, byrow = TRUE
 )
 mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
 }
+
 }
 \seealso{
+\code{\link{GraphicalModel}}
+
 Other multi-block functions: 
 \code{\link{BlockMatrix}()},
 \code{\link{BlockStructure}()}

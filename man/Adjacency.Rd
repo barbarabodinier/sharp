@@ -9,16 +9,16 @@ Adjacency(stability, argmax_id = NULL)
 \arguments{
 \item{stability}{output of \code{\link{GraphicalModel}}.}
 
-\item{argmax_id}{matrix of parameter IDs.
-If argmax_id=NULL, the calibrated adjacency matrix is returned.}
+\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
+the calibrated adjacency matrix is returned.}
 }
 \value{
-a binary and symmetric adjacency matrix encoding
-an undirected graph with no self-loops.
+A binary and symmetric adjacency matrix encoding an undirected graph
+  with no self-loops.
 }
 \description{
-Builds the adjacency matrix of the (calibrated)
-stability selection graphical model.
+Builds the adjacency matrix of the (calibrated) stability selection graphical
+model.
 }
 \examples{
 \dontrun{
@@ -28,7 +28,7 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 
 # Calibrated adjacency matrix
 A <- Adjacency(stab)
@@ -39,8 +39,11 @@ stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 A <- Adjacency(stab, argmax_id = myids)
 }
+
 }
 \seealso{
+\code{\link{GraphicalModel}}
+
 Other calibration functions: 
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},

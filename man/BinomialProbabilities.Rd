@@ -11,20 +11,20 @@ BinomialProbabilities(q, N, pi, K, n_cat = 3)
 
 \item{N}{total number of features.}
 
-\item{pi}{threshold in selection proportions.}
+\item{pi}{threshold in selection proportions. If n_cat=3, these values must
+be >0.5 and <1. If n_cat=2, these values must be >0 and <1.}
 
-\item{K}{number of resampling iterations used to compute the selection proportions.}
+\item{K}{number of resampling iterations.}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 }
 \value{
-a list of probabilities for each of the 2 or 3 categories of
-selection proportions.
+A list of probabilities for each of the 2 or 3 categories of
+  selection proportions.
 }
 \description{
-Computes the probabilities of observing each category of
-selection proportions under the assumption of a uniform selection
-procedure.
+Computes the probabilities of observing each category of selection
+proportions under the assumption of a uniform selection procedure.
 }
 \keyword{internal}

@@ -1,7 +1,7 @@
 #' Merging stability selection outputs
 #'
 #' Merges the outputs from \code{\link{VariableSelection}} or
-#' \code{\link{GraphicalModel}}. This can be useful for parallelisation.
+#' \code{\link{GraphicalModel}}. This function can be used for parallelisation.
 #'
 #' @param stability1 output from a first run of \code{\link{VariableSelection}}
 #'   or \code{\link{GraphicalModel}}.
@@ -11,15 +11,16 @@
 #'   or \code{\link{VariableSelection}} (graph=FALSE) were used to generate the
 #'   "stability1" and "stability2".
 #'
-#' @return a single output with the same format.
+#' @return A single output of the same format.
 #'
 #' @details The two runs must have been done using the same data, the same grids
-#' of parameters, the same methods (arguments "implementation", "resampling",
-#' "PFER_method", as well as "start" for graphical models), the same "tau" and
-#' "pk" (graphical models only), and the same thresholds in PFER and FDP, but
-#' with different seeds. The combined output will be the equivalent of running
-#' the model for which the number of iterations is the sum of the number of
-#' iterations used for "stability1" and "stability2".
+#'   of parameters, the same methods (arguments \code{implementation},
+#'   \code{resampling}, \code{PFER_method}, as well as \code{start} for
+#'   graphical models), the same \code{tau} and \code{pk} (graphical models
+#'   only), and the same thresholds in PFER and FDP, but with different seeds.
+#'   The combined output will be the equivalent of running the model for which
+#'   the number of iterations is the sum of the number of iterations used for
+#'   \code{stability1} and \code{stability2}.
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
@@ -28,8 +29,8 @@
 #' simul <- SimulateGraphical(pk = 20)
 #'
 #' # Two runs
-#' stab1 <- GraphicalModel(data = simul$data, seed = 1, K = 10)
-#' stab2 <- GraphicalModel(data = simul$data, seed = 2, K = 10)
+#' stab1 <- GraphicalModel(xdata = simul$data, seed = 1, K = 10)
+#' stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
 #'
 #' # Merging the outputs
 #' stab <- Combine(stability1 = stab1, stability2 = stab2, graph = TRUE)
@@ -108,7 +109,7 @@ Combine <- function(stability1, stability2, graph = TRUE) {
 
   # Computation of the stability score
   metrics <- StabilityMetrics(
-    bigstab = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
+    selprop = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
     Sequential_template = Sequential_template, graph = graph,
     PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
   )

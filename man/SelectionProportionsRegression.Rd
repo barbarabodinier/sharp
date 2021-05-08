@@ -9,16 +9,14 @@ SelectionProportionsRegression(stability, argmax_id = NULL)
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}}.}
 
-\item{argmax_id}{matrix of parameter IDs.
-If argmax_id=NULL, selection proportions of the calibrated
-stability selection model are returned.}
+\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
+the calibrated adjacency matrix is returned.}
 }
 \value{
-a vector (variable selection)
-of selection proportions.
+A vector of selection proportions.
 }
 \description{
-Extracts the selection proportions of the
-(calibrated) stability selection model.
+Extracts the selection proportions of the (calibrated) stability selection
+model.
 }
 \keyword{internal}

@@ -10,12 +10,11 @@ BlockStructure(pk)
 \item{pk}{vector encoding the grouping structure.}
 }
 \value{
-a symmetric matrix.
+A symmetric matrix of size \code{length(pk))}.
 }
 \description{
-Generates a symmetric matrix encoding the block structure
-from the numbers of variables in each group.
-This can be used to visualise block IDs.
+Generates a symmetric matrix encoding the block structure from the numbers of
+variables in each group. This function can be used to visualise block IDs.
 }
 \examples{
 # Example with 2 groups
@@ -25,6 +24,8 @@ mat <- BlockStructure(pk = rep(10, 2))
 mat <- BlockStructure(pk = rep(10, 5))
 }
 \seealso{
+\code{\link{GraphicalModel}}
+
 Other multi-block functions: 
 \code{\link{BlockLambdaGrid}()},
 \code{\link{BlockMatrix}()}

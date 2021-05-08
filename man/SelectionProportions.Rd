@@ -7,20 +7,20 @@
 SelectionProportions(stability, argmax_id = NULL)
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}}
-or \code{\link{GraphicalModel}}.}
+\item{stability}{output of \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
+provided.}
 
-\item{argmax_id}{matrix of parameter IDs.
-If argmax_id=NULL, selection proportions of the calibrated
-stability selection model are returned.}
+\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
+the calibrated adjacency matrix is returned.}
 }
 \value{
-a symmetric matrix (graphical models) or vector (variable selection)
-of selection proportions.
+A symmetric matrix (graphical model) or vector (variable selection)
+  of selection proportions.
 }
 \description{
-Extracts the selection proportions of the
-(calibrated) stability selection model.
+Extracts the selection proportions of the (calibrated) stability selection
+model.
 }
 \examples{
 \dontrun{
@@ -48,7 +48,7 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 
 # Calibrated adjacency matrix
 prop <- SelectionProportions(stab)

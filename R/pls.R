@@ -4,7 +4,7 @@
 #' \code{\link[sgPLS]{sgPLS-package}}. This function is not using stability.
 #'
 #' @inheritParams SelectionAlgo
-#' @param lambda matrix of parameters controlling the number of selected
+#' @param Lambda matrix of parameters controlling the number of selected
 #'   predictors at current component, as defined by \code{ncomp}.
 #' @param family type of PLS model. If \code{family="gaussian"}, a sparse PLS
 #'   model as defined in \code{\link[sgPLS]{sPLS}} is run (for continuous
@@ -14,7 +14,7 @@
 #' @param keepX_previous number of selected predictors in previous components.
 #'   Only used if \code{ncomp > 1}. The argument \code{keepX} in
 #'   \code{\link[sgPLS]{sPLS}} is obtained by concatenating
-#'   \code{keepX_previous} and \code{lambda}.
+#'   \code{keepX_previous} and \code{Lambda}.
 #' @param keepY number of selected outcome variables. This argument is defined
 #'   as in \code{\link[sgPLS]{sPLS}}. Only used if \code{family="gaussian"}.
 #' @param ... additional arguments to be passed to \code{\link[sgPLS]{sPLS}} or
@@ -41,7 +41,7 @@
 #' y <- ydata
 #'
 #' # Running sPLS with 2 X-variables and 1 Y-variable
-#' mypls <- SparsePLS(x = x, y = y, lambda = 2, family = "gaussian", keepY = 1)
+#' mypls <- SparsePLS(xdata = x, ydata = y, Lambda = 2, family = "gaussian", keepY = 1)
 #'
 #' ## Sparse PLS-DA
 #' # Data simulation
@@ -49,9 +49,9 @@
 #' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 #'
 #' # Running sPLS-DA with 2 X-variables and 1 Y-variable
-#' mypls <- SparsePLS(x = simul$X, y = simul$Y, lambda = 2, family = "binomial")
+#' mypls <- SparsePLS(xdata = simul$X, ydata = simul$Y, Lambda = 2, family = "binomial")
 #' @export
-SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previous = NULL, keepY = NULL, ...) {
+SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keepX_previous = NULL, keepY = NULL, ...) {
   if (!family %in% c("binomial", "gaussian")) {
     stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
   }
@@ -61,52 +61,52 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
   }
 
   # Re-formatting y
-  if (is.vector(y)) {
-    y <- cbind(y)
+  if (is.vector(ydata)) {
+    ydata <- cbind(ydata)
   }
 
   # All Y variables are selected by default
   if (is.null(keepY)) {
-    keepY <- rep(ncol(y), ncomp)
+    keepY <- rep(ncol(ydata), ncomp)
   }
 
   # All X variables are kept in previous components by default
   if (is.null(keepX_previous)) {
-    keepX_previous <- rep(ncol(x), ncomp - 1)
+    keepX_previous <- rep(ncol(xdata), ncomp - 1)
   }
 
   # Initialising the current set of loadings coefficients
-  beta <- matrix(NA, nrow = length(lambda), ncol = ncol(x))
-  rownames(beta) <- paste0("s", 0:(length(lambda) - 1))
-  colnames(beta) <- colnames(x)
+  beta <- matrix(NA, nrow = length(Lambda), ncol = ncol(xdata))
+  rownames(beta) <- paste0("s", 0:(length(Lambda) - 1))
+  colnames(beta) <- colnames(xdata)
 
   # Initialising the full set of loadings coefficients
   if (family == "gaussian") {
-    beta_full <- matrix(NA, nrow = length(lambda), ncol = (ncol(x) + ncol(y)) * ncomp)
-    rownames(beta_full) <- paste0("s", 0:(length(lambda) - 1))
+    beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
+    rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(x), "_PC"), rep(1:ncomp, each = ncol(x))),
-      paste0(paste0("Y_", colnames(y), "_PC"), rep(1:ncomp, each = ncol(y)))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
     )
   } else {
-    ncat <- length(unique(y))
-    beta_full <- matrix(NA, nrow = length(lambda), ncol = (ncol(x) + ncat) * ncomp)
-    rownames(beta_full) <- paste0("s", 0:(length(lambda) - 1))
+    ncat <- length(unique(ydata))
+    beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncat) * ncomp)
+    rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(x), "_PC"), rep(1:ncomp, each = ncol(x))),
-      paste0(paste0("Y_", sort(unique(y)), "_PC"), rep(1:ncomp, each = ncat))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(1:ncomp, each = ncat))
     )
   }
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(lambda)) {
+  for (k in 1:length(Lambda)) {
     # Number of selected variables per component in X
-    nvarx <- c(keepX_previous, lambda[k])
+    nvarx <- c(keepX_previous, Lambda[k])
 
     if (family == "gaussian") {
-      mymodel <- sgPLS::sPLS(X = x, Y = y, ncomp = ncomp, keepX = nvarx, keepY = keepY, ...)
+      mymodel <- sgPLS::sPLS(X = xdata, Y = ydata, ncomp = ncomp, keepX = nvarx, keepY = keepY, ...)
     } else {
-      mymodel <- sgPLS::sPLSda(X = x, Y = as.vector(y), ncomp = ncomp, keepX = nvarx, ...) # no sparsity in Y
+      mymodel <- sgPLS::sPLSda(X = xdata, Y = as.vector(ydata), ncomp = ncomp, keepX = nvarx, ...) # no sparsity in Y
     }
 
     # Extracting X and Y loadings
@@ -114,7 +114,7 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
     Yloadings <- mymodel$loadings$Y
 
     # Making sure that the loadings of the univariate Y are positives
-    if (ncol(y) == 1) {
+    if (ncol(ydata) == 1) {
       for (j in 1:ncol(mymodel$loadings$Y)) {
         if (sign(mymodel$loadings$Y[1, j])) {
           Yloadings[1, j] <- -Yloadings[1, j]
@@ -154,12 +154,12 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
 #'   groups of predictors.
 #' @param alpha.y optional vector of parameters controlling the level of
 #'   sparsity within groups of outcomes. Only used if \code{family="gaussian"}.
-#' @param lambda matrix of parameters controlling the number of selected groups
+#' @param Lambda matrix of parameters controlling the number of selected groups
 #'   at current component, as defined by \code{ncomp}.
 #' @param keepX_previous number of selected groups in previous components. Only
 #'   used if \code{ncomp > 1}. The argument \code{keepX} in
 #'   \code{\link[sgPLS]{sgPLS}} is obtained by concatenating
-#'   \code{keepX_previous} and \code{lambda}.
+#'   \code{keepX_previous} and \code{Lambda}.
 #' @param keepY number of selected groups of outcome variables. This argument is
 #'   defined as in \code{\link[sgPLS]{sgPLS}}. Only used if
 #'   \code{family="gaussian"}.
@@ -188,13 +188,13 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
 #'
 #' # Running sgPLS with 1 group and sparsity of 0.5
 #' mypls <- SparseGroupPLS(
-#'   x = x, y = y, lambda = 1, family = "gaussian",
+#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
 #'   group_x = c(10, 15, 25), alpha.x = 0.5
 #' )
 #'
 #' # Running sgPLS with groups on outcomes
 #' mypls <- SparseGroupPLS(
-#'   x = x, y = y, lambda = 1, family = "gaussian",
+#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
 #'   group_x = c(10, 15, 25), alpha.x = 0.5,
 #'   group_y = c(2, 2), keepY = 1, alpha.y = 0.9
 #' )
@@ -206,12 +206,12 @@ SparsePLS <- function(x, y, lambda, family = "gaussian", ncomp = 1, keepX_previo
 #'
 #' # Running sgPLS-DA with 1 group and sparsity of 0.9
 #' mypls <- SparseGroupPLS(
-#'   x = simul$X, y = simul$Y, lambda = 1, family = "binomial",
+#'   xdata = simul$X, ydata = simul$Y, Lambda = 1, family = "binomial",
 #'   group_x = c(10, 15, 25), alpha.x = 0.9
 #' )
 #' @export
-SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
-                           lambda, alpha.x, alpha.y = NULL,
+SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
+                           Lambda, alpha.x, alpha.y = NULL,
                            keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
   if (!family %in% c("binomial", "gaussian")) {
     stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
@@ -222,18 +222,18 @@ SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
   }
 
   # Re-formatting y
-  if (is.vector(y)) {
-    y <- cbind(y)
+  if (is.vector(ydata)) {
+    ydata <- cbind(ydata)
   }
 
   # All Y variables are selected by default
   if (is.null(keepY)) {
-    keepY <- rep(ncol(y), ncomp)
+    keepY <- rep(ncol(ydata), ncomp)
   }
 
   # All X variables are kept in previous components by default
   if (is.null(keepX_previous)) {
-    keepX_previous <- rep(ncol(x), ncomp - 1)
+    keepX_previous <- rep(ncol(xdata), ncomp - 1)
   }
 
   # Re-formatting the grouping
@@ -245,42 +245,42 @@ SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
   }
 
   # Initialising the current set of loadings coefficients
-  beta <- matrix(NA, nrow = length(lambda), ncol = ncol(x))
-  rownames(beta) <- paste0("s", 0:(length(lambda) - 1))
-  colnames(beta) <- colnames(x)
+  beta <- matrix(NA, nrow = length(Lambda), ncol = ncol(xdata))
+  rownames(beta) <- paste0("s", 0:(length(Lambda) - 1))
+  colnames(beta) <- colnames(xdata)
 
   # Initialising the full set of loadings coefficients
   if (family == "gaussian") {
-    beta_full <- matrix(NA, nrow = length(lambda), ncol = (ncol(x) + ncol(y)) * ncomp)
-    rownames(beta_full) <- paste0("s", 0:(length(lambda) - 1))
+    beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
+    rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(x), "_PC"), rep(1:ncomp, each = ncol(x))),
-      paste0(paste0("Y_", colnames(y), "_PC"), rep(1:ncomp, each = ncol(y)))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
     )
   } else {
-    ncat <- length(unique(y))
-    beta_full <- matrix(NA, nrow = length(lambda), ncol = (ncol(x) + ncat) * ncomp)
-    rownames(beta_full) <- paste0("s", 0:(length(lambda) - 1))
+    ncat <- length(unique(ydata))
+    beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncat) * ncomp)
+    rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(x), "_PC"), rep(1:ncomp, each = ncol(x))),
-      paste0(paste0("Y_", sort(unique(y)), "_PC"), rep(1:ncomp, each = ncat))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(1:ncomp, each = ncat))
     )
   }
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(lambda)) {
+  for (k in 1:length(Lambda)) {
     # Number of selected variables per component in X
-    nvarx <- c(keepX_previous, lambda[k])
+    nvarx <- c(keepX_previous, Lambda[k])
 
     if (family == "binomial") {
       mymodel <- sgPLS::sgPLSda(
-        X = x, Y = as.vector(y),
+        X = xdata, Y = as.vector(ydata),
         ind.block.x = ind.block.x,
         ncomp = ncomp, keepX = nvarx, alpha.x = alpha.x, ...
       ) # no sparsity in Y
     } else {
       mymodel <- sgPLS::sgPLS(
-        X = x, Y = y,
+        X = xdata, Y = ydata,
         ind.block.x = ind.block.x, ind.block.y = ind.block.y,
         alpha.x = alpha.x, alpha.y = alpha.y,
         ncomp = ncomp, keepX = nvarx, keepY = keepY, ...
@@ -292,7 +292,7 @@ SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
     Yloadings <- mymodel$loadings$Y
 
     # Making sure that the loadings of the univariate Y are positives
-    if (ncol(y) == 1) {
+    if (ncol(ydata) == 1) {
       for (j in 1:ncol(mymodel$loadings$Y)) {
         if (sign(mymodel$loadings$Y[1, j])) {
           Yloadings[1, j] <- -Yloadings[1, j]
@@ -328,12 +328,12 @@ SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
 #'   argument indicates the number of variables in each group.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
-#' @param lambda matrix of parameters controlling the number of selected groups
+#' @param Lambda matrix of parameters controlling the number of selected groups
 #'   at current component, as defined by \code{ncomp}.
 #' @param keepX_previous number of selected groups in previous components. Only
 #'   used if \code{ncomp > 1}. The argument \code{keepX} in
 #'   \code{\link[sgPLS]{sgPLS}} is obtained by concatenating
-#'   \code{keepX_previous} and \code{lambda}.
+#'   \code{keepX_previous} and \code{Lambda}.
 #' @param keepY number of selected groups of outcome variables. This argument is
 #'   defined as in \code{\link[sgPLS]{sgPLS}}. Only used if
 #'   \code{family="gaussian"}.
@@ -362,13 +362,13 @@ SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
 #'
 #' # Running gPLS with 1 group and sparsity of 0.5
 #' mypls <- GroupPLS(
-#'   x = x, y = y, lambda = 1, family = "gaussian",
+#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
 #'   group_x = c(10, 15, 25),
 #' )
 #'
 #' # Running gPLS with groups on outcomes
 #' mypls <- GroupPLS(
-#'   x = x, y = y, lambda = 1, family = "gaussian",
+#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
 #'   group_x = c(10, 15, 25),
 #'   group_y = c(2, 2), keepY = 1
 #' )
@@ -380,12 +380,12 @@ SparseGroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
 #'
 #' # Running sgPLS-DA with 1 group and sparsity of 0.9
 #' mypls <- GroupPLS(
-#'   x = simul$X, y = simul$Y, lambda = 1, family = "binomial",
+#'   xdata = simul$X, ydata = simul$Y, Lambda = 1, family = "binomial",
 #'   group_x = c(10, 15, 25)
 #' )
 #' @export
-GroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
-                     lambda, keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
+GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
+                     Lambda, keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
   if (!family %in% c("binomial", "gaussian")) {
     stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
   }
@@ -395,18 +395,18 @@ GroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
   }
 
   # Re-formatting y
-  if (is.vector(y)) {
-    y <- cbind(y)
+  if (is.vector(ydata)) {
+    ydata <- cbind(ydata)
   }
 
   # All Y variables are selected by default
   if (is.null(keepY)) {
-    keepY <- rep(ncol(y), ncomp)
+    keepY <- rep(ncol(ydata), ncomp)
   }
 
   # All X variables are kept in previous components by default
   if (is.null(keepX_previous)) {
-    keepX_previous <- rep(ncol(x), ncomp - 1)
+    keepX_previous <- rep(ncol(xdata), ncomp - 1)
   }
 
   # Re-formatting the grouping
@@ -418,42 +418,42 @@ GroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
   }
 
   # Initialising the current set of loadings coefficients
-  beta <- matrix(NA, nrow = length(lambda), ncol = ncol(x))
-  rownames(beta) <- paste0("s", 0:(length(lambda) - 1))
-  colnames(beta) <- colnames(x)
+  beta <- matrix(NA, nrow = length(Lambda), ncol = ncol(xdata))
+  rownames(beta) <- paste0("s", 0:(length(Lambda) - 1))
+  colnames(beta) <- colnames(xdata)
 
   # Initialising the full set of loadings coefficients
   if (family == "gaussian") {
-    beta_full <- matrix(NA, nrow = length(lambda), ncol = (ncol(x) + ncol(y)) * ncomp)
-    rownames(beta_full) <- paste0("s", 0:(length(lambda) - 1))
+    beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
+    rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(x), "_PC"), rep(1:ncomp, each = ncol(x))),
-      paste0(paste0("Y_", colnames(y), "_PC"), rep(1:ncomp, each = ncol(y)))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
     )
   } else {
-    ncat <- length(unique(y))
-    beta_full <- matrix(NA, nrow = length(lambda), ncol = (ncol(x) + ncat) * ncomp)
-    rownames(beta_full) <- paste0("s", 0:(length(lambda) - 1))
+    ncat <- length(unique(ydata))
+    beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncat) * ncomp)
+    rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(x), "_PC"), rep(1:ncomp, each = ncol(x))),
-      paste0(paste0("Y_", sort(unique(y)), "_PC"), rep(1:ncomp, each = ncat))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(1:ncomp, each = ncat))
     )
   }
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(lambda)) {
+  for (k in 1:length(Lambda)) {
     # Number of selected variables per component in X
-    nvarx <- c(keepX_previous, lambda[k])
+    nvarx <- c(keepX_previous, Lambda[k])
 
     if (family == "binomial") {
       mymodel <- sgPLS::gPLSda(
-        X = x, Y = as.vector(y),
+        X = xdata, Y = as.vector(ydata),
         ind.block.x = ind.block.x,
         ncomp = ncomp, keepX = nvarx, ...
       ) # no sparsity in Y
     } else {
       mymodel <- sgPLS::gPLS(
-        X = x, Y = y,
+        X = xdata, Y = ydata,
         ind.block.x = ind.block.x, ind.block.y = ind.block.y,
         ncomp = ncomp, keepX = nvarx, keepY = keepY, ...
       )
@@ -464,7 +464,7 @@ GroupPLS <- function(x, y, family = "gaussian", group_x, group_y = NULL,
     Yloadings <- mymodel$loadings$Y
 
     # Making sure that the loadings of the univariate Y are positives
-    if (ncol(y) == 1) {
+    if (ncol(ydata) == 1) {
       for (j in 1:ncol(mymodel$loadings$Y)) {
         if (sign(mymodel$loadings$Y[1, j])) {
           Yloadings[1, j] <- -Yloadings[1, j]

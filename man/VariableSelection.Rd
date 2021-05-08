@@ -61,10 +61,10 @@ values include \code{"gaussian"} (linear regression), \code{"binomial"}
 \item{implementation}{character string indicating the name of the function to
 use for variable selection. If \code{implementation="glmnet"},
 \code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{x}, \code{y}, \code{lambda},
-\code{family} and \code{...}, and returning a list of two matrices named
-\code{selected} and \code{beta_full} of the correct dimensions can be used
-(more details in \code{\link{SelectionAlgo}}).}
+Alternatively, a function with arguments \code{xdata}, \code{ydata},
+\code{Lambda}, \code{family} and \code{...}, and returning a list of two
+matrices named \code{selected} and \code{beta_full} of the correct
+dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -104,7 +104,7 @@ on Unix systems.}
 printed.}
 
 \item{...}{additional parameters passed to the functions provided in
-\code{"implementation"} or \code{"resampling"}.}
+\code{implementation} or \code{resampling}.}
 }
 \value{
 A list with: \item{S}{a matrix of the best stability scores for
@@ -163,6 +163,7 @@ CalibrationPlot(stab)
 myselected <- SelectedVariables(stab)
 coefs <- Coefficients(stab)
 perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta)
+SelectionProportions(stab)
 }
 \dontrun{
 
@@ -194,7 +195,7 @@ stab <- VariableSelection(
 )
 print(SelectedVariables(stab))
 
-# Sparse PLS (1 outcome)
+# Sparse PLS (1 outcome, 1 component)
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 stab <- VariableSelection(
@@ -205,83 +206,7 @@ stab <- VariableSelection(
 CalibrationPlot(stab, xlab = "")
 print(SelectedVariables(stab))
 
-# Sparse PLS (sparse on X, 1 component)
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
-colnames(ydata) <- paste0("outcome", 1:4)
-x <- simul$X
-y <- ydata
-stab <- VariableSelection(
-  xdata = x, ydata = y,
-  Lambda = 1:(ncol(simul$X) - 1), ncomp = 1,
-  implementation = "SparsePLS", family = "gaussian"
-)
-CalibrationPlot(stab, xlab = "")
-print(SelectedVariables(stab))
-
-# Sparse PLS (sparse on X, multiple components)
-nvar_x <- selected <- stability_score <- NULL
-for (comp in 1:ncol(y)) {
-  print(comp)
-  stab <- VariableSelection(
-    xdata = x, ydata = y, K = 10,
-    Lambda = 1:(ncol(simul$X) - 1), ncomp = comp,
-    keepX_previous = nvar_x,
-    implementation = "SparsePLS", family = "gaussian"
-  )
-  nvar_x <- c(nvar_x, Argmax(stab)[1])
-  selected <- rbind(selected, SelectedVariables(stab))
-  stability_score <- c(stability_score, max(stab$S, na.rm = TRUE))
-}
-print(selected[1:which.max(stability_score), ]) # selected in calibrated model
-
-# Sparse PLS (sparse on X and Y, multiple components)
-K <- 10
-nvar_x <- nvar_y <- selected_x <- selected_y <- stability_score <- NULL
-for (comp in 1:ncol(y)) {
-  print(comp)
-  tmp_stability_score <- tmp_tokeepx <- NULL
-  tmp_selected_x <- tmp_selected_y <- NULL
-  for (ny in 1:ncol(y)) {
-    stab <- VariableSelection(
-      xdata = x, ydata = y, K = K,
-      Lambda = 1:(ncol(simul$X) - 1), ncomp = comp,
-      keepX_previous = nvar_x, keepY = c(nvar_y, ny),
-      implementation = "SparsePLS", family = "gaussian"
-    )
-    selprop <- apply(Coefficients(stab, side = "Y")[ArgmaxId(stab)[1], , ], 1,
-      FUN = function(z) {
-        sum(z != 0) / length(z)
-      }
-    )
-    if (any(selprop != 1)) {
-      hat_pi <- stab$params$pi_list[which.max(StabilityScore(selprop,
-        pi = stab$params$pi_list, K = K
-      ))]
-      tmp_selected_y <- rbind(
-        tmp_selected_y,
-        ifelse(selprop >= hat_pi, yes = 1, no = 0)
-      )
-    } else {
-      tmp_selected_y <- rbind(tmp_selected_y, rep(1, ncol(y)))
-    }
-    tmp_selected_x <- rbind(tmp_selected_x, SelectedVariables(stab))
-    tmp_tokeepx <- c(tmp_tokeepx, Argmax(stab)[1])
-    tmp_stability_score <- c(tmp_stability_score, max(stab$S, na.rm = TRUE))
-  }
-  tokeepx <- tmp_tokeepx[which.max(tmp_stability_score)]
-  tokeepy <- which.max(tmp_stability_score)
-  nvar_x <- c(nvar_x, tokeepx)
-  nvar_y <- c(nvar_y, tokeepy)
-  selected_x <- rbind(selected_x, tmp_selected_x[which.max(tmp_stability_score), ])
-  selected_y <- rbind(selected_y, tmp_selected_y[which.max(tmp_stability_score), ])
-  stability_score <- c(stability_score, max(stab$S, na.rm = TRUE))
-}
-print(selected_x[1:which.max(stability_score), ]) # selected in X in calibrated model
-print(selected_y[1:which.max(stability_score), ]) # selected in Y in calibrated model
-
-# Sparse PLS-DA (1 outcome)
+# Sparse PLS-DA (1 outcome, 1 component)
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 stab <- VariableSelection(
@@ -293,41 +218,18 @@ stab <- VariableSelection(
 CalibrationPlot(stab, xlab = "")
 print(SelectedVariables(stab))
 
-# Sparse group PLS (1 outcome)
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
-colnames(ydata) <- paste0("outcome", 1:4)
-x <- simul$X
-y <- ydata
-alpha_list <- seq(0.1, 0.9, by = 0.1)
-selected <- stability_score <- NULL
-for (alpha in alpha_list) {
-  stab <- VariableSelection(
-    xdata = x, ydata = y, K = 10,
-    group_x = c(10, 10, 30), alpha.x = alpha,
-    Lambda = 1:3,
-    implementation = "SparseGroupPLS", family = "gaussian"
-  )
-  selected <- rbind(selected, SelectedVariables(stab))
-  stability_score <- c(stability_score, max(stab$S, na.rm = TRUE))
-}
-print(selected[which.max(stability_score), ])
-
 # Example using an external function: group-LASSO with gglasso
 if (requireNamespace("gglasso", quietly = TRUE)) {
   set.seed(1)
   simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-  stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
-  print(SelectedVariables(stab))
-  ManualGridGroupLasso <- function(x, y, family, ...) {
+  ManualGridGroupLasso <- function(xdata, ydata, family, ...) {
     if (family == "binomial") {
-      ytmp <- y
+      ytmp <- ydata
       ytmp[ytmp == min(ytmp)] <- -1
       ytmp[ytmp == max(ytmp)] <- 1
-      return(gglasso::gglasso(x, ytmp, loss = "logit", ...))
+      return(gglasso::gglasso(xdata, ytmp, loss = "logit", ...))
     } else {
-      return(gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...))
+      return(gglasso::gglasso(xdata, ydata, lambda = lambda, loss = "ls", ...))
     }
   }
   Lambda <- LambdaGridRegression(
@@ -336,20 +238,20 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
     implementation = "ManualGridGroupLasso",
     group = sort(rep(1:4, length.out = ncol(simul$X)))
   )
-  GroupLasso <- function(x, y, lambda, family, ...) {
+  GroupLasso <- function(xdata, ydata, Lambda, family, ...) {
     # Running the regression
     if (family == "binomial") {
-      ytmp <- y
+      ytmp <- ydata
       ytmp[ytmp == min(ytmp)] <- -1
       ytmp[ytmp == max(ytmp)] <- 1
-      mymodel <- gglasso::gglasso(x, ytmp, lambda = lambda, loss = "logit", ...)
+      mymodel <- gglasso::gglasso(xdata, ytmp, lambda = Lambda, loss = "logit", ...)
     }
     if (family == "gaussian") {
-      mymodel <- gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...)
+      mymodel <- gglasso::gglasso(xdata, ydata, lambda = Lambda, loss = "ls", ...)
     }
     # Extracting and formatting the beta coefficients
     beta_full <- t(as.matrix(mymodel$beta))
-    beta_full <- beta_full[, colnames(x)]
+    beta_full <- beta_full[, colnames(xdata)]
 
     selected <- ifelse(beta_full != 0, yes = 1, no = 0)
 
@@ -369,6 +271,7 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   \code{\link{Combine}}
 
 Other stability selection functions: 
+\code{\link{BiSelection}()},
 \code{\link{GraphicalModel}()}
 }
 \concept{stability selection functions}

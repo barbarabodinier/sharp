@@ -1,5 +1,5 @@
 test_that("sgPLS models are working", {
-  K <- 10
+  K <- 5
   pk <- 15
   # Sparse PLS (1 outcome)
   set.seed(1)
@@ -20,31 +20,6 @@ test_that("sgPLS models are working", {
   )
   CalibrationPlot(stab, xlab = "")
   expect_equal(length(SelectedVariables(stab)), pk)
-
-  # Calibrating sparsity within groups
-  alpha_list <- seq(0.1, 0.9, by = 0.1)
-  selected <- stability_score <- NULL
-  for (alpha in alpha_list) {
-    stab <- VariableSelection(
-      xdata = x, ydata = y, K = K,
-      group_x = c(10, 5), alpha.x = alpha,
-      Lambda = 1:2,
-      implementation = "SparseGroupPLS", family = "gaussian",
-      verbose = FALSE
-    )
-    selected <- rbind(selected, SelectedVariables(stab))
-    stability_score <- c(stability_score, max(stab$S, na.rm = TRUE))
-  }
-
-  # Calibrating number of components
-  stab <- BiSelection(
-    xdata = x, ydata = y, K = K,
-    group_x = c(10, 5),
-    AlphaX = seq(0.1, 0.9, by = 0.1),
-    LambdaX = 1:2, ncomp = 3,
-    implementation = "SparseGroupPLS", family = "gaussian",
-    verbose = TRUE
-  )
 
   # Calibrating number of components and groups/sparsity in outcomes
   stab <- BiSelection(

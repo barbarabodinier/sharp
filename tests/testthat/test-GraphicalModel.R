@@ -14,7 +14,7 @@ test_that("single-block GraphicalModel()", {
     simul <- SimulateGraphical(n = n, pk = pk)
 
     stab <- GraphicalModel(
-      data = simul$data,
+      xdata = simul$data,
       Lambda_cardinal = nlambda, K = K,
       pi_list = pi_list,
       tau = tau, n_cat = n_cat,
@@ -75,7 +75,7 @@ test_that("multi-block GraphicalModel()", {
   simul <- SimulateGraphical(n = n, pk = pk)
 
   stab <- GraphicalModel(
-    data = simul$data, pk = pk,
+    xdata = simul$data, pk = pk,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -138,7 +138,7 @@ test_that("parallel multi-block GraphicalModel()", {
   simul <- SimulateGraphical(n = n, pk = pk)
 
   stab <- GraphicalModel(
-    data = simul$data, pk = pk,
+    xdata = simul$data, pk = pk,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,

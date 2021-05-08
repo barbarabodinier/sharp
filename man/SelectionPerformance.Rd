@@ -7,17 +7,16 @@
 SelectionPerformance(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5)
 }
 \arguments{
-\item{theta}{binary vector of selected variables (in a regression framework)
-or binary adjacency matrix (in graphical modelling).}
+\item{theta}{binary vector of selected variables (in variable selection) or
+binary adjacency matrix (in graphical modelling).}
 
-\item{theta_star}{binary vector of true predictors (in a regression
-framework) or true binary adjacency matrix (in graphical modelling).}
+\item{theta_star}{binary vector of true predictors (in variable selection) or
+true binary adjacency matrix (in graphical modelling).}
 
-\item{pk}{vector encoding the grouping structure. Only used for multi-block
-stability selection. For this, the nodes in "theta" have to be ordered by
-group and argument "pk" has to be a vector indicating the number of
-variables in each of the groups (see example below). If pk=NULL, overall
-performances are reported.}
+\item{pk}{optional vector encoding the grouping structure. Only used for
+multi-block stability selection where \code{pk} indicates the number of
+variables in each group. If \code{pk=NULL}, single-block stability
+selection is performed.}
 
 \item{cor}{optional correlation matrix. Only used in graphical modelling.}
 
@@ -62,7 +61,7 @@ perf <- SelectionPerformance(theta = SelectedVariables(stab), theta_star = simul
 # Single-block graphical model
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta)
 perf <- SelectionPerformance(
   theta = Adjacency(stab), theta_star = simul$theta,
@@ -72,13 +71,14 @@ perf <- SelectionPerformance(
 # Multi-block graphical model
 set.seed(1)
 simul <- SimulateGraphical(pk = c(10, 10))
-stab <- GraphicalModel(data = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
+stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
 perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10))
 perf <- SelectionPerformance(
   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
   cor = cor(simul$data), thr = 0.5
 )
 }
+
 }
 \seealso{
 Other selection performance functions: 

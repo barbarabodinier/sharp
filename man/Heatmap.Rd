@@ -28,10 +28,10 @@ By default a gradient of colours ranging from ivory to dark red is used.}
 \item{legend_range}{range of the colour bar.}
 }
 \value{
-a heatmap.
+A heatmap.
 }
 \description{
-Produces a heatmap from a matrix.
+Produces a heatmap for visualisation of matrix entries.
 }
 \examples{
 \dontrun{

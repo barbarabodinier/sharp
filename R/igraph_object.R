@@ -1,9 +1,9 @@
 #' Graph visualisation
 #'
-#' Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object from a adjacency matrix.
+#' Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object
+#' from an adjacency matrix.
 #'
-#' @param adjacency adjacency matrix or output from
-#'   \code{\link{GraphicalModel}}.
+#' @param adjacency adjacency matrix or output of \code{\link{GraphicalModel}}.
 #' @param node_label optional vector of node labels. This vector must contain as
 #'   many entries as there are rows/columns in the adjacency matrix and must be
 #'   in the same order (the order is used to assign labels to nodes).
@@ -14,19 +14,21 @@
 #' @param node_shape optional vector of node shapes. This vector must contain as
 #'   many entries as there are rows/columns in the adjacency matrix and must be
 #'   in the same order (the order is used to assign shapes to nodes). Possible
-#'   values are "circle", "square", "triangle" or "star".
+#'   values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
+#'   \code{"star"}.
 #' @param weighted indicating if entries of the adjacency matrix should define
-#'   edge width. If weighted=FALSE, an unweigthed igraph object is created and
-#'   all edges have the same width. If weighted=TRUE, edge width is defined by
-#'   the corresponding value in the adjacency matrix. If weighted=NULL, nodes
-#'   are linked by as many edges as indicated in the adjacency matrix (integer
-#'   values are needed).
+#'   edge width. If \code{weighted=FALSE}, an unweigthed igraph object is
+#'   created, all edges have the same width. If \code{weighted=TRUE}, edge width
+#'   is defined by the corresponding value in the adjacency matrix. If
+#'   \code{weighted=NULL}, nodes are linked by as many edges as indicated in the
+#'   adjacency matrix (integer values are needed).
 #' @param satellites logical indicating if unconnected nodes (satellites) should
 #'   be included in the igraph object.
 #'
-#' @return an igraph object.
+#' @return An igraph object.
 #'
-#' @seealso \code{\link{Adjacency}}, \code{\link{GraphicalModel}}, \href{https://igraph.org/r/}{igraph manual}
+#' @seealso \code{\link{Adjacency}}, \code{\link{GraphicalModel}},
+#'   \href{https://igraph.org/r/}{igraph manual}
 #'
 #' @examples
 #' \dontrun{
@@ -47,9 +49,10 @@
 #' ## From stability selection output
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #' plot(Graph(stab))
 #' }
+#'
 #' @export
 Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape = NULL,
                   weighted = FALSE, satellites = FALSE) {

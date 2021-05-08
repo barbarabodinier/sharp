@@ -5,7 +5,7 @@
 \title{Stability selection graphical model}
 \usage{
 GraphicalModel(
-  data,
+  xdata,
   pk = NULL,
   Lambda = NULL,
   lambda_other_blocks = 0.1,
@@ -32,7 +32,7 @@ GraphicalModel(
 )
 }
 \arguments{
-\item{data}{matrix with observations as rows and variables as columns. For
+\item{xdata}{matrix with observations as rows and variables as columns. For
 multi-block stability selection, the variables in data have to be ordered
 by group.}
 
@@ -137,7 +137,7 @@ on Unix systems.}
 printed.}
 
 \item{...}{additional parameters passed to the functions provided in
-\code{"implementation"} or \code{"resampling"}.}
+\code{implementation} or \code{resampling}.}
 }
 \value{
 A list with: \item{S}{a matrix of the best (block-specific) stability
@@ -172,7 +172,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   along the third dimension correspond to different (sets of) parameters
   controlling the level of sparsity in the underlying algorithm.}
   \item{sign}{a matrix of signs of Pearson's correlations estimated from
-  \code{data}.} \item{method}{a list with \code{implementation},
+  \code{xdata}.} \item{method}{a list with \code{implementation},
   \code{start}, \code{resampling} and \code{PFER_method} values used for the
   run.} \item{param}{a list with values of other objects used for the run.}
   For all objects except \code{selprop},
@@ -201,7 +201,7 @@ To ensure reproducibility of the results, the state of the random
 # Single-block stability selection
 set.seed(1)
 simul <- SimulateGraphical(n = 50, pk = 10, nu = 0.1)
-stab <- GraphicalModel(data = simul$data, K = 5, verbose = FALSE)
+stab <- GraphicalModel(xdata = simul$data, K = 5, verbose = FALSE)
 CalibrationPlot(stab)
 A <- Adjacency(stab)
 mygraph <- Graph(A)
@@ -210,35 +210,37 @@ perfgraph <- SelectionPerformanceGraph(
   theta = Adjacency(stab),
   theta_star = simul$theta, plot = TRUE
 )
+SelectionProportions(stab)
 
 # Multi-block stability selection
 set.seed(1)
 pk <- c(10, 10)
 simul <- SimulateGraphical(n = 50, pk = pk)
-stab <- GraphicalModel(data = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
+stab <- GraphicalModel(xdata = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
 CalibrationPlot(stab)
 A <- Adjacency(stab)
 mygraph <- Graph(A)
 perf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
+SelectionProportions(stab)
 }
 \dontrun{
 
 # Single-block stability selection
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 plot(Graph(stab))
 
 # Multi-block stability selection
 set.seed(1)
 simul <- SimulateGraphical(pk = c(10, 10))
-stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
+stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 stab$Lambda # sets of penalty parameters used jointly
 
 # Multi-parameter stability selection (not recommended)
 Lambda <- matrix(c(0.8, 0.6, 0.3, 0.5, 0.4, 0.3, 0.7, 0.5, 0.1), ncol = 3)
 stab <- GraphicalModel(
-  data = simul$data, pk = c(10, 10),
+  xdata = simul$data, pk = c(10, 10),
   Lambda = Lambda, lambda_other_blocks = NULL
 )
 stab$Lambda
@@ -249,6 +251,7 @@ stab$Lambda
   \code{\link{GraphicalAlgo}}
 
 Other stability selection functions: 
+\code{\link{BiSelection}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability selection functions}

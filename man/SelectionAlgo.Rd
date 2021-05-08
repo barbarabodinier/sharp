@@ -4,35 +4,37 @@
 \alias{SelectionAlgo}
 \title{Variable selection algorithm}
 \usage{
-SelectionAlgo(x, y, lambda, family, implementation = "glmnet", ...)
+SelectionAlgo(xdata, ydata, Lambda, family, implementation = "glmnet", ...)
 }
 \arguments{
-\item{x}{matrix of predictors with observations as rows and variables as
+\item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{y}{vector or matrix of outcome(s).}
+\item{ydata}{vector or matrix of outcome(s).}
 
-\item{lambda}{matrix of parameters controlling the underlying feature
-selection algorithm specified in "implementation". With
-implementation="glmnet", these are penalty parameters controlling the
-regularised model.}
+\item{Lambda}{matrix of parameters controlling the level of sparsity in the
+underlying feature selection algorithm specified in \code{implementation}.
+With \code{implementation="glmnet"}, \code{Lambda} contains penalty
+parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
+used to define a relevant grid. If \code{implementation} is not set to
+\code{"glmnet"}, \code{Lambda} must be provided.}
 
-\item{family}{type of regression model. This argument is defined as in the
-\code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
-include "gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis). This
-argument is only used with implementation="glmnet", or with functions using
-the family argument in the same way (see example below).}
+\item{family}{type of regression model. If \code{implementation="glmnet"},
+this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
+values include \code{"gaussian"} (linear regression), \code{"binomial"}
+(logistic regression), \code{"multinomial"} (multinomial regression), and
+\code{"cox"} (survival analysis).}
 
-\item{implementation}{name of the function to use for variable selection.
-With implementation="glmnet", the function \code{\link[glmnet]{glmnet}} is called.
-Alternatively, this argument can be a character string indicating the name
-of a function. The function provided must use arguments called "x", "y",
-"lambda" and "family" and return matrices of model coefficients (see
-example below).}
+\item{implementation}{character string indicating the name of the function to
+use for variable selection. If \code{implementation="glmnet"},
+\code{\link[glmnet]{glmnet}} is used for regularised regression.
+Alternatively, a function with arguments \code{xdata}, \code{ydata},
+\code{Lambda}, \code{family} and \code{...}, and returning a list of two
+matrices named \code{selected} and \code{beta_full} of the correct
+dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
 
 \item{...}{additional parameters passed to the function provided in
-"implementation".}
+\code{implementation}.}
 }
 \value{
 A list with: \item{selected}{matrix of binary selection status. Rows
@@ -43,8 +45,8 @@ A list with: \item{selected}{matrix of binary selection status. Rows
 }
 \description{
 Runs the variable selection algorithm specified in the argument
-"implementation" and returns matrices of model coefficients. This function is
-not using stability.
+\code{implementation} and returns matrices of model coefficients. This
+function is not using stability.
 }
 \examples{
 \dontrun{
@@ -54,16 +56,23 @@ set.seed(1)
 simul <- SimulateRegression(pk = 50)
 
 # Running the LASSO
-mylasso <- SelectionAlgo(x = simul$X, y = simul$Y, lambda = c(0.1, 0.2), family = "gaussian")
+mylasso <- SelectionAlgo(
+  xdata = simul$X, ydata = simul$Y,
+  Lambda = c(0.1, 0.2), family = "gaussian"
+)
 
 # Simulation of additional outcomes
 set.seed(2)
 Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
 
 # Running multivariate Gaussian LASSO
-mylasso <- SelectionAlgo(x = simul$X, y = Y, lambda = c(0.1, 0.2), family = "mgaussian")
+mylasso <- SelectionAlgo(
+  xdata = simul$X, ydata = Y,
+  Lambda = c(0.1, 0.2), family = "mgaussian"
+)
 str(mylasso)
 }
+
 }
 \seealso{
 \code{\link{VariableSelection}}

@@ -4,13 +4,9 @@
 #' given penalty parameter and for different thresholds in selection
 #' proportions.
 #'
-#' @param stab_iter matrix or vector of selection proportions.
-#' @param pi vector of thresholds in selection proportions.
-#' @param K number of resampling iterations.
-#' @param n_cat number of categories used to compute the stability score.
-#'   Possible values are 2 or 3.
+#' @inheritParams StabilityMetrics
 #'
-#' @return a vector of stability scores obtained with the different thresholds
+#' @return A vector of stability scores obtained with the different thresholds
 #'   in selection proportions.
 #'
 #' @family stability metric functions
@@ -20,22 +16,19 @@
 #' selprop <- round(runif(n = 20), digits = 2)
 #'
 #' # Computing stability scores for different thresholds
-#' score <- StabilityScore(selprop, pi = c(0.6, 0.7, 0.8), K = 100)
+#' score <- StabilityScore(selprop, pi_list = c(0.6, 0.7, 0.8), K = 100)
 #' @export
-StabilityScore <- function(stab_iter, pi, K, n_cat = 3) {
+StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat = 3) {
   # Preparing objects
-  if (is.matrix(stab_iter)) {
-    stab_iter <- stab_iter[upper.tri(stab_iter)]
+  if (is.matrix(selprop)) {
+    selprop <- selprop[upper.tri(selprop)]
   }
 
   # Computing the number of features (edges/variables)
-  N <- length(stab_iter)
+  N <- length(selprop)
 
   # Computing the average number of selected features
-  q <- round(sum(stab_iter))
-
-  # Storing values of pi
-  pi_list <- pi
+  q <- round(sum(selprop))
 
   # Loop over the values of pi
   score <- rep(NA, length(pi_list))
@@ -51,8 +44,8 @@ StabilityScore <- function(stab_iter, pi, K, n_cat = 3) {
       l <- NA
     } else {
       if (n_cat == 2) {
-        S_0 <- sum(stab_iter < pi) # Number of not stably selected features
-        S_1 <- sum(stab_iter >= pi) # Number of stably selected features
+        S_0 <- sum(selprop < pi) # Number of not stably selected features
+        S_1 <- sum(selprop >= pi) # Number of stably selected features
 
         # Checking consistency
         if (S_0 + S_1 != N) {
@@ -64,9 +57,9 @@ StabilityScore <- function(stab_iter, pi, K, n_cat = 3) {
       }
 
       if (n_cat == 3) {
-        S_0 <- sum(stab_iter <= (1 - pi)) # Number of stable-out features
-        S_1 <- sum(stab_iter >= pi) # Number of stable-in features
-        U <- sum((stab_iter < pi) & (stab_iter > (1 - pi))) # Number of unstable features
+        S_0 <- sum(selprop <= (1 - pi)) # Number of stable-out features
+        S_1 <- sum(selprop >= pi) # Number of stable-in features
+        U <- sum((selprop < pi) & (selprop > (1 - pi))) # Number of unstable features
 
         # Checking consistency
         if (S_0 + S_1 + U != N) {
@@ -93,19 +86,17 @@ StabilityScore <- function(stab_iter, pi, K, n_cat = 3) {
 
 #' Binomial probabilities for stability score
 #'
-#' Computes the probabilities of observing each category of
-#' selection proportions under the assumption of a uniform selection
-#' procedure.
+#' Computes the probabilities of observing each category of selection
+#' proportions under the assumption of a uniform selection procedure.
 #'
+#' @inheritParams StabilityScore
 #' @param q average number of features selected by the underlying algorithm.
 #' @param N total number of features.
-#' @param pi threshold in selection proportions.
-#' @param K number of resampling iterations used to compute the selection proportions.
-#' @param n_cat number of categories used to compute the stability score.
-#' Possible values are 2 or 3.
+#' @param pi threshold in selection proportions. If n_cat=3, these values must
+#'   be >0.5 and <1. If n_cat=2, these values must be >0 and <1.
 #'
-#' @return a list of probabilities for each of the 2 or 3 categories of
-#' selection proportions.
+#' @return A list of probabilities for each of the 2 or 3 categories of
+#'   selection proportions.
 #'
 #' @keywords internal
 BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {

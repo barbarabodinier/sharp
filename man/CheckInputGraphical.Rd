@@ -5,7 +5,7 @@
 \title{Checking input parameters (graphical model)}
 \usage{
 CheckInputGraphical(
-  data,
+  xdata,
   pk = NULL,
   Lambda = NULL,
   lambda_other_blocks = 0.1,
@@ -29,91 +29,94 @@ CheckInputGraphical(
 )
 }
 \arguments{
-\item{data}{matrix with observations as rows and variables as columns.}
+\item{xdata}{matrix with observations as rows and variables as columns. For
+multi-block stability selection, the variables in data have to be ordered
+by group.}
 
-\item{pk}{vector encoding the grouping structure. Only used for multi-block
-stability selection. For this, the variables in data have to be ordered by
-group and argument "pk" has to be a vector indicating the number of
-variables in each of the groups (see example below). If pk=NULL,
-single-block stability selection is performed.}
+\item{pk}{optional vector encoding the grouping structure. Only used for
+multi-block stability selection where \code{pk} indicates the number of
+variables in each group. If \code{pk=NULL}, single-block stability
+selection is performed.}
 
-\item{Lambda}{matrix of parameters controlling the underlying feature
-selection algorithm specified in "implementation". With
-implementation="glassoFast", these are penalty parameters controlling the
-regularised model. If Lambda=NULL, \code{\link{LambdaGridGraphical}} is
-used to define a relevant grid. For multi-block calibration (i.e. when
-argument "pk" is a vector), Lambda can be a vector, to use the procedure
-from Equation (5) (recommended), or a matrix with as many columns as there
-are entries in "pk", to use the procedure from Equation (4) (see details
-and examples below).}
+\item{Lambda}{matrix of parameters controlling the level of sparsity in the
+underlying feature selection algorithm specified in \code{implementation}.
+If \code{implementation="glassoFast"}, \code{Lambda} contains penalty
+parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
+used to define a relevant grid. \code{Lambda} can be provided as a vector
+or a matrix with \code{length(pk)} columns. If \code{implementation} is not
+set to \code{"glassoFast"}, \code{Lambda} must be provided.}
 
-\item{lambda_other_blocks}{optional vector of (penalty) parameters to use for
-other blocks in the iterative multi-block procedure (see example below).
-Only used for multi-block graphical models, i.e. when pk is a vector.}
+\item{lambda_other_blocks}{optional vector of parameters controlling the
+level of sparsity in neighbour blocks for the multi-block procedure. To use
+jointly a specific set of parameters for each block,
+\code{lambda_other_blocks} must be set to \code{NULL} (not recommended).
+Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 
-\item{pi_list}{grid of values for the threshold in selection proportion. With
-n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
-must be between 0 and 1.}
+\item{pi_list}{vector of thresholds in selection proportions. If
+\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
+\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with resampling="subsampling".}
+\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
-\item{seed}{value of the seed to use to ensure reproducibility.}
+\item{seed}{value of the seed.}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{implementation}{name of the function to use for graphical modelling.
-With implementation="glassoFast", the function \code{\link{glassoFast}} is
-used for regularised estimation of a conditional independence graph.
-Alternatively, this argument can be a character string indicating the name
-of a function. The function provided must use arguments called "x",
-"lambda" and "scale" and return a binary and symmetric adjacency matrix
-(see \code{\link{GraphicalAlgo}}).}
+\item{implementation}{character string indicating the name of the function to
+use for graphical modelling. With \code{implementation="glassoFast"},
+\code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
+a conditional independence graph. Alternatively, a function with arguments
+\code{x}, \code{lambda}, \code{scale} and \code{...}, and returning a
+binary and symmetric matrix for which diagonal elements are equal to zero
+can be used (more details in \code{\link{GraphicalAlgo}}).}
 
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty
-parameters (start="warm") or not (start="cold"). Using start="warm" can
-speed-up the computations. Only used for implementation="glassoFast" (see
-argument "start" in \code{\link{glassoFast}}).}
+parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
+\code{start="warm"} can speed-up the computations. Only used for
+\code{implementation="glassoFast"} (see argument \code{"start"} in
+\code{\link[glassoFast]{glassoFast}}).}
 
-\item{scale}{logical indicating if the correlation (if scale=TRUE) or
-covariance (if scale=FALSE) matrix should be used as input for the
-graphical LASSO. If implementation is not set to "glassoFast", this
-argument must be used as input of the function provided instead.}
+\item{scale}{logical indicating if the correlation (\code{scale=TRUE}) or
+covariance (\code{scale=FALSE}) matrix should be used as input for the
+graphical LASSO if \code{implementation="glassoFast"}. Otherwise, this
+argument must be used in the function provided in \code{implementation}.}
 
-\item{resampling}{resampling approach. Possible values are: "subsampling" for
-sampling without replacement of a proportion tau of the observations, or
-"bootstrap" for sampling with replacement generating a resampled dataset
-with as many observations as in the full sample. Alternatively, this
-argument can be a character string indicating the name of a function to use
-for resampling. This function must use arguments called "data" and "tau"
-and return IDs of observations to be included in the resampled dataset (see
-example in \code{\link{Resample}}).}
+\item{resampling}{resampling approach. Possible values are:
+\code{"subsampling"} for sampling without replacement of a proportion
+\code{tau} of the observations, or \code{"bootstrap"} for sampling with
+replacement generating a resampled dataset with as many observations as in
+the full sample. Alternatively, this argument can be a character string
+indicating the name of a function to use for resampling. This function must
+use arguments named \code{"data"} and \code{"tau"} and return IDs of
+observations to be included in the resampled dataset (see example in
+\code{\link{Resample}}).}
 
-\item{PFER_method}{method used to compute the expected number of False
-Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
-method proposed by Meinshausen and Bühlmann (2010) is used. With
-PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
-assumption of unimodality is used.}
+\item{PFER_method}{method used to compute the upper-bound of the expected
+number of False Positives (or Per Family Error Rate, PFER). With
+\code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
+(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
-control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
-used. The grid is defined such that the estimated graph does not generate
-an upper-bound in PFER above PFER_thr.}
+control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+calibration is used.}
 
-\item{FDP_thr}{threshold in the expected proportion of falsely selected edges
-(or False Discovery Proportion, FDP) for constrained calibration by error
-control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
-used. If FDP_thr is not infinite, the grid is defined such that the
-estimated graph does not generate an upper-bound in PFER above the number
-of node pairs.}
+\item{FDP_thr}{threshold in the expected proportion of falsely selected
+features (or False Discovery Proportion, FDP) for constrained calibration
+by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
+unconstrained calibration is used.}
 
-\item{Lambda_cardinal}{number of values in the grid.}
+\item{Lambda_cardinal}{number of values in the grid of parameters controlling
+the level of sparsity in the underlying algorithm.}
 
-\item{lambda_max}{maximum value in the grid. With lambda_max=NULL, the
-maximum value is set to the maximum covariance in absolute value.}
+\item{lambda_max}{optional maximum value for the grid in penalty parameters.
+If \code{lambda_max=NULL}, the maximum value is set to the maximum
+covariance in absolute value. Only used if
+\code{implementation="glassoFast"} and \code{Lambda=NULL}.}
 
 \item{lambda_path_factor}{multiplicative factor used to define the minimum
 value in the grid.}
@@ -121,8 +124,7 @@ value in the grid.}
 \item{max_density}{threshold on the density. The grid is defined such that
 the density of the estimated graph does not exceed max_density.}
 
-\item{verbose}{logical indicating if a message with minimum and maximum
-numbers of selected variables on one instance of resampled data should be
+\item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
 }
 \description{

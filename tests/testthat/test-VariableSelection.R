@@ -376,3 +376,4 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
     family = "mgaussian"
   ))
 })
+

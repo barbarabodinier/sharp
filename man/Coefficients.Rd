@@ -11,7 +11,7 @@ Coefficients(stability, side = "X", comp = 1, iterations = NULL)
 
 \item{side}{character string indicating if coefficients of the predictor
 (\code{side="X"}) or outcome (\code{side="Y"}) coefficients should be
-returned. \code{side="Y"} is only applicable to PLS models.}
+returned. Option \code{side="Y"} is only applicable to PLS models.}
 
 \item{comp}{component ID. Only applicable to PLS models.}
 

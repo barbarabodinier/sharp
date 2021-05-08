@@ -5,7 +5,7 @@
 \title{Stability selection metrics}
 \usage{
 StabilityMetrics(
-  bigstab,
+  selprop,
   pk = NULL,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
@@ -18,45 +18,47 @@ StabilityMetrics(
 )
 }
 \arguments{
-\item{bigstab}{array of selection proportions.}
+\item{selprop}{array of selection proportions.}
 
-\item{pk}{optional vector encoding the grouping structure. Only used for multi-block
-stability selection graphical models, see \code{\link{GraphicalModel}}.}
+\item{pk}{optional vector encoding the grouping structure. Only used for
+multi-block stability selection where \code{pk} indicates the number of
+variables in each group. If \code{pk=NULL}, single-block stability
+selection is performed.}
 
-\item{pi_list}{grid of values for the threshold in selection proportion. With
-n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
-must be between 0 and 1.}
+\item{pi_list}{vector of thresholds in selection proportions. If
+\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
+\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{PFER_method}{method used to compute the expected number of False
-Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
-method proposed by Meinshausen and Bühlmann (2010) is used. With
-PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
-assumption of unimodality is used.}
+\item{PFER_method}{method used to compute the upper-bound of the expected
+number of False Positives (or Per Family Error Rate, PFER). With
+\code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
+(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+and Samworth (2013) under the assumption of unimodality is used.}
 
-\item{PFER_thr_blocks}{(block-specific) thresholds in PFER for constrained
-calibration by error control. With PFER_thr_blocks=Inf and
-FDP_thr_blocks=Inf, unconstrained calibration is used.}
+\item{PFER_thr_blocks}{vector of block-specific thresholds in PFER for
+constrained calibration by error control. With \code{PFER_thr=Inf} and
+\code{FDP_thr=Inf}, unconstrained calibration is used.}
 
-\item{FDP_thr_blocks}{(block-specific) thresholds in the expected proportion
-of falsely selected edges (or False Discovery Proportion, FDP) for
-constrained calibration by error control. With PFER_thr_blocks=Inf and
-FDP_thr_blocks=Inf, unconstrained calibration is used.}
+\item{FDP_thr_blocks}{vector of block-specific thresholds in the expected
+proportion of falsely selected features (or False Discovery Proportion,
+FDP) for constrained calibration by error control. With \code{PFER_thr=Inf}
+and \code{FDP_thr=Inf}, unconstrained calibration is used.}
 
 \item{Sequential_template}{logical matrix encoding the type of procedure to
 use for data with multiple blocks in stability selection graphical
 modelling. For multi-block estimation, the stability selection model is
 constructed as the union of block-specific stable edges estimated while the
-others are weakly penalised (TRUE only for the block currently being
-calibrated and FALSE for other blocks). Other approaches with joint
-calibration of the blocks are allowed (all entries are set to TRUE).}
+others are weakly penalised (\code{TRUE} only for the block currently being
+calibrated and \code{FALSE} for other blocks). Other approaches with joint
+calibration of the blocks are allowed (all entries are set to \code{TRUE}).}
 
 \item{graph}{logical indicating if stability selection is performed in a
-regression (FALSE) or graphical (TRUE) framework.}
+regression (if \code{FALSE}) or graphical (if \code{TRUE}) framework.}
 }
 \value{
 A list with: \item{S}{a matrix of the best (block-specific) stability
@@ -103,16 +105,17 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   in multi-block stability selection graphical modelling.}
 }
 \description{
-This function can be used to compute the stability score and upper-bounds of
-the PFER and FDP from selection proportions of models with a given penalty
-parameter and for different thresholds in selection proportions.
+Computes the stability score and upper-bounds of the PFER and FDP from
+selection proportions of models with a given parameter controlling the
+sparsity of the underlying algorithm and for different thresholds in
+selection proportions.
 }
 \examples{
 # Simulating set of selection proportions
 selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
 
 # Computing stability scores for different thresholds
-metrics <- StabilityMetrics(bigstab = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
+metrics <- StabilityMetrics(selprop = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
 }
 \seealso{
 Other stability metric functions: 

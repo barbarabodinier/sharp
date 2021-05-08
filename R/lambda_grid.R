@@ -4,8 +4,13 @@
 #' regression.
 #'
 #' @inheritParams VariableSelection
+#' @param implementation character string indicating the name of the function to
+#'   use for variable selection. If \code{implementation="glmnet"},
+#'   \code{\link[glmnet]{glmnet}} is used for regularised regression.
+#'   Alternatively, a function with arguments \code{xdata}, \code{ydata},
+#'   \code{family} and \code{...}, and returning a matrix of parameters.
 #' @param check_input logical indicating if input values should be checked
-#' (recommended).
+#'   (recommended).
 #'
 #' @return A matrix of lambda values with one column and as many rows as
 #'   indicated in \code{Lambda_cardinal}.
@@ -74,7 +79,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
     mycv <- glmnet::glmnet(x = xdata[s, ], y = ydata[s, ], family = family, ...)
   } else {
     # Applying user-defined function for variable selection
-    mycv <- do.call(get(implementation), args = list(x = xdata[s, ], y = ydata[s, ], family = family, ...))
+    mycv <- do.call(get(implementation), args = list(xdata = xdata[s, ], ydata = ydata[s, ], family = family, ...))
   }
 
   # Creating a grid of lambda values from min and max
@@ -110,49 +115,49 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #' simul <- SimulateGraphical()
 #'
 #' # Generating grid of 10 values
-#' Lambda <- LambdaGridGraphical(data = simul$data, Lambda_cardinal = 10)
+#' Lambda <- LambdaGridGraphical(xdata = simul$data, Lambda_cardinal = 10)
 #'
 #' # Ensuring PFER < 5
-#' Lambda <- LambdaGridGraphical(data = simul$data, Lambda_cardinal = 10, PFER_thr = 5)
+#' Lambda <- LambdaGridGraphical(xdata = simul$data, Lambda_cardinal = 10, PFER_thr = 5)
 #'
 #' # Multi-block simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = c(10, 10))
 #'
 #' # Multi-block grid
-#' Lambda <- LambdaGridGraphical(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
+#' Lambda <- LambdaGridGraphical(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 #'
 #' # Denser neighbouring blocks
 #' Lambda <- LambdaGridGraphical(
-#'   data = simul$data, pk = c(10, 10),
+#'   xdata = simul$data, pk = c(10, 10),
 #'   Lambda_cardinal = 10, lambda_other_blocks = 0
 #' )
 #'
 #' # Using different neighbour penalties
 #' Lambda <- LambdaGridGraphical(
-#'   data = simul$data, pk = c(10, 10),
+#'   xdata = simul$data, pk = c(10, 10),
 #'   Lambda_cardinal = 10, lambda_other_blocks = c(0.1, 0, 0.1)
 #' )
 #' stab <- GraphicalModel(
-#'   data = simul$data, pk = c(10, 10),
+#'   xdata = simul$data, pk = c(10, 10),
 #'   Lambda = Lambda, lambda_other_blocks = c(0.1, 0, 0.1)
 #' )
 #' stab$Lambda
 #'
 #' # Visiting from empty to full graphs with max_density=1
 #' Lambda <- LambdaGridGraphical(
-#'   data = simul$data, pk = c(10, 10),
+#'   xdata = simul$data, pk = c(10, 10),
 #'   Lambda_cardinal = 10, max_density = 1
 #' )
 #' bigblocks <- BlockMatrix(pk = c(10, 10))
 #' bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
 #' N_blocks <- unname(table(bigblocks_vect))
 #' N_blocks # max number of edges per block
-#' stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda = Lambda)
+#' stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda = Lambda)
 #' apply(stab$Q, 2, max, na.rm = TRUE) # max average number of edges from underlying algo
 #' }
 #' @export
-LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 100, tau = 0.5, n_cat = 3,
+LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K = 100, tau = 0.5, n_cat = 3,
                                 implementation = "glassoFast", start = "cold", scale = TRUE,
                                 resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                                 Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001,
@@ -167,7 +172,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
 
   # Need to run to define some of the objects
   CheckInputGraphical(
-    data = data, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
+    xdata = xdata, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
     pi_list = pi_list, K = K, tau = tau, seed = seed, n_cat = n_cat,
     implementation = implementation, start = start, scale = scale,
     resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
@@ -183,18 +188,18 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
   N <- p * (p - 1) / 2
 
   # Making sure none of the variables has a null standard deviation
-  mysd <- apply(data, 2, stats::sd)
+  mysd <- apply(xdata, 2, stats::sd)
   if (any(mysd == 0)) {
     for (k in which(mysd == 0)) {
-      data[, k] <- data[, k] + stats::rnorm(n = nrow(data), sd = min(mysd[mysd != 0]) / 100)
+      xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)
     }
   }
 
   # Get upperbound of Lambda
   if (scale) {
-    mycov <- stats::cor(data)
+    mycov <- stats::cor(xdata)
   } else {
-    mycov <- stats::cov(data)
+    mycov <- stats::cov(xdata)
   }
 
   # Theoretical starting point for lambda
@@ -236,7 +241,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
         }
         tmpLambda <- Lambda[l, , drop = FALSE]
         myscreen <- SerialGraphical(
-          data = data, pk = pk, Lambda = tmpLambda, lambda_other_blocks = ldense, pi_list = pi_list, K = 1,
+          xdata = xdata, pk = pk, Lambda = tmpLambda, lambda_other_blocks = ldense, pi_list = pi_list, K = 1,
           tau = tau, seed = seed, n_cat = n_cat,
           implementation = implementation, start = start, scale = scale,
           resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
@@ -289,7 +294,7 @@ LambdaGridGraphical <- function(data, pk = NULL, lambda_other_blocks = 0.1, K = 
         }
         tmpLambda <- Lambda[l, , drop = FALSE]
         myscreen <- SerialGraphical(
-          data = data, pk = pk, Lambda = tmpLambda, lambda_other_blocks = ldense, pi_list = pi_list, K = 1,
+          xdata = xdata, pk = pk, Lambda = tmpLambda, lambda_other_blocks = ldense, pi_list = pi_list, K = 1,
           tau = tau, seed = seed, n_cat = n_cat,
           resampling = resampling, scale = scale,
           implementation = implementation, start = start, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,

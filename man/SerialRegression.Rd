@@ -57,10 +57,10 @@ values include \code{"gaussian"} (linear regression), \code{"binomial"}
 \item{implementation}{character string indicating the name of the function to
 use for variable selection. If \code{implementation="glmnet"},
 \code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{x}, \code{y}, \code{lambda},
-\code{family} and \code{...}, and returning a list of two matrices named
-\code{selected} and \code{beta_full} of the correct dimensions can be used
-(more details in \code{\link{SelectionAlgo}}).}
+Alternatively, a function with arguments \code{xdata}, \code{ydata},
+\code{Lambda}, \code{family} and \code{...}, and returning a list of two
+matrices named \code{selected} and \code{beta_full} of the correct
+dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -94,7 +94,7 @@ unconstrained calibration is used.}
 printed.}
 
 \item{...}{additional parameters passed to the functions provided in
-\code{"implementation"} or \code{"resampling"}.}
+\code{implementation} or \code{resampling}.}
 }
 \value{
 A list with: \item{S}{a matrix of the best stability scores for

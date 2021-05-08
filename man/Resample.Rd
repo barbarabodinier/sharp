@@ -10,29 +10,29 @@ Resample(data, family = NULL, tau = 0.5, resampling = "subsampling", ...)
 \item{data}{vector or matrix of data. In regression, this should be the
 outcome data.}
 
-\item{family}{type of regression model. This argument is defined as in the
-\code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
-include "gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis). This
-argument is only used with implementation="glmnet", or with functions using
-the family argument in the same way.}
+\item{family}{type of regression model. If \code{implementation="glmnet"},
+this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
+values include \code{"gaussian"} (linear regression), \code{"binomial"}
+(logistic regression), \code{"multinomial"} (multinomial regression), and
+\code{"cox"} (survival analysis).}
 
-\item{tau}{subsample size. Only used with resampling="subsampling".}
+\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
-\item{resampling}{resampling approach. Possible values are: "subsampling" for
-sampling without replacement of a proportion tau of the observations, or
-"bootstrap" for sampling with replacement generating a resampled dataset
-with as many observations as in the full sample. Alternatively, this
-argument can be a character string indicating the name of a function to use
-for resampling. This function must use arguments called "data" and "tau"
-and return IDs of observations to be included in the resampled dataset (see
-example below).}
+\item{resampling}{resampling approach. Possible values are:
+\code{"subsampling"} for sampling without replacement of a proportion
+\code{tau} of the observations, or \code{"bootstrap"} for sampling with
+replacement generating a resampled dataset with as many observations as in
+the full sample. Alternatively, this argument can be a character string
+indicating the name of a function to use for resampling. This function must
+use arguments named \code{"data"} and \code{"tau"} and return IDs of
+observations to be included in the resampled dataset (see example in
+\code{\link{Resample}}).}
 
 \item{...}{additional parameters passed to the functions provided in
-"resampling".}
+\code{resampling}.}
 }
 \value{
-a vector of resampled IDs.
+A vector of resampled IDs.
 }
 \description{
 Generates a vector of resampled observation IDs.
@@ -92,4 +92,5 @@ stab <- VariableSelection(
   resampling = "BalancedResampling", Z = conf
 )
 }
+
 }

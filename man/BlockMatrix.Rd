@@ -10,7 +10,7 @@ BlockMatrix(pk)
 \item{pk}{vector encoding the grouping structure.}
 }
 \value{
-a symmetric block matrix.
+A symmetric block matrix.
 }
 \description{
 Generates a symmetric matrix of the size of the adjacency matrix encoding the
@@ -21,6 +21,8 @@ block structure from the numbers of variables in each group.
 mat <- BlockMatrix(pk = c(2, 3))
 }
 \seealso{
+\code{\link{GraphicalModel}}
+
 Other multi-block functions: 
 \code{\link{BlockLambdaGrid}()},
 \code{\link{BlockStructure}()}

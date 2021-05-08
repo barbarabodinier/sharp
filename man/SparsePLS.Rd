@@ -5,9 +5,9 @@
 \title{Sparse Partial Least Squares}
 \usage{
 SparsePLS(
-  x,
-  y,
-  lambda,
+  xdata,
+  ydata,
+  Lambda,
   family = "gaussian",
   ncomp = 1,
   keepX_previous = NULL,
@@ -16,12 +16,12 @@ SparsePLS(
 )
 }
 \arguments{
-\item{x}{matrix of predictors with observations as rows and variables as
+\item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{y}{vector or matrix of outcome(s).}
+\item{ydata}{vector or matrix of outcome(s).}
 
-\item{lambda}{matrix of parameters controlling the number of selected
+\item{Lambda}{matrix of parameters controlling the number of selected
 predictors at current component, as defined by \code{ncomp}.}
 
 \item{family}{type of PLS model. If \code{family="gaussian"}, a sparse PLS
@@ -34,7 +34,7 @@ outcomes). If \code{family="binomial"}, a PLS-DA model as defined in
 \item{keepX_previous}{number of selected predictors in previous components.
 Only used if \code{ncomp > 1}. The argument \code{keepX} in
 \code{\link[sgPLS]{sPLS}} is obtained by concatenating
-\code{keepX_previous} and \code{lambda}.}
+\code{keepX_previous} and \code{Lambda}.}
 
 \item{keepY}{number of selected outcome variables. This argument is defined
 as in \code{\link[sgPLS]{sPLS}}. Only used if \code{family="gaussian"}.}
@@ -65,7 +65,7 @@ x <- simul$X
 y <- ydata
 
 # Running sPLS with 2 X-variables and 1 Y-variable
-mypls <- SparsePLS(x = x, y = y, lambda = 2, family = "gaussian", keepY = 1)
+mypls <- SparsePLS(xdata = x, ydata = y, Lambda = 2, family = "gaussian", keepY = 1)
 
 ## Sparse PLS-DA
 # Data simulation
@@ -73,7 +73,7 @@ set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 
 # Running sPLS-DA with 2 X-variables and 1 Y-variable
-mypls <- SparsePLS(x = simul$X, y = simul$Y, lambda = 2, family = "binomial")
+mypls <- SparsePLS(xdata = simul$X, ydata = simul$Y, Lambda = 2, family = "binomial")
 }
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}

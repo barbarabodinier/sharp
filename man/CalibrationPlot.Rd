@@ -28,7 +28,7 @@ CalibrationPlot(
 )
 }
 \arguments{
-\item{stability}{output from \code{\link{VariableSelection}} or
+\item{stability}{output of \code{\link{VariableSelection}} or
 \code{\link{GraphicalModel}}.}
 
 \item{metric}{parameter to visualise. Possible values are "lambda" (parameter
@@ -92,12 +92,13 @@ many panels as there blocks in the model.}
 a calibration plot.
 }
 \description{
-Returns a heatmap or plot showing the stability score as a function of the
-parameter controlling the sparsity and/or thereshold in selection proportion.
+Creates a plot showing the stability score as a function of the parameter
+controlling the level of sparsity in the underlying feature selection
+algorithm and/or the threshold in selection proportions.
 }
 \details{
 When selecting a single parameter, each point represents the best
-(maximum) stability score across all visited values of the other parameter.
+  (maximum) stability score across all visited values of the other parameter.
 }
 \examples{
 \dontrun{
@@ -107,7 +108,7 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 20, nu = 0.1)
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 
 # Calibration plots
 CalibrationPlot(stab)
@@ -122,8 +123,11 @@ CalibrationPlot(stab,
   legend_length = 25, legend_range = c(0, 4000)
 )
 }
+
 }
 \seealso{
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},

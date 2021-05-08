@@ -16,3 +16,4 @@ a vector without missing values or NULL.
 Returns a vector with no missing values or NULL if there are no non-missing
 values.
 }
+\keyword{internal}

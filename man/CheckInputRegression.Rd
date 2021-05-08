@@ -29,67 +29,69 @@ columns.}
 
 \item{ydata}{vector or matrix of outcome(s).}
 
-\item{Lambda}{matrix of parameters controlling the underlying feature
-selection algorithm specified in "implementation". With
-implementation="glmnet", these are penalty parameters controlling the
-regularised model. If Lambda=NULL, \code{\link{LambdaGridRegression}} is
-used to define a relevant grid.}
+\item{Lambda}{matrix of parameters controlling the level of sparsity in the
+underlying feature selection algorithm specified in \code{implementation}.
+With \code{implementation="glmnet"}, \code{Lambda} contains penalty
+parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
+used to define a relevant grid. If \code{implementation} is not set to
+\code{"glmnet"}, \code{Lambda} must be provided.}
 
-\item{pi_list}{grid of values for the threshold in selection proportion. With
-n_cat=3, these values must be between 0.5 and 1. With n_cat=2, these values
-must be between 0 and 1.}
+\item{pi_list}{vector of thresholds in selection proportions. If
+\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
+\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with resampling="subsampling".}
+\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
-\item{seed}{value of the seed to use to ensure reproducibility.}
+\item{seed}{value of the seed.}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{family}{type of regression model. This argument is defined as in the
-\code{\link{glmnet}} function from the glmnet package. Possible values
-include "gaussian" (linear regression), "binomial" (logistic regression),
-"multinomial" (multinomial regression), and "cox" (survival analysis). This
-argument is only used with implementation="glmnet", or with functions using
-the family argument in the same way (see example below).}
+\item{family}{type of regression model. If \code{implementation="glmnet"},
+this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
+values include \code{"gaussian"} (linear regression), \code{"binomial"}
+(logistic regression), \code{"multinomial"} (multinomial regression), and
+\code{"cox"} (survival analysis).}
 
-\item{implementation}{name of the function to use for variable selection.
-With implementation="glmnet", the function \code{\link{glmnet}} is called.
-Alternatively, this argument can be a character string indicating the name
-of a function. The function provided must use arguments called "x", "y",
-"lambda" and "family" and return matrices of model coefficients (see
-\code{\link{SelectionAlgo}}).}
+\item{implementation}{character string indicating the name of the function to
+use for variable selection. If \code{implementation="glmnet"},
+\code{\link[glmnet]{glmnet}} is used for regularised regression.
+Alternatively, a function with arguments \code{xdata}, \code{ydata},
+\code{Lambda}, \code{family} and \code{...}, and returning a list of two
+matrices named \code{selected} and \code{beta_full} of the correct
+dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
 
-\item{resampling}{resampling approach. Possible values are: "subsampling" for
-sampling without replacement of a proportion tau of the observations, or
-"bootstrap" for sampling with replacement generating a resampled dataset
-with as many observations as in the full sample. Alternatively, this
-argument can be a character string indicating the name of a function to use
-for resampling. This function must use arguments called "data" and "tau"
-and return IDs of observations to be included in the resampled dataset (see
-example in \code{\link{Resample}}).}
+\item{resampling}{resampling approach. Possible values are:
+\code{"subsampling"} for sampling without replacement of a proportion
+\code{tau} of the observations, or \code{"bootstrap"} for sampling with
+replacement generating a resampled dataset with as many observations as in
+the full sample. Alternatively, this argument can be a character string
+indicating the name of a function to use for resampling. This function must
+use arguments named \code{"data"} and \code{"tau"} and return IDs of
+observations to be included in the resampled dataset (see example in
+\code{\link{Resample}}).}
 
-\item{PFER_method}{method used to compute the expected number of False
-Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
-method proposed by Meinshausen and Bühlmann (2010) is used. With
-PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
-assumption of unimodality is used.}
+\item{PFER_method}{method used to compute the upper-bound of the expected
+number of False Positives (or Per Family Error Rate, PFER). With
+\code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
+(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
-control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained calibration is
-used.}
+control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+calibration is used.}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
-by error control. With PFER_thr=Inf and FDP_thr=Inf, unconstrained
-calibration is used.}
+by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
+unconstrained calibration is used.}
 
-\item{Lambda_cardinal}{number of values in the grid.}
+\item{Lambda_cardinal}{number of values in the grid of parameters controlling
+the level of sparsity in the underlying algorithm.}
 
-\item{verbose}{logical indicating if a message with minimum and maximum
-numbers of selected variables on one instance of resampled data should be
+\item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
 }
 \description{

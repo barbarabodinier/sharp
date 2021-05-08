@@ -5,7 +5,7 @@
 \title{Stability selection graphical model (internal)}
 \usage{
 SerialGraphical(
-  data,
+  xdata,
   pk = NULL,
   Lambda,
   lambda_other_blocks = 0.1,
@@ -27,7 +27,7 @@ SerialGraphical(
 )
 }
 \arguments{
-\item{data}{matrix with observations as rows and variables as columns. For
+\item{xdata}{matrix with observations as rows and variables as columns. For
 multi-block stability selection, the variables in data have to be ordered
 by group.}
 
@@ -112,7 +112,7 @@ unconstrained calibration is used.}
 printed.}
 
 \item{...}{additional parameters passed to the functions provided in
-\code{"implementation"} or \code{"resampling"}.}
+\code{implementation} or \code{resampling}.}
 }
 \value{
 A list with: \item{S}{a matrix of the best (block-specific) stability
@@ -147,7 +147,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   along the third dimension correspond to different (sets of) parameters
   controlling the level of sparsity in the underlying algorithm.}
   \item{sign}{a matrix of signs of Pearson's correlations estimated from
-  \code{data}.} \item{method}{a list with \code{implementation},
+  \code{xdata}.} \item{method}{a list with \code{implementation},
   \code{start}, \code{resampling} and \code{PFER_method} values used for the
   run.} \item{param}{a list with values of other objects used for the run.}
   For all objects except \code{selprop}, \code{sign} and those stored in

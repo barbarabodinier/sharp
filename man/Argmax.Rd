@@ -11,11 +11,11 @@ Argmax(stability)
 \code{\link{GraphicalModel}}.}
 }
 \value{
-a matrix of (block-specific) parameters. In multi-block graphical
-  modelling, rows correspond to different blocks.
+A matrix of parameter values. In multi-block graphical modelling,
+  rows correspond to different blocks.
 }
 \description{
-Extracts calibrated parameters in stability selection.
+Extracts calibrated parameter values in stability selection.
 }
 \examples{
 \dontrun{
@@ -25,13 +25,16 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 
 # Extracting calibrated parameters
 args <- Argmax(stab)
 }
+
 }
 \seealso{
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},

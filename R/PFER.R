@@ -1,26 +1,21 @@
 #' Per Family Error Rate
 #'
-#' Computes the upper-bound of the PFER of a stability selection model using the
-#' methods proposed by Meinshausen and Bühlmann (2010) or Shah and Samworth
-#' (2013). In stability selection, the PFER corresponds to the expected number
-#' of stably selected features that are not relevant to the outcome (i.e. False
-#' Positives).
+#' Computes the Per Family Error Rate upper-bound of a stability selection model
+#' using the methods proposed by Meinshausen and Bühlmann (2010) or Shah and
+#' Samworth (2013). In stability selection, the PFER corresponds to the expected
+#' number of stably selected features that are not relevant to the outcome (i.e.
+#' False Positives).
 #'
+#' @inheritParams VariableSelection
 #' @param q average number of features selected by the underlying algorithm.
-#' @param pi vector of thresholds in selection proportions.
 #' @param N total number of features.
-#' @param K number of resampling iterations.
-#' @param PFER_method method used to compute the expected number of False
-#'   Positives, (or Per Family Error Rate, PFER). With PFER_method="MB", the
-#'   method proposed by Meinshausen and Bühlmann (2010) is used. With
-#'   PFER_method="SS", the method proposed by Shah and Samworth (2013) under the
-#'   assumption of unimodality is used.
+#' @param pi threshold in selection proportions.
 #'
-#' @return The upper-bound of the PFER.
+#' @return The PFER upper-bound.
 #'
 #' @references \insertRef{stabilityselectionMB}{focus}
 #'
-#' \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{focus}
 #'
 #' @family stability metric functions
 #'
@@ -74,17 +69,17 @@ PFER <- function(q, pi, N, K, PFER_method = "MB") {
 
 #' False Discovery Proportion
 #'
-#' Computes the (upper-bound) of the FDP as a ratio of the (upper-bound)
-#' of the PFER over the number of stably selected features.
-#' In stability selection, the FDP corresponds to the expected proportion of stably selected
-#' features that are not relevant to the outcome
-#' (i.e. proportion of False Positives among stably selected features).
+#' Computes the False Discovery Proportion (upper-bound) as a ratio of the PFER
+#' (upper-bound) over the number of stably selected features. In stability
+#' selection, the FDP corresponds to the expected proportion of stably selected
+#' features that are not relevant to the outcome (i.e. proportion of False
+#' Positives among stably selected features).
 #'
+#' @param selprop matrix or vector of selection proportions.
 #' @param PFER Per Family Error Rate.
-#' @param stab_iter matrix or vector of selection proportions.
-#' @param pi vector of thresholds in selection proportions.
+#' @param pi threshold in selection proportions.
 #'
-#' @return the (upper-bound) of the FDP.
+#' @return The FDP (upper-bound).
 #'
 #' @family stability metric functions
 #'
@@ -93,16 +88,16 @@ PFER <- function(q, pi, N, K, PFER_method = "MB") {
 #' selprop <- round(runif(n = 20), digits = 2)
 #'
 #' # Computing the FDP with a threshold of 0.8
-#' fdp <- FDP(PFER = 3, stab_iter = selprop, pi = 0.8)
+#' fdp <- FDP(PFER = 3, selprop = selprop, pi = 0.8)
 #' @export
-FDP <- function(PFER, stab_iter, pi) {
+FDP <- function(selprop, PFER, pi) {
   # Preparing objects
-  if (is.matrix(stab_iter)) {
-    stab_iter <- stab_iter[upper.tri(stab_iter)]
+  if (is.matrix(selprop)) {
+    selprop <- selprop[upper.tri(selprop)]
   }
 
   # Computing the number of stable edges
-  S <- sum(stab_iter >= pi, na.rm = TRUE)
+  S <- sum(selprop >= pi, na.rm = TRUE)
 
   # Computing the proportion of false discoveries among discoveries (False Discovery Proportion)
   if (S != 0) {

@@ -5,7 +5,7 @@
 \title{Graph estimation algorithm}
 \usage{
 GraphicalAlgo(
-  x,
+  xdata,
   pk = NULL,
   Lambda,
   Sequential_template,
@@ -16,65 +16,64 @@ GraphicalAlgo(
 )
 }
 \arguments{
-\item{x}{matrix with observations as rows and variables as columns.}
+\item{xdata}{matrix with observations as rows and variables as columns.}
 
-\item{pk}{vector encoding the grouping structure.
-Only used for multi-block stability selection.
-For this, the variables in data have to be ordered
-by group and argument "pk" has to be a vector
-indicating the number of variables
-in each of the groups (see example below).
-If pk=NULL, single-block stability selection is performed.}
+\item{pk}{optional vector encoding the grouping structure. Only used for
+multi-block stability selection where \code{pk} indicates the number of
+variables in each group. If \code{pk=NULL}, single-block stability
+selection is performed.}
 
-\item{Lambda}{matrix of parameters controlling the underlying
-feature selection algorithm specified in "implementation".
-With implementation="glassoFast", these are penalty parameters
-controlling the regularised model.
-Lambda must be a matrix with as many columns as there are entries in "pk".}
+\item{Lambda}{matrix of parameters controlling the level of sparsity in the
+underlying feature selection algorithm specified in \code{implementation}.
+If \code{implementation="glassoFast"}, \code{Lambda} contains penalty
+parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
+used to define a relevant grid. \code{Lambda} can be provided as a vector
+or a matrix with \code{length(pk)} columns. If \code{implementation} is not
+set to \code{"glassoFast"}, \code{Lambda} must be provided.}
 
-\item{Sequential_template}{logical matrix encoding the type of procedure
-to use for data with multiple blocks in stability selection graphical modelling.
-For multi-block estimation, the stability selection model is
-constructed as the union of block-specific stable edges estimated
-while the others are weakly penalised (TRUE only for the
-block currently being calibrated and FALSE for other blocks).
-Other approaches with joint calibration of the blocks are allowed
-(all entries are set to TRUE).}
+\item{Sequential_template}{logical matrix encoding the type of procedure to
+use for data with multiple blocks in stability selection graphical
+modelling. For multi-block estimation, the stability selection model is
+constructed as the union of block-specific stable edges estimated while the
+others are weakly penalised (\code{TRUE} only for the block currently being
+calibrated and \code{FALSE} for other blocks). Other approaches with joint
+calibration of the blocks are allowed (all entries are set to \code{TRUE}).}
 
-\item{scale}{logical indicating if the correlation (if scale=TRUE)
-or covariance (if scale=FALSE) matrix should be used as input
-for the graphical LASSO. If implementation is not set to "glassoFast",
-this argument must be used as input of the function provided instead.}
+\item{scale}{logical indicating if the correlation (\code{scale=TRUE}) or
+covariance (\code{scale=FALSE}) matrix should be used as input for the
+graphical LASSO if \code{implementation="glassoFast"}. Otherwise, this
+argument must be used in the function provided in \code{implementation}.}
 
-\item{implementation}{name of the function to use for graphical modelling.
-With implementation="glassoFast", the function \code{\link[glassoFast]{glassoFast}}
-is used for regularised estimation of a conditional independence graph.
-Alternatively, this argument can be a character string indicating the name of a function.
-The function provided must use arguments called "x", "lambda" and "scale"
-and return a binary and symmetric adjacency matrix (see example below).}
+\item{implementation}{character string indicating the name of the function to
+use for graphical modelling. With \code{implementation="glassoFast"},
+\code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
+a conditional independence graph. Alternatively, a function with arguments
+\code{x}, \code{lambda}, \code{scale} and \code{...}, and returning a
+binary and symmetric matrix for which diagonal elements are equal to zero
+can be used (more details in \code{\link{GraphicalAlgo}}).}
 
 \item{start}{character string indicating if the algorithm should be
-initialised at the estimated (inverse) covariance with previous
-penalty parameters (start="warm") or not (start="cold").
-Using start="warm" can speed-up the computations.
-Only used for implementation="glassoFast" (see argument "start"
-in \code{\link[glassoFast]{glassoFast}}).}
+initialised at the estimated (inverse) covariance with previous penalty
+parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
+\code{start="warm"} can speed-up the computations. Only used for
+\code{implementation="glassoFast"} (see argument \code{"start"} in
+\code{\link[glassoFast]{glassoFast}}).}
 
 \item{...}{additional parameters passed to the function provided in
-"implementation".}
+\code{implementation}.}
 }
 \value{
-a binary and symmetric adjacency matrix.
+An array with binary and symmetric adjacency matrices along the third
+  dimension.
 }
 \description{
 Runs the algorithm for estimation of an undirected graph with no self-loops
-specified in the argument "implementation"
-and returns the estimated adjacency matrix.
-This function is not using stability.
+specified in the argument \code{implementation} and returns the estimated
+adjacency matrix. This function is not using stability.
 }
 \details{
-The use of the procedure from Equation (4) or (5)
-is controlled by the argument "Sequential_template".
+The use of the procedure from Equation (4) or (5) is controlled by
+  the argument "Sequential_template".
 }
 \examples{
 \dontrun{
@@ -84,7 +83,7 @@ set.seed(1)
 simul <- SimulateGraphical()
 
 # Running graphical LASSO
-myglasso <- GraphicalAlgo(x = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
 }
 }
 \seealso{

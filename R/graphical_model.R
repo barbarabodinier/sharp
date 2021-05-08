@@ -8,7 +8,7 @@
 #' number of falsely stably selected features).
 #'
 #' @inheritParams VariableSelection
-#' @param data matrix with observations as rows and variables as columns. For
+#' @param xdata matrix with observations as rows and variables as columns. For
 #'   multi-block stability selection, the variables in data have to be ordered
 #'   by group.
 #' @param pk optional vector encoding the grouping structure. Only used for
@@ -91,7 +91,7 @@
 #'   along the third dimension correspond to different (sets of) parameters
 #'   controlling the level of sparsity in the underlying algorithm.}
 #'   \item{sign}{a matrix of signs of Pearson's correlations estimated from
-#'   \code{data}.} \item{method}{a list with \code{implementation},
+#'   \code{xdata}.} \item{method}{a list with \code{implementation},
 #'   \code{start}, \code{resampling} and \code{PFER_method} values used for the
 #'   run.} \item{param}{a list with values of other objects used for the run.}
 #'   For all objects except \code{selprop},
@@ -109,7 +109,7 @@
 #' # Single-block stability selection
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 50, pk = 10, nu = 0.1)
-#' stab <- GraphicalModel(data = simul$data, K = 5, verbose = FALSE)
+#' stab <- GraphicalModel(xdata = simul$data, K = 5, verbose = FALSE)
 #' CalibrationPlot(stab)
 #' A <- Adjacency(stab)
 #' mygraph <- Graph(A)
@@ -118,41 +118,43 @@
 #'   theta = Adjacency(stab),
 #'   theta_star = simul$theta, plot = TRUE
 #' )
+#' SelectionProportions(stab)
 #'
 #' # Multi-block stability selection
 #' set.seed(1)
 #' pk <- c(10, 10)
 #' simul <- SimulateGraphical(n = 50, pk = pk)
-#' stab <- GraphicalModel(data = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
+#' stab <- GraphicalModel(xdata = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
 #' CalibrationPlot(stab)
 #' A <- Adjacency(stab)
 #' mygraph <- Graph(A)
 #' perf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
+#' SelectionProportions(stab)
 #' }
 #' \dontrun{
 #'
 #' # Single-block stability selection
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #' plot(Graph(stab))
 #'
 #' # Multi-block stability selection
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = c(10, 10))
-#' stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
+#' stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 #' stab$Lambda # sets of penalty parameters used jointly
 #'
 #' # Multi-parameter stability selection (not recommended)
 #' Lambda <- matrix(c(0.8, 0.6, 0.3, 0.5, 0.4, 0.3, 0.7, 0.5, 0.1), ncol = 3)
 #' stab <- GraphicalModel(
-#'   data = simul$data, pk = c(10, 10),
+#'   xdata = simul$data, pk = c(10, 10),
 #'   Lambda = Lambda, lambda_other_blocks = NULL
 #' )
 #' stab$Lambda
 #' }
 #' @export
-GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,
+GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,
                            pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,
                            implementation = "glassoFast", start = "warm", scale = TRUE,
                            resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
@@ -160,7 +162,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
                            n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Definition of the type of approach (single or multi-block)
   if (is.null(pk)) {
-    pk <- ncol(data)
+    pk <- ncol(xdata)
   }
   if (length(pk) > 1) {
     calibration <- "multi-block"
@@ -174,7 +176,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
   # Error and warning messages
   bigblocks <- bigblocks_vect <- blocks <- N_blocks <- nblocks <- PFER_thr_blocks <- FDP_thr_blocks <- NULL
   CheckInputGraphical(
-    data = data, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
+    xdata = xdata, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
     pi_list = pi_list, K = K, tau = tau, seed = seed, n_cat = n_cat,
     implementation = implementation, start = start, scale = scale,
     resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
@@ -190,7 +192,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
       print("Defining the grid of lambda values...")
     }
     Lambda <- LambdaGridGraphical(
-      data = data, pk = pk, lambda_other_blocks = lambda_other_blocks, tau = tau,
+      xdata = xdata, pk = pk, lambda_other_blocks = lambda_other_blocks, tau = tau,
       implementation = implementation, start = "cold", scale = scale,
       resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       lambda_max = lambda_max, lambda_path_factor = lambda_path_factor, max_density = max_density,
@@ -209,7 +211,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
   # Stability selection and score
   mypar <- parallel::mclapply(X = 1:n_cores, FUN = function(k) {
     return(SerialGraphical(
-      data = data, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
+      xdata = xdata, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
       pi_list = pi_list, K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       implementation = implementation, start = start, scale = scale,
       resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
@@ -290,7 +292,7 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
 #'   along the third dimension correspond to different (sets of) parameters
 #'   controlling the level of sparsity in the underlying algorithm.}
 #'   \item{sign}{a matrix of signs of Pearson's correlations estimated from
-#'   \code{data}.} \item{method}{a list with \code{implementation},
+#'   \code{xdata}.} \item{method}{a list with \code{implementation},
 #'   \code{start}, \code{resampling} and \code{PFER_method} values used for the
 #'   run.} \item{param}{a list with values of other objects used for the run.}
 #'   For all objects except \code{selprop}, \code{sign} and those stored in
@@ -299,13 +301,13 @@ GraphicalModel <- function(data, pk = NULL, Lambda = NULL, lambda_other_blocks =
 #'   these same objects except correspond to different blocks.
 #'
 #' @keywords internal
-SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
+SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
                             pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = n_cat,
                             implementation = "glassoFast", start = "cold", scale = TRUE,
                             resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                             output_data = FALSE, verbose = TRUE, ...) {
   # Marginal correlation to get sign of the relationship
-  mycor_for_sign <- stats::cor(data)
+  mycor_for_sign <- stats::cor(xdata)
 
   # Defining K if using complementary pairs (SS)
   if (PFER_method == "SS") {
@@ -360,8 +362,8 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
 
   # Initialising array of selection proportions
   bigstab <- array(0,
-    dim = c(ncol(data), ncol(data), nrow(Lambda)),
-    dimnames = list(colnames(data), colnames(data), NULL)
+    dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)),
+    dimnames = list(colnames(xdata), colnames(xdata), NULL)
   )
 
   # Printing message
@@ -388,12 +390,12 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   if (PFER_method == "MB") {
     for (i in 1:K) {
       # Subsampling of the data
-      s <- Resample(data = data, family = NULL, tau = tau, resampling = resampling, ...)
-      data_sub <- data[s, ]
+      s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)
+      xdata_sub <- xdata[s, ]
 
       # Estimation of the networks for different penalties
       A <- GraphicalAlgo(
-        x = data_sub, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
+        xdata = xdata_sub, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
         scale = scale, implementation = implementation, start = start, ...
       )
 
@@ -417,21 +419,21 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   if (PFER_method == "SS") {
     for (i in 1:ceiling(K / 2)) {
       # Sample 1
-      s <- Resample(data = data, family = NULL, tau = tau, resampling = resampling, ...)
-      data_sub <- data[s, ]
+      s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)
+      xdata_sub <- xdata[s, ]
 
       # Estimation of the networks for different penalties
       A1 <- GraphicalAlgo(
-        x = data_sub, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
+        xdata = xdata_sub, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
         scale = scale, implementation = implementation, start = start, ...
       )
 
       # Sample 2: everything not in sample 1
-      data_sub <- data[-s, ]
+      xdata_sub <- xdata[-s, ]
 
       # Estimation of the networks for different penalties
       A2 <- GraphicalAlgo(
-        x = data_sub, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
+        xdata = xdata_sub, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
         scale = scale, implementation = implementation, start = start, ...
       )
 
@@ -455,7 +457,7 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   # Computation of the stability score
   if (K > 2) {
     metrics <- StabilityMetrics(
-      bigstab = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
+      selprop = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
       Sequential_template = Sequential_template, graph = TRUE,
       PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
     )
@@ -491,13 +493,13 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         methods = list(implementation = implementation, start = start, resampling = resampling, PFER_method = PFER_method),
         params = list(
           K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
-          pk = pk, n = nrow(data),
+          pk = pk, n = nrow(xdata),
           PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
           lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
         )
       )
       if (output_data) {
-        out$params <- c(out$params, list(data = data))
+        out$params <- c(out$params, list(xdata = xdata))
       }
     } else {
       out <- list(
@@ -509,13 +511,13 @@ SerialGraphical <- function(data, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         methods = list(implementation = implementation, start = start, resampling = resampling, PFER_method = PFER_method),
         params = list(
           K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
-          pk = pk, n = nrow(data),
+          pk = pk, n = nrow(xdata),
           PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
           lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
         )
       )
       if (output_data) {
-        out$params <- c(out$params, list(data = data))
+        out$params <- c(out$params, list(xdata = xdata))
       }
     }
     return(out)

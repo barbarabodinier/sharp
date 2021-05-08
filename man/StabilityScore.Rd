@@ -4,12 +4,14 @@
 \alias{StabilityScore}
 \title{Stability score}
 \usage{
-StabilityScore(stab_iter, pi, K, n_cat = 3)
+StabilityScore(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat = 3)
 }
 \arguments{
-\item{stab_iter}{matrix or vector of selection proportions.}
+\item{selprop}{array of selection proportions.}
 
-\item{pi}{vector of thresholds in selection proportions.}
+\item{pi_list}{vector of thresholds in selection proportions. If
+\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
+\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
@@ -17,7 +19,7 @@ StabilityScore(stab_iter, pi, K, n_cat = 3)
 Possible values are 2 or 3.}
 }
 \value{
-a vector of stability scores obtained with the different thresholds
+A vector of stability scores obtained with the different thresholds
   in selection proportions.
 }
 \description{
@@ -30,7 +32,7 @@ proportions.
 selprop <- round(runif(n = 20), digits = 2)
 
 # Computing stability scores for different thresholds
-score <- StabilityScore(selprop, pi = c(0.6, 0.7, 0.8), K = 100)
+score <- StabilityScore(selprop, pi_list = c(0.6, 0.7, 0.8), K = 100)
 }
 \seealso{
 Other stability metric functions: 

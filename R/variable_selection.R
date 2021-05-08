@@ -9,7 +9,7 @@
 #'
 #' @param xdata matrix of predictors with observations as rows and variables as
 #'   columns.
-#' @param ydata vector or matrix of outcome(s).
+#' @param ydata optional vector or matrix of outcome(s).
 #' @param Lambda matrix of parameters controlling the level of sparsity in the
 #'   underlying feature selection algorithm specified in \code{implementation}.
 #'   With \code{implementation="glmnet"}, \code{Lambda} contains penalty
@@ -32,10 +32,10 @@
 #' @param implementation character string indicating the name of the function to
 #'   use for variable selection. If \code{implementation="glmnet"},
 #'   \code{\link[glmnet]{glmnet}} is used for regularised regression.
-#'   Alternatively, a function with arguments \code{x}, \code{y}, \code{lambda},
-#'   \code{family} and \code{...}, and returning a list of two matrices named
-#'   \code{selected} and \code{beta_full} of the correct dimensions can be used
-#'   (more details in \code{\link{SelectionAlgo}}).
+#'   Alternatively, a function with arguments \code{xdata}, \code{ydata},
+#'   \code{Lambda}, \code{family} and \code{...}, and returning a list of two
+#'   matrices named \code{selected} and \code{beta_full} of the correct
+#'   dimensions can be used (more details in \code{\link{SelectionAlgo}}).
 #' @param resampling resampling approach. Possible values are:
 #'   \code{"subsampling"} for sampling without replacement of a proportion
 #'   \code{tau} of the observations, or \code{"bootstrap"} for sampling with
@@ -66,7 +66,7 @@
 #' @param verbose logical indicating if a loading bar and messages should be
 #'   printed.
 #' @param ... additional parameters passed to the functions provided in
-#'   \code{"implementation"} or \code{"resampling"}.
+#'   \code{implementation} or \code{resampling}.
 #'
 #' @details To ensure reproducibility of the results, the state of the random
 #'   number generator is fixed to \code{seed}. For parallelisation of the code,
@@ -119,6 +119,7 @@
 #' myselected <- SelectedVariables(stab)
 #' coefs <- Coefficients(stab)
 #' perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta)
+#' SelectionProportions(stab)
 #' }
 #' \dontrun{
 #'
@@ -177,16 +178,14 @@
 #' if (requireNamespace("gglasso", quietly = TRUE)) {
 #'   set.seed(1)
 #'   simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-#'   stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
-#'   print(SelectedVariables(stab))
-#'   ManualGridGroupLasso <- function(x, y, family, ...) {
+#'   ManualGridGroupLasso <- function(xdata, ydata, family, ...) {
 #'     if (family == "binomial") {
-#'       ytmp <- y
+#'       ytmp <- ydata
 #'       ytmp[ytmp == min(ytmp)] <- -1
 #'       ytmp[ytmp == max(ytmp)] <- 1
-#'       return(gglasso::gglasso(x, ytmp, loss = "logit", ...))
+#'       return(gglasso::gglasso(xdata, ytmp, loss = "logit", ...))
 #'     } else {
-#'       return(gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...))
+#'       return(gglasso::gglasso(xdata, ydata, lambda = lambda, loss = "ls", ...))
 #'     }
 #'   }
 #'   Lambda <- LambdaGridRegression(
@@ -195,20 +194,20 @@
 #'     implementation = "ManualGridGroupLasso",
 #'     group = sort(rep(1:4, length.out = ncol(simul$X)))
 #'   )
-#'   GroupLasso <- function(x, y, lambda, family, ...) {
+#'   GroupLasso <- function(xdata, ydata, Lambda, family, ...) {
 #'     # Running the regression
 #'     if (family == "binomial") {
-#'       ytmp <- y
+#'       ytmp <- ydata
 #'       ytmp[ytmp == min(ytmp)] <- -1
 #'       ytmp[ytmp == max(ytmp)] <- 1
-#'       mymodel <- gglasso::gglasso(x, ytmp, lambda = lambda, loss = "logit", ...)
+#'       mymodel <- gglasso::gglasso(xdata, ytmp, lambda = Lambda, loss = "logit", ...)
 #'     }
 #'     if (family == "gaussian") {
-#'       mymodel <- gglasso::gglasso(x, y, lambda = lambda, loss = "ls", ...)
+#'       mymodel <- gglasso::gglasso(xdata, ydata, lambda = Lambda, loss = "ls", ...)
 #'     }
 #'     # Extracting and formatting the beta coefficients
 #'     beta_full <- t(as.matrix(mymodel$beta))
-#'     beta_full <- beta_full[, colnames(x)]
+#'     beta_full <- beta_full[, colnames(xdata)]
 #'
 #'     selected <- ifelse(beta_full != 0, yes = 1, no = 0)
 #'
@@ -351,7 +350,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
   Xsub <- xdata[s, ]
   Ysub <- ydata[s, ]
-  mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+  mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
   if (length(dim(mybeta$beta_full)) == 2) {
     Beta_full <- array(0,
       dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
@@ -380,14 +379,14 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
       Xsub <- xdata[s, ]
       Ysub <- ydata[s, ]
-      mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+      mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
 
       # Resampling if model failed to converge
       while (is.infinite(mybeta$selected[1])) {
         s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
         Xsub <- xdata[s, ]
         Ysub <- ydata[s, ]
-        mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+        mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
       }
 
       # Storing (one set of) beta coefficients, used to define set of selected variables
@@ -418,12 +417,12 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       # First subset
       Xsub <- xdata[s, ]
       Ysub <- ydata[s, ]
-      mybeta1 <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+      mybeta1 <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
 
       # Complementary subset
       Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
       Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
-      mybeta2 <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+      mybeta2 <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
 
       # Resampling if model failed to converge
       while (is.infinite(mybeta1$selected[1]) | is.infinite(mybeta2$selected[1])) {
@@ -432,12 +431,12 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
         # First subset
         Xsub <- xdata[s, ]
         Ysub <- ydata[s, ]
-        mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+        mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
 
         # Complementary subset
         Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
         Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
-        mybeta <- SelectionAlgo(x = Xsub, y = Ysub, lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+        mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
       }
 
       # Storing beta coefficients from first set
@@ -484,7 +483,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   # Computation of the stability score over Lambda and pi_list
   if (K > 2) {
     metrics <- StabilityMetrics(
-      bigstab = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+      selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
       Sequential_template = NULL, graph = FALSE,
       PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
     )

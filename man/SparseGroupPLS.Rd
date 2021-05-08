@@ -5,12 +5,12 @@
 \title{Sparse group Partial Least Squares}
 \usage{
 SparseGroupPLS(
-  x,
-  y,
+  xdata,
+  ydata,
   family = "gaussian",
   group_x,
   group_y = NULL,
-  lambda,
+  Lambda,
   alpha.x,
   alpha.y = NULL,
   keepX_previous = NULL,
@@ -20,10 +20,10 @@ SparseGroupPLS(
 )
 }
 \arguments{
-\item{x}{matrix of predictors with observations as rows and variables as
+\item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{y}{vector or matrix of outcome(s).}
+\item{ydata}{vector or matrix of outcome(s).}
 
 \item{family}{type of PLS model. If \code{family="gaussian"}, a sparse group
 PLS model as defined in \code{\link[sgPLS]{sgPLS}} is run (for continuous
@@ -36,7 +36,7 @@ argument indicates the number of variables in each group.}
 \item{group_y}{optional vector encoding the grouping structure among
 outcomes. This argument indicates the number of variables in each group.}
 
-\item{lambda}{matrix of parameters controlling the number of selected groups
+\item{Lambda}{matrix of parameters controlling the number of selected groups
 at current component, as defined by \code{ncomp}.}
 
 \item{alpha.x}{vector of parameters controlling the level of sparsity within
@@ -48,7 +48,7 @@ sparsity within groups of outcomes. Only used if \code{family="gaussian"}.}
 \item{keepX_previous}{number of selected groups in previous components. Only
 used if \code{ncomp > 1}. The argument \code{keepX} in
 \code{\link[sgPLS]{sgPLS}} is obtained by concatenating
-\code{keepX_previous} and \code{lambda}.}
+\code{keepX_previous} and \code{Lambda}.}
 
 \item{keepY}{number of selected groups of outcome variables. This argument is
 defined as in \code{\link[sgPLS]{sgPLS}}. Only used if
@@ -83,13 +83,13 @@ y <- ydata
 
 # Running sgPLS with 1 group and sparsity of 0.5
 mypls <- SparseGroupPLS(
-  x = x, y = y, lambda = 1, family = "gaussian",
+  xdata = x, ydata = y, Lambda = 1, family = "gaussian",
   group_x = c(10, 15, 25), alpha.x = 0.5
 )
 
 # Running sgPLS with groups on outcomes
 mypls <- SparseGroupPLS(
-  x = x, y = y, lambda = 1, family = "gaussian",
+  xdata = x, ydata = y, Lambda = 1, family = "gaussian",
   group_x = c(10, 15, 25), alpha.x = 0.5,
   group_y = c(2, 2), keepY = 1, alpha.y = 0.9
 )
@@ -101,7 +101,7 @@ simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
 
 # Running sgPLS-DA with 1 group and sparsity of 0.9
 mypls <- SparseGroupPLS(
-  x = simul$X, y = simul$Y, lambda = 1, family = "binomial",
+  xdata = simul$X, ydata = simul$Y, Lambda = 1, family = "binomial",
   group_x = c(10, 15, 25), alpha.x = 0.9
 )
 }

@@ -9,12 +9,12 @@ SelectedVariables(stability, argmax_id = NULL)
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}}.}
 
-\item{argmax_id}{matrix of parameter IDs.
-If argmax_id=NULL, the calibrated set is returned.}
+\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
+the calibrated adjacency matrix is returned.}
 }
 \value{
-a binary vector encoding the selection status
-of the variables.
+A binary vector encoding the selection status of the variables
+  (\code{1} if selected, \code{0} otherwise).
 }
 \description{
 Builds the (calibrated) set of stably selected variables.
@@ -40,6 +40,8 @@ selected <- SelectedVariables(stab, argmax_id = myids)
 }
 }
 \seealso{
+\code{\link{VariableSelection}}
+
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},

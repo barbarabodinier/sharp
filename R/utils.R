@@ -7,7 +7,7 @@
 #'
 #' @return a vector without missing values or NULL.
 #'
-#' @export
+#' @keywords internal
 NAToNULL <- function(x) {
   if (any(!is.na(x))) {
     return(x = x[!is.na(x)])

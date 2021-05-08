@@ -2,27 +2,13 @@
 #'
 #' Generates a vector of resampled observation IDs.
 #'
+#' @inheritParams VariableSelection
 #' @param data vector or matrix of data. In regression, this should be the
 #'   outcome data.
-#' @param family type of regression model. This argument is defined as in the
-#'   \code{\link[glmnet]{glmnet}} function from the glmnet package. Possible values
-#'   include "gaussian" (linear regression), "binomial" (logistic regression),
-#'   "multinomial" (multinomial regression), and "cox" (survival analysis). This
-#'   argument is only used with implementation="glmnet", or with functions using
-#'   the family argument in the same way.
-#' @param tau subsample size. Only used with resampling="subsampling".
-#' @param resampling resampling approach. Possible values are: "subsampling" for
-#'   sampling without replacement of a proportion tau of the observations, or
-#'   "bootstrap" for sampling with replacement generating a resampled dataset
-#'   with as many observations as in the full sample. Alternatively, this
-#'   argument can be a character string indicating the name of a function to use
-#'   for resampling. This function must use arguments called "data" and "tau"
-#'   and return IDs of observations to be included in the resampled dataset (see
-#'   example below).
 #' @param ... additional parameters passed to the functions provided in
-#'   "resampling".
+#'   \code{resampling}.
 #'
-#' @return a vector of resampled IDs.
+#' @return A vector of resampled IDs.
 #'
 #' @details With categorical outcomes (i.e. "family" argument is set to
 #'   "binomial", "multinomial" or "cox"), the resampling is done such that the
@@ -78,6 +64,7 @@
 #'   resampling = "BalancedResampling", Z = conf
 #' )
 #' }
+#'
 #' @export
 Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling", ...) {
   # Preparing the data

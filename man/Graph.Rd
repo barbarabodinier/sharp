@@ -14,8 +14,7 @@ Graph(
 )
 }
 \arguments{
-\item{adjacency}{adjacency matrix or output from
-\code{\link{GraphicalModel}}.}
+\item{adjacency}{adjacency matrix or output of \code{\link{GraphicalModel}}.}
 
 \item{node_label}{optional vector of node labels. This vector must contain as
 many entries as there are rows/columns in the adjacency matrix and must be
@@ -29,23 +28,25 @@ Integers, named colours or RGB values can be used.}
 \item{node_shape}{optional vector of node shapes. This vector must contain as
 many entries as there are rows/columns in the adjacency matrix and must be
 in the same order (the order is used to assign shapes to nodes). Possible
-values are "circle", "square", "triangle" or "star".}
+values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
+\code{"star"}.}
 
 \item{weighted}{indicating if entries of the adjacency matrix should define
-edge width. If weighted=FALSE, an unweigthed igraph object is created and
-all edges have the same width. If weighted=TRUE, edge width is defined by
-the corresponding value in the adjacency matrix. If weighted=NULL, nodes
-are linked by as many edges as indicated in the adjacency matrix (integer
-values are needed).}
+edge width. If \code{weighted=FALSE}, an unweigthed igraph object is
+created, all edges have the same width. If \code{weighted=TRUE}, edge width
+is defined by the corresponding value in the adjacency matrix. If
+\code{weighted=NULL}, nodes are linked by as many edges as indicated in the
+adjacency matrix (integer values are needed).}
 
 \item{satellites}{logical indicating if unconnected nodes (satellites) should
 be included in the igraph object.}
 }
 \value{
-an igraph object.
+An igraph object.
 }
 \description{
-Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object from a adjacency matrix.
+Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object
+from an adjacency matrix.
 }
 \examples{
 \dontrun{
@@ -66,10 +67,12 @@ plot(Graph(adjacency, weighted = TRUE, node_shape = "star", node_colour = "red")
 ## From stability selection output
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 plot(Graph(stab))
 }
+
 }
 \seealso{
-\code{\link{Adjacency}}, \code{\link{GraphicalModel}}, \href{https://igraph.org/r/}{igraph manual}
+\code{\link{Adjacency}}, \code{\link{GraphicalModel}},
+  \href{https://igraph.org/r/}{igraph manual}
 }

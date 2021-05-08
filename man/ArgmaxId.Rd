@@ -8,21 +8,23 @@ ArgmaxId(stability = NULL, S = NULL)
 }
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}. If stability=NULL, argument "S" must be
+\code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
 provided.}
 
 \item{S}{matrix of stability scores obtained with different combinations of
-parameters. Rows correspond to different penalty parameters and columns
-correspond to different thresholds in selection proportions. If S=NULL,
-argument "stability" must be provided.}
+parameters where rows correspond to different values of the parameter
+controlling the level of sparsity in the underlying feature selection
+algorithm and columns correspond to different values of the threshold in
+selection proportions. If \code{S=NULL}, argument \code{stability} must be
+provided.}
 }
 \value{
-a matrix of (block-specific) parameter IDs. In multi-block graphical
-  modelling, rows correspond to different blocks.
+A matrix of parameter IDs. In multi-block graphical modelling, rows
+  correspond to different blocks.
 }
 \description{
 Extracts the IDs of calibrated parameters with respect to the grids provided
-in "Lambda" and "pi_list".
+in \code{Lambda} and \code{pi_list} in \code{stability}.
 }
 \examples{
 \dontrun{
@@ -32,7 +34,7 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 20)
 
 # Stability selection
-stab <- GraphicalModel(data = simul$data)
+stab <- GraphicalModel(xdata = simul$data)
 
 # Extracting IDs of calibrated parameters
 ids <- ArgmaxId(stab)
@@ -42,8 +44,11 @@ stab$params$pi_list[ids[2]]
 # Link with Argmax() function
 args <- Argmax(stab)
 }
+
 }
 \seealso{
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{Argmax}()},

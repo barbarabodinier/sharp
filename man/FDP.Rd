@@ -4,31 +4,31 @@
 \alias{FDP}
 \title{False Discovery Proportion}
 \usage{
-FDP(PFER, stab_iter, pi)
+FDP(selprop, PFER, pi)
 }
 \arguments{
+\item{selprop}{matrix or vector of selection proportions.}
+
 \item{PFER}{Per Family Error Rate.}
 
-\item{stab_iter}{matrix or vector of selection proportions.}
-
-\item{pi}{vector of thresholds in selection proportions.}
+\item{pi}{threshold in selection proportions.}
 }
 \value{
-the (upper-bound) of the FDP.
+The FDP (upper-bound).
 }
 \description{
-Computes the (upper-bound) of the FDP as a ratio of the (upper-bound)
-of the PFER over the number of stably selected features.
-In stability selection, the FDP corresponds to the expected proportion of stably selected
-features that are not relevant to the outcome
-(i.e. proportion of False Positives among stably selected features).
+Computes the False Discovery Proportion (upper-bound) as a ratio of the PFER
+(upper-bound) over the number of stably selected features. In stability
+selection, the FDP corresponds to the expected proportion of stably selected
+features that are not relevant to the outcome (i.e. proportion of False
+Positives among stably selected features).
 }
 \examples{
 # Simulating set of selection proportions
 selprop <- round(runif(n = 20), digits = 2)
 
 # Computing the FDP with a threshold of 0.8
-fdp <- FDP(PFER = 3, stab_iter = selprop, pi = 0.8)
+fdp <- FDP(PFER = 3, selprop = selprop, pi = 0.8)
 }
 \seealso{
 Other stability metric functions: 

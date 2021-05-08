@@ -5,9 +5,10 @@
 #'
 #' @param pk vector encoding the grouping structure.
 #'
-#' @return a symmetric block matrix.
+#' @return A symmetric block matrix.
 #'
 #' @family multi-block functions
+#' @seealso \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' # Small example
@@ -50,15 +51,15 @@ BlockMatrix <- function(pk) {
 
 #' Block structure
 #'
-#' Generates a symmetric matrix encoding the block structure
-#' from the numbers of variables in each group.
-#' This can be used to visualise block IDs.
+#' Generates a symmetric matrix encoding the block structure from the numbers of
+#' variables in each group. This function can be used to visualise block IDs.
 #'
-#' @param pk vector encoding the grouping structure.
+#' @inheritParams BlockMatrix
 #'
-#' @return a symmetric matrix.
+#' @return A symmetric matrix of size \code{length(pk))}.
 #'
 #' @family multi-block functions
+#' @seealso \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' # Example with 2 groups
@@ -87,6 +88,7 @@ BlockStructure <- function(pk) {
 #'   other blocks in the iterative multi-block procedure.
 #'
 #' @family multi-block functions
+#' @seealso \code{\link{GraphicalModel}}
 #'
 #' @return A list with: \item{Lambda}{a matrix of (block-specific) penalty
 #'   parameters. In multi-block stability selection, rows correspond to sets of
@@ -94,10 +96,10 @@ BlockStructure <- function(pk) {
 #'   \item{Sequential_template}{logical matrix encoding the type of procedure
 #'   for data with multiple blocks in stability selection graphical modelling.
 #'   For multi-block estimation, the procedure is separately calibrating each
-#'   block while the others are weakly penalised (TRUE only for the block
-#'   currently being calibrated and FALSE for other blocks). Other approaches
-#'   with joint calibration of the blocks are allowed (all entries are set to
-#'   TRUE).}
+#'   block while the others are weakly penalised (\code{TRUE} only for the block
+#'   currently being calibrated and \code{FALSE} for other blocks). Other
+#'   approaches with joint calibration of the blocks are allowed (all entries
+#'   are set to \code{TRUE}).}
 #'
 #' @examples
 #' \dontrun{
@@ -122,6 +124,7 @@ BlockStructure <- function(pk) {
 #' )
 #' mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
 #' }
+#'
 #' @export
 BlockLambdaGrid <- function(Lambda, lambda_other_blocks = NULL) {
   if ((length(lambda_other_blocks) == 1) & (!is.vector(Lambda))) {

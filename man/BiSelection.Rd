@@ -2,7 +2,7 @@
 % Please edit documentation in R/bi_selection.R
 \name{BiSelection}
 \alias{BiSelection}
-\title{Variable selection in predictors and outcomes}
+\title{Variable selection for predictors and outcomes}
 \usage{
 BiSelection(
   xdata,
@@ -84,10 +84,10 @@ values include \code{"gaussian"} (linear regression), \code{"binomial"}
 \item{implementation}{character string indicating the name of the function to
 use for variable selection. If \code{implementation="glmnet"},
 \code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{x}, \code{y}, \code{lambda},
-\code{family} and \code{...}, and returning a list of two matrices named
-\code{selected} and \code{beta_full} of the correct dimensions can be used
-(more details in \code{\link{SelectionAlgo}}).}
+Alternatively, a function with arguments \code{xdata}, \code{ydata},
+\code{Lambda}, \code{family} and \code{...}, and returning a list of two
+matrices named \code{selected} and \code{beta_full} of the correct
+dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -124,7 +124,7 @@ on Unix systems.}
 printed.}
 
 \item{...}{additional parameters passed to the functions provided in
-\code{"implementation"} or \code{"resampling"}.}
+\code{implementation} or \code{resampling}.}
 }
 \description{
 Runs stability selection regression models with different combinations of
@@ -196,21 +196,39 @@ stab <- BiSelection(
 
 # sgPLS: sparsity on X
 stab <- BiSelection(
-  xdata = x, ydata = y, group_x = c(10, 5),
+  xdata = x, ydata = y,
+  group_x = c(2, 10, 8),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-  implementation = "SparseGroupPLS",
-  output_data = TRUE
+  implementation = "SparseGroupPLS"
 )
 
 # sgPLS: sparsity on both X and Y
 stab <- BiSelection(
   xdata = x, ydata = y,
-  group_x = c(10, 5), group_y = c(1, 3),
+  group_x = c(2, 10, 8), group_y = c(1, 3),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
   implementation = "SparseGroupPLS"
+)
+
+# gPLS: sparsity on X
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  group_x = c(2, 10, 8),
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:2,
+  implementation = "GroupPLS"
+)
+
+# gPLS: sparsity on both X and Y
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  group_x = c(2, 10, 8), group_y = c(1, 3),
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:2, LambdaY = 1:2,
+  implementation = "GroupPLS"
 )
 
 # Data simulation (categorical outcomes)
@@ -231,10 +249,27 @@ stab <- BiSelection(
 # sgPLS-DA: sparsity on X
 stab <- BiSelection(
   xdata = x, ydata = cbind(y),
-  group_x = c(12, 8),
+  group_x = c(2, 10, 8), K = 10,
   family = "binomial", ncomp = 3,
-  LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.3),
+  LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
   implementation = "SparseGroupPLS"
+)
+
+# gPLS-DA: sparsity on Y
+stab <- BiSelection(
+  xdata = x, ydata = cbind(y),
+  group_x = c(2, 10, 8),
+  family = "binomial", ncomp = 3,
+  LambdaX = 1:2,
+  implementation = "GroupPLS"
 )
 }
 }
+\seealso{
+\code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
+
+Other stability selection functions: 
+\code{\link{GraphicalModel}()},
+\code{\link{VariableSelection}()}
+}
+\concept{stability selection functions}

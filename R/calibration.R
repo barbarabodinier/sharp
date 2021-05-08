@@ -1,20 +1,23 @@
 #' Calibrated parameter IDs
 #'
 #' Extracts the IDs of calibrated parameters with respect to the grids provided
-#' in "Lambda" and "pi_list".
+#' in \code{Lambda} and \code{pi_list} in \code{stability}.
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
-#'   \code{\link{GraphicalModel}}. If stability=NULL, argument "S" must be
+#'   \code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
 #'   provided.
 #' @param S matrix of stability scores obtained with different combinations of
-#'   parameters. Rows correspond to different penalty parameters and columns
-#'   correspond to different thresholds in selection proportions. If S=NULL,
-#'   argument "stability" must be provided.
+#'   parameters where rows correspond to different values of the parameter
+#'   controlling the level of sparsity in the underlying feature selection
+#'   algorithm and columns correspond to different values of the threshold in
+#'   selection proportions. If \code{S=NULL}, argument \code{stability} must be
+#'   provided.
 #'
-#' @return a matrix of (block-specific) parameter IDs. In multi-block graphical
-#'   modelling, rows correspond to different blocks.
+#' @return A matrix of parameter IDs. In multi-block graphical modelling, rows
+#'   correspond to different blocks.
 #'
 #' @family calibration functions
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' \dontrun{
@@ -24,7 +27,7 @@
 #' simul <- SimulateGraphical(pk = 20)
 #'
 #' # Stability selection
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #'
 #' # Extracting IDs of calibrated parameters
 #' ids <- ArgmaxId(stab)
@@ -34,6 +37,7 @@
 #' # Link with Argmax() function
 #' args <- Argmax(stab)
 #' }
+#'
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
   if ((is.null(stability)) & (is.null(S))) {
@@ -75,15 +79,16 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 
 #' Calibrated parameters
 #'
-#' Extracts calibrated parameters in stability selection.
+#' Extracts calibrated parameter values in stability selection.
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
 #'   \code{\link{GraphicalModel}}.
 #'
-#' @return a matrix of (block-specific) parameters. In multi-block graphical
-#'   modelling, rows correspond to different blocks.
+#' @return A matrix of parameter values. In multi-block graphical modelling,
+#'   rows correspond to different blocks.
 #'
 #' @family calibration functions
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' \dontrun{
@@ -93,11 +98,12 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #' simul <- SimulateGraphical(pk = 20)
 #'
 #' # Stability selection
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #'
 #' # Extracting calibrated parameters
 #' args <- Argmax(stab)
 #' }
+#'
 #' @export
 Argmax <- function(stability) {
   argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
@@ -124,17 +130,18 @@ Argmax <- function(stability) {
 
 #' Calibrated adjacency matrix
 #'
-#' Builds the adjacency matrix of the (calibrated)
-#' stability selection graphical model.
+#' Builds the adjacency matrix of the (calibrated) stability selection graphical
+#' model.
 #'
 #' @param stability output of \code{\link{GraphicalModel}}.
-#' @param argmax_id matrix of parameter IDs.
-#' If argmax_id=NULL, the calibrated adjacency matrix is returned.
+#' @param argmax_id optional matrix of parameter IDs. If \code{argmax_id=NULL},
+#'   the calibrated adjacency matrix is returned.
 #'
-#' @return a binary and symmetric adjacency matrix encoding
-#' an undirected graph with no self-loops.
+#' @return A binary and symmetric adjacency matrix encoding an undirected graph
+#'   with no self-loops.
 #'
 #' @family calibration functions
+#' @seealso \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' \dontrun{
@@ -144,7 +151,7 @@ Argmax <- function(stability) {
 #' simul <- SimulateGraphical(pk = 20)
 #'
 #' # Stability selection
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #'
 #' # Calibrated adjacency matrix
 #' A <- Adjacency(stab)
@@ -155,6 +162,7 @@ Argmax <- function(stability) {
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' A <- Adjacency(stab, argmax_id = myids)
 #' }
+#'
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
   A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
@@ -189,14 +197,14 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #'
 #' Builds the (calibrated) set of stably selected variables.
 #'
+#' @inheritParams Adjacency
 #' @param stability output of \code{\link{VariableSelection}}.
-#' @param argmax_id matrix of parameter IDs.
-#' If argmax_id=NULL, the calibrated set is returned.
 #'
-#' @return a binary vector encoding the selection status
-#' of the variables.
+#' @return A binary vector encoding the selection status of the variables
+#'   (\code{1} if selected, \code{0} otherwise).
 #'
 #' @family calibration functions
+#' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -227,6 +235,132 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 }
 
 
+#' Selection proportions
+#'
+#' Extracts the selection proportions of the (calibrated) stability selection
+#' model.
+#'
+#' @inheritParams Adjacency
+#' @param stability output of \code{\link{VariableSelection}} or
+#'   \code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
+#'   provided.
+#'
+#' @return A symmetric matrix (graphical model) or vector (variable selection)
+#'   of selection proportions.
+#'
+#' @family calibration functions
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' ## Variable selection
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(pk = 50)
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+#'
+#' # Calibrated selection proportions
+#' prop <- SelectionProportions(stab)
+#'
+#' # User-defined parameters
+#' myids <- matrix(c(80, 10), nrow = 1)
+#' stab$Lambda[myids[1], 1] # corresponding penalty
+#' stab$params$pi_list[myids[2]] # corresponding threshold
+#' prop <- SelectionProportions(stab, argmax_id = myids)
+#'
+#' ## Graphical model
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateGraphical(pk = 20)
+#'
+#' # Stability selection
+#' stab <- GraphicalModel(xdata = simul$data)
+#'
+#' # Calibrated adjacency matrix
+#' prop <- SelectionProportions(stab)
+#'
+#' # User-defined parameters
+#' myids <- matrix(c(20, 10), nrow = 1)
+#' stab$Lambda[myids[1], 1] # corresponding penalty
+#' stab$params$pi_list[myids[2]] # corresponding threshold
+#' prop <- SelectionProportions(stab, argmax_id = myids)
+#' }
+#'
+#' @export
+SelectionProportions <- function(stability, argmax_id = NULL) {
+  if ("Sequential_template" %in% names(stability$params)) {
+    out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
+  } else {
+    out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
+  }
+  return(out)
+}
+
+
+#' Selection proportions (graphical model)
+#'
+#' Extracts the selection proportions of the (calibrated) stability selection
+#' model.
+#'
+#' @inheritParams Adjacency
+#' @param stability output of \code{\link{GraphicalModel}}.
+#'
+#' @return A symmetric matrix.
+#'
+#' @keywords internal
+SelectionProportionsGraphical <- function(stability, argmax_id = NULL) {
+  A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
+  bigblocks <- BlockMatrix(stability$params$pk)
+  if (is.null(argmax_id)) {
+    argmax_id <- ArgmaxId(stability)
+    argmax <- Argmax(stability)
+  } else {
+    argmax <- NULL
+    for (block_id in 1:ncol(stability$Lambda)) {
+      argmax <- rbind(argmax, c(
+        stability$Lambda[argmax_id[block_id, 1], ],
+        stability$params$pi_list[argmax_id[block_id, 2]]
+      ))
+    }
+  }
+  for (block_id in 1:ncol(stability$Lambda)) {
+    A_block <- stability$selprop[, , argmax_id[block_id, 1]]
+    A_block[lower.tri(A_block)] <- 0
+    A_block <- A_block + t(A_block) # for symmetry
+    if (length(stability$params$pk) > 1) {
+      A_block[bigblocks != block_id] <- 0
+    }
+    A <- A + A_block
+  }
+  return(A)
+}
+
+
+#' Selection proportions (variable selection)
+#'
+#' Extracts the selection proportions of the (calibrated) stability selection
+#' model.
+#'
+#' @inheritParams Adjacency
+#' @param stability output of \code{\link{VariableSelection}}.
+#'
+#' @return A vector of selection proportions.
+#'
+#' @keywords internal
+SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
+  if (is.null(argmax_id)) {
+    argmax_id <- ArgmaxId(stability)
+    argmax <- Argmax(stability)
+  }
+  m <- stability$selprop[argmax_id[1], ]
+  calibrated_pi <- stability$params$pi_list[argmax_id[2]]
+  return(m)
+}
+
+
 #' Model coefficients
 #'
 #' Extracts the coefficients of visited models at different resampling
@@ -236,7 +370,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' @param stability output of \code{\link{VariableSelection}}.
 #' @param side character string indicating if coefficients of the predictor
 #'   (\code{side="X"}) or outcome (\code{side="Y"}) coefficients should be
-#'   returned. \code{side="Y"} is only applicable to PLS models.
+#'   returned. Option \code{side="Y"} is only applicable to PLS models.
 #' @param comp component ID. Only applicable to PLS models.
 #' @param iterations vector of iteration IDs. If \code{iterations=NULL}, the
 #'   coefficients of all visited models are returned. This number must be
@@ -285,137 +419,4 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
     comp_id <- grepl(paste0("_PC", comp), colnames(stability$Beta))
     return(stability$Beta[, side_id & comp_id, iterations, drop = FALSE])
   }
-}
-
-
-#' Selection proportions
-#'
-#' Extracts the selection proportions of the
-#' (calibrated) stability selection model.
-#'
-#' @param stability output of \code{\link{VariableSelection}}
-#' or \code{\link{GraphicalModel}}.
-#' @param argmax_id matrix of parameter IDs.
-#' If argmax_id=NULL, selection proportions of the calibrated
-#' stability selection model are returned.
-#'
-#' @return a symmetric matrix (graphical models) or vector (variable selection)
-#' of selection proportions.
-#'
-#' @examples
-#' \dontrun{
-#'
-#' ## Variable selection
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(pk = 50)
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
-#'
-#' # Calibrated selection proportions
-#' prop <- SelectionProportions(stab)
-#'
-#' # User-defined parameters
-#' myids <- matrix(c(80, 10), nrow = 1)
-#' stab$Lambda[myids[1], 1] # corresponding penalty
-#' stab$params$pi_list[myids[2]] # corresponding threshold
-#' prop <- SelectionProportions(stab, argmax_id = myids)
-#'
-#' ## Graphical model
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = 20)
-#'
-#' # Stability selection
-#' stab <- GraphicalModel(data = simul$data)
-#'
-#' # Calibrated adjacency matrix
-#' prop <- SelectionProportions(stab)
-#'
-#' # User-defined parameters
-#' myids <- matrix(c(20, 10), nrow = 1)
-#' stab$Lambda[myids[1], 1] # corresponding penalty
-#' stab$params$pi_list[myids[2]] # corresponding threshold
-#' prop <- SelectionProportions(stab, argmax_id = myids)
-#' }
-#'
-#' @family calibration functions
-#'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
-#'
-#' @export
-SelectionProportions <- function(stability, argmax_id = NULL) {
-  if ("data" %in% names(stability$params)) {
-    out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
-  } else {
-    out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
-  }
-  return(out)
-}
-
-
-#' Selection proportions (graphical model)
-#'
-#' Extracts the selection proportions of the
-#' (calibrated) stability selection model.
-#'
-#' @param stability output of \code{\link{GraphicalModel}}.
-#' @param argmax_id matrix of parameter IDs.
-#' If argmax_id=NULL, selection proportions of the calibrated
-#' stability selection model are returned.
-#'
-#' @return a symmetric matrix.
-#'
-#' @keywords internal
-SelectionProportionsGraphical <- function(stability, argmax_id = NULL) {
-  A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
-  bigblocks <- BlockMatrix(stability$params$pk)
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability)
-    argmax <- Argmax(stability)
-  } else {
-    argmax <- NULL
-    for (block_id in 1:ncol(stability$Lambda)) {
-      argmax <- rbind(argmax, c(
-        stability$Lambda[argmax_id[block_id, 1], ],
-        stability$params$pi_list[argmax_id[block_id, 2]]
-      ))
-    }
-  }
-  for (block_id in 1:ncol(stability$Lambda)) {
-    A_block <- stability$selprop[, , argmax_id[block_id, 1]]
-    A_block[lower.tri(A_block)] <- 0
-    A_block <- A_block + t(A_block) # for symmetry
-    if (length(stability$params$pk) > 1) {
-      A_block[bigblocks != block_id] <- 0
-    }
-    A <- A + A_block
-  }
-  return(A)
-}
-
-
-#' Selection proportions (variable selection)
-#'
-#' Extracts the selection proportions of the
-#' (calibrated) stability selection model.
-#'
-#' @param stability output of \code{\link{VariableSelection}}.
-#' @param argmax_id matrix of parameter IDs.
-#' If argmax_id=NULL, selection proportions of the calibrated
-#' stability selection model are returned.
-#'
-#' @return a vector (variable selection)
-#' of selection proportions.
-#'
-#' @keywords internal
-SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability)
-    argmax <- Argmax(stability)
-  }
-  m <- stability$selprop[argmax_id[1], ]
-  calibrated_pi <- stability$params$pi_list[argmax_id[2]]
-  return(m)
 }

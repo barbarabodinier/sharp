@@ -4,15 +4,11 @@
 #' selected features to the set of true predictors/edges. This function can only
 #' be used in simulation studies (i.e. when the true model is known).
 #'
-#' @param theta binary vector of selected variables (in a regression framework)
-#'   or binary adjacency matrix (in graphical modelling).
-#' @param theta_star binary vector of true predictors (in a regression
-#'   framework) or true binary adjacency matrix (in graphical modelling).
-#' @param pk vector encoding the grouping structure. Only used for multi-block
-#'   stability selection. For this, the nodes in "theta" have to be ordered by
-#'   group and argument "pk" has to be a vector indicating the number of
-#'   variables in each of the groups (see example below). If pk=NULL, overall
-#'   performances are reported.
+#' @inheritParams GraphicalModel
+#' @param theta binary vector of selected variables (in variable selection) or
+#'   binary adjacency matrix (in graphical modelling).
+#' @param theta_star binary vector of true predictors (in variable selection) or
+#'   true binary adjacency matrix (in graphical modelling).
 #' @param cor optional correlation matrix. Only used in graphical modelling.
 #' @param thr optional threshold in correlation. Only used in graphical
 #'   modelling and when argument "cor" is not NULL.
@@ -51,7 +47,7 @@
 #' # Single-block graphical model
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #' perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta)
 #' perf <- SelectionPerformance(
 #'   theta = Adjacency(stab), theta_star = simul$theta,
@@ -61,13 +57,14 @@
 #' # Multi-block graphical model
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = c(10, 10))
-#' stab <- GraphicalModel(data = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
+#' stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
 #' perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10))
 #' perf <- SelectionPerformance(
 #'   theta = Adjacency(stab), theta_star = simul$theta, pk = c(10, 10),
 #'   cor = cor(simul$data), thr = 0.5
 #' )
 #' }
+#'
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
   # Storing similarities/differences between estimated and true sets
@@ -104,7 +101,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' used in simulation studies (i.e. when the true model is known).
 #'
 #' @param theta binary adjacency matrix.
-#' @param theta_star true binary adjacency matrix (in graphical modelling).
+#' @param theta_star true binary adjacency matrix.
 #' @param colours vector of edge colours. The first entry of the vector defines
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
@@ -112,24 +109,26 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   defines the colour of False Positive edges, second entry is for True
 #'   Negatives and third entry is for True Positives.
 #' @param plot logical indicating if the generated graph should be plotted.
-#' @param filename file path to saved figure. With filename=NULL, the plot is
-#'   not saved.
-#' @param fileformat format of the saved figure. Possible values are "pdf" or
-#'   "png". Only used if argument "filename" is not NULL.
-#' @param res resolution of the png figure (see \code{\link{png}} from the
-#'   grDevices package). Only used if argument "filename" is not NULL and
-#'   fileformat="png".
-#' @param width width of the saved figure. Only used if argument "filename" is
-#'   not NULL.
-#' @param height height of the saved figure. Only used if argument "filename" is
-#'   not NULL.
-#' @param units units of width and height. Possible values are "px", "in", "cm"
-#'   and "mm" (see \code{\link{png}} from the grDevices package). Only used if
-#'   argument "filename" is not NULL and fileformat="png".
+#' @param filename file path to saved figure. If \code{filename=NULL}, the plot
+#'   is not saved.
+#' @param fileformat format of the saved figure. Possible values are
+#'   \code{"pdf"} or \code{"png"}. Only used if argument \code{filename} is
+#'   provided.
+#' @param res resolution of the png figure (see \code{\link[grDevices]{png}}).
+#'   Only used if argument \code{filename} is provided and
+#'   \code{fileformat="png"}.
+#' @param width width of the saved figure. Only used if argument \code{filename}
+#'   is provided.
+#' @param height height of the saved figure. Only used if argument
+#'   \code{filename} is provided.
+#' @param units units of width and height. Possible values are \code{"px"},
+#'   \code{"in"}, \code{"cm"} and \code{"mm"} (see
+#'   \code{\link[grDevices]{png}}). Only used if argument \code{filename} is
+#'   provided and \code{fileformat="png"}.
 #' @param ... additional arguments to be passed to \code{\link{Graph}}.
 #'
 #' @family selection performance functions
-#' @seealso \code{\link{Graph}}
+#' @seealso \code{\link{GraphicalModel}}, \code{\link{Graph}}
 #'
 #' @examples
 #' \dontrun{
@@ -139,7 +138,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' simul <- SimulateGraphical(pk = 30)
 #'
 #' # Stability selection
-#' stab <- GraphicalModel(data = simul$data, K = 10)
+#' stab <- GraphicalModel(xdata = simul$data, K = 10)
 #'
 #' # Performance graph
 #' perfgraph <- SelectionPerformanceGraph(
@@ -163,6 +162,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' igraph::V(perfgraph)$size <- 10
 #' plot(perfgraph, layout = layout_with_kk(perfgraph))
 #' }
+#'
 #' @export
 SelectionPerformanceGraph <- function(theta, theta_star,
                                       colours = c("tomato", "forestgreen", "navy"),
@@ -218,36 +218,28 @@ SelectionPerformanceGraph <- function(theta, theta_star,
 
 #' Selection performance (internal)
 #'
-#' Computes different metrics of selection performance
-#' from a categorical vector/matrix with 3 for True Positive,
-#' 2 for False Negative, 1 for False Positive and 0 for
-#' True Negative.
+#' Computes different metrics of selection performance from a categorical
+#' vector/matrix with 3 for True Positive, 2 for False Negative, 1 for False
+#' Positive and 0 for True Negative.
 #'
-#' @param Asum vector (in a regression framework)
-#' or matrix (in graphical modelling) with values
-#' in 0, 1, 2 or 3.
-#' @param cor optional correlation matrix.
-#' Only used in graphical modelling.
-#' @param thr optional threshold in correlation.
-#' Only used in graphical modelling and when argument "cor" is not NULL.
+#' @inheritParams SelectionPerformance
+#' @param Asum vector (in variable selection) or matrix (in graphical modelling)
+#'   containing values of \code{0}, \code{1}, \code{2} or \code{3}.
 #'
 #' @return A matrix of selection metrics including:
 #'
-#' \item{TP}{number of True Positives (TP)}
-#' \item{FN}{number of False Negatives (TN)}
-#' \item{FP}{number of False Positives (FP)}
-#' \item{TN}{number of True Negatives (TN)}
-#' \item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
-#' \item{specificity}{specificity, i.e. TN/(TN+FP)}
-#' \item{accuracy}{accuracy, i.e. (TP+TN)/(TP+TN+FP+FN)}
-#' \item{precision}{precision (p), i.e. TP/(TP+FP)}
-#' \item{recall}{recall (r), i.e. TP/(TP+FN)}
-#' \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)}
+#'   \item{TP}{number of True Positives (TP)} \item{FN}{number of False
+#'   Negatives (TN)} \item{FP}{number of False Positives (FP)} \item{TN}{number
+#'   of True Negatives (TN)} \item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
+#'   \item{specificity}{specificity, i.e. TN/(TN+FP)} \item{accuracy}{accuracy,
+#'   i.e. (TP+TN)/(TP+TN+FP+FN)} \item{precision}{precision (p), i.e.
+#'   TP/(TP+FP)} \item{recall}{recall (r), i.e. TP/(TP+FN)}
+#'   \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)}
 #'
-#' If argument "cor" is provided, the number of False Positives
-#' among correlated (FP_c) and uncorrelated (FP_i) pairs,
-#' defined as having correlations (provided in "cor")
-#' above or below the threshold "thr", are also reported.
+#'   If argument "cor" is provided, the number of False Positives among
+#'   correlated (FP_c) and uncorrelated (FP_i) pairs, defined as having
+#'   correlations (provided in "cor") above or below the threshold "thr", are
+#'   also reported.
 #'
 #' @keywords internal
 SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {

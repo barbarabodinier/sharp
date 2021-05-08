@@ -43,7 +43,7 @@ test_that("lambda grid size for GraphicalModel()", {
   simul <- SimulateGraphical(n = n, pk = pk)
 
   expect_warning(GraphicalModel(
-    data = simul$data,
+    xdata = simul$data,
     Lambda_cardinal = 1, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -53,7 +53,7 @@ test_that("lambda grid size for GraphicalModel()", {
   ))
 
   stab <- GraphicalModel(
-    data = simul$data,
+    xdata = simul$data,
     Lambda_cardinal = 1, K = K,
     Lambda = 0.5,
     pi_list = pi_list,

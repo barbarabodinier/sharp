@@ -5,7 +5,7 @@
 \title{Grid of penalty parameters (graphical model)}
 \usage{
 LambdaGridGraphical(
-  data,
+  xdata,
   pk = NULL,
   lambda_other_blocks = 0.1,
   K = 100,
@@ -26,7 +26,7 @@ LambdaGridGraphical(
 )
 }
 \arguments{
-\item{data}{matrix with observations as rows and variables as columns. For
+\item{xdata}{matrix with observations as rows and variables as columns. For
 multi-block stability selection, the variables in data have to be ordered
 by group.}
 
@@ -108,7 +108,7 @@ value in the grid.}
 the density of the estimated graph does not exceed max_density.}
 
 \item{...}{additional parameters passed to the functions provided in
-\code{"implementation"} or \code{"resampling"}.}
+\code{implementation} or \code{resampling}.}
 }
 \value{
 A matrix of lambda values with \code{length(pk)} columns and
@@ -126,45 +126,45 @@ set.seed(1)
 simul <- SimulateGraphical()
 
 # Generating grid of 10 values
-Lambda <- LambdaGridGraphical(data = simul$data, Lambda_cardinal = 10)
+Lambda <- LambdaGridGraphical(xdata = simul$data, Lambda_cardinal = 10)
 
 # Ensuring PFER < 5
-Lambda <- LambdaGridGraphical(data = simul$data, Lambda_cardinal = 10, PFER_thr = 5)
+Lambda <- LambdaGridGraphical(xdata = simul$data, Lambda_cardinal = 10, PFER_thr = 5)
 
 # Multi-block simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = c(10, 10))
 
 # Multi-block grid
-Lambda <- LambdaGridGraphical(data = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
+Lambda <- LambdaGridGraphical(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 
 # Denser neighbouring blocks
 Lambda <- LambdaGridGraphical(
-  data = simul$data, pk = c(10, 10),
+  xdata = simul$data, pk = c(10, 10),
   Lambda_cardinal = 10, lambda_other_blocks = 0
 )
 
 # Using different neighbour penalties
 Lambda <- LambdaGridGraphical(
-  data = simul$data, pk = c(10, 10),
+  xdata = simul$data, pk = c(10, 10),
   Lambda_cardinal = 10, lambda_other_blocks = c(0.1, 0, 0.1)
 )
 stab <- GraphicalModel(
-  data = simul$data, pk = c(10, 10),
+  xdata = simul$data, pk = c(10, 10),
   Lambda = Lambda, lambda_other_blocks = c(0.1, 0, 0.1)
 )
 stab$Lambda
 
 # Visiting from empty to full graphs with max_density=1
 Lambda <- LambdaGridGraphical(
-  data = simul$data, pk = c(10, 10),
+  xdata = simul$data, pk = c(10, 10),
   Lambda_cardinal = 10, max_density = 1
 )
 bigblocks <- BlockMatrix(pk = c(10, 10))
 bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
 N_blocks <- unname(table(bigblocks_vect))
 N_blocks # max number of edges per block
-stab <- GraphicalModel(data = simul$data, pk = c(10, 10), Lambda = Lambda)
+stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda = Lambda)
 apply(stab$Q, 2, max, na.rm = TRUE) # max average number of edges from underlying algo
 }
 }

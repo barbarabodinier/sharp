@@ -18,28 +18,29 @@ or \code{\link{VariableSelection}} (graph=FALSE) were used to generate the
 "stability1" and "stability2".}
 }
 \value{
-a single output with the same format.
+A single output of the same format.
 }
 \description{
 Merges the outputs from \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}. This can be useful for parallelisation.
+\code{\link{GraphicalModel}}. This function can be used for parallelisation.
 }
 \details{
 The two runs must have been done using the same data, the same grids
-of parameters, the same methods (arguments "implementation", "resampling",
-"PFER_method", as well as "start" for graphical models), the same "tau" and
-"pk" (graphical models only), and the same thresholds in PFER and FDP, but
-with different seeds. The combined output will be the equivalent of running
-the model for which the number of iterations is the sum of the number of
-iterations used for "stability1" and "stability2".
+  of parameters, the same methods (arguments \code{implementation},
+  \code{resampling}, \code{PFER_method}, as well as \code{start} for
+  graphical models), the same \code{tau} and \code{pk} (graphical models
+  only), and the same thresholds in PFER and FDP, but with different seeds.
+  The combined output will be the equivalent of running the model for which
+  the number of iterations is the sum of the number of iterations used for
+  \code{stability1} and \code{stability2}.
 }
 \examples{
 # Data simulation
 simul <- SimulateGraphical(pk = 20)
 
 # Two runs
-stab1 <- GraphicalModel(data = simul$data, seed = 1, K = 10)
-stab2 <- GraphicalModel(data = simul$data, seed = 2, K = 10)
+stab1 <- GraphicalModel(xdata = simul$data, seed = 1, K = 10)
+stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
 
 # Merging the outputs
 stab <- Combine(stability1 = stab1, stability2 = stab2, graph = TRUE)

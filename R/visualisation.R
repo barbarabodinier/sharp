@@ -1,9 +1,10 @@
 #' Calibration plot
 #'
-#' Returns a heatmap or plot showing the stability score as a function of the
-#' parameter controlling the sparsity and/or thereshold in selection proportion.
+#' Creates a plot showing the stability score as a function of the parameter
+#' controlling the level of sparsity in the underlying feature selection
+#' algorithm and/or the threshold in selection proportions.
 #'
-#' @param stability output from \code{\link{VariableSelection}} or
+#' @param stability output of \code{\link{VariableSelection}} or
 #'   \code{\link{GraphicalModel}}.
 #' @param metric parameter to visualise. Possible values are "lambda" (parameter
 #'   controlling the level of sparsity in underlying algorithm), "pi" (threshold
@@ -47,9 +48,10 @@
 #' @return a calibration plot.
 #'
 #' @details When selecting a single parameter, each point represents the best
-#' (maximum) stability score across all visited values of the other parameter.
+#'   (maximum) stability score across all visited values of the other parameter.
 #'
 #' @family calibration functions
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' \dontrun{
@@ -59,7 +61,7 @@
 #' simul <- SimulateGraphical(pk = 20, nu = 0.1)
 #'
 #' # Stability selection
-#' stab <- GraphicalModel(data = simul$data)
+#' stab <- GraphicalModel(xdata = simul$data)
 #'
 #' # Calibration plots
 #' CalibrationPlot(stab)
@@ -74,6 +76,7 @@
 #'   legend_length = 25, legend_range = c(0, 4000)
 #' )
 #' }
+#'
 #' @export
 CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
                             lines = TRUE, colours = c("ivory", "navajowhite", "tomato", "darkred"),
@@ -315,7 +318,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 
 #' Heatmap visualisation
 #'
-#' Produces a heatmap from a matrix.
+#' Produces a heatmap for visualisation of matrix entries.
 #'
 #' @param mat data matrix.
 #' @param colours vector of colours used for the heatmap.
@@ -325,7 +328,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #' @param legend_length length of the colour bar.
 #' @param legend_range range of the colour bar.
 #'
-#' @return a heatmap.
+#' @return A heatmap.
 #'
 #' @seealso \code{\link{CalibrationPlot}}
 #'
