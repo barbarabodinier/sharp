@@ -5,7 +5,7 @@
 #' @inheritParams VariableSelection
 #' @param data vector or matrix of data. In regression, this should be the
 #'   outcome data.
-#' @param ... additional parameters passed to the functions provided in
+#' @param ... additional parameters passed to the function provided in
 #'   \code{resampling}.
 #'
 #' @return A vector of resampled IDs.
@@ -16,7 +16,6 @@
 #'   that of the full sample.
 #'
 #' @examples
-#' \dontrun{
 #'
 #' ## Linear regression framework
 #' # Data simulation
@@ -54,17 +53,15 @@
 #' }
 #'
 #' # Resampling keeping proportions by Y and Z
-#' ids <- Resample(data = simul$Y, family = "binomial", resampling = "BalancedResampling", Z = conf)
+#' ids <- Resample(data = simul$Y, family = "binomial", resampling = BalancedResampling, Z = conf)
 #' prop.table(table(simul$Y, conf))
 #' prop.table(table(simul$Y[ids], conf[ids]))
 #'
 #' # User-defined resampling for stability selection
 #' stab <- VariableSelection(
 #'   xdata = simul$X, ydata = simul$Y, family = "binomial",
-#'   resampling = "BalancedResampling", Z = conf
+#'   resampling = BalancedResampling, Z = conf
 #' )
-#' }
-#'
 #' @export
 Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling", ...) {
   # Preparing the data
@@ -72,46 +69,52 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
     data <- matrix(data, ncol = 1)
   }
 
-  if (!resampling %in% c("subsampling", "bootstrap")) {
-    s <- do.call(get(resampling), args = list(data = data, tau = tau, ...))
+  # if (!resampling %in% c("subsampling", "bootstrap")) {
+  if (is.function(resampling)) {
+    # s <- do.call(get(resampling), args = list(data = data, tau = tau, ...))
+    s <- do.call(resampling, args = list(data = data, tau = tau, ...))
   } else {
-    # Using or not replacement in resampling
-    replacement <- ifelse(resampling == "subsampling", yes = FALSE, no = TRUE)
-
-    # Definition of the size of sub/bootstrap sample
-    if (replacement) {
-      tau <- 1
-    }
-
-    # Resampling procedure
-    if (!is.null(family)) {
-      # Resampling for regression models
-      if (family %in% c("gaussian", "poisson", "mgaussian")) {
-        s <- sample(nrow(data), size = tau * nrow(data), replace = replacement)
-      }
-      if (family == "binomial") {
-        data <- cbind(apply(data, 1, sum)) # to ensure balanced classes for PLS-DA
-        s <- NULL
-        for (mycat in levels(factor(data))) {
-          scat <- sample(which(data == mycat), size = tau * sum(data == mycat), replace = replacement)
-          s <- c(s, scat)
-        }
-      }
-      if (family == "multinomial") {
-        s <- NULL
-        for (mycat in levels(factor(data))) {
-          scat <- sample(which(data == mycat), size = tau * sum(data == mycat), replace = replacement)
-          s <- c(s, scat)
-        }
-      }
-      if (family == "cox") {
-        s0 <- sample(which(data[, 2] == "0"), size = tau * sum(data[, 2] == "0"), replace = replacement)
-        s1 <- sample(which(data[, 2] == "1"), size = tau * sum(data[, 2] == "1"), replace = replacement)
-        s <- c(s0, s1)
-      }
+    if (!resampling %in% c("subsampling", "bootstrap")) {
+      stop("Invalid input for argument 'resampling'. It must be a function or a character string: 'subsampling' or 'bootstrap'.")
     } else {
-      # Resampling for network models
-      s <- sample(1:nrow(data), size = tau * nrow(data), replace = replacement)
+      # Using or not replacement in resampling
+      replacement <- ifelse(resampling == "subsampling", yes = FALSE, no = TRUE)
+
+      # Definition of the size of sub/bootstrap sample
+      if (replacement) {
+        tau <- 1
+      }
+
+      # Resampling procedure
+      if (!is.null(family)) {
+        # Resampling for regression models
+        if (family %in% c("gaussian", "poisson", "mgaussian")) {
+          s <- sample(nrow(data), size = tau * nrow(data), replace = replacement)
+        }
+        if (family == "binomial") {
+          data <- cbind(apply(data, 1, sum)) # to ensure balanced classes for PLS-DA
+          s <- NULL
+          for (mycat in levels(factor(data))) {
+            scat <- sample(which(data == mycat), size = tau * sum(data == mycat), replace = replacement)
+            s <- c(s, scat)
+          }
+        }
+        if (family == "multinomial") {
+          s <- NULL
+          for (mycat in levels(factor(data))) {
+            scat <- sample(which(data == mycat), size = tau * sum(data == mycat), replace = replacement)
+            s <- c(s, scat)
+          }
+        }
+        if (family == "cox") {
+          s0 <- sample(which(data[, 2] == "0"), size = tau * sum(data[, 2] == "0"), replace = replacement)
+          s1 <- sample(which(data[, 2] == "1"), size = tau * sum(data[, 2] == "1"), replace = replacement)
+          s <- c(s0, s1)
+        }
+      } else {
+        # Resampling for network models
+        s <- sample(1:nrow(data), size = tau * nrow(data), replace = replacement)
+      }
     }
   }
   return(s)

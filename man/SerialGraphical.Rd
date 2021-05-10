@@ -14,7 +14,7 @@ SerialGraphical(
   tau = 0.5,
   seed = 1,
   n_cat = n_cat,
-  implementation = "glassoFast",
+  implementation = PenalisedGraphical,
   start = "cold",
   scale = TRUE,
   resampling = "subsampling",

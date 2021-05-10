@@ -14,7 +14,7 @@ VariableSelection(
   seed = 1,
   n_cat = 3,
   family = "gaussian",
-  implementation = "glmnet",
+  implementation = PenalisedRegression,
   resampling = "subsampling",
   PFER_method = "MB",
   PFER_thr = Inf,

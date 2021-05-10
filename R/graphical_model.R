@@ -156,7 +156,7 @@
 #' @export
 GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,
                            pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,
-                           implementation = "glassoFast", start = "warm", scale = TRUE,
+                           implementation = PenalisedGraphical, start = "warm", scale = TRUE,
                            resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                            Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001, max_density = 0.5,
                            n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
@@ -225,6 +225,18 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
     for (i in 2:length(mypar)) {
       out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[2]], graph = TRUE))
     }
+  }
+
+  # Re-set the function names
+  if ("methods" %in% names(out)) {
+    myimplementation <- as.character(substitute(implementation))
+    if (is.function(resampling)) {
+      myresampling <- as.character(substitute(resampling))
+    } else {
+      myresampling <- resampling
+    }
+    out$methods$implementation <- myimplementation
+    out$methods$resampling <- myresampling
   }
 
   if (verbose) {
@@ -303,7 +315,7 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
 #' @keywords internal
 SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
                             pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = n_cat,
-                            implementation = "glassoFast", start = "cold", scale = TRUE,
+                            implementation = PenalisedGraphical, start = "cold", scale = TRUE,
                             resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                             output_data = FALSE, verbose = TRUE, ...) {
   # Marginal correlation to get sign of the relationship
@@ -483,6 +495,12 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
 
   # Preparing outputs
   if (K > 2) {
+    myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
+    if (is.function(resampling)) {
+      myresampling <- as.character(substitute(resampling))
+    } else {
+      myresampling <- resampling
+    }
     if (nblocks == 1) {
       out <- list(
         S = metrics$S, Lambda = Lambda,
@@ -490,7 +508,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         PFER = metrics$PFER, FDP = metrics$FDP,
         S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
         selprop = bigstab, sign = sign(mycor_for_sign),
-        methods = list(implementation = implementation, start = start, resampling = resampling, PFER_method = PFER_method),
+        methods = list(implementation = myimplementation, start = start, resampling = myresampling, PFER_method = PFER_method),
         params = list(
           K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
           pk = pk, n = nrow(xdata),
@@ -508,7 +526,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         PFER = metrics$PFER, FDP = metrics$FDP,
         S_2d = metrics$S_2d,
         selprop = bigstab, sign = sign(mycor_for_sign),
-        methods = list(implementation = implementation, start = start, resampling = resampling, PFER_method = PFER_method),
+        methods = list(implementation = myimplementation, start = start, resampling = myresampling, PFER_method = PFER_method),
         params = list(
           K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
           pk = pk, n = nrow(xdata),

@@ -64,7 +64,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
         expect_equal(dim(stab$Beta), c(nlambda, pk, K))
 
         # Group of outputs 4
-        default_params <- c("glmnet", "gaussian", "subsampling", "MB")
+        default_params <- c("PenalisedRegression", "gaussian", "subsampling", "MB")
         names(default_params) <- c("implementation", "family", "resampling", "PFER_method")
         expect_equal(unlist(stab$methods), default_params)
 
@@ -88,23 +88,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
     verbose = FALSE,
-    family = "binomial"
-  ))
-  expect_error(VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
-    Lambda_cardinal = nlambda, K = K,
-    pi_list = pi_list,
-    tau = tau, n_cat = n_cat,
-    verbose = FALSE,
     family = "cox"
-  ))
-  expect_error(VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
-    Lambda_cardinal = nlambda, K = K,
-    pi_list = pi_list,
-    tau = tau, n_cat = n_cat,
-    verbose = FALSE,
-    family = "multinomial"
   ))
   expect_error(VariableSelection(
     xdata = simul$X, ydata = simul$Y,
@@ -161,7 +145,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (binomial)
   expect_equal(dim(stab$Beta), c(nlambda, pk, K))
 
   # Group of outputs 4
-  default_params <- c("glmnet", "binomial", "subsampling", "MB")
+  default_params <- c("PenalisedRegression", "binomial", "subsampling", "MB")
   names(default_params) <- c("implementation", "family", "resampling", "PFER_method")
   expect_equal(unlist(stab$methods), default_params)
 
@@ -236,7 +220,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
   expect_equal(dim(stab$Beta), c(nlambda, pk, K, ncol(Y)))
 
   # Group of outputs 4
-  default_params <- c("glmnet", "mgaussian", "subsampling", "MB")
+  default_params <- c("PenalisedRegression", "mgaussian", "subsampling", "MB")
   names(default_params) <- c("implementation", "family", "resampling", "PFER_method")
   expect_equal(unlist(stab$methods), default_params)
 
@@ -335,7 +319,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   expect_equal(dim(stab$Beta), c(nlambda, pk, K, length(unique(Y))))
 
   # Group of outputs 4
-  default_params <- c("glmnet", "multinomial", "subsampling", "MB")
+  default_params <- c("PenalisedRegression", "multinomial", "subsampling", "MB")
   names(default_params) <- c("implementation", "family", "resampling", "PFER_method")
   expect_equal(unlist(stab$methods), default_params)
 
@@ -395,4 +379,5 @@ test_that("variables with null sd in VariableSelection()", {
     tau = tau, n_cat = n_cat,
     verbose = FALSE
   )
+  expect_equal(as.numeric(SelectionProportions(stab)[1]), 0)
 })

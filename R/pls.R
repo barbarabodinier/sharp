@@ -116,7 +116,7 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
     # Making sure that the loadings of the univariate Y are positives
     if (ncol(ydata) == 1) {
       for (j in 1:ncol(mymodel$loadings$Y)) {
-        if (sign(mymodel$loadings$Y[1, j])) {
+        if (sign(mymodel$loadings$Y[1, j]) == -1) {
           Yloadings[1, j] <- -Yloadings[1, j]
           Xloadings[, j] <- -Xloadings[, j]
         }
@@ -294,7 +294,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
     # Making sure that the loadings of the univariate Y are positives
     if (ncol(ydata) == 1) {
       for (j in 1:ncol(mymodel$loadings$Y)) {
-        if (sign(mymodel$loadings$Y[1, j])) {
+        if (sign(mymodel$loadings$Y[1, j]) == -1) {
           Yloadings[1, j] <- -Yloadings[1, j]
           Xloadings[, j] <- -Xloadings[, j]
         }
@@ -466,7 +466,7 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
     # Making sure that the loadings of the univariate Y are positives
     if (ncol(ydata) == 1) {
       for (j in 1:ncol(mymodel$loadings$Y)) {
-        if (sign(mymodel$loadings$Y[1, j])) {
+        if (sign(mymodel$loadings$Y[1, j]) == -1) {
           Yloadings[1, j] <- -Yloadings[1, j]
           Xloadings[, j] <- -Xloadings[, j]
         }

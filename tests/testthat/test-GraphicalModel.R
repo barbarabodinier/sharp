@@ -44,7 +44,7 @@ test_that("single-block GraphicalModel()", {
     expect_equal(dim(stab$sign), c(pk, pk))
 
     # Group of outputs 4
-    default_params <- c("glassoFast", "warm", "subsampling", "MB")
+    default_params <- c("PenalisedGraphical", "warm", "subsampling", "MB")
     names(default_params) <- c("implementation", "start", "resampling", "PFER_method")
     expect_equal(unlist(stab$methods), default_params)
 
@@ -102,7 +102,7 @@ test_that("multi-block GraphicalModel()", {
   expect_equal(dim(stab$sign), c(sum(pk), sum(pk)))
 
   # Group of outputs 4
-  default_params <- c("glassoFast", "warm", "subsampling", "MB")
+  default_params <- c("PenalisedGraphical", "warm", "subsampling", "MB")
   names(default_params) <- c("implementation", "start", "resampling", "PFER_method")
   expect_equal(unlist(stab$methods), default_params)
 
@@ -166,7 +166,7 @@ test_that("parallel multi-block GraphicalModel()", {
   expect_equal(dim(stab$sign), c(sum(pk), sum(pk)))
 
   # Group of outputs 4
-  default_params <- c("glassoFast", "warm", "subsampling", "MB")
+  default_params <- c("PenalisedGraphical", "warm", "subsampling", "MB")
   names(default_params) <- c("implementation", "start", "resampling", "PFER_method")
   expect_equal(unlist(stab$methods), default_params)
 

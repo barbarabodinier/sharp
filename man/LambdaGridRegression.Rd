@@ -10,7 +10,6 @@ LambdaGridRegression(
   tau = 0.5,
   seed = 1,
   family = "gaussian",
-  implementation = "glmnet",
   resampling = "subsampling",
   Lambda_cardinal = 100,
   check_input = TRUE,
@@ -32,12 +31,6 @@ this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
 values include \code{"gaussian"} (linear regression), \code{"binomial"}
 (logistic regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis).}
-
-\item{implementation}{character string indicating the name of the function to
-use for variable selection. If \code{implementation="glmnet"},
-\code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{xdata}, \code{ydata},
-\code{family} and \code{...}, and returning a matrix of parameters.}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -64,7 +57,7 @@ A matrix of lambda values with one column and as many rows as
 }
 \description{
 Generates a relevant grid of penalty parameter values for penalised
-regression.
+regression using the implementation in \code{\link[glmnet]{glmnet}}.
 }
 \examples{
 \dontrun{

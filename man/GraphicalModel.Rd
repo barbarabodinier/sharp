@@ -14,7 +14,7 @@ GraphicalModel(
   tau = 0.5,
   seed = 1,
   n_cat = 3,
-  implementation = "glassoFast",
+  implementation = PenalisedGraphical,
   start = "warm",
   scale = TRUE,
   resampling = "subsampling",

@@ -20,7 +20,7 @@ BiSelection(
   seed = 1,
   n_cat = 3,
   family = "gaussian",
-  implementation = "SparsePLS",
+  implementation = SparsePLS,
   resampling = "subsampling",
   PFER_method = "MB",
   PFER_thr = Inf,
@@ -152,7 +152,7 @@ stab <- BiSelection(
   family = "gaussian", K = K, ncomp = 2,
   LambdaX = 1:2,
   LambdaY = 1:2,
-  implementation = "SparsePLS"
+  implementation = SparsePLS
 )
 }
 
@@ -172,7 +172,7 @@ stab <- BiSelection(
   xdata = x, ydata = y,
   family = "gaussian", ncomp = 3,
   LambdaX = 1:(ncol(x) - 1),
-  implementation = "SparsePLS"
+  implementation = SparsePLS
 )
 
 # sPLS: sparsity on both X and Y
@@ -181,7 +181,7 @@ stab <- BiSelection(
   family = "gaussian", ncomp = 3,
   LambdaX = 1:(ncol(x) - 1),
   LambdaY = 1:(ncol(y) - 1),
-  implementation = "SparsePLS"
+  implementation = SparsePLS
 )
 
 # sgPLS: sparsity on X
@@ -190,7 +190,7 @@ stab <- BiSelection(
   group_x = c(2, 10, 8),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-  implementation = "SparseGroupPLS"
+  implementation = SparseGroupPLS
 )
 
 # sgPLS: sparsity on both X and Y
@@ -200,7 +200,7 @@ stab <- BiSelection(
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
-  implementation = "SparseGroupPLS"
+  implementation = SparseGroupPLS
 )
 
 # gPLS: sparsity on X
@@ -209,7 +209,7 @@ stab <- BiSelection(
   group_x = c(2, 10, 8),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2,
-  implementation = "GroupPLS"
+  implementation = GroupPLS
 )
 
 # gPLS: sparsity on both X and Y
@@ -218,7 +218,7 @@ stab <- BiSelection(
   group_x = c(2, 10, 8), group_y = c(1, 3),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, LambdaY = 1:2,
-  implementation = "GroupPLS"
+  implementation = GroupPLS
 )
 
 # Data simulation (categorical outcomes)
@@ -233,7 +233,7 @@ stab <- BiSelection(
   xdata = x, ydata = cbind(y),
   family = "binomial", ncomp = 3,
   LambdaX = 1:(ncol(x) - 1),
-  implementation = "SparsePLS"
+  implementation = SparsePLS
 )
 
 # sgPLS-DA: sparsity on X
@@ -242,7 +242,7 @@ stab <- BiSelection(
   group_x = c(2, 10, 8), K = 10,
   family = "binomial", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-  implementation = "SparseGroupPLS"
+  implementation = SparseGroupPLS
 )
 
 # gPLS-DA: sparsity on Y
@@ -251,7 +251,7 @@ stab <- BiSelection(
   group_x = c(2, 10, 8),
   family = "binomial", ncomp = 3,
   LambdaX = 1:2,
-  implementation = "GroupPLS"
+  implementation = GroupPLS
 )
 }
 }

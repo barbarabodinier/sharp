@@ -7,7 +7,7 @@ test_that("sPLS models are working", {
   stab <- VariableSelection(
     xdata = simul$X, ydata = simul$Y, K = K,
     Lambda = 1:(ncol(simul$X) - 1),
-    implementation = "SparsePLS", family = "gaussian",
+    implementation = SparsePLS, family = "gaussian",
     verbose = FALSE
   )
   CalibrationPlot(stab, xlab = "")
@@ -23,7 +23,7 @@ test_that("sPLS models are working", {
   stab <- VariableSelection(
     xdata = x, ydata = y, K = K,
     Lambda = 1:(ncol(simul$X) - 1), ncomp = 1,
-    implementation = "SparsePLS", family = "gaussian",
+    implementation = SparsePLS, family = "gaussian",
     verbose = FALSE
   )
   expect_equal(length(SelectedVariables(stab)), pk)
@@ -42,7 +42,7 @@ test_that("sPLSDA models are working", {
   stab <- VariableSelection(
     xdata = simul$X, ydata = Y, K = K,
     Lambda = 1:(ncol(simul$X) - 1),
-    implementation = "SparsePLS", family = "binomial",
+    implementation = SparsePLS, family = "binomial",
     verbose = FALSE
   )
   CalibrationPlot(stab, xlab = "")

@@ -28,7 +28,7 @@ use arguments named \code{"data"} and \code{"tau"} and return IDs of
 observations to be included in the resampled dataset (see example in
 \code{\link{Resample}}).}
 
-\item{...}{additional parameters passed to the functions provided in
+\item{...}{additional parameters passed to the function provided in
 \code{resampling}.}
 }
 \value{
@@ -44,7 +44,6 @@ With categorical outcomes (i.e. "family" argument is set to
   that of the full sample.
 }
 \examples{
-\dontrun{
 
 ## Linear regression framework
 # Data simulation
@@ -82,15 +81,13 @@ BalancedResampling <- function(data, tau, Z, ...) {
 }
 
 # Resampling keeping proportions by Y and Z
-ids <- Resample(data = simul$Y, family = "binomial", resampling = "BalancedResampling", Z = conf)
+ids <- Resample(data = simul$Y, family = "binomial", resampling = BalancedResampling, Z = conf)
 prop.table(table(simul$Y, conf))
 prop.table(table(simul$Y[ids], conf[ids]))
 
 # User-defined resampling for stability selection
 stab <- VariableSelection(
   xdata = simul$X, ydata = simul$Y, family = "binomial",
-  resampling = "BalancedResampling", Z = conf
+  resampling = BalancedResampling, Z = conf
 )
-}
-
 }

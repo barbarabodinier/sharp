@@ -48,7 +48,7 @@
 #'   family = "gaussian", K = K, ncomp = 2,
 #'   LambdaX = 1:2,
 #'   LambdaY = 1:2,
-#'   implementation = "SparsePLS"
+#'   implementation = SparsePLS
 #' )
 #' }
 #'
@@ -68,7 +68,7 @@
 #'   xdata = x, ydata = y,
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:(ncol(x) - 1),
-#'   implementation = "SparsePLS"
+#'   implementation = SparsePLS
 #' )
 #'
 #' # sPLS: sparsity on both X and Y
@@ -77,7 +77,7 @@
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   LambdaY = 1:(ncol(y) - 1),
-#'   implementation = "SparsePLS"
+#'   implementation = SparsePLS
 #' )
 #'
 #' # sgPLS: sparsity on X
@@ -86,7 +86,7 @@
 #'   group_x = c(2, 10, 8),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-#'   implementation = "SparseGroupPLS"
+#'   implementation = SparseGroupPLS
 #' )
 #'
 #' # sgPLS: sparsity on both X and Y
@@ -96,7 +96,7 @@
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
-#'   implementation = "SparseGroupPLS"
+#'   implementation = SparseGroupPLS
 #' )
 #'
 #' # gPLS: sparsity on X
@@ -105,7 +105,7 @@
 #'   group_x = c(2, 10, 8),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2,
-#'   implementation = "GroupPLS"
+#'   implementation = GroupPLS
 #' )
 #'
 #' # gPLS: sparsity on both X and Y
@@ -114,7 +114,7 @@
 #'   group_x = c(2, 10, 8), group_y = c(1, 3),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, LambdaY = 1:2,
-#'   implementation = "GroupPLS"
+#'   implementation = GroupPLS
 #' )
 #'
 #' # Data simulation (categorical outcomes)
@@ -129,7 +129,7 @@
 #'   xdata = x, ydata = cbind(y),
 #'   family = "binomial", ncomp = 3,
 #'   LambdaX = 1:(ncol(x) - 1),
-#'   implementation = "SparsePLS"
+#'   implementation = SparsePLS
 #' )
 #'
 #' # sgPLS-DA: sparsity on X
@@ -138,7 +138,7 @@
 #'   group_x = c(2, 10, 8), K = 10,
 #'   family = "binomial", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-#'   implementation = "SparseGroupPLS"
+#'   implementation = SparseGroupPLS
 #' )
 #'
 #' # gPLS-DA: sparsity on Y
@@ -147,7 +147,7 @@
 #'   group_x = c(2, 10, 8),
 #'   family = "binomial", ncomp = 3,
 #'   LambdaX = 1:2,
-#'   implementation = "GroupPLS"
+#'   implementation = GroupPLS
 #' )
 #' }
 #' @export
@@ -155,15 +155,15 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
                         LambdaX = NULL, LambdaY = NULL, AlphaX = NULL, AlphaY = NULL, ncomp = 1,
                         pi_list = seq(0.6, 0.9, by = 0.01),
                         K = 100, tau = 0.5, seed = 1, n_cat = 3,
-                        family = "gaussian", implementation = "SparsePLS",
+                        family = "gaussian", implementation = SparsePLS,
                         resampling = "subsampling", PFER_method = "MB",
                         PFER_thr = Inf, FDP_thr = Inf,
                         n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   if (is.null(LambdaX)) {
-    if (implementation %in% c("SparseGroupPLS", "GroupPLS")) {
+    if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
       LambdaX <- 1:length(group_x)
     }
-    if (implementation == "SparsePLS") {
+    if (as.character(substitute(implementation)) == "SparsePLS") {
       LambdaX <- 1:ncol(xdata)
     }
   }
@@ -177,7 +177,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     }
   }
 
-  if (implementation %in% c("SparsePLS", "GroupPLS")) {
+  if (as.character(substitute(implementation)) %in% c("SparsePLS", "GroupPLS")) {
     AlphaX <- AlphaY <- NULL
   }
 
@@ -221,7 +221,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     if (verbose) {
       cat("\n")
       print(paste0("Component ", comp))
-      if (implementation == "SparseGroupPLS") {
+      if (as.character(substitute(implementation)) == "SparseGroupPLS") {
         pb <- utils::txtProgressBar(style = 3)
       }
     }
@@ -230,7 +230,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     for (ny in LambdaY) {
       for (alphax in AlphaX) {
         for (alphay in AlphaY) {
-          if (implementation == "SparsePLS") {
+          if (as.character(substitute(implementation)) == "SparsePLS") {
             if (family == "gaussian") {
               stab <- VariableSelection(
                 xdata = xdata, ydata = ydata,
@@ -258,7 +258,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
               )
             }
           }
-          if (implementation == "SparseGroupPLS") {
+          if (as.character(substitute(implementation)) == "SparseGroupPLS") {
             if (family == "gaussian") {
               stab <- VariableSelection(
                 xdata = xdata, ydata = ydata,
@@ -291,7 +291,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
               )
             }
           }
-          if (implementation == "GroupPLS") {
+          if (as.character(substitute(implementation)) == "GroupPLS") {
             if (family == "gaussian") {
               stab <- VariableSelection(
                 xdata = xdata, ydata = ydata,
@@ -345,7 +345,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
           tmp_params[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX)), ] <- cbind(stab$Lambda, alphax, stab$P, ny, alphay, piy, stab$S)
 
           # Incrementing loading bar and id
-          if (verbose & (implementation == "SparseGroupPLS")) {
+          if (verbose & (as.character(substitute(implementation)) == "SparseGroupPLS")) {
             utils::setTxtProgressBar(pb, id / (length(LambdaY) * length(AlphaX) * length(AlphaY)))
           }
           id <- id + 1
@@ -353,7 +353,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
       }
     }
 
-    if (verbose & (implementation == "SparseGroupPLS")) {
+    if (verbose & (as.character(substitute(implementation)) == "SparseGroupPLS")) {
       cat("\n")
     }
 
@@ -399,7 +399,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     selectedY_full = selected_y,
     selpropY_full = selprop_y,
     methods = list(
-      implementation = implementation, family = family,
+      implementation = as.character(substitute(implementation)), family = family,
       resampling = resampling, PFER_method = PFER_method
     ),
     params = list(

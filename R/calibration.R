@@ -396,6 +396,16 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #' # Coefficients of the first fitted model
 #' coefs <- Coefficients(stab, iterations = 1)
 #' dim(coefs)
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = simul$X, ydata = simul$Y,
+#'   implementation = SparsePLS, family = "gaussian"
+#' )
+#'
+#' # Coefficients of visited models
+#' coefs <- Coefficients(stab, side = "Y", )
+#' dim(coefs)
 #' }
 #' @export
 Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
@@ -407,10 +417,9 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
   if (length(iterations) == 0) {
     stop("Invalid input for argument 'iterations'. This argument must be a number smaller than the number of iterations used for the stability selection run.")
   }
-  if (stability$methods$implementation == "glmnet") {
+  if (ncol(stability$Beta) == stability$params$pk) {
     return(stability$Beta[, , iterations, drop = FALSE])
-  }
-  if (grepl("pls", tolower(stability$methods$implementation))) {
+  } else {
     if (!side %in% c("X", "Y")) {
       warning("Invalid input for argument 'side'. The default value ('X') was used.")
       side <- "X"

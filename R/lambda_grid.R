@@ -1,14 +1,9 @@
 #' Grid of penalty parameters (regression model)
 #'
 #' Generates a relevant grid of penalty parameter values for penalised
-#' regression.
+#' regression using the implementation in \code{\link[glmnet]{glmnet}}.
 #'
 #' @inheritParams VariableSelection
-#' @param implementation character string indicating the name of the function to
-#'   use for variable selection. If \code{implementation="glmnet"},
-#'   \code{\link[glmnet]{glmnet}} is used for regularised regression.
-#'   Alternatively, a function with arguments \code{xdata}, \code{ydata},
-#'   \code{family} and \code{...}, and returning a matrix of parameters.
 #' @param check_input logical indicating if input values should be checked
 #'   (recommended).
 #'
@@ -39,7 +34,7 @@
 #' }
 #' @export
 LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
-                                 family = "gaussian", implementation = "glmnet",
+                                 family = "gaussian",
                                  resampling = "subsampling",
                                  Lambda_cardinal = 100, check_input = TRUE,
                                  ...) {
@@ -52,6 +47,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   PFER_thr <- Inf
   FDP_thr <- Inf
   verbose <- TRUE
+  implementation <- PenalisedRegression
   # Checks are not re-run if coming from VariableSelection to avoid printing twice the same messages
   if (check_input) {
     CheckInputRegression(
@@ -73,14 +69,10 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   withr::local_seed(1) # To keep to allow for reproducible parallelisation
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
-  # Getting upperbound of Lambda
+  # Applying function for variable selection to get upperbound of Lambda
   withr::local_seed(1) # To keep to allow for reproducible parallelisation
-  if (implementation == "glmnet") {
-    mycv <- glmnet::glmnet(x = xdata[s, ], y = ydata[s, ], family = family, ...)
-  } else {
-    # Applying user-defined function for variable selection
-    mycv <- do.call(get(implementation), args = list(xdata = xdata[s, ], ydata = ydata[s, ], family = family, ...))
-  }
+  mycv <- glmnet::glmnet(x = xdata[s, ], y = ydata[s, ], family = family, ...)
+  # mycv <- do.call(glmnet::glmnet, args = list(xdata = xdata[s, ], ydata = ydata[s, ], family = family, ...))
 
   # Creating a grid of lambda values from min and max
   Lambda <- cbind(LambdaSequence(lmax = max(mycv$lambda), lmin = min(mycv$lambda), cardinal = Lambda_cardinal))

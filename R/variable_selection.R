@@ -224,7 +224,7 @@
 #' @export
 VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,
-                              family = "gaussian", implementation = "glmnet",
+                              family = "gaussian", implementation = PenalisedRegression,
                               resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                               Lambda_cardinal = 100,
                               n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
@@ -243,7 +243,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     # Defining grid of lambda values (using glmnet implementation)
     Lambda <- LambdaGridRegression(
       xdata = xdata, ydata = ydata, tau = tau, seed = seed,
-      family = family, implementation = implementation,
+      family = family,
       resampling = resampling,
       Lambda_cardinal = Lambda_cardinal, check_input = FALSE, ...
     )
@@ -274,6 +274,18 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     for (i in 2:length(mypar)) {
       out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[2]], graph = FALSE))
     }
+  }
+
+  # Re-set the function names
+  if ("methods" %in% names(out)) {
+    myimplementation <- as.character(substitute(implementation))
+    if (is.function(resampling)) {
+      myresampling <- as.character(substitute(resampling))
+    } else {
+      myresampling <- resampling
+    }
+    out$methods$implementation <- myimplementation
+    out$methods$resampling <- myresampling
   }
 
   return(out)
@@ -331,7 +343,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 #' @keywords internal
 SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9, by = 0.01),
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
-                             family = "gaussian", implementation = "glmnet",
+                             family = "gaussian", implementation = PenalisedRegression,
                              resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                              output_data = FALSE, verbose = TRUE, ...) {
   # Defining K if using complementary pairs (SS)
@@ -502,13 +514,19 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
   # Preparing outputs
   if (K > 2) {
+    myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
+    if (is.function(resampling)) {
+      myresampling <- as.character(substitute(resampling))
+    } else {
+      myresampling <- resampling
+    }
     out <- list(
       S = metrics$S, Lambda = Lambda,
       Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
       PFER = metrics$PFER, FDP = metrics$FDP,
       S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
       selprop = bigstab, Beta = Beta,
-      methods = list(implementation = implementation, family = family, resampling = resampling, PFER_method = PFER_method),
+      methods = list(implementation = myimplementation, family = family, resampling = myresampling, PFER_method = PFER_method),
       params = list(
         K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
         pk = ncol(xdata), n = nrow(xdata),

@@ -42,6 +42,16 @@ dim(coefs)
 # Coefficients of the first fitted model
 coefs <- Coefficients(stab, iterations = 1)
 dim(coefs)
+
+# Stability selection
+stab <- VariableSelection(
+  xdata = simul$X, ydata = simul$Y,
+  implementation = SparsePLS, family = "gaussian"
+)
+
+# Coefficients of visited models
+coefs <- Coefficients(stab, side = "Y", )
+dim(coefs)
 }
 }
 \seealso{

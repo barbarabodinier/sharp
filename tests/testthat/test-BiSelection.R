@@ -15,7 +15,7 @@ test_that("BiSelection() models are working", {
     family = "gaussian", K = K, ncomp = 2,
     LambdaX = 1:2,
     LambdaY = 1:2,
-    implementation = "SparsePLS"
+    implementation = SparsePLS
   )
 
   # sgPLS: sparsity on both X and Y
@@ -25,6 +25,6 @@ test_that("BiSelection() models are working", {
     family = "gaussian", K = K, ncomp = 2,
     LambdaX = 1:2, AlphaX = c(0.1, 0.3),
     LambdaY = 1:2, AlphaY = c(0.1, 0.3),
-    implementation = "SparseGroupPLS"
+    implementation = SparseGroupPLS
   )
 })

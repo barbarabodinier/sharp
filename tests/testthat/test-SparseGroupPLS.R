@@ -15,7 +15,7 @@ test_that("sgPLS models are working", {
     xdata = x, ydata = y, K = K,
     group_x = c(10, 5), alpha.x = alpha,
     Lambda = 1:2,
-    implementation = "SparseGroupPLS", family = "gaussian",
+    implementation = SparseGroupPLS, family = "gaussian",
     verbose = FALSE
   )
   CalibrationPlot(stab, xlab = "")
@@ -31,7 +31,7 @@ test_that("sgPLS models are working", {
     AlphaY = seq(0.1, 0.9, by = 0.1),
     LambdaY = 1:2,
     ncomp = 3,
-    implementation = "SparseGroupPLS", family = "gaussian",
+    implementation = SparseGroupPLS, family = "gaussian",
     verbose = TRUE
   )
 })
