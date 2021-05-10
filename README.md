@@ -144,13 +144,13 @@ extracted:
 selprop=SelectionProportions(stab)
 print(selprop)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.07  0.09  0.31  0.09  0.07  0.12  0.91  1.00  0.99  0.18  0.01  0.22  0.72 
+#>  0.07  0.10  0.35  0.06  0.08  0.08  0.91  0.99  1.00  0.17  0.05  0.15  0.70 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
-#>  0.10  0.37  0.08  0.06  0.20  0.07  0.07  0.07  0.08  0.05  0.04  0.06  0.04 
+#>  0.14  0.56  0.09  0.09  0.23  0.05  0.11  0.05  0.10  0.04  0.02  0.10  0.01 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>  0.05  0.09  0.96  0.13  0.11  0.96  0.10  0.98  0.20  0.29  0.08  0.03  0.07 
+#>  0.07  0.16  0.96  0.14  0.11  0.91  0.07  0.99  0.29  0.18  0.04  0.05  0.11 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>  0.97  0.08  0.69  0.96  0.99  0.96  0.17  0.18  0.07  0.02  0.96
+#>  0.99  0.05  0.74  0.99  1.00  0.95  0.11  0.20  0.09  0.03  0.95
 ```
 
 Selection proportions can be used to rank the variables by relevance in
@@ -191,7 +191,7 @@ Stability selection for graphical modelling is implemented in
 `GraphicalModel()`. It takes the data as input:
 
 ``` r
-stab=GraphicalModel(data=X)
+stab=GraphicalModel(xdata=X)
 ```
 
 ### Calibration

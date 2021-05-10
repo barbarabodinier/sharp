@@ -148,7 +148,7 @@ print(dim(X))
 Stability selection for graphical modelling is implemented in `GraphicalModel()`. It takes the data as input:
 
 ```{r results="hide"}
-stab=GraphicalModel(data=X)
+stab=GraphicalModel(xdata=X)
 ```
 
 
