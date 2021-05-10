@@ -35,7 +35,7 @@ BiSelection(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s).}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group. Only used with
@@ -153,16 +153,6 @@ stab <- BiSelection(
   LambdaX = 1:2,
   LambdaY = 1:2,
   implementation = "SparsePLS"
-)
-
-# sgPLS: sparsity on both X and Y
-stab <- BiSelection(
-  xdata = x, ydata = y,
-  group_x = c(10, 5), group_y = c(1, 3),
-  family = "gaussian", K = K, ncomp = 2,
-  LambdaX = 1:2, AlphaX = c(0.1, 0.3),
-  LambdaY = 1:2, AlphaY = c(0.1, 0.3),
-  implementation = "SparseGroupPLS"
 )
 }
 

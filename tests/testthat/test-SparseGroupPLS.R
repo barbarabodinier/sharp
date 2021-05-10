@@ -35,5 +35,3 @@ test_that("sgPLS models are working", {
     verbose = TRUE
   )
 })
-
-

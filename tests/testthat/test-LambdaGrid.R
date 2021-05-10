@@ -20,7 +20,7 @@ test_that("lambda grid size for VariableSelection()", {
   stab <- VariableSelection(
     xdata = simul$X, ydata = simul$Y,
     Lambda = 0.5,
-    Lambda_cardinal = nlambda, K = K,
+    K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
     verbose = FALSE

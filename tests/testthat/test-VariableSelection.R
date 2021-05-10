@@ -377,3 +377,22 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   ))
 })
 
+test_that("variables with null sd in VariableSelection()", {
+  n <- 78
+  pk <- 12
+  nlambda <- 3
+  K <- 5
+  tau <- 0.55
+  n_cat <- 3
+  pi_list <- seq(0.6, 0.7, length.out = 15)
+  simul <- SimulateRegression(n = n, pk = pk, family = "gaussian")
+  simul$X[, 1] <- rep(0, nrow(simul$X))
+
+  stab <- VariableSelection(
+    xdata = simul$X, ydata = simul$Y,
+    Lambda_cardinal = nlambda, K = K,
+    pi_list = pi_list,
+    tau = tau, n_cat = n_cat,
+    verbose = FALSE
+  )
+})

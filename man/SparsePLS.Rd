@@ -19,7 +19,7 @@ SparsePLS(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s).}
 
 \item{Lambda}{matrix of parameters controlling the number of selected
 predictors at current component, as defined by \code{ncomp}.}

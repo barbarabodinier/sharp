@@ -70,7 +70,7 @@ SelectionAlgo <- function(xdata, ydata, Lambda, family, implementation = "glmnet
 
         # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
         if (any(mysd == 0)) {
-          mybeta[, which(mysd == 0), drop = FALSE] <- 0
+          mybeta[, which(mysd == 0)] <- 0
         }
 
         # Preparing the outputs

@@ -21,7 +21,7 @@ LambdaGridRegression(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s).}
 
 \item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 

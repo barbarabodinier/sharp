@@ -28,7 +28,7 @@ SerialRegression(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s).}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
