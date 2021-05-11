@@ -45,7 +45,7 @@ stab <- BiSelection(
   family = "gaussian", ncomp = 3,
   LambdaX = 1:(ncol(x) - 1),
   LambdaY = 1:(ncol(y) - 1),
-  implementation = "SparsePLS"
+  implementation = SparsePLS
 )
 
 ## Graphical models

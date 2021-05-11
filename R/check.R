@@ -7,7 +7,7 @@
 #' @inheritParams VariableSelection
 #'
 #' @keywords internal
-CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
+CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                                  K = 100, tau = 0.5, seed = 1, n_cat = 3,
                                  family = "gaussian", implementation = PenalisedRegression,
                                  resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
@@ -78,31 +78,19 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   ydata <- ydata[ids, , drop = FALSE]
 
   # Further checking/preparing ydata
-  if ((as.character(substitute(implementation)) == "PenalisedRegression") & (family == "binomial")) {
-    if (length(unique(ydata)) > 2) {
-      stop("Arguments 'ydata' and 'family' are not compatible. For logistic regression using glmnet, the argument 'ydata' needs to be binary.")
-    }
-    ydata <- as.factor(ydata)
-    if (verbose) {
-      print(paste0("Reference category: ", levels(ydata)[1]))
-      print(paste0("Other category: ", levels(ydata)[2]))
-    }
-    ydata <- as.numeric(ydata) - 1
-    ydata <- matrix(ydata, ncol = 1)
-  }
-  if ((as.character(substitute(implementation)) == "PenalisedRegression") & (family == "cox")) {
+  if ((family == "cox")) {
     if ((ncol(ydata) != 2) | (length(unique(ydata[, 2])) != 2)) {
       stop("Invalid input for argument 'ydata'. For Cox regression using glmnet, the argument 'ydata' needs to be a matrix or data frame with two columns: the time to event and binary status.")
     }
     colnames(ydata) <- c("time", "status")
     tmp <- as.factor(ydata[, 2])
     if (verbose) {
-      print(paste0("Reference category: ", levels(tmp)[1]))
-      print(paste0("Other category: ", levels(tmp)[2]))
+      message(paste0("Reference category: ", levels(tmp)[1]))
+      message(paste0("Other category: ", levels(tmp)[2]))
     }
     ydata[, 2] <- as.numeric(tmp) - 1
   }
-  if ((as.character(substitute(implementation)) == "PenalisedRegression") & (family == "multinomial")) {
+  if ((family %in% c("binomial", "multinomial"))) {
     if (ncol(ydata) > 1) {
       ydata_original <- ydata
       ydata <- matrix(0, nrow = nrow(ydata_original), ncol = ncol(ydata_original))
@@ -208,9 +196,6 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   if ((length(family) != 1) | is.na(family)) {
     stop("Invalid input for argument 'family'. The argument 'family' must be a character string.")
   }
-  if ((as.character(substitute(implementation)) == "PenalisedRegression") & (!family %in% c("gaussian", "binomial", "poisson", "multinomial", "cox", "mgaussian"))) {
-    stop("Invalid input for argument 'family'. Possible values for use with the 'PenalisedRegression' implementation, based on glmnet, are: 'gaussian', 'binomial', 'poisson', 'multinomial', 'cox' or 'mgaussian'.")
-  }
 
   # Checking the inputs (implementation)
   if (!is.function(implementation)) {
@@ -218,7 +203,7 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   }
 
   # Checking the inputs (resampling)
-  if ((!is.function(resampling))&(!is.character(resampling))) {
+  if ((!is.function(resampling)) & (!is.character(resampling))) {
     stop("Invalid input for argument 'resampling'. The argument 'resampling' must be a character string. Possible values are: 'subsampling', 'bootstrap' or the name of a function.")
   }
 
@@ -229,7 +214,7 @@ CheckInputRegression <- function(xdata, ydata, Lambda = NULL, pi_list = seq(0.6,
   }
 
   # Checking the inputs (PFER_method and resampling)
-  if (is.character(resampling)){
+  if (is.character(resampling)) {
     if ((PFER_method == "SS") & (resampling == "bootstrap")) {
       warning("Arguments 'resampling' and 'PFER_method' are not compatible. With 'PFER_method' set to 'SS', the resampling is done with complementary pairs of subsamples.")
       resampling <- "subsampling"
@@ -394,7 +379,7 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
   }
 
   # Checking the inputs (resampling)
-  if ((!is.function(resampling))&(!is.character(resampling))) {
+  if ((!is.function(resampling)) & (!is.character(resampling))) {
     stop("Invalid input for argument 'resampling'. The argument 'resampling' must be a character string. Possible values are: 'subsampling', 'bootstrap' or the name of a function.")
   }
 
@@ -405,7 +390,7 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
   }
 
   # Checking the inputs (PFER_method and resampling)
-  if (is.character(resampling)){
+  if (is.character(resampling)) {
     if ((PFER_method == "SS") & (resampling == "bootstrap")) {
       warning("Arguments 'resampling' and 'PFER_method' are not compatible. With 'PFER_method' set to 'SS', the resampling is done with complementary pairs of subsamples.")
       resampling <- "subsampling"

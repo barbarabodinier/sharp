@@ -6,7 +6,7 @@
 \usage{
 CheckInputRegression(
   xdata,
-  ydata,
+  ydata = NULL,
   Lambda = NULL,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,

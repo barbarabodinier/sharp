@@ -220,7 +220,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     id <- 1
     if (verbose) {
       cat("\n")
-      print(paste0("Component ", comp))
+      message(paste0("Component ", comp))
       if (as.character(substitute(implementation)) == "SparseGroupPLS") {
         pb <- utils::txtProgressBar(style = 3)
       }

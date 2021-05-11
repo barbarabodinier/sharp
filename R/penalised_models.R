@@ -110,3 +110,106 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 
   return(list(selected = selected, beta_full = beta_full))
 }
+
+
+#' Graph estimation algorithm
+#'
+#' Runs the algorithm for estimation of an undirected graph with no self-loops
+#' specified in the argument \code{implementation} and returns the estimated
+#' adjacency matrix. This function is not using stability.
+#'
+#' @inheritParams GraphicalModel
+#' @param xdata matrix with observations as rows and variables as columns.
+#' @param Sequential_template logical matrix encoding the type of procedure to
+#'   use for data with multiple blocks in stability selection graphical
+#'   modelling. For multi-block estimation, the stability selection model is
+#'   constructed as the union of block-specific stable edges estimated while the
+#'   others are weakly penalised (\code{TRUE} only for the block currently being
+#'   calibrated and \code{FALSE} for other blocks). Other approaches with joint
+#'   calibration of the blocks are allowed (all entries are set to \code{TRUE}).
+#' @param ... additional parameters passed to the function provided in
+#'   \code{implementation}.
+#'
+#' @return An array with binary and symmetric adjacency matrices along the third
+#'   dimension.
+#'
+#' @family underlying algorithm functions
+#' @seealso \code{\link{GraphicalModel}}
+#'
+#' @details The use of the procedure from Equation (4) or (5) is controlled by
+#'   the argument "Sequential_template".
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateGraphical()
+#'
+#' # Running graphical LASSO
+#' myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+#' }
+#' @export
+PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
+                               scale = TRUE, start = "cold", ...) {
+  # Create matrix with block indices
+  bigblocks <- BlockMatrix(pk)
+  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+  N_blocks <- unname(table(bigblocks_vect))
+  blocks <- unique(as.vector(bigblocks_vect))
+  names(N_blocks) <- blocks
+  nblocks <- max(blocks)
+
+  if (is.null(Sequential_template)) {
+    Sequential_template <- BlockLambdaGrid(Lambda = Lambda)$Sequential_template
+  }
+
+  # Initialisation of array storing adjacency matrices
+  adjacency <- array(NA, dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)))
+
+  for (k in 1:nrow(Lambda)) {
+    # Creating penalisation matrix
+    if (nblocks > 1) {
+      lambdamat <- bigblocks
+      for (b in 1:nblocks) {
+        lambdamat[bigblocks == b] <- Lambda[k, b]
+      }
+    } else {
+      lambdamat <- Lambda[k, 1]
+    }
+
+    # Estimation of the covariance
+    if (scale) {
+      cov_sub <- stats::cor(xdata)
+    } else {
+      cov_sub <- stats::cov(xdata)
+    }
+
+    # Estimation of the sparse inverse covariance
+    if ((start == "warm") & (k != 1)) {
+      if (all(which(Sequential_template[k, ]) == which(Sequential_template[k - 1, ]))) {
+        g_sub <- glassoFast::glassoFast(
+          S = cov_sub, rho = lambdamat,
+          start = "warm", w.init = sigma, wi.init = omega
+        )
+      } else {
+        # Cold start if first iteration for the block
+        g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
+      }
+    } else {
+      g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
+    }
+    omega <- g_sub$wi
+    sigma <- g_sub$w
+
+    # Creating adjacency matrix
+    A <- ifelse(omega != 0, yes = 1, no = 0)
+    A <- A + t(A)
+    A <- ifelse(A != 0, yes = 1, no = 0)
+    diag(A) <- 0
+
+    adjacency[, , k] <- A
+  }
+
+  return(adjacency)
+}

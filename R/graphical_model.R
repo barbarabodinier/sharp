@@ -169,9 +169,6 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
   } else {
     calibration <- "single-block"
   }
-  if (verbose) {
-    print(paste("Starting", calibration, "calibration..."))
-  }
 
   # Error and warning messages
   bigblocks <- bigblocks_vect <- blocks <- N_blocks <- nblocks <- PFER_thr_blocks <- FDP_thr_blocks <- NULL
@@ -188,9 +185,6 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
   # Launching stability selection and calibration
   if (is.null(Lambda)) {
     # Defining a broad grid of lambda values
-    if (verbose) {
-      print("Defining the grid of lambda values...")
-    }
     Lambda <- LambdaGridGraphical(
       xdata = xdata, pk = pk, lambda_other_blocks = lambda_other_blocks, tau = tau,
       implementation = implementation, start = "cold", scale = scale,
@@ -239,17 +233,17 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
     out$methods$resampling <- myresampling
   }
 
-  if (verbose) {
-    cat("\n")
-    print("Visited Q:")
-    if (nrow(out$Q) > 15) {
-      print(utils::head(out$Q))
-      print("[...]")
-      print(utils::tail(out$Q))
-    } else {
-      print(out$Q)
-    }
-  }
+  # if (verbose) {
+  #   cat("\n")
+  #   print("Visited Q:")
+  #   if (nrow(out$Q) > 15) {
+  #     print(utils::head(out$Q))
+  #     print("[...]")
+  #     print(utils::tail(out$Q))
+  #   } else {
+  #     print(out$Q)
+  #   }
+  # }
 
   return(out)
 }
@@ -362,15 +356,15 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
     Sequential_template <- grid$Sequential_template
   }
 
-  # Showing the grid of (block-specific) lambda values
-  if (verbose) {
-    print("Grid of lambda values:")
-    if (ncol(Lambda) == 1) {
-      print(as.vector(Lambda))
-    } else {
-      print(Lambda)
-    }
-  }
+  # # Showing the grid of (block-specific) lambda values
+  # if (verbose) {
+  #   print("Grid of lambda values:")
+  #   if (ncol(Lambda) == 1) {
+  #     print(as.vector(Lambda))
+  #   } else {
+  #     print(Lambda)
+  #   }
+  # }
 
   # Initialising array of selection proportions
   bigstab <- array(0,
@@ -378,17 +372,17 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
     dimnames = list(colnames(xdata), colnames(xdata), NULL)
   )
 
-  # Printing message
-  if (verbose) {
-    if (all(!is.infinite(PFER_thr_blocks))) {
-      print("Threshold(s) in PFER:")
-      print(PFER_thr_blocks)
-    }
-    if (all(!is.infinite(FDP_thr_blocks))) {
-      print("Threshold(s) in FDP:")
-      print(FDP_thr_blocks)
-    }
-  }
+  # # Printing message
+  # if (verbose) {
+  #   if (all(!is.infinite(PFER_thr_blocks))) {
+  #     print("Threshold(s) in PFER:")
+  #     print(PFER_thr_blocks)
+  #   }
+  #   if (all(!is.infinite(FDP_thr_blocks))) {
+  #     print("Threshold(s) in FDP:")
+  #     print(FDP_thr_blocks)
+  #   }
+  # }
 
   # Setting seed for reproducibility
   withr::local_seed(seed)

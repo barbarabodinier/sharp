@@ -185,7 +185,7 @@ SelectionAlgo <- function(xdata, ydata, Lambda, family, implementation = Penalis
 #' myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
 #' }
 #' @export
-GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template=NULL,
+GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
                           scale = TRUE, implementation = PenalisedGraphical, start = "cold", ...) {
   if (is.null(pk)) {
     pk <- ncol(xdata)
@@ -199,8 +199,8 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template=NULL,
     }
   }
 
-  if (is.null(Sequential_template)){
-    Sequential_template=BlockLambdaGrid(Lambda=Lambda)$Sequential_template
+  if (is.null(Sequential_template)) {
+    Sequential_template <- BlockLambdaGrid(Lambda = Lambda)$Sequential_template
   }
 
   # # Create matrix with block indices
@@ -270,14 +270,16 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template=NULL,
   #   adjacency[, , k] <- A
   # }
 
-  adjacency=do.call(implementation, args = list(xdata=xdata, pk = pk, Lambda=Lambda, Sequential_template=Sequential_template,
-                                                scale = scale, start = start, ...))
+  adjacency <- do.call(implementation, args = list(
+    xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
+    scale = scale, start = start, ...
+  ))
 
   # Ensuring that there is no edge for variables with always the same value (null standard deviation)
-  for (k in 1:dim(adjacency)[3]){
+  for (k in 1:dim(adjacency)[3]) {
     if (any(mysd == 0)) {
-      adjacency[which(mysd == 0), ,k] <- 0
-      adjacency[, which(mysd == 0),k] <- 0
+      adjacency[which(mysd == 0), , k] <- 0
+      adjacency[, which(mysd == 0), k] <- 0
     }
   }
 

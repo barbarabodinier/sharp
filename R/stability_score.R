@@ -112,10 +112,10 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 
     # Checking consistency between the three computed probabilities (should sum to 1)
     if (abs(exp(p_0) + exp(p_1) - 1) > 1e-3) {
-      print(paste("N:", N))
-      print(paste("q:", q))
-      print(paste("K:", K))
-      print(paste("pi:", pi))
+      message(paste("N:", N))
+      message(paste("q:", q))
+      message(paste("K:", K))
+      message(paste("pi:", pi))
       stop(paste0("Probabilities do not sum to 1 (Binomial distribution) \n p_0+p_1=", exp(p_0) + exp(p_1)))
     }
 
@@ -155,10 +155,10 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
     # Checking consistency between the three computed probabilities (should sum to 1)
     if (!is.na(p_2)) {
       if (abs(exp(p_1) + exp(p_2) + exp(p_3) - 1) > 1e-3) {
-        print(paste("N:", N))
-        print(paste("q:", q))
-        print(paste("K:", K))
-        print(paste("pi:", pi))
+        message(paste("N:", N))
+        message(paste("q:", q))
+        message(paste("K:", K))
+        message(paste("pi:", pi))
         stop(paste0("Probabilities do not sum to 1 (Binomial distribution) \n p_1+p_2+p_3=", exp(p_1) + exp(p_2) + exp(p_3)))
       }
     }
