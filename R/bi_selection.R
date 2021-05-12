@@ -50,6 +50,14 @@
 #'   LambdaY = 1:2,
 #'   implementation = SparsePLS
 #' )
+#'
+#' # sPCA: sparsity on X
+#' stab <- BiSelection(
+#'   xdata = x,
+#'   K = K, ncomp = 2,
+#'   LambdaX = 1:2,
+#'   implementation = SparsePCA
+#' )
 #' }
 #'
 #' \dontrun{
@@ -62,6 +70,14 @@
 #' colnames(ydata) <- paste0("outcome", 1:4)
 #' x <- simul$X
 #' y <- ydata
+#'
+#' # sPCA: sparsity on X (unsupervised)
+#' stab <- BiSelection(
+#'   xdata = x,
+#'   K = K, ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   implementation = SparsePCA
+#' )
 #'
 #' # sPLS: sparsity on X
 #' stab <- BiSelection(
@@ -151,7 +167,7 @@
 #' )
 #' }
 #' @export
-BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
+BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                         LambdaX = NULL, LambdaY = NULL, AlphaX = NULL, AlphaY = NULL, ncomp = 1,
                         pi_list = seq(0.6, 0.9, by = 0.01),
                         K = 100, tau = 0.5, seed = 1, n_cat = 3,
@@ -206,12 +222,14 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     # Preparing empty objects to be filled at current iteration (comp)
     tmp_selected_x <- matrix(NA, ncol = ncol(xdata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
     tmp_selprop_x <- matrix(NA, ncol = ncol(xdata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
-    if (family == "gaussian") {
-      tmp_selected_y <- matrix(NA, ncol = ncol(ydata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
-      tmp_selprop_y <- matrix(NA, ncol = ncol(ydata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
-    } else {
-      tmp_selected_y <- matrix(NA, ncol = length(unique(ydata)), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
-      tmp_selprop_y <- matrix(NA, ncol = length(unique(ydata)), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
+    if (!is.null(ydata)) {
+      if (family == "gaussian") {
+        tmp_selected_y <- matrix(NA, ncol = ncol(ydata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
+        tmp_selprop_y <- matrix(NA, ncol = ncol(ydata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
+      } else {
+        tmp_selected_y <- matrix(NA, ncol = length(unique(ydata)), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
+        tmp_selprop_y <- matrix(NA, ncol = length(unique(ydata)), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
+      }
     }
     tmp_params <- matrix(NA, ncol = 7, nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
     colnames(tmp_params) <- c("nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
@@ -230,6 +248,33 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     for (ny in LambdaY) {
       for (alphax in AlphaX) {
         for (alphay in AlphaY) {
+          if (as.character(substitute(implementation)) == "SparsePCA") {
+            if (family == "gaussian") {
+              stab <- VariableSelection(
+                xdata = xdata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = verbose,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                ncomp = comp, ...
+              )
+            } else {
+              stab <- VariableSelection(
+                xdata = xdata, ydata = ydata,
+                Lambda = LambdaX, pi_list = pi_list,
+                K = K, tau = tau, seed = seed, n_cat = n_cat,
+                family = family, implementation = implementation,
+                resampling = resampling, PFER_method = PFER_method,
+                PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+                n_cores = n_cores, output_data = FALSE, verbose = verbose,
+                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                ncomp = comp, ...
+              )
+            }
+          }
           if (as.character(substitute(implementation)) == "SparsePLS") {
             if (family == "gaussian") {
               stab <- VariableSelection(
@@ -324,27 +369,35 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
 
           # Storing selections (X and Y)
           piy <- NULL
-          mycoefs <- Coefficients(stab, side = "Y", comp = comp)
+          if (!is.null(ydata)) {
+            mycoefs <- Coefficients(stab, side = "Y", comp = comp)
+          }
           for (i in 1:length(LambdaX)) {
             tmp_selprop_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- stab$selprop[i, ]
             tmp_selected_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(stab$selprop[i, ] >= stab$P[i, ], yes = 1, no = 0)
-            tmpcoef <- mycoefs[i, , ]
-            mytmp <- rep(NA, nrow(tmpcoef))
-            for (l in 1:nrow(tmpcoef)) {
-              mytmp[l] <- sum(tmpcoef[l, ] != 0) / length(tmpcoef[l, ])
+
+            if (!is.null(ydata)) {
+              tmpcoef <- mycoefs[i, , ]
+              mytmp <- rep(NA, nrow(tmpcoef))
+              for (l in 1:nrow(tmpcoef)) {
+                mytmp[l] <- sum(tmpcoef[l, ] != 0) / length(tmpcoef[l, ])
+              }
+              tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
+              if (any(mytmp != 1)) {
+                hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
+                tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(mytmp >= hat_pi, yes = 1, no = 0)
+              } else {
+                tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- 1
+                hat_pi <- NA
+              }
+              piy <- c(piy, hat_pi)
             }
-            tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
-            if (any(mytmp != 1)) {
-              hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
-              tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(mytmp >= hat_pi, yes = 1, no = 0)
-            } else {
-              tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- 1
-              hat_pi <- NA
-            }
-            piy <- c(piy, hat_pi)
           }
 
           # Storing parameter values
+          if (is.null(ydata)) {
+            piy <- rep(NA, length(stab$Lambda))
+          }
           tmp_params[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX)), ] <- cbind(stab$Lambda, alphax, stab$P, ny, alphay, piy, stab$S)
 
           # Incrementing loading bar and id
@@ -364,8 +417,10 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     params <- rbind(params, cbind(rep(comp, nrow(tmp_params)), tmp_params))
     selected_x <- rbind(selected_x, tmp_selected_x)
     selprop_x <- rbind(selprop_x, tmp_selprop_x)
-    selected_y <- rbind(selected_y, tmp_selected_y)
-    selprop_y <- rbind(selprop_y, tmp_selprop_y)
+    if (!is.null(ydata)) {
+      selected_y <- rbind(selected_y, tmp_selected_y)
+      selprop_y <- rbind(selprop_y, tmp_selprop_y)
+    }
 
     # Filling best parameters by component
     params_comp[comp, "comp"] <- comp
@@ -380,14 +435,18 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     # Filling best selected/selection proportions by component
     selected_x_comp <- rbind(selected_x_comp, tmp_selected_x[which.max(tmp_params[, "stability_score"]), ])
     selprop_x_comp <- rbind(selprop_x_comp, tmp_selprop_x[which.max(tmp_params[, "stability_score"]), ])
-    selected_y_comp <- rbind(selected_y_comp, tmp_selected_y[which.max(tmp_params[, "stability_score"]), ])
-    selprop_y_comp <- rbind(selprop_y_comp, tmp_selprop_y[which.max(tmp_params[, "stability_score"]), ])
+    if (!is.null(ydata)) {
+      selected_y_comp <- rbind(selected_y_comp, tmp_selected_y[which.max(tmp_params[, "stability_score"]), ])
+      selprop_y_comp <- rbind(selprop_y_comp, tmp_selprop_y[which.max(tmp_params[, "stability_score"]), ])
+    }
   }
   colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
 
   # Assigning column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
-  colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
+  if (!is.null(ydata)) {
+    colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
+  }
 
   # Preparing outputs
   if (is.function(resampling)) {
@@ -395,31 +454,57 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
   } else {
     myresampling <- resampling
   }
-  out <- list(
-    summary = params_comp,
-    summary_full = params,
-    selectedX = selected_x_comp,
-    selpropX = selprop_x_comp,
-    selectedY = selected_y_comp,
-    selpropY = selprop_y_comp,
-    selectedX_full = selected_x,
-    selpropX_full = selprop_x,
-    selectedY_full = selected_y,
-    selpropY_full = selprop_y,
-    methods = list(
-      implementation = as.character(substitute(implementation)), family = family,
-      resampling = myresampling, PFER_method = PFER_method
-    ),
-    params = list(
-      K = K, group_x = group_x, group_y = group_y,
-      LambdaX = LambdaX, LambdaY = LambdaY,
-      AlphaX = AlphaX, AlphaY = AlphaY,
-      pi_list = pi_list,
-      tau = tau, n_cat = n_cat, pk = ncol(xdata), n = nrow(xdata),
-      PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-      seed = seed
+  if (!is.null(ydata)) {
+    out <- list(
+      summary = params_comp,
+      summary_full = params,
+      selectedX = selected_x_comp,
+      selpropX = selprop_x_comp,
+      selectedY = selected_y_comp,
+      selpropY = selprop_y_comp,
+      selectedX_full = selected_x,
+      selpropX_full = selprop_x,
+      selectedY_full = selected_y,
+      selpropY_full = selprop_y,
+      methods = list(
+        implementation = as.character(substitute(implementation)), family = family,
+        resampling = myresampling, PFER_method = PFER_method
+      ),
+      params = list(
+        K = K, group_x = group_x, group_y = group_y,
+        LambdaX = LambdaX, LambdaY = LambdaY,
+        AlphaX = AlphaX, AlphaY = AlphaY,
+        pi_list = pi_list,
+        tau = tau, n_cat = n_cat, pk = ncol(xdata), n = nrow(xdata),
+        PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+        seed = seed
+      )
     )
-  )
+  } else {
+    params_comp <- params_comp[, c("comp", "nx", "alphax", "pix", "stability_score")]
+    params <- params[, c("comp", "nx", "alphax", "pix", "stability_score")]
+    out <- list(
+      summary = params_comp,
+      summary_full = params,
+      selectedX = selected_x_comp,
+      selpropX = selprop_x_comp,
+      selectedX_full = selected_x,
+      selpropX_full = selprop_x,
+      methods = list(
+        implementation = as.character(substitute(implementation)), family = family,
+        resampling = myresampling, PFER_method = PFER_method
+      ),
+      params = list(
+        K = K,
+        LambdaX = LambdaX,
+        AlphaX = AlphaX,
+        pi_list = pi_list,
+        tau = tau, n_cat = n_cat, pk = ncol(xdata), n = nrow(xdata),
+        PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+        seed = seed
+      )
+    )
+  }
 
   if (output_data) {
     out$params <- c(out$params, list(xdata = xdata, ydata = ydata))

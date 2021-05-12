@@ -6,7 +6,7 @@
 \usage{
 BiSelection(
   xdata,
-  ydata,
+  ydata = NULL,
   group_x = NULL,
   group_y = NULL,
   LambdaX = NULL,
@@ -156,6 +156,14 @@ stab <- BiSelection(
   LambdaY = 1:2,
   implementation = SparsePLS
 )
+
+# sPCA: sparsity on X
+stab <- BiSelection(
+  xdata = x,
+  K = K, ncomp = 2,
+  LambdaX = 1:2,
+  implementation = SparsePCA
+)
 }
 
 \dontrun{
@@ -168,6 +176,14 @@ ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
 colnames(ydata) <- paste0("outcome", 1:4)
 x <- simul$X
 y <- ydata
+
+# sPCA: sparsity on X (unsupervised)
+stab <- BiSelection(
+  xdata = x,
+  K = K, ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  implementation = SparsePCA
+)
 
 # sPLS: sparsity on X
 stab <- BiSelection(
