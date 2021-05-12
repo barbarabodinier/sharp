@@ -7,7 +7,7 @@
 SimulateGraphical(
   n = 100,
   pk = 10,
-  implementation = "huge",
+  implementation = SimulateAdjacency,
   topology = "random",
   nu = 0.1,
   output_matrices = FALSE,
@@ -29,11 +29,10 @@ The number of nodes in the simulated graph is \code{sum(pk)}. With multiple
 groups, the simulated (partial) correlation matrix has a block structure,
 where blocks arise from the integration of the \code{length(pk)} groups.}
 
-\item{implementation}{name of the function to use for simulation of the
-graph. With \code{implementation="huge"}, functionalities implemented in
-\code{\link[huge]{huge.generator}} are used. Alternatively, this argument
-can be a character string indicating the name of a function. This function
-must use arguments \code{pk}, \code{topology} and \code{nu} and return a
+\item{implementation}{function for simulation of the graph. By default,
+functionalities implemented in \code{\link[huge]{huge.generator}} are used.
+Alternatively, a user-defined function can be used. It must take \code{pk},
+\code{topology} and \code{nu} as arguments and return a
 \code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
 entries are all equal to zero.}
 
@@ -83,7 +82,7 @@ values in the grid used in the current iteration and the one built for next
 iteration. This parameter is only used with \code{u=NULL}.}
 
 \item{...}{additional arguments passed to the graph simulation function
-provided in "implementation".}
+provided in \code{implementation}.}
 }
 \value{
 A list with: \item{data}{simulated data with \code{n} observation and

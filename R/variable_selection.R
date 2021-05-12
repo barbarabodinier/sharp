@@ -9,13 +9,16 @@
 #'
 #' @param xdata matrix of predictors with observations as rows and variables as
 #'   columns.
-#' @param ydata optional vector or matrix of outcome(s).
+#' @param ydata optional vector or matrix of outcome(s). If \code{family} is set
+#'   to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
+#'   with character/numeric values, or a factor.
 #' @param Lambda matrix of parameters controlling the level of sparsity in the
 #'   underlying feature selection algorithm specified in \code{implementation}.
-#'   With \code{implementation="glmnet"}, \code{Lambda} contains penalty
-#'   parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
-#'   used to define a relevant grid. If \code{implementation} is not set to
-#'   \code{"glmnet"}, \code{Lambda} must be provided.
+#'   With \code{implementation=PenalisedRegression}, \code{Lambda} contains
+#'   penalty parameters. If \code{Lambda=NULL},
+#'   \code{\link{LambdaGridRegression}} is used to define a relevant grid. If
+#'   \code{implementation} is not set to \code{PenalisedRegression},
+#'   \code{Lambda} must be provided.
 #' @param pi_list vector of thresholds in selection proportions. If
 #'   \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
 #'   \code{n_cat=2}, these values must be \code{>0} and \code{<1}.
@@ -24,27 +27,27 @@
 #' @param seed value of the seed.
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
-#' @param family type of regression model. If \code{implementation="glmnet"},
-#'   this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
-#'   values include \code{"gaussian"} (linear regression), \code{"binomial"}
-#'   (logistic regression), \code{"multinomial"} (multinomial regression), and
-#'   \code{"cox"} (survival analysis).
-#' @param implementation character string indicating the name of the function to
-#'   use for variable selection. If \code{implementation="glmnet"},
-#'   \code{\link[glmnet]{glmnet}} is used for regularised regression.
-#'   Alternatively, a function with arguments \code{xdata}, \code{ydata},
-#'   \code{Lambda}, \code{family} and \code{...}, and returning a list of two
-#'   matrices named \code{selected} and \code{beta_full} of the correct
-#'   dimensions can be used (more details in \code{\link{SelectionAlgo}}).
+#' @param family type of regression model. If
+#'   \code{implementation=PenalisedRegression}, this argument is defined as in
+#'   \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
+#'   (linear regression), \code{"binomial"} (logistic regression),
+#'   \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
+#'   analysis).
+#' @param implementation function to use for variable selection. By default,
+#'   \code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
+#'   for regularised regression. Other possible functions are: \code{SparsePLS},
+#'   \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
+#'   arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
+#'   \code{...}, and returning a list of two matrices named \code{selected} and
+#'   \code{beta_full} of the correct dimensions can be used.
 #' @param resampling resampling approach. Possible values are:
 #'   \code{"subsampling"} for sampling without replacement of a proportion
 #'   \code{tau} of the observations, or \code{"bootstrap"} for sampling with
 #'   replacement generating a resampled dataset with as many observations as in
-#'   the full sample. Alternatively, this argument can be a character string
-#'   indicating the name of a function to use for resampling. This function must
-#'   use arguments named \code{"data"} and \code{"tau"} and return IDs of
-#'   observations to be included in the resampled dataset (see example in
-#'   \code{\link{Resample}}).
+#'   the full sample. Alternatively, this argument can be a function to use for
+#'   resampling. This function must use arguments named \code{data} and
+#'   \code{tau} and return IDs of observations to be included in the resampled
+#'   dataset (see example in \code{\link{Resample}}).
 #' @param PFER_method method used to compute the upper-bound of the expected
 #'   number of False Positives (or Per Family Error Rate, PFER). With
 #'   \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
@@ -157,7 +160,7 @@
 #' stab <- VariableSelection(
 #'   xdata = simul$X, ydata = simul$Y,
 #'   Lambda = 1:(ncol(simul$X) - 1),
-#'   implementation = "SparsePLS", family = "gaussian"
+#'   implementation = SparsePLS, family = "gaussian"
 #' )
 #' CalibrationPlot(stab, xlab = "")
 #' print(SelectedVariables(stab))
@@ -168,7 +171,7 @@
 #' stab <- VariableSelection(
 #'   xdata = simul$X, ydata = simul$Y,
 #'   Lambda = 1:(ncol(simul$X) - 1),
-#'   implementation = "SparsePLS",
+#'   implementation = SparsePLS,
 #'   family = "binomial"
 #' )
 #' CalibrationPlot(stab, xlab = "")
@@ -191,7 +194,7 @@
 #'   Lambda <- LambdaGridRegression(
 #'     xdata = simul$X, ydata = simul$Y,
 #'     family = "binomial", Lambda_cardinal = 20,
-#'     implementation = "ManualGridGroupLasso",
+#'     implementation = ManualGridGroupLasso,
 #'     group = sort(rep(1:4, length.out = ncol(simul$X)))
 #'   )
 #'   GroupLasso <- function(xdata, ydata, Lambda, family, ...) {
@@ -215,7 +218,7 @@
 #'   }
 #'   stab <- VariableSelection(
 #'     xdata = simul$X, ydata = simul$Y,
-#'     implementation = "GroupLasso", family = "binomial", Lambda = Lambda,
+#'     implementation = GroupLasso, family = "binomial", Lambda = Lambda,
 #'     group = sort(rep(1:4, length.out = ncol(simul$X)))
 #'   )
 #'   print(SelectedVariables(stab))

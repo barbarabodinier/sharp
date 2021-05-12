@@ -387,6 +387,11 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
   colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
 
   # Preparing outputs
+  if (is.function(resampling)) {
+    myresampling <- as.character(substitute(resampling))
+  } else {
+    myresampling <- resampling
+  }
   out <- list(
     summary = params_comp,
     summary_full = params,
@@ -400,7 +405,7 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
     selpropY_full = selprop_y,
     methods = list(
       implementation = as.character(substitute(implementation)), family = family,
-      resampling = resampling, PFER_method = PFER_method
+      resampling = myresampling, PFER_method = PFER_method
     ),
     params = list(
       K = K, group_x = group_x, group_y = group_y,

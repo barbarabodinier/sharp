@@ -52,12 +52,17 @@
 #' mypls <- SparsePLS(xdata = simul$X, ydata = simul$Y, Lambda = 2, family = "binomial")
 #' @export
 SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keepX_previous = NULL, keepY = NULL, ...) {
-  if (!family %in% c("binomial", "gaussian")) {
-    stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
-  }
-
+  # Checking sgPLS package is installed
   if (!requireNamespace("sgPLS")) {
     stop("This function requires the 'sgPLS' package.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Checking arguments
+  if (!family %in% c("binomial", "gaussian")) {
+    stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
   }
 
   # Re-formatting y
@@ -104,9 +109,19 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
     nvarx <- c(keepX_previous, Lambda[k])
 
     if (family == "gaussian") {
-      mymodel <- sgPLS::sPLS(X = xdata, Y = ydata, ncomp = ncomp, keepX = nvarx, keepY = keepY, ...)
+      # Extracting relevant extra arguments
+      ids <- which(names(extra_args) %in% names(formals(sgPLS::sPLS)))
+      ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
+
+      # Running PLS model
+      mymodel <- do.call(sgPLS::sPLS, args = c(list(X = xdata, Y = ydata, ncomp = ncomp, keepX = nvarx, keepY = keepY), extra_args[ids]))
     } else {
-      mymodel <- sgPLS::sPLSda(X = xdata, Y = as.vector(ydata), ncomp = ncomp, keepX = nvarx, ...) # no sparsity in Y
+      # Extracting relevant extra arguments
+      ids <- which(names(extra_args) %in% names(formals(sgPLS::sPLSda)))
+      ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX")]
+
+      # Running PLS model
+      mymodel <- do.call(sgPLS::sPLSda, args = c(list(X = xdata, Y = as.vector(ydata), ncomp = ncomp, keepX = nvarx), extra_args[ids]))
     }
 
     # Extracting X and Y loadings
@@ -213,12 +228,17 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
 SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
                            Lambda, alpha.x, alpha.y = NULL,
                            keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
-  if (!family %in% c("binomial", "gaussian")) {
-    stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
-  }
-
+  # Checking sgPLS package is installed
   if (!requireNamespace("sgPLS")) {
     stop("This function requires the 'sgPLS' package.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Checking arguments
+  if (!family %in% c("binomial", "gaussian")) {
+    stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
   }
 
   # Re-formatting y
@@ -273,18 +293,34 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
     nvarx <- c(keepX_previous, Lambda[k])
 
     if (family == "binomial") {
-      mymodel <- sgPLS::sgPLSda(
-        X = xdata, Y = as.vector(ydata),
-        ind.block.x = ind.block.x,
-        ncomp = ncomp, keepX = nvarx, alpha.x = alpha.x, ...
-      ) # no sparsity in Y
+      # Extracting relevant extra arguments
+      ids <- which(names(extra_args) %in% names(formals(sgPLS::sgPLSda)))
+      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "keepX", "alpha.x")]
+
+      # Running PLS model
+      mymodel <- do.call(sgPLS::sgPLSda, args = c(
+        list(
+          X = xdata, Y = as.vector(ydata), ncomp = ncomp,
+          ind.block.x = ind.block.x,
+          keepX = nvarx, alpha.x = alpha.x
+        ),
+        extra_args[ids]
+      )) # no sparsity in Y
     } else {
-      mymodel <- sgPLS::sgPLS(
-        X = xdata, Y = ydata,
-        ind.block.x = ind.block.x, ind.block.y = ind.block.y,
-        alpha.x = alpha.x, alpha.y = alpha.y,
-        ncomp = ncomp, keepX = nvarx, keepY = keepY, ...
-      )
+      # Extracting relevant extra arguments
+      ids <- which(names(extra_args) %in% names(formals(sgPLS::sgPLS)))
+      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "ind.block.y", "keepX", "keepY", "alpha.x", "alpha.y")]
+
+      # Running PLS model
+      mymodel <- do.call(sgPLS::sgPLS, args = c(
+        list(
+          X = xdata, Y = ydata, ncomp = ncomp,
+          ind.block.x = ind.block.x, ind.block.y = ind.block.y,
+          keepX = nvarx, keepY = keepY,
+          alpha.x = alpha.x, alpha.y = alpha.y
+        ),
+        extra_args[ids]
+      ))
     }
 
     # Extracting X and Y loadings
@@ -381,17 +417,22 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #' # Running sgPLS-DA with 1 group and sparsity of 0.9
 #' mypls <- GroupPLS(
 #'   xdata = simul$X, ydata = simul$Y, Lambda = 1, family = "binomial",
-#'   group_x = c(10, 15, 25)
+#'   group_x = c(10, 15, 25), test = 0
 #' )
 #' @export
 GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
                      Lambda, keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
-  if (!family %in% c("binomial", "gaussian")) {
-    stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
-  }
-
+  # Checking sgPLS package is installed
   if (!requireNamespace("sgPLS")) {
     stop("This function requires the 'sgPLS' package.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Checking arguments
+  if (!family %in% c("binomial", "gaussian")) {
+    stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
   }
 
   # Re-formatting y
@@ -446,17 +487,33 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
     nvarx <- c(keepX_previous, Lambda[k])
 
     if (family == "binomial") {
-      mymodel <- sgPLS::gPLSda(
-        X = xdata, Y = as.vector(ydata),
-        ind.block.x = ind.block.x,
-        ncomp = ncomp, keepX = nvarx, ...
-      ) # no sparsity in Y
+      # Extracting relevant extra arguments
+      ids <- which(names(extra_args) %in% names(formals(sgPLS::gPLSda)))
+      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "keepX")]
+
+      # Running PLS model
+      mymodel <- do.call(sgPLS::gPLSda, args = c(
+        list(
+          X = xdata, Y = as.vector(ydata), ncomp = ncomp,
+          ind.block.x = ind.block.x,
+          keepX = nvarx
+        ),
+        extra_args[ids]
+      )) # no sparsity in Y
     } else {
-      mymodel <- sgPLS::gPLS(
-        X = xdata, Y = ydata,
-        ind.block.x = ind.block.x, ind.block.y = ind.block.y,
-        ncomp = ncomp, keepX = nvarx, keepY = keepY, ...
-      )
+      # Extracting relevant extra arguments
+      ids <- which(names(extra_args) %in% names(formals(sgPLS::gPLS)))
+      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "ind.block.y", "keepX", "keepY")]
+
+      # Running PLS model
+      mymodel <- do.call(sgPLS::gPLS, args = c(
+        list(
+          X = xdata, Y = ydata, ncomp = ncomp,
+          ind.block.x = ind.block.x, ind.block.y = ind.block.y,
+          keepX = nvarx, keepY = keepY
+        ),
+        extra_args[ids]
+      ))
     }
 
     # Extracting X and Y loadings

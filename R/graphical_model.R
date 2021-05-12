@@ -17,37 +17,37 @@
 #'   selection is performed.
 #' @param Lambda matrix of parameters controlling the level of sparsity in the
 #'   underlying feature selection algorithm specified in \code{implementation}.
-#'   If \code{implementation="glassoFast"}, \code{Lambda} contains penalty
+#'   If \code{implementation=PenalisedGraphical}, \code{Lambda} contains penalty
 #'   parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
 #'   used to define a relevant grid. \code{Lambda} can be provided as a vector
 #'   or a matrix with \code{length(pk)} columns. If \code{implementation} is not
-#'   set to \code{"glassoFast"}, \code{Lambda} must be provided.
+#'   set to \code{PenalisedGraphical}, \code{Lambda} must be provided.
 #' @param lambda_other_blocks optional vector of parameters controlling the
 #'   level of sparsity in neighbour blocks for the multi-block procedure. To use
 #'   jointly a specific set of parameters for each block,
 #'   \code{lambda_other_blocks} must be set to \code{NULL} (not recommended).
 #'   Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.
-#' @param implementation character string indicating the name of the function to
-#'   use for graphical modelling. With \code{implementation="glassoFast"},
+#' @param implementation function to use for graphical modelling. If
+#'   \code{implementation=PenalisedGraphical}, the algorithm implemented in
 #'   \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
-#'   a conditional independence graph. Alternatively, a function with arguments
-#'   \code{x}, \code{lambda}, \code{scale} and \code{...}, and returning a
-#'   binary and symmetric matrix for which diagonal elements are equal to zero
-#'   can be used (more details in \code{\link{GraphicalAlgo}}).
+#'   a conditional independence graph. Alternatively, a function taking
+#'   \code{xdata} and \code{Lambda} as arguments and returning a binary and
+#'   symmetric matrix for which diagonal elements are equal to zero can be used.
 #' @param start character string indicating if the algorithm should be
 #'   initialised at the estimated (inverse) covariance with previous penalty
 #'   parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
 #'   \code{start="warm"} can speed-up the computations. Only used for
-#'   \code{implementation="glassoFast"} (see argument \code{"start"} in
+#'   \code{implementation=PenalisedGraphical} (see argument \code{"start"} in
 #'   \code{\link[glassoFast]{glassoFast}}).
 #' @param scale logical indicating if the correlation (\code{scale=TRUE}) or
-#'   covariance (\code{scale=FALSE}) matrix should be used as input for the
-#'   graphical LASSO if \code{implementation="glassoFast"}. Otherwise, this
-#'   argument must be used in the function provided in \code{implementation}.
+#'   covariance (\code{scale=FALSE}) matrix should be used as input of
+#'   \code{\link[glassoFast]{glassoFast}} if
+#'   \code{implementation=PenalisedGraphical}. Otherwise, this argument must be
+#'   used in the function provided in \code{implementation}.
 #' @param lambda_max optional maximum value for the grid in penalty parameters.
 #'   If \code{lambda_max=NULL}, the maximum value is set to the maximum
 #'   covariance in absolute value. Only used if
-#'   \code{implementation="glassoFast"} and \code{Lambda=NULL}.
+#'   \code{implementation=PenalisedGraphical} and \code{Lambda=NULL}.
 #' @param lambda_path_factor multiplicative factor used to define the minimum
 #'   value in the grid.
 #' @param max_density threshold on the density. The grid is defined such that
@@ -94,11 +94,10 @@
 #'   \code{xdata}.} \item{method}{a list with \code{implementation},
 #'   \code{start}, \code{resampling} and \code{PFER_method} values used for the
 #'   run.} \item{param}{a list with values of other objects used for the run.}
-#'   For all objects except \code{selprop},
-#'   \code{sign} and those stored in \code{methods} or \code{params}, rows
-#'   correspond to parameter values stored in the output \code{Lambda}. In
-#'   multi-block stability selection, columns of these same objects except
-#'   correspond to different blocks.
+#'   For all objects except \code{selprop}, \code{sign} and those stored in
+#'   \code{methods} or \code{params}, rows correspond to parameter values stored
+#'   in the output \code{Lambda}. In multi-block stability selection, columns of
+#'   these same objects except correspond to different blocks.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
@@ -152,6 +151,31 @@
 #'   Lambda = Lambda, lambda_other_blocks = NULL
 #' )
 #' stab$Lambda
+#'
+#' # Example with user-defined function: shrinkage estimation and selection
+#' set.seed(1)
+#' simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
+#' if (requireNamespace("corpcor", quietly = TRUE)) {
+#'   ShrinkageSelection <- function(xdata, Lambda, ...) {
+#'     mypcor <- corpcor::pcor.shrink(xdata, verbose = FALSE)
+#'     adjacency <- NULL
+#'     for (k in 1:nrow(Lambda)) {
+#'       A <- ifelse(abs(mypcor) >= Lambda[k, 1], yes = 1, no = 0)
+#'       diag(A) <- 0
+#'       adjacency <- abind::abind(adjacency, A, along = 3)
+#'     }
+#'     return(adjacency)
+#'   }
+#'   myglasso <- GraphicalAlgo(
+#'     xdata = simul$data,
+#'     Lambda = matrix(c(0.05, 0.1), ncol = 1), implementation = ShrinkageSelection
+#'   )
+#'   stab <- GraphicalModel(
+#'     xdata = simul$data, Lambda = matrix(c(0.01, 0.05, 0.1), ncol = 1),
+#'     implementation = ShrinkageSelection
+#'   )
+#'   stable_adjacency <- Adjacency(stab)
+#' }
 #' }
 #' @export
 GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,

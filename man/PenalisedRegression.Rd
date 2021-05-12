@@ -10,20 +10,24 @@ PenalisedRegression(xdata, ydata, Lambda = NULL, family, ...)
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{optional vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
+to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
+with character/numeric values, or a factor.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-With \code{implementation="glmnet"}, \code{Lambda} contains penalty
-parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
-used to define a relevant grid. If \code{implementation} is not set to
-\code{"glmnet"}, \code{Lambda} must be provided.}
+With \code{implementation=PenalisedRegression}, \code{Lambda} contains
+penalty parameters. If \code{Lambda=NULL},
+\code{\link{LambdaGridRegression}} is used to define a relevant grid. If
+\code{implementation} is not set to \code{PenalisedRegression},
+\code{Lambda} must be provided.}
 
-\item{family}{type of regression model. If \code{implementation="glmnet"},
-this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
-values include \code{"gaussian"} (linear regression), \code{"binomial"}
-(logistic regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis).}
+\item{family}{type of regression model. If
+\code{implementation=PenalisedRegression}, this argument is defined as in
+\code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
+(linear regression), \code{"binomial"} (logistic regression),
+\code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
+analysis).}
 
 \item{...}{additional parameters passed to \code{\link[glmnet]{glmnet}}.}
 }

@@ -27,8 +27,8 @@ A symmetric adjacency matrix encoding an unweighted, undirected graph
   with no self-loops.
 }
 \description{
-Simulates the adjacency matrix encoding an unweighted, undirected graph
-with no self-loops.
+Simulates the adjacency matrix encoding an unweighted, undirected graph with
+no self-loops.
 }
 \examples{
 \dontrun{

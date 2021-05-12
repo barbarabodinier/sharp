@@ -53,78 +53,6 @@ SelectionAlgo <- function(xdata, ydata, Lambda, family, implementation = Penalis
   }
   xdata <- scale(xdata)
 
-  # if (implementation == "glmnet") {
-  #   # Running the regression
-  #   if (family == "multinomial") {
-  #     mymodel <- glmnet::glmnet(x = xdata, y = ydata, lambda = Lambda, family = family, type.multinomial = "grouped", ...)
-  #   } else {
-  #     mymodel <- glmnet::glmnet(x = xdata, y = ydata, lambda = Lambda, family = family, ...)
-  #   }
-  #
-  #   if (!is.infinite(mymodel$lambda[1])) {
-  #     # Extracting and formatting the beta coefficients
-  #     if (!family %in% c("mgaussian", "multinomial")) {
-  #       mybeta <- stats::coef(mymodel)
-  #       mybeta <- t(as.matrix(mybeta))
-  #       mybeta <- mybeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
-  #
-  #       # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-  #       if (any(mysd == 0)) {
-  #         mybeta[, which(mysd == 0)] <- 0
-  #       }
-  #
-  #       # Preparing the outputs
-  #       selected <- ifelse(mybeta != 0, yes = 1, no = 0)
-  #       beta_full <- mybeta
-  #     } else {
-  #       if (family == "mgaussian") {
-  #         mybeta <- array(NA,
-  #           dim = c(length(Lambda), ncol(xdata), ncol(ydata)),
-  #           dimnames = list(paste0("s", 0:(length(Lambda) - 1)), colnames(xdata), colnames(ydata))
-  #         )
-  #         for (y_id in 1:ncol(ydata)) {
-  #           tmpbeta <- stats::coef(mymodel)[[y_id]]
-  #           tmpbeta <- t(as.matrix(tmpbeta))
-  #           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
-  #           mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
-  #
-  #           # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-  #           if (any(mysd == 0)) {
-  #             mybeta[, which(mysd == 0), y_id] <- 0
-  #           }
-  #         }
-  #       }
-  #       if (family == "multinomial") {
-  #         y_levels <- sort(unique(ydata))
-  #         mybeta <- array(NA,
-  #           dim = c(length(Lambda), ncol(xdata), length(y_levels)),
-  #           dimnames = list(
-  #             paste0("s", 0:(length(Lambda) - 1)), colnames(xdata),
-  #             paste0("Y", y_levels)
-  #           )
-  #         )
-  #         for (y_id in 1:length(y_levels)) {
-  #           tmpbeta <- stats::coef(mymodel)[[y_id]]
-  #           tmpbeta <- t(as.matrix(tmpbeta))
-  #           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
-  #           mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
-  #
-  #           # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-  #           if (any(mysd == 0)) {
-  #             mybeta[, which(mysd == 0), y_id] <- 0
-  #           }
-  #         }
-  #       }
-  #
-  #       # Preparing the outputs
-  #       selected <- ifelse(mybeta[, , 1, drop = FALSE] != 0, yes = 1, no = 0)
-  #       beta_full <- mybeta
-  #     }
-  #   } else {
-  #     # Returning infinite beta is the model failed
-  #     selected <- beta_full <- Inf
-  #   }
-  # } else {
   # Applying user-defined function for variable selection
   mybeta <- do.call(implementation, args = list(xdata = xdata, ydata = ydata, Lambda = Lambda, family = family, ...))
   selected <- mybeta$selected
@@ -141,7 +69,6 @@ SelectionAlgo <- function(xdata, ydata, Lambda, family, implementation = Penalis
       beta_full[, which(mysd == 0), ] <- 0
     }
   }
-  # }
 
   return(list(selected = selected, beta_full = beta_full))
 }
@@ -199,77 +126,12 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
     }
   }
 
+  # Setting sequence of lambda values
   if (is.null(Sequential_template)) {
     Sequential_template <- BlockLambdaGrid(Lambda = Lambda)$Sequential_template
   }
 
-  # # Create matrix with block indices
-  # bigblocks <- BlockMatrix(pk)
-  # bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-  # N_blocks <- unname(table(bigblocks_vect))
-  # blocks <- unique(as.vector(bigblocks_vect))
-  # names(N_blocks) <- blocks
-  # nblocks <- max(blocks)
-  #
-  # # Initialisation of array storing adjacency matrices
-  # adjacency <- array(NA, dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)))
-
-  # # Going over different (sets) of penalty parameters
-  # for (k in 1:nrow(Lambda)) {
-  #   # Creating penalisation matrix
-  #   if (nblocks > 1) {
-  #     lambdamat <- bigblocks
-  #     for (b in 1:nblocks) {
-  #       lambdamat[bigblocks == b] <- Lambda[k, b]
-  #     }
-  #   } else {
-  #     lambdamat <- Lambda[k, 1]
-  #   }
-  #
-  #   if (implementation == "glassoFast") {
-  #     # Estimation of the covariance
-  #     if (scale) {
-  #       cov_sub <- stats::cor(xdata)
-  #     } else {
-  #       cov_sub <- stats::cov(xdata)
-  #     }
-  #
-  #     # Estimation of the sparse inverse covariance
-  #     if ((start == "warm") & (k != 1)) {
-  #       if (all(which(Sequential_template[k, ]) == which(Sequential_template[k - 1, ]))) {
-  #         g_sub <- glassoFast::glassoFast(
-  #           S = cov_sub, rho = lambdamat,
-  #           start = "warm", w.init = sigma, wi.init = omega
-  #         )
-  #       } else {
-  #         # Cold start if first iteration for the block
-  #         g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
-  #       }
-  #     } else {
-  #       g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
-  #     }
-  #     omega <- g_sub$wi
-  #     sigma <- g_sub$w
-  #
-  #     # Creating adjacency matrix
-  #     A <- ifelse(omega != 0, yes = 1, no = 0)
-  #     A <- A + t(A)
-  #     A <- ifelse(A != 0, yes = 1, no = 0)
-  #     diag(A) <- 0
-  #   } else {
-  #     A <- do.call(implementation, args = list(xdata = xdata, Lambda = lambdamat, scale = scale, ...))
-  #   }
-  #
-  #   # Ensuring that there is no edge for variables with always the same value (null standard deviation)
-  #   if (any(mysd == 0)) {
-  #     A[which(mysd == 0), ] <- 0
-  #     A[, which(mysd == 0)] <- 0
-  #   }
-  #
-  #   # Storing the estimated adjacency matrix
-  #   adjacency[, , k] <- A
-  # }
-
+  # Computing adjacency matrices
   adjacency <- do.call(implementation, args = list(
     xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
     scale = scale, start = start, ...

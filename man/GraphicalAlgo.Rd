@@ -25,11 +25,11 @@ selection is performed.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-If \code{implementation="glassoFast"}, \code{Lambda} contains penalty
+If \code{implementation=PenalisedGraphical}, \code{Lambda} contains penalty
 parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
 used to define a relevant grid. \code{Lambda} can be provided as a vector
 or a matrix with \code{length(pk)} columns. If \code{implementation} is not
-set to \code{"glassoFast"}, \code{Lambda} must be provided.}
+set to \code{PenalisedGraphical}, \code{Lambda} must be provided.}
 
 \item{Sequential_template}{logical matrix encoding the type of procedure to
 use for data with multiple blocks in stability selection graphical
@@ -40,23 +40,23 @@ calibrated and \code{FALSE} for other blocks). Other approaches with joint
 calibration of the blocks are allowed (all entries are set to \code{TRUE}).}
 
 \item{scale}{logical indicating if the correlation (\code{scale=TRUE}) or
-covariance (\code{scale=FALSE}) matrix should be used as input for the
-graphical LASSO if \code{implementation="glassoFast"}. Otherwise, this
-argument must be used in the function provided in \code{implementation}.}
+covariance (\code{scale=FALSE}) matrix should be used as input of
+\code{\link[glassoFast]{glassoFast}} if
+\code{implementation=PenalisedGraphical}. Otherwise, this argument must be
+used in the function provided in \code{implementation}.}
 
-\item{implementation}{character string indicating the name of the function to
-use for graphical modelling. With \code{implementation="glassoFast"},
+\item{implementation}{function to use for graphical modelling. If
+\code{implementation=PenalisedGraphical}, the algorithm implemented in
 \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
-a conditional independence graph. Alternatively, a function with arguments
-\code{x}, \code{lambda}, \code{scale} and \code{...}, and returning a
-binary and symmetric matrix for which diagonal elements are equal to zero
-can be used (more details in \code{\link{GraphicalAlgo}}).}
+a conditional independence graph. Alternatively, a function taking
+\code{xdata} and \code{Lambda} as arguments and returning a binary and
+symmetric matrix for which diagonal elements are equal to zero can be used.}
 
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty
 parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
 \code{start="warm"} can speed-up the computations. Only used for
-\code{implementation="glassoFast"} (see argument \code{"start"} in
+\code{implementation=PenalisedGraphical} (see argument \code{"start"} in
 \code{\link[glassoFast]{glassoFast}}).}
 
 \item{...}{additional parameters passed to the function provided in

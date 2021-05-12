@@ -23,7 +23,9 @@ SparseGroupPLS(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{optional vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
+to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
+with character/numeric values, or a factor.}
 
 \item{family}{type of PLS model. If \code{family="gaussian"}, a sparse group
 PLS model as defined in \code{\link[sgPLS]{sgPLS}} is run (for continuous

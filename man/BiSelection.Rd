@@ -35,7 +35,9 @@ BiSelection(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{optional vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
+to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
+with character/numeric values, or a factor.}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group. Only used with
@@ -75,29 +77,29 @@ groups (sparse group PLS) in X. Only used with
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{family}{type of regression model. If \code{implementation="glmnet"},
-this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
-values include \code{"gaussian"} (linear regression), \code{"binomial"}
-(logistic regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis).}
+\item{family}{type of regression model. If
+\code{implementation=PenalisedRegression}, this argument is defined as in
+\code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
+(linear regression), \code{"binomial"} (logistic regression),
+\code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
+analysis).}
 
-\item{implementation}{character string indicating the name of the function to
-use for variable selection. If \code{implementation="glmnet"},
-\code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{xdata}, \code{ydata},
-\code{Lambda}, \code{family} and \code{...}, and returning a list of two
-matrices named \code{selected} and \code{beta_full} of the correct
-dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
+\item{implementation}{function to use for variable selection. By default,
+\code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
+for regularised regression. Other possible functions are: \code{SparsePLS},
+\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
+arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
+\code{...}, and returning a list of two matrices named \code{selected} and
+\code{beta_full} of the correct dimensions can be used.}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
 \code{tau} of the observations, or \code{"bootstrap"} for sampling with
 replacement generating a resampled dataset with as many observations as in
-the full sample. Alternatively, this argument can be a character string
-indicating the name of a function to use for resampling. This function must
-use arguments named \code{"data"} and \code{"tau"} and return IDs of
-observations to be included in the resampled dataset (see example in
-\code{\link{Resample}}).}
+the full sample. Alternatively, this argument can be a function to use for
+resampling. This function must use arguments named \code{data} and
+\code{tau} and return IDs of observations to be included in the resampled
+dataset (see example in \code{\link{Resample}}).}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With

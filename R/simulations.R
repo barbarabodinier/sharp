@@ -12,11 +12,10 @@
 #'   The number of nodes in the simulated graph is \code{sum(pk)}. With multiple
 #'   groups, the simulated (partial) correlation matrix has a block structure,
 #'   where blocks arise from the integration of the \code{length(pk)} groups.
-#' @param implementation name of the function to use for simulation of the
-#'   graph. With \code{implementation="huge"}, functionalities implemented in
-#'   \code{\link[huge]{huge.generator}} are used. Alternatively, this argument
-#'   can be a character string indicating the name of a function. This function
-#'   must use arguments \code{pk}, \code{topology} and \code{nu} and return a
+#' @param implementation function for simulation of the graph. By default,
+#'   functionalities implemented in \code{\link[huge]{huge.generator}} are used.
+#'   Alternatively, a user-defined function can be used. It must take \code{pk},
+#'   \code{topology} and \code{nu} as arguments and return a
 #'   \code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
 #'   entries are all equal to zero.
 #' @param topology topology of the simulated graph. If using
@@ -55,7 +54,7 @@
 #'   values in the grid used in the current iteration and the one built for next
 #'   iteration. This parameter is only used with \code{u=NULL}.
 #' @param ... additional arguments passed to the graph simulation function
-#'   provided in "implementation".
+#'   provided in \code{implementation}.
 #'
 #' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
 #'   \code{\link{GraphicalModel}}
@@ -134,7 +133,7 @@
 #' plot(Graph(simul$theta)) # variable 2 is the central node
 #' }
 #' @export
-SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topology = "random", nu = 0.1,
+SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacency, topology = "random", nu = 0.1,
                               output_matrices = FALSE,
                               v_within = 1, v_between = 0.1,
                               pd_strategy = "diagonally_dominant",
@@ -170,11 +169,7 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = "huge", topolog
   }
 
   # Simulation of the adjacency matrix
-  if (implementation == "huge") {
-    theta <- SimulateAdjacency(pk = pk, topology = topology, nu = nu, ...)
-  } else {
-    theta <- do.call(get(implementation), args = list(pk = pk, topology = topology, nu = nu, ...))
-  }
+  theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu, ...))
 
   # Ensuring that there is no self-loops
   diag(theta) <- 0
@@ -397,8 +392,8 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 
 #' Simulation of an undirected graph
 #'
-#' Simulates the adjacency matrix encoding an unweighted, undirected graph
-#' with no self-loops.
+#' Simulates the adjacency matrix encoding an unweighted, undirected graph with
+#' no self-loops.
 #'
 #' @inheritParams SimulateGraphical
 #' @param pk number of nodes.
@@ -419,11 +414,22 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 #' }
 #' @export
 SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
-  # Simulating the adjacency matrix using huge
-  theta <- as.matrix(huge::huge.generator(
-    n = 2, d = sum(pk), prob = nu,
-    graph = topology, verbose = FALSE, ...
-  )$theta)
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Extracting relevant extra arguments
+  ids <- which(names(extra_args) %in% names(formals(huge::huge.generator)))
+  ids <- ids[!ids %in% c("n", "d", "prob", "graph", "verbose")]
+
+  # Running simulation model
+  mymodel <- do.call(huge::huge.generator, args = c(
+    list(
+      n = 2, d = sum(pk), prob = nu,
+      graph = topology, verbose = FALSE
+    ),
+    extra_args[ids]
+  ))
+  theta <- as.matrix(mymodel$theta)
 
   # Re-organising the variables to avoid having centrality related to variable ID (e.g. for scale-free models)
   ids <- sample(ncol(theta))

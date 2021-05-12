@@ -60,35 +60,34 @@ Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{implementation}{character string indicating the name of the function to
-use for graphical modelling. With \code{implementation="glassoFast"},
+\item{implementation}{function to use for graphical modelling. If
+\code{implementation=PenalisedGraphical}, the algorithm implemented in
 \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
-a conditional independence graph. Alternatively, a function with arguments
-\code{x}, \code{lambda}, \code{scale} and \code{...}, and returning a
-binary and symmetric matrix for which diagonal elements are equal to zero
-can be used (more details in \code{\link{GraphicalAlgo}}).}
+a conditional independence graph. Alternatively, a function taking
+\code{xdata} and \code{Lambda} as arguments and returning a binary and
+symmetric matrix for which diagonal elements are equal to zero can be used.}
 
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty
 parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
 \code{start="warm"} can speed-up the computations. Only used for
-\code{implementation="glassoFast"} (see argument \code{"start"} in
+\code{implementation=PenalisedGraphical} (see argument \code{"start"} in
 \code{\link[glassoFast]{glassoFast}}).}
 
 \item{scale}{logical indicating if the correlation (\code{scale=TRUE}) or
-covariance (\code{scale=FALSE}) matrix should be used as input for the
-graphical LASSO if \code{implementation="glassoFast"}. Otherwise, this
-argument must be used in the function provided in \code{implementation}.}
+covariance (\code{scale=FALSE}) matrix should be used as input of
+\code{\link[glassoFast]{glassoFast}} if
+\code{implementation=PenalisedGraphical}. Otherwise, this argument must be
+used in the function provided in \code{implementation}.}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
 \code{tau} of the observations, or \code{"bootstrap"} for sampling with
 replacement generating a resampled dataset with as many observations as in
-the full sample. Alternatively, this argument can be a character string
-indicating the name of a function to use for resampling. This function must
-use arguments named \code{"data"} and \code{"tau"} and return IDs of
-observations to be included in the resampled dataset (see example in
-\code{\link{Resample}}).}
+the full sample. Alternatively, this argument can be a function to use for
+resampling. This function must use arguments named \code{data} and
+\code{tau} and return IDs of observations to be included in the resampled
+dataset (see example in \code{\link{Resample}}).}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With

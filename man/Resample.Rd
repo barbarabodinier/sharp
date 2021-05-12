@@ -10,11 +10,12 @@ Resample(data, family = NULL, tau = 0.5, resampling = "subsampling", ...)
 \item{data}{vector or matrix of data. In regression, this should be the
 outcome data.}
 
-\item{family}{type of regression model. If \code{implementation="glmnet"},
-this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
-values include \code{"gaussian"} (linear regression), \code{"binomial"}
-(logistic regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis).}
+\item{family}{type of regression model. If
+\code{implementation=PenalisedRegression}, this argument is defined as in
+\code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
+(linear regression), \code{"binomial"} (logistic regression),
+\code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
+analysis).}
 
 \item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
@@ -22,11 +23,10 @@ values include \code{"gaussian"} (linear regression), \code{"binomial"}
 \code{"subsampling"} for sampling without replacement of a proportion
 \code{tau} of the observations, or \code{"bootstrap"} for sampling with
 replacement generating a resampled dataset with as many observations as in
-the full sample. Alternatively, this argument can be a character string
-indicating the name of a function to use for resampling. This function must
-use arguments named \code{"data"} and \code{"tau"} and return IDs of
-observations to be included in the resampled dataset (see example in
-\code{\link{Resample}}).}
+the full sample. Alternatively, this argument can be a function to use for
+resampling. This function must use arguments named \code{data} and
+\code{tau} and return IDs of observations to be included in the resampled
+dataset (see example in \code{\link{Resample}}).}
 
 \item{...}{additional parameters passed to the function provided in
 \code{resampling}.}

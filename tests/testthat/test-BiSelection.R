@@ -27,4 +27,30 @@ test_that("BiSelection() models are working", {
     LambdaY = 1:2, AlphaY = c(0.1, 0.3),
     implementation = SparseGroupPLS
   )
+
+  ## Checking with other resampling
+  # Data simulation
+  simul <- SimulateRegression(family = "binomial")
+
+  # Data simulation for a binary confounder
+  conf <- ifelse(runif(n = 100) > 0.5, yes = 1, no = 0)
+
+  # User-defined resampling function
+  BalancedResampling <- function(data, tau, Z, ...) {
+    s <- NULL
+    for (z in unique(Z)) {
+      s <- c(s, sample(which((data == "0") & (Z == z)), size = tau * sum((data == "0") & (Z == z))))
+      s <- c(s, sample(which((data == "1") & (Z == z)), size = tau * sum((data == "1") & (Z == z))))
+    }
+    return(s)
+  }
+
+  # Resampling keeping proportions by Y and Z
+  ids <- Resample(data = simul$Y, family = "binomial", resampling = BalancedResampling, Z = conf)
+
+  # Bi-selection
+  stab <- BiSelection(
+    xdata = simul$X, ydata = simul$Y, family = "binomial",
+    resampling = BalancedResampling, Z = conf
+  )
 })

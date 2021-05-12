@@ -17,28 +17,32 @@ SelectionAlgo(
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{ydata}{optional vector or matrix of outcome(s).}
+\item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
+to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
+with character/numeric values, or a factor.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-With \code{implementation="glmnet"}, \code{Lambda} contains penalty
-parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridRegression}} is
-used to define a relevant grid. If \code{implementation} is not set to
-\code{"glmnet"}, \code{Lambda} must be provided.}
+With \code{implementation=PenalisedRegression}, \code{Lambda} contains
+penalty parameters. If \code{Lambda=NULL},
+\code{\link{LambdaGridRegression}} is used to define a relevant grid. If
+\code{implementation} is not set to \code{PenalisedRegression},
+\code{Lambda} must be provided.}
 
-\item{family}{type of regression model. If \code{implementation="glmnet"},
-this argument is defined as in \code{\link[glmnet]{glmnet}}. Possible
-values include \code{"gaussian"} (linear regression), \code{"binomial"}
-(logistic regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis).}
+\item{family}{type of regression model. If
+\code{implementation=PenalisedRegression}, this argument is defined as in
+\code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
+(linear regression), \code{"binomial"} (logistic regression),
+\code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
+analysis).}
 
-\item{implementation}{character string indicating the name of the function to
-use for variable selection. If \code{implementation="glmnet"},
-\code{\link[glmnet]{glmnet}} is used for regularised regression.
-Alternatively, a function with arguments \code{xdata}, \code{ydata},
-\code{Lambda}, \code{family} and \code{...}, and returning a list of two
-matrices named \code{selected} and \code{beta_full} of the correct
-dimensions can be used (more details in \code{\link{SelectionAlgo}}).}
+\item{implementation}{function to use for variable selection. By default,
+\code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
+for regularised regression. Other possible functions are: \code{SparsePLS},
+\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
+arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
+\code{...}, and returning a list of two matrices named \code{selected} and
+\code{beta_full} of the correct dimensions can be used.}
 
 \item{...}{additional parameters passed to the function provided in
 \code{implementation}.}

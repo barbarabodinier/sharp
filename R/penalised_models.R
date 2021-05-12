@@ -28,6 +28,9 @@
 #' )
 #' @export
 PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Making sure none of the variables has a null standard deviation
   mysd <- apply(xdata, 2, stats::sd)
   if (any(mysd == 0)) {
@@ -39,9 +42,19 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 
   # Running the regression
   if (family == "multinomial") {
-    mymodel <- glmnet::glmnet(x = xdata, y = ydata, lambda = Lambda, family = family, type.multinomial = "grouped", ...)
+    # Extracting relevant extra arguments
+    ids <- which(names(extra_args) %in% names(formals(glmnet::glmnet)))
+    ids <- ids[!ids %in% c("x", "y", "lambda", "family", "type.multinomial")]
+
+    # Running model
+    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family, type.multinomial = "grouped"), extra_args[ids]))
   } else {
-    mymodel <- glmnet::glmnet(x = xdata, y = ydata, lambda = Lambda, family = family, ...)
+    # Extracting relevant extra arguments
+    ids <- which(names(extra_args) %in% names(formals(glmnet::glmnet)))
+    ids <- ids[!ids %in% c("x", "y", "lambda", "family")]
+
+    # Running model
+    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family), extra_args[ids]))
   }
 
   if (!is.infinite(mymodel$lambda[1])) {
@@ -152,6 +165,9 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 #' @export
 PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
                                scale = TRUE, start = "cold", ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Create matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
@@ -185,19 +201,34 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
       cov_sub <- stats::cov(xdata)
     }
 
+    # Extracting relevant extra arguments
+    ids <- which(names(extra_args) %in% names(formals(glassoFast::glassoFast)))
+    ids <- ids[!ids %in% c("S", "rho", "start", "w.init", "wi.init")] # avoid duplicates and args that cannot be manually set (related to warm start)
+
     # Estimation of the sparse inverse covariance
     if ((start == "warm") & (k != 1)) {
       if (all(which(Sequential_template[k, ]) == which(Sequential_template[k - 1, ]))) {
-        g_sub <- glassoFast::glassoFast(
-          S = cov_sub, rho = lambdamat,
-          start = "warm", w.init = sigma, wi.init = omega
-        )
+        # Warm start using
+        g_sub <- do.call(glassoFast::glassoFast, args = c(
+          list(
+            S = cov_sub, rho = lambdamat,
+            start = "warm", w.init = sigma, wi.init = omega
+          ),
+          extra_args[ids]
+        ))
       } else {
         # Cold start if first iteration for the block
-        g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
+        g_sub <- do.call(glassoFast::glassoFast, args = c(
+          list(S = cov_sub, rho = lambdamat),
+          extra_args[ids]
+        ))
       }
     } else {
-      g_sub <- glassoFast::glassoFast(S = cov_sub, rho = lambdamat)
+      # Cold start
+      g_sub <- do.call(glassoFast::glassoFast, args = c(
+        list(S = cov_sub, rho = lambdamat),
+        extra_args[ids]
+      ))
     }
     omega <- g_sub$wi
     sigma <- g_sub$w

@@ -107,7 +107,7 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
       ydata <- as.factor(ydata)
       if (verbose) {
         message(paste0("Reference category: ", levels(ydata)[1]))
-        message(paste0("Other categories: ", paste(levels(ydata)[-1], collapse = ", ")))
+        message(paste0("Other categorie(s): ", paste(levels(ydata)[-1], collapse = ", ")))
       }
       ydata <- as.numeric(ydata) - 1
     }
