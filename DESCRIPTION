@@ -29,6 +29,7 @@ Imports:
 Suggests:
     corpcor,
     gglasso,
+    mixOmics,
     rmarkdown,
     sgPLS,
     testthat (>= 3.0.0)

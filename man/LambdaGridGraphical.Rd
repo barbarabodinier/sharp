@@ -26,7 +26,7 @@ LambdaGridGraphical(
 )
 }
 \arguments{
-\item{xdata}{matrix with observations as rows and variables as columns. For
+\item{xdata}{data matrix with observations as rows and variables as columns. For
 multi-block stability selection, the variables in data have to be ordered
 by group.}
 

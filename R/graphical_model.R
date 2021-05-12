@@ -8,7 +8,7 @@
 #' number of falsely stably selected features).
 #'
 #' @inheritParams VariableSelection
-#' @param xdata matrix with observations as rows and variables as columns. For
+#' @param xdata data matrix with observations as rows and variables as columns. For
 #'   multi-block stability selection, the variables in data have to be ordered
 #'   by group.
 #' @param pk optional vector encoding the grouping structure. Only used for

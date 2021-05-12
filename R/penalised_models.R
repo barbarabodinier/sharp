@@ -31,15 +31,6 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
-  # Making sure none of the variables has a null standard deviation
-  mysd <- apply(xdata, 2, stats::sd)
-  if (any(mysd == 0)) {
-    for (k in which(mysd == 0)) {
-      xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)
-    }
-  }
-  xdata <- scale(xdata)
-
   # Running the regression
   if (family == "multinomial") {
     # Extracting relevant extra arguments
@@ -64,11 +55,6 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
       mybeta <- t(as.matrix(mybeta))
       mybeta <- mybeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
 
-      # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-      if (any(mysd == 0)) {
-        mybeta[, which(mysd == 0)] <- 0
-      }
-
       # Preparing the outputs
       selected <- ifelse(mybeta != 0, yes = 1, no = 0)
       beta_full <- mybeta
@@ -83,11 +69,6 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
           mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
-
-          # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-          if (any(mysd == 0)) {
-            mybeta[, which(mysd == 0), y_id] <- 0
-          }
         }
       }
       if (family == "multinomial") {
@@ -104,11 +85,6 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
           mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
-
-          # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-          if (any(mysd == 0)) {
-            mybeta[, which(mysd == 0), y_id] <- 0
-          }
         }
       }
 

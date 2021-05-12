@@ -92,7 +92,9 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
           s <- sample(nrow(data), size = tau * nrow(data), replace = replacement)
         }
         if (family == "binomial") {
-          data <- cbind(apply(data, 1, sum)) # to ensure balanced classes for PLS-DA
+          if (ncol(data)>1){
+            data <- cbind(apply(data, 1, sum)) # to ensure balanced classes for PLS-DA
+          }
           s <- NULL
           for (mycat in levels(factor(data))) {
             scat <- sample(which(data == mycat), size = tau * sum(data == mycat), replace = replacement)

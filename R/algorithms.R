@@ -43,15 +43,17 @@
 #' }
 #'
 #' @export
-SelectionAlgo <- function(xdata, ydata, Lambda, family, implementation = PenalisedRegression, ...) {
+SelectionAlgo <- function(xdata, ydata = NULL, Lambda, family = NULL, implementation = PenalisedRegression, ...) {
   # Making sure none of the variables has a null standard deviation
-  mysd <- apply(xdata, 2, stats::sd)
+  mysd <- rep(NA, ncol(xdata))
+  for (j in 1:ncol(xdata)) {
+    mysd[j] <- stats::sd(xdata[, j])
+  }
   if (any(mysd == 0)) {
     for (k in which(mysd == 0)) {
       xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)
     }
   }
-  xdata <- scale(xdata)
 
   # Applying user-defined function for variable selection
   mybeta <- do.call(implementation, args = list(xdata = xdata, ydata = ydata, Lambda = Lambda, family = family, ...))
@@ -60,12 +62,11 @@ SelectionAlgo <- function(xdata, ydata, Lambda, family, implementation = Penalis
 
   # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
   if (any(mysd == 0)) {
+    selected[, which(mysd == 0)] <- 0
     if (length(dim(beta_full)) == 2) {
-      selected[, which(mysd == 0)] <- 0
       beta_full[, which(mysd == 0)] <- 0
     }
     if (length(dim(beta_full)) == 3) {
-      selected[, which(mysd == 0)] <- 0
       beta_full[, which(mysd == 0), ] <- 0
     }
   }
@@ -119,7 +120,10 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
   }
 
   # Identifying potential variables with null standard deviation in the subsample
-  mysd <- apply(xdata, 2, stats::sd)
+  mysd <- rep(NA, ncol(xdata))
+  for (j in 1:ncol(xdata)) {
+    mysd[j] <- stats::sd(xdata[, j])
+  }
   if (any(mysd == 0)) {
     for (k in which(mysd == 0)) {
       xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)

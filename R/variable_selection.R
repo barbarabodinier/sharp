@@ -154,6 +154,17 @@
 #' )
 #' print(SelectedVariables(stab))
 #'
+#' # Sparse PCA (1 component)
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#' stab <- VariableSelection(
+#'   xdata = simul$X,
+#'   Lambda = 1:(ncol(simul$X) - 1),
+#'   implementation = SparsePCA
+#' )
+#' CalibrationPlot(stab, xlab = "")
+#' print(SelectedVariables(stab))
+#'
 #' # Sparse PLS (1 outcome, 1 component)
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -420,9 +431,12 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     }
 
     # Computing the selection proportions
-    bigstab <- apply(Beta, c(1, 2), FUN = function(x) {
-      sum(x != 0)
-    }) / K
+    bigstab <- matrix(NA, nrow = nrow(Beta), ncol = ncol(Beta))
+    for (i in 1:nrow(Beta)) {
+      for (j in 1:ncol(Beta)) {
+        bigstab[i, j] <- sum(Beta[i, j, ] != 0) / K
+      }
+    }
   }
 
   if (PFER_method == "SS") {

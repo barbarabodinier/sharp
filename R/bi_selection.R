@@ -324,12 +324,15 @@ BiSelection <- function(xdata, ydata, group_x = NULL, group_y = NULL,
 
           # Storing selections (X and Y)
           piy <- NULL
+          mycoefs <- Coefficients(stab, side = "Y", comp = comp)
           for (i in 1:length(LambdaX)) {
             tmp_selprop_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- stab$selprop[i, ]
             tmp_selected_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(stab$selprop[i, ] >= stab$P[i, ], yes = 1, no = 0)
-            mytmp <- apply(Coefficients(stab, side = "Y", comp = comp)[i, , ], 1, FUN = function(z) {
-              sum(z != 0) / length(z)
-            })
+            tmpcoef <- mycoefs[i, , ]
+            mytmp <- rep(NA, nrow(tmpcoef))
+            for (l in 1:nrow(tmpcoef)) {
+              mytmp[l] <- sum(tmpcoef[l, ] != 0) / length(tmpcoef[l, ])
+            }
             tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
             if (any(mytmp != 1)) {
               hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]

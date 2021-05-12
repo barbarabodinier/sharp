@@ -6,9 +6,9 @@
 \usage{
 SelectionAlgo(
   xdata,
-  ydata,
+  ydata = NULL,
   Lambda,
-  family,
+  family = NULL,
   implementation = PenalisedRegression,
   ...
 )

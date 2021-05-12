@@ -198,6 +198,17 @@ stab <- VariableSelection(
 )
 print(SelectedVariables(stab))
 
+# Sparse PCA (1 component)
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+stab <- VariableSelection(
+  xdata = simul$X,
+  Lambda = 1:(ncol(simul$X) - 1),
+  implementation = SparsePCA
+)
+CalibrationPlot(stab, xlab = "")
+print(SelectedVariables(stab))
+
 # Sparse PLS (1 outcome, 1 component)
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")

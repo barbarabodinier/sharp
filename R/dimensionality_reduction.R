@@ -27,7 +27,7 @@
 #'   with "X") or outcomes (starting with "Y") variables for different
 #'   components (denoted by "PC").}
 #'
-#' @family PLS functions
+#' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 #'
 #' @examples
@@ -188,7 +188,7 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
 #'   with "X") or outcomes (starting with "Y") variables for different
 #'   components (denoted by "PC").}
 #'
-#' @family PLS functions
+#' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 #'
 #' @examples
@@ -383,7 +383,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #'   with "X") or outcomes (starting with "Y") variables for different
 #'   components (denoted by "PC").}
 #'
-#' @family PLS functions
+#' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 #'
 #' @examples
@@ -535,6 +535,103 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 
     # Exporting all loadings coefficients
     beta_full[k, ] <- c(as.vector(Xloadings), as.vector(Yloadings))
+  }
+
+  beta <- ifelse(beta != 0, yes = 1, no = 0)
+
+  return(list(selected = beta, beta_full = beta_full))
+}
+
+
+#' Sparse Principal Component Analysis
+#'
+#' Runs a sparse Principal Component Analysis model using implementation from
+#' \code{\link[elasticnet]{spca}}. This function is not using stability.
+#'
+#' @param xdata data matrix with observations as rows and variables as columns.
+#' @param Lambda matrix of parameters controlling the number of selected
+#'   variables at current component, as defined by \code{ncomp}.
+#' @param ncomp number of components.
+#' @param keepX_previous number of selected predictors in previous components.
+#'   Only used if \code{ncomp > 1}. The argument \code{keepX} in
+#'   \code{\link[mixOmics]{spca}} is obtained by concatenating
+#'   \code{keepX_previous} and \code{Lambda}.
+#' @param ... additional arguments to be passed to \code{\link[mixOmics]{spca}}.
+#'
+#' @return A list with: \item{selected}{matrix of binary selection status. Rows
+#'   correspond to different model parameters. Columns correspond to
+#'   predictors.} \item{beta_full}{array of model coefficients. Rows correspond
+#'   to different model parameters. Columns correspond to predictors (starting
+#'   with "X") or outcomes (starting with "Y") variables for different
+#'   components (denoted by "PC").}
+#'
+#' @family penalised dimensionality reduction functions
+#' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+#'
+#' @examples
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#' x <- simul$X
+#'
+#' # Sparse PCA
+#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)
+#' @export
+SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, ...) {
+  # Checking mixOmics package is installed
+  if (!requireNamespace("mixOmics")) {
+    stop("This function requires the 'mixOmics' package.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # All X variables are kept in previous components by default
+  if (is.null(keepX_previous)) {
+    keepX_previous <- rep(ncol(xdata), ncomp - 1)
+  }
+
+  # Initialising the current set of loadings coefficients
+  beta <- matrix(NA, nrow = length(Lambda), ncol = ncol(xdata))
+  rownames(beta) <- paste0("s", 0:(length(Lambda) - 1))
+  colnames(beta) <- colnames(xdata)
+
+  # # Initialising the full set of loadings coefficients
+  beta_full <- matrix(NA, nrow = length(Lambda), ncol = ncol(xdata) * ncomp)
+  rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
+  colnames(beta_full) <- c(paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))))
+
+  # if (family == "gaussian") {
+  #   beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
+  #   rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
+  #   colnames(beta_full) <- c(
+  #     paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
+  #     paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
+  #   )
+  # } else {
+  #   ncat <- length(unique(ydata))
+  # }
+
+  # Loop over all parameters (number of selected variables in X in current component)
+  for (k in 1:length(Lambda)) {
+    # Number of selected variables per component in X
+    nvarx <- c(keepX_previous, Lambda[k])
+
+    # Extracting relevant extra arguments
+    ids <- which(names(extra_args) %in% names(formals(mixOmics::spca)))
+    ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
+
+    # Running PLS model
+    mymodel <- do.call(mixOmics::spca, args = c(list(X = xdata, ncomp = ncomp, keepX = nvarx), extra_args[ids]))
+
+    # Extracting X and Y loadings
+    Xloadings <- mymodel$loadings$X
+
+    # Exporting the set of loadings to look at for selection with current component
+    beta[k, ] <- Xloadings[, ncomp, drop = FALSE]
+
+    # Exporting all loadings coefficients
+    beta_full[k, ] <- as.vector(Xloadings)
   }
 
   beta <- ifelse(beta != 0, yes = 1, no = 0)

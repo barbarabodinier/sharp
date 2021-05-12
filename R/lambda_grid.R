@@ -180,7 +180,10 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
   N <- p * (p - 1) / 2
 
   # Making sure none of the variables has a null standard deviation
-  mysd <- apply(xdata, 2, stats::sd)
+  mysd <- rep(NA, ncol(xdata))
+  for (j in 1:ncol(xdata)) {
+    mysd[j] <- stats::sd(xdata[, j])
+  }
   if (any(mysd == 0)) {
     for (k in which(mysd == 0)) {
       xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)
