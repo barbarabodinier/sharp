@@ -95,12 +95,15 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
   }
 
   # Create matrix with block indices
-  bigblocks <- BlockMatrix(pk)
-  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-  N_blocks <- unname(table(bigblocks_vect))
-  blocks <- unique(as.vector(bigblocks_vect))
-  names(N_blocks) <- blocks
-  nblocks <- max(blocks)
+  nblocks <- 1
+  if (graph) {
+    bigblocks <- BlockMatrix(pk)
+    bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+    N_blocks <- unname(table(bigblocks_vect))
+    blocks <- unique(as.vector(bigblocks_vect))
+    names(N_blocks) <- blocks
+    nblocks <- max(blocks)
+  }
 
   # Initialising objects to be filled
   Q <- Q_s <- P <- matrix(NA, nrow = nlambda, ncol = nblocks)
