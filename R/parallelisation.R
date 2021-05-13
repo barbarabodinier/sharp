@@ -67,12 +67,15 @@ Combine <- function(stability1, stability2, graph = TRUE) {
   myparams <- stability1$params
 
   # Creating matrix with block indices
-  bigblocks <- BlockMatrix(pk)
-  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-  N_blocks <- unname(table(bigblocks_vect))
-  blocks <- unique(as.vector(bigblocks_vect))
-  names(N_blocks) <- blocks
-  nblocks <- max(blocks)
+  nblocks <- 1
+  if (graph) {
+    bigblocks <- BlockMatrix(pk)
+    bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+    N_blocks <- unname(table(bigblocks_vect))
+    blocks <- unique(as.vector(bigblocks_vect))
+    names(N_blocks) <- blocks
+    nblocks <- max(blocks)
+  }
 
   # Preparing the PFER and FDP thresholds
   if (length(PFER_thr) == 1) {
