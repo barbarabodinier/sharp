@@ -160,9 +160,9 @@ CentralNode <- function(pk, topology = NULL, nu = NULL, hub = 1) {
   diag(theta) <- 0
   return(theta)
 }
-simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode")
+simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode)
 plot(Graph(simul$theta)) # star
-simul <- SimulateGraphical(n = 100, pk = 10, implementation = "CentralNode", hub = 2)
+simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode, hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
 }
 }

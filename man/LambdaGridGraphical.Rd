@@ -11,7 +11,7 @@ LambdaGridGraphical(
   K = 100,
   tau = 0.5,
   n_cat = 3,
-  implementation = "glassoFast",
+  implementation = PenalisedGraphical,
   start = "cold",
   scale = TRUE,
   resampling = "subsampling",

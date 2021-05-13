@@ -150,7 +150,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #' }
 #' @export
 LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K = 100, tau = 0.5, n_cat = 3,
-                                implementation = "glassoFast", start = "cold", scale = TRUE,
+                                implementation = PenalisedGraphical, start = "cold", scale = TRUE,
                                 resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                                 Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001,
                                 max_density = 0.5, ...) {
