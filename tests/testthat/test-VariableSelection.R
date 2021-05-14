@@ -384,19 +384,19 @@ test_that("variables with null sd in VariableSelection()", {
 
 test_that("cox regression in VariableSelection()", {
   # Example from glmnet
-  n = 500
-  p = 30
-  nzc = trunc(p/10)
-  beta = rnorm(nzc)
-  x = matrix(rnorm(n * p), n, p)
-  fx = x[, seq(nzc)] %*% beta/3
-  hx = exp(fx)
-  ty = rexp(n, hx)
-  tcens = rbinom(n = n, prob = 0.3, size = 1)  # censoring indicator
-  y = cbind(time = ty, status = 1 - tcens)  # y=Surv(ty,1-tcens) with library(survival)
+  n <- 500
+  p <- 30
+  nzc <- trunc(p / 10)
+  beta <- rnorm(nzc)
+  x <- matrix(rnorm(n * p), n, p)
+  fx <- x[, seq(nzc)] %*% beta / 3
+  hx <- exp(fx)
+  ty <- rexp(n, hx)
+  tcens <- rbinom(n = n, prob = 0.3, size = 1) # censoring indicator
+  y <- cbind(time = ty, status = 1 - tcens) # y=Surv(ty,1-tcens) with library(survival)
 
   stab <- VariableSelection(
-    xdata = x, ydata = y, K = 10, family="cox",
+    xdata = x, ydata = y, K = 10, family = "cox",
     verbose = FALSE
   )
   expect_equal(as.character(stab$methods$family), "cox")
