@@ -277,6 +277,7 @@ stab <- BiSelection(
 \code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
 
 Other stability selection functions: 
+\code{\link{Clustering}()},
 \code{\link{GraphicalModel}()},
 \code{\link{VariableSelection}()}
 }

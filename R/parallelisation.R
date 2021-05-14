@@ -68,7 +68,7 @@ Combine <- function(stability1, stability2, graph = TRUE) {
 
   # Creating matrix with block indices
   nblocks <- 1
-  if (graph) {
+  if (graph) { # to avoid memory issues in high dimensional variable selection
     bigblocks <- BlockMatrix(pk)
     bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
     N_blocks <- unname(table(bigblocks_vect))

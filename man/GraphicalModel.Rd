@@ -275,6 +275,7 @@ if (requireNamespace("corpcor", quietly = TRUE)) {
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},
+\code{\link{Clustering}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability selection functions}

@@ -257,18 +257,6 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
     out$methods$resampling <- myresampling
   }
 
-  # if (verbose) {
-  #   cat("\n")
-  #   print("Visited Q:")
-  #   if (nrow(out$Q) > 15) {
-  #     print(utils::head(out$Q))
-  #     print("[...]")
-  #     print(utils::tail(out$Q))
-  #   } else {
-  #     print(out$Q)
-  #   }
-  # }
-
   return(out)
 }
 
@@ -380,33 +368,11 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
     Sequential_template <- grid$Sequential_template
   }
 
-  # # Showing the grid of (block-specific) lambda values
-  # if (verbose) {
-  #   print("Grid of lambda values:")
-  #   if (ncol(Lambda) == 1) {
-  #     print(as.vector(Lambda))
-  #   } else {
-  #     print(Lambda)
-  #   }
-  # }
-
   # Initialising array of selection proportions
   bigstab <- array(0,
     dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)),
     dimnames = list(colnames(xdata), colnames(xdata), NULL)
   )
-
-  # # Printing message
-  # if (verbose) {
-  #   if (all(!is.infinite(PFER_thr_blocks))) {
-  #     print("Threshold(s) in PFER:")
-  #     print(PFER_thr_blocks)
-  #   }
-  #   if (all(!is.infinite(FDP_thr_blocks))) {
-  #     print("Threshold(s) in FDP:")
-  #     print(FDP_thr_blocks)
-  #   }
-  # }
 
   # Setting seed for reproducibility
   withr::local_seed(seed)

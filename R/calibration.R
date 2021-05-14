@@ -235,6 +235,44 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 }
 
 
+#' Stable cluster membership
+#'
+#' Builds the (calibrated) stable clusters as connected components of the graph
+#' defined from stable co-membership.
+#'
+#' @inheritParams Adjacency
+#' @param stability output of \code{\link{Clustering}}.
+#'
+#' @return A vector encoding the cluster membership.
+#'
+#' @family calibration functions
+#' @seealso \code{\link{Clustering}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateGraphical(pk = 50, n = 10)
+#'
+#' # Stability selection
+#' stab <- Clustering(xdata = simul$data, Lambda = 1:nrow(simul$data))
+#'
+#' # Stable cluster membership
+#' mymembership <- Clusters(stab)
+#' }
+#' @export
+Clusters <- function(stability, argmax_id = NULL) {
+  # Computing stable co-membership matrix
+  adjacency <- Adjacency(stability = stability, argmax_id = argmax_id)
+
+  # Extracting stable connected components
+  mymembership <- igraph::components(Graph(adjacency, satellites = TRUE))$membership
+
+  return(mymembership)
+}
+
+
 #' Selection proportions
 #'
 #' Extracts the selection proportions of the (calibrated) stability selection

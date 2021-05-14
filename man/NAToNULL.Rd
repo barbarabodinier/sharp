@@ -10,7 +10,7 @@ NAToNULL(x)
 \item{x}{input vector.}
 }
 \value{
-a vector without missing values or NULL.
+A vector without missing values or NULL.
 }
 \description{
 Returns a vector with no missing values or NULL if there are no non-missing
