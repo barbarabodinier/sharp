@@ -89,6 +89,7 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
       message(paste0("Other category: ", levels(tmp)[2]))
     }
     ydata[, 2] <- as.numeric(tmp) - 1
+    ydata <- as.matrix(ydata)
   }
   if ((family %in% c("binomial", "multinomial"))) {
     if (ncol(ydata) > 1) {
