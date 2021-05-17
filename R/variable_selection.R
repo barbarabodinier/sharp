@@ -432,6 +432,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
     # Computing the selection proportions
     bigstab <- matrix(NA, nrow = nrow(Beta), ncol = ncol(Beta))
+    colnames(bigstab) <- colnames(Beta)
+    rownames(bigstab) <- rownames(Beta)
     for (i in 1:nrow(Beta)) {
       for (j in 1:ncol(Beta)) {
         bigstab[i, j] <- sum(Beta[i, j, ] != 0) / K
@@ -495,6 +497,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
     # Computing the simultaneous selection proportions
     bigstab <- matrix(0, nrow = nrow(Beta), ncol = ncol(Beta))
+    colnames(bigstab) <- colnames(Beta)
+    rownames(bigstab) <- rownames(Beta)
     for (k in 1:ceiling(K / 2)) {
       A1 <- ifelse(Beta[, , k] != 0, yes = 1, no = 0)
       A2 <- ifelse(Beta[, , ceiling(K / 2) + k] != 0, yes = 1, no = 0)
