@@ -11,6 +11,8 @@
 #'
 #' @family stability metric functions
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
 #' @examples
 #' # Simulating set of selection proportions
 #' selprop <- round(runif(n = 20), digits = 2)

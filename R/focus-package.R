@@ -10,6 +10,12 @@
 #' 0.1\cr Date: \tab 2021-04-30\cr License: \tab GPL (>= 3)\cr Maintainer: \tab
 #' Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
 #' @docType package
 #' @name focus-package
 #' @examples

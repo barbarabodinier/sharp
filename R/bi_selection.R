@@ -29,6 +29,12 @@
 #' @family stability selection functions
 #' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
 #' @examples
 #' \dontshow{
 #'

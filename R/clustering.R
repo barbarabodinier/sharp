@@ -61,6 +61,12 @@
 #' @family stability selection functions
 #' @seealso \code{\link{Resample}}, \code{\link{HierarchicalClustering}}
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
 #' @examples
 #' \dontshow{
 #' set.seed(1)

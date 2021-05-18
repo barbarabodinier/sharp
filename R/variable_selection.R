@@ -112,6 +112,12 @@
 #' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
 #'   \code{\link{Combine}}
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
 #' @examples
 #' \dontshow{
 #' # Linear regression

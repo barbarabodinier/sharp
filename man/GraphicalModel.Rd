@@ -269,6 +269,13 @@ if (requireNamespace("corpcor", quietly = TRUE)) {
 }
 }
 }
+\references{
+\insertRef{ourstabilityselection}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
+
+  \insertRef{stabilityselectionSS}{focus}
+}
 \seealso{
 \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
   \code{\link{GraphicalAlgo}}

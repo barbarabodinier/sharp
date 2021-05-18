@@ -154,6 +154,13 @@ mymembership <- Clusters(stab)
 }
 
 }
+\references{
+\insertRef{ourstabilityselection}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
+
+  \insertRef{stabilityselectionSS}{focus}
+}
 \seealso{
 \code{\link{Resample}}, \code{\link{HierarchicalClustering}}
 

@@ -61,3 +61,10 @@ stably_selected <- Adjacency(stab)
 plot(Graph(stably_selected))
 }
 }
+\references{
+\insertRef{ourstabilityselection}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
+
+  \insertRef{stabilityselectionSS}{focus}
+}

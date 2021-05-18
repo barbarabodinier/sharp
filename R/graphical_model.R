@@ -59,6 +59,12 @@
 #'   other parameters equal can be combined (more details in
 #'   \code{\link{Combine}}).
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
 #' @return A list with: \item{S}{a matrix of the best (block-specific) stability
 #'   scores for different (sets of) parameters controlling the level of sparsity
 #'   in the underlying algorithm. } \item{Lambda}{a matrix of (block-specific)

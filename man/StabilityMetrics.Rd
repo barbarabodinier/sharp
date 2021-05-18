@@ -117,6 +117,13 @@ selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
 # Computing stability scores for different thresholds
 metrics <- StabilityMetrics(selprop = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
 }
+\references{
+\insertRef{ourstabilityselection}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
+
+  \insertRef{stabilityselectionSS}{focus}
+}
 \seealso{
 Other stability metric functions: 
 \code{\link{FDP}()},

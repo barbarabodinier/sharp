@@ -69,6 +69,12 @@
 #'
 #' @family stability metric functions
 #'
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
 #' @examples
 #' # Simulating set of selection proportions
 #' selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)

@@ -280,6 +280,13 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
 }
 }
 }
+\references{
+\insertRef{ourstabilityselection}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
+
+  \insertRef{stabilityselectionSS}{focus}
+}
 \seealso{
 \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
   \code{\link{Combine}}

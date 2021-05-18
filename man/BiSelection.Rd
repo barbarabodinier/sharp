@@ -273,6 +273,13 @@ stab <- BiSelection(
 )
 }
 }
+\references{
+\insertRef{ourstabilityselection}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
+
+  \insertRef{stabilityselectionSS}{focus}
+}
 \seealso{
 \code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
 
