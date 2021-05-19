@@ -28,10 +28,22 @@
 #'   \code{\link[huge]{huge.generator}}).
 #' @param output_matrices logical indicating if the true precision and (partial)
 #'   correlation matrices should be included in the output.
-#' @param v_within multiplicative factor used for diagonal blocks in simulation
-#'   of the precision matrix.
-#' @param v_between multiplicative factor used for off-diagonal blocks in
-#'   simulation of the precision matrix.
+#' @param v_within vector defining the (range of) nonzero entries in the
+#'   diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+#'   \code{v_within} is the set of possible precision values. If
+#'   \code{continuous=FALSE}, \code{v_within} is the range of possible precision
+#'   values.
+#' @param v_between vector defining the (range of) nonzero entries in the
+#'   off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+#'   \code{v_between} is the set of possible precision values. If
+#'   \code{continuous=FALSE}, \code{v_between} is the range of possible precision
+#'   values. This argument is only used if \code{length(pk)>1}.
+#' @param continuous logical indicating whether to sample precision values from
+#'   a uniform distribution between the minimum and maximum values in
+#'   \code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
+#'   (\code{continuous=TRUE}) or from proposed values in \code{v_within}
+#'   (diagonal blocks) or \code{v_between} (off-diagonal blocks)
+#'   (\code{continuous=FALSE}).
 #' @param pd_strategy method to ensure that the generated precision matrix is
 #'   positive definite (and hence can be a covariance matrix). With
 #'   \code{pd_strategy="diagonally_dominant"}, the precision matrix is made
@@ -135,7 +147,7 @@
 #' @export
 SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacency, topology = "random", nu = 0.1,
                               output_matrices = FALSE,
-                              v_within = 1, v_between = 0.1,
+                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5, ...) {
   # Defining grid of u values if not provided
@@ -160,12 +172,21 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacen
   nblocks <- max(block_ids)
 
   # Building v matrix
-  v_list <- rep(NA, length(block_ids))
-  v_list[unique(diag(bigblocks))] <- v_within
-  v_list[is.na(v_list)] <- v_between
   v <- bigblocks
   for (k in block_ids) {
-    v[bigblocks == k] <- v_list[k]
+    if (k %in% unique(diag(bigblocks))) {
+      if (continuous) {
+        v[bigblocks == k] <- stats::runif(sum(bigblocks == k), min = min(v_within), max = max(v_within))
+      } else {
+        v[bigblocks == k] <- base::sample(v_within, size = sum(bigblocks == k), replace = TRUE)
+      }
+    } else {
+      if (continuous) {
+        v[bigblocks == k] <- stats::runif(sum(bigblocks == k), min = min(v_between), max = max(v_between))
+      } else {
+        v[bigblocks == k] <- base::sample(v_between, size = sum(bigblocks == k), replace = TRUE)
+      }
+    }
   }
 
   # Simulation of the adjacency matrix
@@ -179,6 +200,7 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacen
 
   # Filling off-diagonal entries of the precision matrix
   omega <- theta * v
+  diag(omega) <- 1
 
   # Calibrate u based on contrasts of the correlation matrix
   contrast <- NULL
@@ -233,13 +255,6 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacen
     omega <- omega_tmp
   }
 
-  # Simulating the sign of the correlations (uniform)
-  sign_mat <- matrix(0, nrow = nrow(omega), ncol = ncol(omega))
-  sign_mat[upper.tri(sign_mat)] <- sample(c(-1, 1), size = sum(upper.tri(omega)), replace = TRUE)
-  sign_mat <- sign_mat + t(sign_mat)
-  diag(sign_mat) <- 1
-  omega <- omega * sign_mat
-
   # Computing the correlation matrix
   C <- stats::cov2cor(solve(omega)) # true correlation matrix
 
@@ -262,6 +277,115 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacen
   } else {
     return(list(data = x, theta = theta))
   }
+}
+
+
+#' Simulation of data with underlying clusters
+#'
+#' Simulates multivariate Normal data with clusters of participants sharing
+#' similar variable profiles. This simulator is based on a graph structure
+#' encoding relationships between the observations.
+#'
+#' @inheritParams SimulateGraphical
+#' @param n vector of the number of observations per cluster in the simulated
+#'   data. The number of observations in the simulated data is \code{sum(n)}.
+#' @param pk vector of the number of variables in the simulated data.
+#'
+#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
+#'   \code{\link{GraphicalModel}}
+#' @family simulation functions
+#'
+#' @return A list with: \item{data}{simulated data with \code{n} observation and
+#'   \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
+#'   graph} \item{omega}{true simulated precision matrix. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
+#'   matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
+#'   simulated correlation matrix. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
+#'   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
+#'   obtained for the values of u listed in u_grid. Only returned if
+#'   \code{output_matrices=TRUE}.}
+#'
+#' @details By default, with \code{nu=1}, a graph with \code{length(n)} fully
+#'   connected components is used to infer the covariance matrix (between
+#'   observations). The data is simulated from the multivariate Normal
+#'   distribution with the generated covariance. This is based on similar
+#'   computations to \code{\link{SimulateGraphical}} but applied on the
+#'   transpose of the data matrix (i.e. encoding relationships between
+#'   observations instead of variables). Using a smaller value for \code{nu} or
+#'   a larger range for \code{v_within} will generate more heterogeneous blocks
+#'   of correlated observations. Note that as \code{v_within} is controlling
+#'   entries in the precision matrix, it must be negative to yield positive
+#'   correlations.
+#'
+#' @family simulation functions
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Simulation of 15 observations belonging to 3 groups
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(5, 5, 5), pk = 100)
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' # Simulation of more heterogeneous groups
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(5, 5, 5), pk = 100,
+#' v_within=c(-1,-0.5), continuous=TRUE)
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' }
+#' @export
+SimulateClustering <- function(n = c(10, 10), pk = 20, nu = 1, output_matrices = FALSE,
+                               v_within = -1, continuous = FALSE, pd_strategy = "diagonally_dominant",
+                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
+  # Using multi-block simulator with unconnected blocks
+  out <- SimulateGraphical(
+    n = pk, pk = n,
+    implementation = SimulateAdjacency,
+    topology = "random",
+    nu = nu, # fully connected connected components by default with nu=1
+    output_matrices = output_matrices,
+    v_within = v_within,
+    v_between = 0, # unconnected blocks
+    continuous = continuous,
+    pd_strategy = pd_strategy,
+    u = u, niter_max_u_grid = niter_max_u_grid,
+    tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
+  )
+
+  # Transposing the matrix for clusters of individuals
+  out$data <- t(out$data)
+  rownames(out$data) <- paste0("obs", 1:nrow(out$data))
+  colnames(out$data) <- paste0("var", 1:ncol(out$data))
+
+  # Updating row and column names of output matrices
+  if ("omega" %in% names(out)) {
+    rownames(out$omega) <- colnames(out$omega) <- colnames(out$data)
+    rownames(out$phi) <- colnames(out$phi) <- colnames(out$data)
+    rownames(out$C) <- colnames(out$C) <- colnames(out$data)
+  }
+
+  # Definition of membership
+  theta <- NULL
+  for (i in 1:length(n)) {
+    theta <- c(theta, rep(i, each = n[i]))
+  }
+  names(theta) <- rownames(out$data)
+  out$theta <- theta
+
+  return(out)
 }
 
 

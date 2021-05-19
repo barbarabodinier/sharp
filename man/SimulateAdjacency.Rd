@@ -40,6 +40,7 @@ plot(Graph(adjacency))
 }
 \seealso{
 Other simulation functions: 
+\code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}
 }

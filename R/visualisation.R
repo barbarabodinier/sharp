@@ -346,7 +346,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #'
 #' @export
 Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"),
-                    resolution = 10000, legend = TRUE, legend_length = 15, legend_range = NULL) {
+                    resolution = 10000, axes = TRUE,
+                    legend = TRUE, legend_length = 15, legend_range = NULL) {
   # Preparing colours
   colours <- grDevices::colorRampPalette(colours)(resolution)
   names(colours) <- 1:resolution
@@ -380,6 +381,11 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
       )
     }
   }
+  if (axes) {
+    axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = 2)
+    axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = 2)
+  }
+
 
   # Adding colour bar (legend)
   if (legend) {
@@ -418,6 +424,6 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
         )
       }
     }
-    withr::local_par(list(xpd = FALSE)) # for abline()
+    withr::local_par(list(xpd = FALSE)) # for legend
   }
 }

@@ -11,8 +11,9 @@ SimulateGraphical(
   topology = "random",
   nu = 0.1,
   output_matrices = FALSE,
-  v_within = 1,
-  v_between = 0.1,
+  v_within = c(-1, 1),
+  v_between = c(-0.1, 0.1),
+  continuous = FALSE,
   pd_strategy = "diagonally_dominant",
   u = NULL,
   niter_max_u_grid = 5,
@@ -49,11 +50,24 @@ this argument is only used for \code{topology="random"} or
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
 
-\item{v_within}{multiplicative factor used for diagonal blocks in simulation
-of the precision matrix.}
+\item{v_within}{vector defining the (range of) nonzero entries in the
+diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+\code{v_within} is the set of possible precision values. If
+\code{continuous=FALSE}, \code{v_within} is the range of possible precision
+values.}
 
-\item{v_between}{multiplicative factor used for off-diagonal blocks in
-simulation of the precision matrix.}
+\item{v_between}{vector defining the (range of) nonzero entries in the
+off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+\code{v_between} is the set of possible precision values. If
+\code{continuous=FALSE}, \code{v_between} is the range of possible precision
+values. This argument is only used if \code{length(pk)>1}.}
+
+\item{continuous}{logical indicating whether to sample precision values from
+a uniform distribution between the minimum and maximum values in
+\code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
+(\code{continuous=TRUE}) or from proposed values in \code{v_within}
+(diagonal blocks) or \code{v_between} (off-diagonal blocks)
+(\code{continuous=FALSE}).}
 
 \item{pd_strategy}{method to ensure that the generated precision matrix is
 positive definite (and hence can be a covariance matrix). With
@@ -172,6 +186,7 @@ plot(Graph(simul$theta)) # variable 2 is the central node
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
+\code{\link{SimulateClustering}()},
 \code{\link{SimulateRegression}()}
 }
 \concept{simulation functions}

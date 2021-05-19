@@ -140,17 +140,30 @@ To ensure reproducibility of the results, the state of the random
 \examples{
 \dontshow{
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
-stab <- Clustering(xdata = t(simul$data), Lambda = 1:3, K = 5)
+simul <- SimulateClustering(n = c(5, 5, 5), pk = 10)
+stab <- Clustering(
+  xdata = t(simul$data),
+  Lambda = 1:3, K = 5,
+  verbose = FALSE
+)
 mymembership <- Clusters(stab)
 }
 \dontrun{
 
+# Simulation of 15 observations belonging to 3 groups
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
-stab <- Clustering(xdata = t(simul$data))
-CalibrationPlot(stab)
-mymembership <- Clusters(stab)
+simul <- SimulateClustering(n = c(5, 5, 5), pk = 100,
+v_within=c(-1,-0.5), continuous=TRUE)
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = cor(t(simul$data)),
+  colours = c("navy", "white", "red"),
+  legend_range = c(-1, 1)
+)
+
+# Stability selection
+stab <- Clustering(xdata = simul$data)
+table(simul$theta, Clusters(stab))
 }
 
 }

@@ -88,6 +88,7 @@ boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binar
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
+\code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()}
 }
 \concept{simulation functions}

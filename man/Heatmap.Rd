@@ -8,6 +8,7 @@ Heatmap(
   mat,
   colours = c("ivory", "navajowhite", "tomato", "darkred"),
   resolution = 10000,
+  axes = TRUE,
   legend = TRUE,
   legend_length = 15,
   legend_range = NULL

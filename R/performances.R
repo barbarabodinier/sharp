@@ -46,7 +46,7 @@
 #'
 #' # Single-block graphical model
 #' set.seed(1)
-#' simul <- SimulateGraphical(pk = 20)
+#' simul <- SimulateGraphical(pk = 30)
 #' stab <- GraphicalModel(xdata = simul$data)
 #' perf <- SelectionPerformance(theta = Adjacency(stab), theta_star = simul$theta)
 #' perf <- SelectionPerformance(
