@@ -8,9 +8,9 @@
 #' number of falsely stably selected features).
 #'
 #' @inheritParams VariableSelection
-#' @param xdata data matrix with observations as rows and variables as columns. For
-#'   multi-block stability selection, the variables in data have to be ordered
-#'   by group.
+#' @param xdata data matrix with observations as rows and variables as columns.
+#'   For multi-block stability selection, the variables in data have to be
+#'   ordered by group.
 #' @param pk optional vector encoding the grouping structure. Only used for
 #'   multi-block stability selection where \code{pk} indicates the number of
 #'   variables in each group. If \code{pk=NULL}, single-block stability
@@ -97,13 +97,14 @@
 #'   along the third dimension correspond to different (sets of) parameters
 #'   controlling the level of sparsity in the underlying algorithm.}
 #'   \item{sign}{a matrix of signs of Pearson's correlations estimated from
-#'   \code{xdata}.} \item{method}{a list with \code{implementation},
-#'   \code{start}, \code{resampling} and \code{PFER_method} values used for the
-#'   run.} \item{param}{a list with values of other objects used for the run.}
-#'   For all objects except \code{selprop}, \code{sign} and those stored in
-#'   \code{methods} or \code{params}, rows correspond to parameter values stored
-#'   in the output \code{Lambda}. In multi-block stability selection, columns of
-#'   these same objects except correspond to different blocks.
+#'   \code{xdata}.} \item{method}{a list with \code{type="graphical_model"},
+#'   \code{implementation}, \code{start}, \code{resampling} and
+#'   \code{PFER_method} values used for the run.} \item{params}{a list with
+#'   values of other objects used for the run.} For all objects except
+#'   \code{selprop}, \code{sign} and those stored in \code{methods} or
+#'   \code{params}, rows correspond to parameter values stored in the output
+#'   \code{Lambda}. In multi-block stability selection, columns of these same
+#'   objects except correspond to different blocks.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
@@ -498,7 +499,10 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         PFER = metrics$PFER, FDP = metrics$FDP,
         S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
         selprop = bigstab, sign = sign(mycor_for_sign),
-        methods = list(implementation = myimplementation, start = start, resampling = myresampling, PFER_method = PFER_method),
+        methods = list(
+          type = "graphical_model", implementation = myimplementation, start = start,
+          resampling = myresampling, PFER_method = PFER_method
+        ),
         params = list(
           K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
           pk = pk, n = nrow(xdata),
@@ -516,7 +520,10 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
         PFER = metrics$PFER, FDP = metrics$FDP,
         S_2d = metrics$S_2d,
         selprop = bigstab, sign = sign(mycor_for_sign),
-        methods = list(implementation = myimplementation, start = start, resampling = myresampling, PFER_method = PFER_method),
+        methods = list(
+          type = "graphical_model", implementation = myimplementation, start = start,
+          resampling = myresampling, PFER_method = PFER_method
+        ),
         params = list(
           K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
           pk = pk, n = nrow(xdata),

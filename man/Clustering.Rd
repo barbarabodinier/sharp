@@ -116,11 +116,12 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   and columns correspond to features being clustered (rows of \code{xdata}).
   Indices along the third dimension correspond to different parameters
   controlling the number of clusters in the underlying algorithm.}
-  \item{method}{a list with \code{implementation}, \code{resampling} and
-  \code{PFER_method} values used for the run.} \item{param}{a list with
-  values of other objects used for the run.} For all objects except
-  \code{selprop} and those stored in \code{methods} or \code{params}, rows
-  correspond to parameter values stored in the output \code{Lambda}.
+  \item{method}{a list with \code{type="clustering"}, \code{implementation},
+  \code{resampling} and \code{PFER_method} values used for the run.}
+  \item{param}{a list with values of other objects used for the run.} For all
+  objects except \code{selprop} and those stored in \code{methods} or
+  \code{params}, rows correspond to parameter values stored in the output
+  \code{Lambda}.
 }
 \description{
 Runs stability clustering models with different combinations of parameters
@@ -152,8 +153,10 @@ mymembership <- Clusters(stab)
 
 # Simulation of 15 observations belonging to 3 groups
 set.seed(1)
-simul <- SimulateClustering(n = c(5, 5, 5), pk = 100,
-v_within=c(-1,-0.5), continuous=TRUE)
+simul <- SimulateClustering(
+  n = c(5, 5, 5), pk = 100,
+  v_within = c(-1, -0.5), continuous = TRUE
+)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(t(simul$data)),

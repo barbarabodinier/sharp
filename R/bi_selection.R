@@ -26,8 +26,46 @@
 #'   \code{implementation="SparseGroupPLS"} and \code{family="gaussian"}.
 #' @param ncomp number of components.
 #'
+#' @return A list with: \item{summary}{a matrix of the best stability scores and
+#'   corresponding parameters controlling the level of sparsity in the
+#'   underlying algorithm for different numbers of components. Possible columns
+#'   include: \code{comp} (component ID), \code{nx} (number of predictors to
+#'   include, parameter of the underlying algorithm), \code{alphax} (sparsity
+#'   within the predictor groups, parameter of the underlying algorithm),
+#'   \code{pix} (threshold in selection proportion for predictors), \code{ny}
+#'   (number of outcomes to include, parameter of the underlying algorithm),
+#'   \code{alphay} (sparsity within the outcome groups, parameter of the
+#'   underlying algorithm), \code{piy} (threshold in selection proportion for
+#'   outcomes), \code{stability_score} (stability score). Columns that are not
+#'   relevant to the model are not reported. For example, \code{alpha_x} and
+#'   \code{alpha_y} are not used in sparse PLS models.} \item{summary_full}{a
+#'   matrix of the stability scores for the visited combinations of parameters.
+#'   Values are reported for the calibrated \code{pi}.} \item{selectedX}{a
+#'   binary matrix encoding stably selected predictors for the different
+#'   combinations of parameters listed in \code{summary}.} \item{selpropX}{a
+#'   matrix with the selection proportions of predictors for the different
+#'   combinations of parameters listed in \code{summary}.} \item{selectedY}{a
+#'   binary matrix encoding stably selected outcomes for the different
+#'   combinations of parameters listed in \code{summary}.} \item{selpropY}{a
+#'   matrix with the selection proportions of outcomes for the different
+#'   combinations of parameters listed in \code{summary}.}
+#'   \item{selectedX_full}{a binary matrix encoding stably selected predictors
+#'   for the different combinations of parameters listed in
+#'   \code{summary_full}.} \item{selpropX_full}{a binary matrix encoding stably
+#'   selected predictors for the different combinations of parameters listed in
+#'   \code{summary_full}.} \item{selectedY_full}{a binary matrix encoding stably
+#'   selected outcomes for the different combinations of parameters listed in
+#'   \code{summary_full}.} \item{selpropY_full}{a binary matrix encoding stably
+#'   selected outcomes for the different combinations of parameters listed in
+#'   \code{summary_full}.} \item{method}{a list with \code{type="bi_selection"},
+#'   \code{implementation}, \code{family}, \code{resampling} and
+#'   \code{PFER_method} values used for the run.} \item{params}{a list of input
+#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
+#'   also included if \code{output_data=TRUE}.}
+#'
 #' @family stability selection functions
-#' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
+#' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}},
+#'   \code{\link{SparseGroupPLS}}
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
 #'
@@ -446,7 +484,11 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selprop_y_comp <- rbind(selprop_y_comp, tmp_selprop_y[which.max(tmp_params[, "stability_score"]), ])
     }
   }
+
+  # Excluding irrelevant columns
   colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
+  params_comp=params_comp[,which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1)))]
+  params=params[,colnames(params_comp)]
 
   # Assigning column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
@@ -473,7 +515,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selectedY_full = selected_y,
       selpropY_full = selprop_y,
       methods = list(
-        implementation = as.character(substitute(implementation)), family = family,
+        type="bi_selection", implementation = as.character(substitute(implementation)), family = family,
         resampling = myresampling, PFER_method = PFER_method
       ),
       params = list(
@@ -483,12 +525,12 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
         pi_list = pi_list,
         tau = tau, n_cat = n_cat, pk = ncol(xdata), n = nrow(xdata),
         PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-        seed = seed
+        seed = stab$seed
       )
     )
   } else {
-    params_comp <- params_comp[, c("comp", "nx", "alphax", "pix", "stability_score")]
-    params <- params[, c("comp", "nx", "alphax", "pix", "stability_score")]
+    params_comp <- params_comp[, intersect(c("comp", "nx", "alphax", "pix", "stability_score"), colnames(params_comp))]
+    params <- params[, colnames(params_comp)]
     out <- list(
       summary = params_comp,
       summary_full = params,
@@ -497,7 +539,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selectedX_full = selected_x,
       selpropX_full = selprop_x,
       methods = list(
-        implementation = as.character(substitute(implementation)), family = family,
+        type="bi_selection", implementation = as.character(substitute(implementation)), family = family,
         resampling = myresampling, PFER_method = PFER_method
       ),
       params = list(
@@ -507,7 +549,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
         pi_list = pi_list,
         tau = tau, n_cat = n_cat, pk = ncol(xdata), n = nrow(xdata),
         PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-        seed = seed
+        seed = stab$seed
       )
     )
   }

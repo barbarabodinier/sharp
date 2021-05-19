@@ -17,10 +17,13 @@ Heatmap(
 \arguments{
 \item{mat}{data matrix.}
 
-\item{colours}{vector of colours used for the heatmap.
-By default a gradient of colours ranging from ivory to dark red is used.}
+\item{colours}{vector of colours used for the heatmap. By default a gradient
+of colours ranging from ivory to dark red is used.}
 
 \item{resolution}{number of different colours to use.}
+
+\item{axes}{logical indicating if the row and column names of \code{mat}
+should be displayed.}
 
 \item{legend}{logical indicating if the colour bar should be included.}
 

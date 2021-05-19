@@ -29,9 +29,9 @@ CheckInputGraphical(
 )
 }
 \arguments{
-\item{xdata}{data matrix with observations as rows and variables as columns. For
-multi-block stability selection, the variables in data have to be ordered
-by group.}
+\item{xdata}{data matrix with observations as rows and variables as columns.
+For multi-block stability selection, the variables in data have to be
+ordered by group.}
 
 \item{pk}{optional vector encoding the grouping structure. Only used for
 multi-block stability selection where \code{pk} indicates the number of

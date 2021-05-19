@@ -117,15 +117,16 @@ Heatmap(
 
 # Simulation of more heterogeneous groups
 set.seed(1)
-simul <- SimulateClustering(n = c(5, 5, 5), pk = 100,
-v_within=c(-1,-0.5), continuous=TRUE)
+simul <- SimulateClustering(
+  n = c(5, 5, 5), pk = 100,
+  v_within = c(-1, -0.5), continuous = TRUE
+)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(t(simul$data)),
   colours = c("navy", "white", "red"),
   legend_range = c(-1, 1)
 )
-
 }
 }
 \seealso{

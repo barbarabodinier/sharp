@@ -128,6 +128,44 @@ printed.}
 \item{...}{additional parameters passed to the functions provided in
 \code{implementation} or \code{resampling}.}
 }
+\value{
+A list with: \item{summary}{a matrix of the best stability scores and
+  corresponding parameters controlling the level of sparsity in the
+  underlying algorithm for different numbers of components. Possible columns
+  include: \code{comp} (component ID), \code{nx} (number of predictors to
+  include, parameter of the underlying algorithm), \code{alphax} (sparsity
+  within the predictor groups, parameter of the underlying algorithm),
+  \code{pix} (threshold in selection proportion for predictors), \code{ny}
+  (number of outcomes to include, parameter of the underlying algorithm),
+  \code{alphay} (sparsity within the outcome groups, parameter of the
+  underlying algorithm), \code{piy} (threshold in selection proportion for
+  outcomes), \code{stability_score} (stability score). Columns that are not
+  relevant to the model are not reported. For example, \code{alpha_x} and
+  \code{alpha_y} are not used in sparse PLS models.} \item{summary_full}{a
+  matrix of the stability scores for the visited combinations of parameters.
+  Values are reported for the calibrated \code{pi}.} \item{selectedX}{a
+  binary matrix encoding stably selected predictors for the different
+  combinations of parameters listed in \code{summary}.} \item{selpropX}{a
+  matrix with the selection proportions of predictors for the different
+  combinations of parameters listed in \code{summary}.} \item{selectedY}{a
+  binary matrix encoding stably selected outcomes for the different
+  combinations of parameters listed in \code{summary}.} \item{selpropY}{a
+  matrix with the selection proportions of outcomes for the different
+  combinations of parameters listed in \code{summary}.}
+  \item{selectedX_full}{a binary matrix encoding stably selected predictors
+  for the different combinations of parameters listed in
+  \code{summary_full}.} \item{selpropX_full}{a binary matrix encoding stably
+  selected predictors for the different combinations of parameters listed in
+  \code{summary_full}.} \item{selectedY_full}{a binary matrix encoding stably
+  selected outcomes for the different combinations of parameters listed in
+  \code{summary_full}.} \item{selpropY_full}{a binary matrix encoding stably
+  selected outcomes for the different combinations of parameters listed in
+  \code{summary_full}.} \item{method}{a list with \code{type="bi_selection"},
+  \code{implementation}, \code{family}, \code{resampling} and
+  \code{PFER_method} values used for the run.} \item{params}{a list of input
+  values used for the run. The datasets \code{xdata} and \code{ydata} are
+  also included if \code{output_data=TRUE}.}
+}
 \description{
 Runs stability selection regression models with different combinations of
 parameters controlling the sparsity in PLS models and thresholds in selection
@@ -281,7 +319,8 @@ stab <- BiSelection(
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{SparsePLS}}, \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}}
+\code{\link{SparsePLS}}, \code{\link{GroupPLS}},
+  \code{\link{SparseGroupPLS}}
 
 Other stability selection functions: 
 \code{\link{Clustering}()},

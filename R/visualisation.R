@@ -146,7 +146,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 
       # Heatmap representation
       Heatmap(mat[nrow(mat):1, ncol(mat):1],
-        colours = colours,
+        colours = colours, axes = FALSE,
         legend = legend, legend_length = legend_length, legend_range = legend_range
       )
 
@@ -321,9 +321,11 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #' Produces a heatmap for visualisation of matrix entries.
 #'
 #' @param mat data matrix.
-#' @param colours vector of colours used for the heatmap.
-#' By default a gradient of colours ranging from ivory to dark red is used.
+#' @param colours vector of colours used for the heatmap. By default a gradient
+#'   of colours ranging from ivory to dark red is used.
 #' @param resolution number of different colours to use.
+#' @param axes logical indicating if the row and column names of \code{mat}
+#'   should be displayed.
 #' @param legend logical indicating if the colour bar should be included.
 #' @param legend_length length of the colour bar.
 #' @param legend_range range of the colour bar.
@@ -382,8 +384,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
     }
   }
   if (axes) {
-    axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = 2)
-    axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = 2)
+    graphics::axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = 2)
+    graphics::axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = 2)
   }
 
 

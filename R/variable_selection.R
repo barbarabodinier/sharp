@@ -98,15 +98,16 @@
 #'   coefficients. Columns correspond to predictors from \code{xdata}. Indices
 #'   along the third dimension correspond to different resampling iterations.
 #'   With multivariate outcomes, indices along the fourth dimension correspond
-#'   to outcome-specific coefficients.} \item{method}{a list of
-#'   \code{implementation}, \code{family}, \code{resampling} and
-#'   \code{PFER_method} values used for the run.} \item{param}{a list of
-#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
-#'   (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}
-#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
-#'   also included if \code{output_data=TRUE}.} For all objects except those
-#'   stored in \code{methods} or \code{params}, rows correspond to parameter
-#'   values stored in the output \code{Lambda}.
+#'   to outcome-specific coefficients.} \item{method}{a list with
+#'   \code{type="variable_selection"}, \code{implementation}, \code{family},
+#'   \code{resampling} and \code{PFER_method} values used for the run.}
+#'   \item{params}{a list of \code{K}, \code{pi_list}, \code{tau}, \code{n_cat},
+#'   \code{pk}, \code{n} (number of observations), \code{PFER_thr},
+#'   \code{FDP_thr} and \code{seed} values used for the run. The datasets
+#'   \code{xdata} and \code{ydata} are also included if
+#'   \code{output_data=TRUE}.} For all objects except those stored in
+#'   \code{methods} or \code{params}, rows correspond to parameter values stored
+#'   in the output \code{Lambda}.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
@@ -553,7 +554,10 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       PFER = metrics$PFER, FDP = metrics$FDP,
       S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
       selprop = bigstab, Beta = Beta,
-      methods = list(implementation = myimplementation, family = family, resampling = myresampling, PFER_method = PFER_method),
+      methods = list(
+        type = "variable_selection", implementation = myimplementation, family = family,
+        resampling = myresampling, PFER_method = PFER_method
+      ),
       params = list(
         K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
         pk = ncol(xdata), n = nrow(xdata),

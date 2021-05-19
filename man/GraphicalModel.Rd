@@ -32,9 +32,9 @@ GraphicalModel(
 )
 }
 \arguments{
-\item{xdata}{data matrix with observations as rows and variables as columns. For
-multi-block stability selection, the variables in data have to be ordered
-by group.}
+\item{xdata}{data matrix with observations as rows and variables as columns.
+For multi-block stability selection, the variables in data have to be
+ordered by group.}
 
 \item{pk}{optional vector encoding the grouping structure. Only used for
 multi-block stability selection where \code{pk} indicates the number of
@@ -171,13 +171,14 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   along the third dimension correspond to different (sets of) parameters
   controlling the level of sparsity in the underlying algorithm.}
   \item{sign}{a matrix of signs of Pearson's correlations estimated from
-  \code{xdata}.} \item{method}{a list with \code{implementation},
-  \code{start}, \code{resampling} and \code{PFER_method} values used for the
-  run.} \item{param}{a list with values of other objects used for the run.}
-  For all objects except \code{selprop}, \code{sign} and those stored in
-  \code{methods} or \code{params}, rows correspond to parameter values stored
-  in the output \code{Lambda}. In multi-block stability selection, columns of
-  these same objects except correspond to different blocks.
+  \code{xdata}.} \item{method}{a list with \code{type="graphical_model"},
+  \code{implementation}, \code{start}, \code{resampling} and
+  \code{PFER_method} values used for the run.} \item{params}{a list with
+  values of other objects used for the run.} For all objects except
+  \code{selprop}, \code{sign} and those stored in \code{methods} or
+  \code{params}, rows correspond to parameter values stored in the output
+  \code{Lambda}. In multi-block stability selection, columns of these same
+  objects except correspond to different blocks.
 }
 \description{
 Runs stability selection graphical models with different combinations of
