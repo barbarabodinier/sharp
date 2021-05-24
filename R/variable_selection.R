@@ -375,15 +375,15 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
   # Initialising objects to be filled
   N <- N_block <- ncol(xdata)
-  Beta <- array(0, dim = c(nrow(Lambda), ncol(xdata), K))
-  rownames(Beta) <- rownames(Lambda)
-  colnames(Beta) <- colnames(xdata)
 
-  # Initialising the array with all beta coefficients
+  # Initialising the arrays
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
   Xsub <- xdata[s, ]
   Ysub <- ydata[s, ]
   mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+  Beta <- array(0, dim = c(nrow(mybeta$selected), ncol(mybeta$selected), K))
+  rownames(Beta) <- rownames(mybeta$selected)
+  colnames(Beta) <- colnames(mybeta$selected)
   if (length(dim(mybeta$beta_full)) == 2) {
     Beta_full <- array(0,
       dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),

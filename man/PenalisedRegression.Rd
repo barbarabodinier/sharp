@@ -53,6 +53,7 @@ mylasso <- PenalisedRegression(
   xdata = simul$X, ydata = simul$Y,
   Lambda = c(0.1, 0.2), family = "gaussian"
 )
+
 }
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
