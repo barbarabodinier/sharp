@@ -502,8 +502,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   }
   if (!is.null(ydata)) {
     out <- list(
-      summary = params_comp,
-      summary_full = params,
+      summary = data.frame(params_comp),
+      summary_full = data.frame(params),
       selectedX = selected_x_comp,
       selpropX = selprop_x_comp,
       selectedY = selected_y_comp,
@@ -530,8 +530,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     params_comp <- params_comp[, intersect(c("comp", "nx", "alphax", "pix", "S"), colnames(params_comp))]
     params <- params[, colnames(params_comp)]
     out <- list(
-      summary = params_comp,
-      summary_full = params,
+      summary = data.frame(params_comp),
+      summary_full = data.frame(params),
       selectedX = selected_x_comp,
       selpropX = selprop_x_comp,
       selectedX_full = selected_x,

@@ -52,7 +52,7 @@
 #'   and columns correspond to features being clustered (rows of \code{xdata}).
 #'   Indices along the third dimension correspond to different parameters
 #'   controlling the number of clusters in the underlying algorithm.}
-#'   \item{method}{a list with \code{type="clustering"}, \code{implementation},
+#'   \item{methods}{a list with \code{type="clustering"}, \code{implementation},
 #'   \code{resampling} and \code{PFER_method} values used for the run.}
 #'   \item{param}{a list with values of other objects used for the run.} For all
 #'   objects except \code{selprop} and those stored in \code{methods} or
@@ -97,6 +97,7 @@
 #'
 #' # Stability selection
 #' stab <- Clustering(xdata = simul$data)
+#' CalibrationPlot(stab, xlab=expression(italic(k)))
 #' table(simul$theta, Clusters(stab))
 #' }
 #'
@@ -170,12 +171,18 @@ Clustering <- function(xdata, Lambda = NULL,
     }
     out$methods$implementation <- myimplementation
     out$methods$resampling <- myresampling
-    out$method$type <- "clustering"
+    out$methods$type <- "clustering"
 
     # Removing graphical model specific outputs
-    out$method <- out$method[-which(names(out$method) %in% "start")]
+    out$methods <- out$methods[-which(names(out$methods) %in% "start")]
     out$params <- out$params[-which(names(out$params) %in% c("lambda_other_blocks", "Sequential_template"))]
     out <- out[-which(names(out) %in% c("sign"))]
+
+    # Updating n and pk (using transpose)
+    n <- out$params$pk
+    pk <- out$params$n
+    out$params$pk <- pk
+    out$params$n <- out$params$n
   }
 
   return(out)

@@ -116,7 +116,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   and columns correspond to features being clustered (rows of \code{xdata}).
   Indices along the third dimension correspond to different parameters
   controlling the number of clusters in the underlying algorithm.}
-  \item{method}{a list with \code{type="clustering"}, \code{implementation},
+  \item{methods}{a list with \code{type="clustering"}, \code{implementation},
   \code{resampling} and \code{PFER_method} values used for the run.}
   \item{param}{a list with values of other objects used for the run.} For all
   objects except \code{selprop} and those stored in \code{methods} or
@@ -166,6 +166,7 @@ Heatmap(
 
 # Stability selection
 stab <- Clustering(xdata = simul$data)
+CalibrationPlot(stab, xlab=expression(italic(k)))
 table(simul$theta, Clusters(stab))
 }
 

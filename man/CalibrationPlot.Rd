@@ -28,8 +28,8 @@ CalibrationPlot(
 )
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}.}
+\item{stability}{output of \code{\link{VariableSelection}},
+\code{\link{GraphicalModel}} or \code{\link{Clustering}}.}
 
 \item{metric}{parameter to visualise. Possible values are "lambda" (parameter
 controlling the level of sparsity in underlying algorithm), "pi" (threshold

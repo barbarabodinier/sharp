@@ -4,8 +4,8 @@
 #' controlling the level of sparsity in the underlying feature selection
 #' algorithm and/or the threshold in selection proportions.
 #'
-#' @param stability output of \code{\link{VariableSelection}} or
-#'   \code{\link{GraphicalModel}}.
+#' @param stability output of \code{\link{VariableSelection}},
+#'   \code{\link{GraphicalModel}} or \code{\link{Clustering}}.
 #' @param metric parameter to visualise. Possible values are "lambda" (parameter
 #'   controlling the level of sparsity in underlying algorithm), "pi" (threshold
 #'   in selection proportion) or "both".
@@ -84,7 +84,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
                             xlab = expression(lambda), ylab = expression(pi), zlab = expression(italic(q)),
                             filename = NULL, fileformat = "pdf", res = 500,
                             width = 7, height = 7, units = "in", mar = NULL, mfrow = NULL, ...) {
-  # Extracting the number of blocks
+  # Extracting the number of blocks/components
   if (is.null(block_id)) {
     bigblocks <- BlockMatrix(stability$params$pk)
     bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
@@ -93,9 +93,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
     names(N_blocks) <- blocks
     nblocks <- max(blocks)
     block_id <- 1:nblocks
-  } else {
-    nblocks <- 1
   }
+  nblocks <- length(block_id)
 
   # Saving as PDF
   if (!is.null(filename)) {
@@ -120,6 +119,14 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
     for (b in block_id) {
       # Extracting the stability scores
       if (length(stability$params$pk) == 1) {
+        #   mat=matrix(NA, nrow=length(unique(stability$summary_full[,2])),
+        #              ncol=length(unique(stability$summary_full[,3])))
+        #   rownames(mat)=sort(unique(stability$summary_full[,2]))
+        #   colnames(mat)=sort(unique(stability$summary_full[,3]))
+        #   for (i in 1:nrow(stability$summary_full)){
+        #     mat[as.character(stability$summary_full[i,2]),
+        #         as.character(stability$summary_full[i,3])]=as.character(stability$summary_full$S[i])
+        #   }
         mat <- stability$S_2d
         ids <- which(apply(mat, 1, FUN = function(x) {
           any(!is.na(x))
@@ -134,10 +141,10 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       }
       mat <- mat[, , drop = FALSE]
       colnames(mat) <- stability$params$pi_list
-      if (grepl("pls", tolower(stability$methods$implementation))) {
-        rownames(mat) <- (stability$Lambda[, b])[ids]
-      } else {
+      if (grepl("penalised", tolower(stability$methods$implementation))) {
         rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
+      } else {
+        rownames(mat) <- (stability$Lambda[, b])[ids]
       }
 
       # Extracting corresponding numbers of selected variables (q)
@@ -146,32 +153,37 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 
       # Heatmap representation
       Heatmap(mat[nrow(mat):1, ncol(mat):1],
-        colours = colours, axes = FALSE,
-        legend = legend, legend_length = legend_length, legend_range = legend_range
+              colours = colours, axes = FALSE,
+              legend = legend, legend_length = legend_length, legend_range = legend_range
       )
 
       # Identifying best pair of parameters
+      withr::local_par(list(xpd = FALSE))
       graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
       graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
 
       # Including axes
-      graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = 2, labels = rev(rownames(mat)), ...)
       graphics::axis(
         side = 2, at = (1:ncol(mat)) - 0.5, las = 2,
         labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2), ...
       )
-      if (!grepl("pls", tolower(stability$methods$implementation))) {
+      if (grepl("penalised", tolower(stability$methods$implementation))) {
         graphics::axis(
           side = 3, at = (1:nrow(mat)) - 0.5, las = 2,
           labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0)), ...
         )
+        graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = 2, labels = rev(rownames(mat)), ...)
+      } else {
+        graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = 2, labels = rev(rownames(mat)), ...)
       }
 
       # Including axis labels
-      graphics::mtext(text = xlab, side = 1, line = 5.2, cex = 1.5)
       graphics::mtext(text = ylab, side = 2, line = 3.5, cex = 1.5)
-      if (!grepl("pls", tolower(stability$methods$implementation))) {
+      if (grepl("penalised", tolower(stability$methods$implementation))) {
+        graphics::mtext(text = xlab, side = 1, line = 5.2, cex = 1.5)
         graphics::mtext(text = zlab, side = 3, line = 3.5, cex = 1.5)
+      } else {
+        graphics::mtext(text = xlab, side = 1, line = 3.5, cex = 1.5)
       }
     }
   } else {
@@ -224,8 +236,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
         # Making plot
         cex_points <- 0.7
         plot(Lambda, vect,
-          pch = 19, col = "navy", cex = cex_points,
-          xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
+             pch = 19, col = "navy", cex = cex_points,
+             xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
         )
         graphics::abline(h = graphics::axTicks(side = 2), lty = 3, col = "grey")
         graphics::abline(h = max(vect), lty = 2, col = "red")
@@ -287,8 +299,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
         # Making plot
         cex_points <- 0.7
         plot(1:length(vect), vect,
-          pch = 19, col = "navy", cex = cex_points,
-          xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
+             pch = 19, col = "navy", cex = cex_points,
+             xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
         )
         xticks <- graphics::axTicks(side = 1)
         if (min(xticks) == 0) {
@@ -371,8 +383,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
 
   # Making heatmap
   plot(NA,
-    xlim = c(0, nrow(mycol_mat)), ylim = c(0, ncol(mycol_mat)),
-    xlab = "", ylab = "", xaxt = "n", yaxt = "n", bty = "n"
+       xlim = c(0, nrow(mycol_mat)), ylim = c(0, ncol(mycol_mat)),
+       xlab = "", ylab = "", xaxt = "n", yaxt = "n", bty = "n"
   )
   for (i in 0:(nrow(mycol_mat) - 1)) {
     for (j in 0:(ncol(mycol_mat) - 1)) {
@@ -403,8 +415,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
       mylegend_values <- unique(round(mylegend_values, digits = -max(nchar(round(myrange))) + 1))
     }
     mylegend_ids <- as.numeric(as.character(cut(mylegend_values,
-      breaks = seq(myrange[1], myrange[2], length.out = resolution + 1),
-      labels = 1:resolution, include.lowest = TRUE
+                                                breaks = seq(myrange[1], myrange[2], length.out = resolution + 1),
+                                                labels = 1:resolution, include.lowest = TRUE
     )))
     ypos <- ncol(mat)
     xpos <- nrow(mat) * 1.05
