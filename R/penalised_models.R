@@ -26,7 +26,6 @@
 #'   xdata = simul$X, ydata = simul$Y,
 #'   Lambda = c(0.1, 0.2), family = "gaussian"
 #' )
-#'
 #' @export
 PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Storing extra arguments
@@ -57,16 +56,16 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 
       # Preparing the outputs
       beta_full <- mybeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
-      if ("penalty.factor"%in%names(extra_args)){
-        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor==1)], drop = FALSE] != 0, yes = 1, no = 0)
+      if ("penalty.factor" %in% names(extra_args)) {
+        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor == 1)], drop = FALSE] != 0, yes = 1, no = 0)
       } else {
         selected <- ifelse(mybeta[, colnames(xdata), drop = FALSE] != 0, yes = 1, no = 0)
       }
     } else {
       if (family == "mgaussian") {
         mybeta <- array(NA,
-                        dim = c(length(Lambda), ncol(xdata), ncol(ydata)),
-                        dimnames = list(paste0("s", 0:(length(Lambda) - 1)), colnames(xdata), colnames(ydata))
+          dim = c(length(Lambda), ncol(xdata), ncol(ydata)),
+          dimnames = list(paste0("s", 0:(length(Lambda) - 1)), colnames(xdata), colnames(ydata))
         )
         for (y_id in 1:ncol(ydata)) {
           tmpbeta <- stats::coef(mymodel)[[y_id]]
@@ -78,11 +77,11 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
       if (family == "multinomial") {
         y_levels <- sort(unique(ydata))
         mybeta <- array(NA,
-                        dim = c(length(Lambda), ncol(xdata), length(y_levels)),
-                        dimnames = list(
-                          paste0("s", 0:(length(Lambda) - 1)), colnames(xdata),
-                          paste0("Y", y_levels)
-                        )
+          dim = c(length(Lambda), ncol(xdata), length(y_levels)),
+          dimnames = list(
+            paste0("s", 0:(length(Lambda) - 1)), colnames(xdata),
+            paste0("Y", y_levels)
+          )
         )
         for (y_id in 1:length(y_levels)) {
           tmpbeta <- stats::coef(mymodel)[[y_id]]
@@ -93,8 +92,8 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
       }
 
       # Preparing the outputs
-      if ("penalty.factor"%in%names(extra_args)){
-        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor==1)], 1, drop = FALSE] != 0, yes = 1, no = 0)
+      if ("penalty.factor" %in% names(extra_args)) {
+        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor == 1)], 1, drop = FALSE] != 0, yes = 1, no = 0)
       } else {
         selected <- ifelse(mybeta[, , 1, drop = FALSE] != 0, yes = 1, no = 0)
       }

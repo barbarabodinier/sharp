@@ -7,6 +7,7 @@
 SimulateGraphical(
   n = 100,
   pk = 10,
+  theta = NULL,
   implementation = SimulateAdjacency,
   topology = "random",
   nu = 0.1,
@@ -28,14 +29,20 @@ SimulateGraphical(
 \item{pk}{vector of the number of variables per group in the simulated data.
 The number of nodes in the simulated graph is \code{sum(pk)}. With multiple
 groups, the simulated (partial) correlation matrix has a block structure,
-where blocks arise from the integration of the \code{length(pk)} groups.}
+where blocks arise from the integration of the \code{length(pk)} groups.
+This argument is only used if \code{sum(pk)} is equal to the number of
+rows/columns in \code{theta} is not provided.}
+
+\item{theta}{optional binary and symmetric adjacency matrix encoding the
+conditional graph structure.}
 
 \item{implementation}{function for simulation of the graph. By default,
 functionalities implemented in \code{\link[huge]{huge.generator}} are used.
 Alternatively, a user-defined function can be used. It must take \code{pk},
 \code{topology} and \code{nu} as arguments and return a
 \code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
-entries are all equal to zero.}
+entries are all equal to zero. This function is only applied if
+\code{theta} is not provided.}
 
 \item{topology}{topology of the simulated graph. If using
 \code{implementation="huge"}, possible values are listed for the argument
@@ -59,8 +66,8 @@ values.}
 \item{v_between}{vector defining the (range of) nonzero entries in the
 off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 \code{v_between} is the set of possible precision values. If
-\code{continuous=FALSE}, \code{v_between} is the range of possible precision
-values. This argument is only used if \code{length(pk)>1}.}
+\code{continuous=FALSE}, \code{v_between} is the range of possible
+precision values. This argument is only used if \code{length(pk)>1}.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in
@@ -166,7 +173,7 @@ for (i in 1:2) {
   )
 }
 
-# Using user-defined function for graph simulation
+# User-defined function for graph simulation
 CentralNode <- function(pk, topology = NULL, nu = NULL, hub = 1) {
   theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
   theta[hub, ] <- 1
@@ -178,6 +185,23 @@ simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode)
 plot(Graph(simul$theta)) # star
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode, hub = 2)
 plot(Graph(simul$theta)) # variable 2 is the central node
+
+# User-defined adjacency matrix
+mytheta <- matrix(c(
+  0, 1, 1, 0,
+  1, 0, 0, 0,
+  1, 0, 0, 1,
+  0, 0, 1, 0
+), ncol = 4, byrow = TRUE)
+simul <- SimulateGraphical(n = 100, theta = mytheta)
+
+# User-defined adjacency and block structure
+simul <- SimulateGraphical(n = 100, theta = mytheta, pk = c(2, 2))
+mycor <- cor(simul$data)
+Heatmap(mycor,
+  colours = c("darkblue", "white", "firebrick3"),
+  legend_range = c(-1, 1), legend_length = 50, legend = FALSE
+)
 }
 }
 \seealso{

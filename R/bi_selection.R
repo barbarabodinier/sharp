@@ -485,8 +485,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
   # Excluding irrelevant columns
   colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
-  params_comp=params_comp[,which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1)))]
-  params=params[,colnames(params_comp)]
+  params_comp <- params_comp[, which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1)))]
+  params <- params[, colnames(params_comp)]
 
   # Assigning column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
@@ -513,7 +513,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selectedY_full = selected_y,
       selpropY_full = selprop_y,
       methods = list(
-        type="bi_selection", implementation = as.character(substitute(implementation)), family = family,
+        type = "bi_selection", implementation = as.character(substitute(implementation)), family = family,
         resampling = myresampling, PFER_method = PFER_method
       ),
       params = list(
@@ -537,7 +537,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selectedX_full = selected_x,
       selpropX_full = selprop_x,
       methods = list(
-        type="bi_selection", implementation = as.character(substitute(implementation)), family = family,
+        type = "bi_selection", implementation = as.character(substitute(implementation)), family = family,
         resampling = myresampling, PFER_method = PFER_method
       ),
       params = list(

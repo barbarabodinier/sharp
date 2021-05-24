@@ -12,12 +12,17 @@
 #'   The number of nodes in the simulated graph is \code{sum(pk)}. With multiple
 #'   groups, the simulated (partial) correlation matrix has a block structure,
 #'   where blocks arise from the integration of the \code{length(pk)} groups.
+#'   This argument is only used if \code{sum(pk)} is equal to the number of
+#'   rows/columns in \code{theta} is not provided.
+#' @param theta optional binary and symmetric adjacency matrix encoding the
+#'   conditional graph structure.
 #' @param implementation function for simulation of the graph. By default,
 #'   functionalities implemented in \code{\link[huge]{huge.generator}} are used.
 #'   Alternatively, a user-defined function can be used. It must take \code{pk},
 #'   \code{topology} and \code{nu} as arguments and return a
 #'   \code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
-#'   entries are all equal to zero.
+#'   entries are all equal to zero. This function is only applied if
+#'   \code{theta} is not provided.
 #' @param topology topology of the simulated graph. If using
 #'   \code{implementation="huge"}, possible values are listed for the argument
 #'   \code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
@@ -36,8 +41,8 @@
 #' @param v_between vector defining the (range of) nonzero entries in the
 #'   off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 #'   \code{v_between} is the set of possible precision values. If
-#'   \code{continuous=FALSE}, \code{v_between} is the range of possible precision
-#'   values. This argument is only used if \code{length(pk)>1}.
+#'   \code{continuous=FALSE}, \code{v_between} is the range of possible
+#'   precision values. This argument is only used if \code{length(pk)>1}.
 #' @param continuous logical indicating whether to sample precision values from
 #'   a uniform distribution between the minimum and maximum values in
 #'   \code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
@@ -131,7 +136,7 @@
 #'   )
 #' }
 #'
-#' # Using user-defined function for graph simulation
+#' # User-defined function for graph simulation
 #' CentralNode <- function(pk, topology = NULL, nu = NULL, hub = 1) {
 #'   theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
 #'   theta[hub, ] <- 1
@@ -143,9 +148,27 @@
 #' plot(Graph(simul$theta)) # star
 #' simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode, hub = 2)
 #' plot(Graph(simul$theta)) # variable 2 is the central node
+#'
+#' # User-defined adjacency matrix
+#' mytheta <- matrix(c(
+#'   0, 1, 1, 0,
+#'   1, 0, 0, 0,
+#'   1, 0, 0, 1,
+#'   0, 0, 1, 0
+#' ), ncol = 4, byrow = TRUE)
+#' simul <- SimulateGraphical(n = 100, theta = mytheta)
+#'
+#' # User-defined adjacency and block structure
+#' simul <- SimulateGraphical(n = 100, theta = mytheta, pk = c(2, 2))
+#' mycor <- cor(simul$data)
+#' Heatmap(mycor,
+#'   colours = c("darkblue", "white", "firebrick3"),
+#'   legend_range = c(-1, 1), legend_length = 50, legend = FALSE
+#' )
 #' }
 #' @export
-SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacency, topology = "random", nu = 0.1,
+SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
+                              implementation = SimulateAdjacency, topology = "random", nu = 0.1,
                               output_matrices = FALSE,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
@@ -162,6 +185,11 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacen
 
   # Defining number of nodes
   p <- sum(pk)
+  if (!is.null(theta)) {
+    if (ncol(theta) != p) {
+      p <- pk <- ncol(theta)
+    }
+  }
 
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
@@ -190,9 +218,12 @@ SimulateGraphical <- function(n = 100, pk = 10, implementation = SimulateAdjacen
   }
 
   # Simulation of the adjacency matrix
-  theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu, ...))
+  if (is.null(theta)) {
+    theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu, ...))
+  }
 
-  # Ensuring that there is no self-loops
+  # Ensuring the adjacency matrix is symmetric (undirected graph) with no self-loops
+  theta <- ifelse(theta + t(theta) != 0, yes = 1, no = 0)
   diag(theta) <- 0
 
   # Setting variable names
@@ -404,6 +435,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, nu = 1, output_matrices =
 #'   is simulated for \code{pk} variables and \code{n} observations. If \code{X}
 #'   is provided, (a subset of) its variables will be used to simulate the
 #'   outcome data.
+#' @param theta optional binary vector encoding true predictors.
 #' @param nu_pred density of the set of variables to be used for the simulation
 #'   of the outcome data (i.e. number of true predictors over the number of
 #'   potential predictors).
@@ -430,7 +462,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, nu = 1, output_matrices =
 #'   \item{logit_proba}{logit of the true probability that the outcome is equal
 #'   to 1. This is obtained as a linear combination of (a subset of) the
 #'   variables in X. Only returned if \code{family="binomial"}.}
-#'   \item{theta_pred}{binary vector indicating which variables in X were used
+#'   \item{theta}{binary vector indicating which variables in X were used
 #'   in the linear combination to obtain the outcome Y, i.e. indicating which
 #'   variables in X are signal (if equal to 1) or noise (if equal to 0)
 #'   variables in association with the outcome Y.} \item{beta}{true coefficients
@@ -444,21 +476,32 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, nu = 1, output_matrices =
 #' \dontrun{
 #'
 #' # Data simulation (continuous outcome)
+#' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian")
 #' plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
 #' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", sd_pred_error = 5)
 #' plot(simul$Y_pred, simul$Y) # larger residual error
 #'
+#' # Outcome simulation from user-provided predictor data
+#' set.seed(1)
+#' X <- matrix(rnorm(n = 200), nrow = 20, ncol = 10)
+#' simul <- SimulateRegression(X = X, family = "gaussian")
+#'
+#' # Manually chosen set of predictors
+#' mytheta <- c(rep(0, 8), rep(1, 2))
+#' simul <- SimulateRegression(X = X, theta = mytheta, family = "gaussian")
+#'
 #' # Data simulation (binary outcome)
+#' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
 #' boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
 #' }
 #' @export
-SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
-                               beta_set = c(-1, 1), continuous = FALSE,
+SimulateRegression <- function(n = 100, pk = 10, X = NULL, theta = NULL,
+                               nu_pred = 0.2, beta_set = c(-1, 1), continuous = FALSE,
                                sd_pred_error = 1, family = "gaussian") {
-  # Simulation of the predictors
-  if (is.null(X)) {
+  # Simulation of the predictors if not provided
+  if ((is.null(X)) & (is.null(theta))) {
     p <- sum(pk)
     X <- NULL
     for (k in 1:p) {
@@ -466,8 +509,18 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
     }
     X <- scale(X)
   } else {
-    n <- nrow(X)
-    p <- ncol(X)
+    if (!is.null(X)) {
+      n <- nrow(X)
+      p <- ncol(X)
+    }
+    if (!is.null(theta)) {
+      p <- length(theta)
+    }
+    if ((!is.null(X)) & (!is.null(theta))) {
+      if (ncol(X) != length(theta)) {
+        stop("Arguments 'X' and 'theta' are not consistent. The length of vector 'theta' must be equal to the number of columns in 'X'.")
+      }
+    }
   }
 
   # Setting column names for predictors
@@ -481,8 +534,10 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
   }
 
   # Getting the binary vector of true predictors
-  theta_pred <- stats::rbinom(p, size = 1, prob = nu_pred)
-  names(theta_pred) <- colnames(X)
+  if (is.null(theta)) {
+    theta <- stats::rbinom(p, size = 1, prob = nu_pred)
+  }
+  names(theta) <- colnames(X)
 
   # Simulating a vector of betas
   if (continuous) {
@@ -490,7 +545,7 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
   } else {
     beta <- base::sample(beta_set, size = p, replace = TRUE)
   }
-  beta <- beta * theta_pred
+  beta <- beta * theta
 
   # Computing the predicted values of Y
   Y_pred <- X %*% beta
@@ -506,9 +561,9 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, nu_pred = 0.2,
 
   # Return the simulated X and Y
   if (family == "binomial") {
-    out <- list(X = X, Y = Y_bin, proba = proba, logit_proba = Y, logit_proba_pred = Y_pred, theta_pred = theta_pred, beta = beta)
+    out <- list(X = X, Y = Y_bin, proba = proba, logit_proba = Y, logit_proba_pred = Y_pred, theta = theta, beta = beta)
   } else {
-    out <- list(X = X, Y = Y, Y_pred = Y_pred, theta_pred = theta_pred, beta = beta)
+    out <- list(X = X, Y = Y, Y_pred = Y_pred, theta = theta, beta = beta)
   }
 
   return(out)

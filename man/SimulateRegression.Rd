@@ -8,6 +8,7 @@ SimulateRegression(
   n = 100,
   pk = 10,
   X = NULL,
+  theta = NULL,
   nu_pred = 0.2,
   beta_set = c(-1, 1),
   continuous = FALSE,
@@ -24,6 +25,8 @@ SimulateRegression(
 is simulated for \code{pk} variables and \code{n} observations. If \code{X}
 is provided, (a subset of) its variables will be used to simulate the
 outcome data.}
+
+\item{theta}{optional binary vector encoding true predictors.}
 
 \item{nu_pred}{density of the set of variables to be used for the simulation
 of the outcome data (i.e. number of true predictors over the number of
@@ -56,7 +59,7 @@ A list with: \item{X}{simulated dataset. A subset of these variables
   \item{logit_proba}{logit of the true probability that the outcome is equal
   to 1. This is obtained as a linear combination of (a subset of) the
   variables in X. Only returned if \code{family="binomial"}.}
-  \item{theta_pred}{binary vector indicating which variables in X were used
+  \item{theta}{binary vector indicating which variables in X were used
   in the linear combination to obtain the outcome Y, i.e. indicating which
   variables in X are signal (if equal to 1) or noise (if equal to 0)
   variables in association with the outcome Y.} \item{beta}{true coefficients
@@ -73,12 +76,23 @@ among the variables in X, relevant predictors of the outcome Y.
 \dontrun{
 
 # Data simulation (continuous outcome)
+set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian")
 plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
 simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", sd_pred_error = 5)
 plot(simul$Y_pred, simul$Y) # larger residual error
 
+# Outcome simulation from user-provided predictor data
+set.seed(1)
+X <- matrix(rnorm(n = 200), nrow = 20, ncol = 10)
+simul <- SimulateRegression(X = X, family = "gaussian")
+
+# Manually chosen set of predictors
+mytheta <- c(rep(0, 8), rep(1, 2))
+simul <- SimulateRegression(X = X, theta = mytheta, family = "gaussian")
+
 # Data simulation (binary outcome)
+set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
 boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
 }
