@@ -61,5 +61,21 @@
 #' argmax <- Argmax(stab) # calibrated parameters
 #' stably_selected <- Adjacency(stab)
 #' plot(Graph(stably_selected))
+#'
+#' ## Clustering models
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(10, 10, 10), pk = 100)
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' # Stability selection
+#' stab <- Clustering(xdata = simul$data)
+#' CalibrationPlot(stab, xlab = expression(italic(k)))
+#' Clusters(stab)
 #' }
 NULL

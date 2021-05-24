@@ -95,10 +95,6 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #'
 #' @family lambda grid functions
 #'
-#' @references \insertRef{stabilityselectionMB}{focus}
-#'
-#'   \insertRef{stabilityselectionSS}{focus}
-#'
 #' @examples
 #' \dontrun{
 #'

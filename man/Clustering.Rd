@@ -166,7 +166,7 @@ Heatmap(
 
 # Stability selection
 stab <- Clustering(xdata = simul$data)
-CalibrationPlot(stab, xlab=expression(italic(k)))
+CalibrationPlot(stab, xlab = expression(italic(k)))
 table(simul$theta, Clusters(stab))
 }
 

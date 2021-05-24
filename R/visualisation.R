@@ -153,8 +153,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 
       # Heatmap representation
       Heatmap(mat[nrow(mat):1, ncol(mat):1],
-              colours = colours, axes = FALSE,
-              legend = legend, legend_length = legend_length, legend_range = legend_range
+        colours = colours, axes = FALSE,
+        legend = legend, legend_length = legend_length, legend_range = legend_range
       )
 
       # Identifying best pair of parameters
@@ -236,8 +236,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
         # Making plot
         cex_points <- 0.7
         plot(Lambda, vect,
-             pch = 19, col = "navy", cex = cex_points,
-             xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
+          pch = 19, col = "navy", cex = cex_points,
+          xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
         )
         graphics::abline(h = graphics::axTicks(side = 2), lty = 3, col = "grey")
         graphics::abline(h = max(vect), lty = 2, col = "red")
@@ -299,8 +299,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
         # Making plot
         cex_points <- 0.7
         plot(1:length(vect), vect,
-             pch = 19, col = "navy", cex = cex_points,
-             xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
+          pch = 19, col = "navy", cex = cex_points,
+          xlab = "", ylab = ylab, cex.lab = 1.5, xaxt = "n"
         )
         xticks <- graphics::axTicks(side = 1)
         if (min(xticks) == 0) {
@@ -383,8 +383,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
 
   # Making heatmap
   plot(NA,
-       xlim = c(0, nrow(mycol_mat)), ylim = c(0, ncol(mycol_mat)),
-       xlab = "", ylab = "", xaxt = "n", yaxt = "n", bty = "n"
+    xlim = c(0, nrow(mycol_mat)), ylim = c(0, ncol(mycol_mat)),
+    xlab = "", ylab = "", xaxt = "n", yaxt = "n", bty = "n"
   )
   for (i in 0:(nrow(mycol_mat) - 1)) {
     for (j in 0:(ncol(mycol_mat) - 1)) {
@@ -415,8 +415,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
       mylegend_values <- unique(round(mylegend_values, digits = -max(nchar(round(myrange))) + 1))
     }
     mylegend_ids <- as.numeric(as.character(cut(mylegend_values,
-                                                breaks = seq(myrange[1], myrange[2], length.out = resolution + 1),
-                                                labels = 1:resolution, include.lowest = TRUE
+      breaks = seq(myrange[1], myrange[2], length.out = resolution + 1),
+      labels = 1:resolution, include.lowest = TRUE
     )))
     ypos <- ncol(mat)
     xpos <- nrow(mat) * 1.05

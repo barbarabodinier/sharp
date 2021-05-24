@@ -315,12 +315,18 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'
 #' Simulates multivariate Normal data with clusters of participants sharing
 #' similar variable profiles. This simulator is based on a graph structure
-#' encoding relationships between the observations.
+#' encoding conditional correlations between the observations.
 #'
 #' @inheritParams SimulateGraphical
 #' @param n vector of the number of observations per cluster in the simulated
 #'   data. The number of observations in the simulated data is \code{sum(n)}.
 #' @param pk vector of the number of variables in the simulated data.
+#' @param adjacency optional binary and symmetric adjacency matrix encoding the
+#'   conditional graph structure between observations. The clusters encoded in
+#'   this argument must be in line with those indicated in \code{n}. To generate
+#'   a block structure, the within-cluster observations must be more likely to
+#'   be correlated than between clusters. For between-cluster relationships to
+#'   be apparent, \code{v_between} must be nonzero. To be used with care.
 #'
 #' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
 #'   \code{\link{GraphicalModel}}
@@ -377,20 +383,50 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   colours = c("navy", "white", "red"),
 #'   legend_range = c(-1, 1)
 #' )
+#'
+#' # Introducing between-cluster correlations
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(5, 5, 5), pk = 100,
+#'   v_within = c(-1, -0.5), v_between = c(-0.1, 0), continuous = TRUE
+#' )
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' # User-defined structure: between-cluster pair obs1-obs8
+#' theta <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
+#' theta[1, 8] <- theta[8, 1] <- 1
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(5, 5, 5), pk = 100, adjacency = theta, output_matrices = TRUE,
+#'   v_within = c(-1, -0.5), v_between = -1, continuous = TRUE
+#' )
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
 #' }
 #' @export
-SimulateClustering <- function(n = c(10, 10), pk = 20, nu = 1, output_matrices = FALSE,
-                               v_within = -1, continuous = FALSE, pd_strategy = "diagonally_dominant",
+SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
+                               nu = 1, output_matrices = FALSE,
+                               v_within = -1, v_between = 0, continuous = FALSE,
+                               pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Using multi-block simulator with unconnected blocks
   out <- SimulateGraphical(
-    n = pk, pk = n,
+    n = pk, pk = n, theta = adjacency,
     implementation = SimulateAdjacency,
     topology = "random",
     nu = nu, # fully connected connected components by default with nu=1
     output_matrices = output_matrices,
     v_within = v_within,
-    v_between = 0, # unconnected blocks
+    v_between = v_between, # unconnected blocks if set to zero
     continuous = continuous,
     pd_strategy = pd_strategy,
     u = u, niter_max_u_grid = niter_max_u_grid,
@@ -404,9 +440,9 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, nu = 1, output_matrices =
 
   # Updating row and column names of output matrices
   if ("omega" %in% names(out)) {
-    rownames(out$omega) <- colnames(out$omega) <- colnames(out$data)
-    rownames(out$phi) <- colnames(out$phi) <- colnames(out$data)
-    rownames(out$C) <- colnames(out$C) <- colnames(out$data)
+    rownames(out$omega) <- colnames(out$omega) <- rownames(out$data)
+    rownames(out$phi) <- colnames(out$phi) <- rownames(out$data)
+    rownames(out$C) <- colnames(out$C) <- rownames(out$data)
   }
 
   # Definition of membership

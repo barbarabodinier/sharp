@@ -7,9 +7,11 @@
 SimulateClustering(
   n = c(10, 10),
   pk = 20,
+  adjacency = NULL,
   nu = 1,
   output_matrices = FALSE,
   v_within = -1,
+  v_between = 0,
   continuous = FALSE,
   pd_strategy = "diagonally_dominant",
   u = NULL,
@@ -24,6 +26,13 @@ data. The number of observations in the simulated data is \code{sum(n)}.}
 
 \item{pk}{vector of the number of variables in the simulated data.}
 
+\item{adjacency}{optional binary and symmetric adjacency matrix encoding the
+conditional graph structure between observations. The clusters encoded in
+this argument must be in line with those indicated in \code{n}. To generate
+a block structure, the within-cluster observations must be more likely to
+be correlated than between clusters. For between-cluster relationships to
+be apparent, \code{v_between} must be nonzero. To be used with care.}
+
 \item{nu}{expected density of the graph. If \code{implementation="huge"},
 this argument is only used for \code{topology="random"} or
 \code{topology="cluster"} (see argument \code{prob} in
@@ -37,6 +46,12 @@ diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
 \code{continuous=FALSE}, \code{v_within} is the range of possible precision
 values.}
+
+\item{v_between}{vector defining the (range of) nonzero entries in the
+off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+\code{v_between} is the set of possible precision values. If
+\code{continuous=FALSE}, \code{v_between} is the range of possible
+precision values. This argument is only used if \code{length(pk)>1}.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in
@@ -87,7 +102,7 @@ A list with: \item{data}{simulated data with \code{n} observation and
 \description{
 Simulates multivariate Normal data with clusters of participants sharing
 similar variable profiles. This simulator is based on a graph structure
-encoding relationships between the observations.
+encoding conditional correlations between the observations.
 }
 \details{
 By default, with \code{nu=1}, a graph with \code{length(n)} fully
@@ -120,6 +135,34 @@ set.seed(1)
 simul <- SimulateClustering(
   n = c(5, 5, 5), pk = 100,
   v_within = c(-1, -0.5), continuous = TRUE
+)
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = cor(t(simul$data)),
+  colours = c("navy", "white", "red"),
+  legend_range = c(-1, 1)
+)
+
+# Introducing between-cluster correlations
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(5, 5, 5), pk = 100,
+  v_within = c(-1, -0.5), v_between = c(-0.1, 0), continuous = TRUE
+)
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = cor(t(simul$data)),
+  colours = c("navy", "white", "red"),
+  legend_range = c(-1, 1)
+)
+
+# User-defined structure: between-cluster pair obs1-obs8
+theta <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
+theta[1, 8] <- theta[8, 1] <- 1
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(5, 5, 5), pk = 100, adjacency = theta, output_matrices = TRUE,
+  v_within = c(-1, -0.5), v_between = -1, continuous = TRUE
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

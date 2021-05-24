@@ -167,11 +167,6 @@ stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda = Lambda)
 apply(stab$Q, 2, max, na.rm = TRUE) # max average number of edges from underlying algo
 }
 }
-\references{
-\insertRef{stabilityselectionMB}{focus}
-
-  \insertRef{stabilityselectionSS}{focus}
-}
 \seealso{
 Other lambda grid functions: 
 \code{\link{LambdaGridRegression}()},
