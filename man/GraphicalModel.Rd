@@ -279,7 +279,8 @@ if (requireNamespace("corpcor", quietly = TRUE)) {
 }
 \seealso{
 \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
-  \code{\link{GraphicalAlgo}}
+  \code{\link{GraphicalAlgo}}, \code{\link{Combine}},
+  \code{\link{StabilityScore}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},

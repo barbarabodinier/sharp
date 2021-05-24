@@ -108,7 +108,8 @@
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
-#'   \code{\link{GraphicalAlgo}}
+#'   \code{\link{GraphicalAlgo}}, \code{\link{Combine}},
+#'   \code{\link{StabilityScore}}
 #'
 #' @examples
 #' \dontshow{

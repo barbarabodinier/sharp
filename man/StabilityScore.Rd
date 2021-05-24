@@ -24,8 +24,10 @@ A vector of stability scores obtained with the different thresholds
 }
 \description{
 Computes the stability score from selection proportions of models with a
-given penalty parameter and for different thresholds in selection
-proportions.
+given parameter controlling the sparsity and for different thresholds in
+selection proportions. The score measures how unlikely it is that the
+selection procedure is uniform (i.e. uninformative) for a given combination
+of parameters.
 }
 \examples{
 # Simulating set of selection proportions

@@ -27,7 +27,7 @@
 #' # Running the LASSO
 #' mylasso <- SelectionAlgo(
 #'   xdata = simul$X, ydata = simul$Y,
-#'   Lambda = c(0.1, 0.2), family = "gaussian"
+#'   Lambda = c(0.1, 0.2), family = "gaussian",
 #' )
 #'
 #' # Simulation of additional outcomes

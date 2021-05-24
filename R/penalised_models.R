@@ -26,6 +26,13 @@
 #'   xdata = simul$X, ydata = simul$Y,
 #'   Lambda = c(0.1, 0.2), family = "gaussian"
 #' )
+#'
+#' # Running the LASSO
+#' mylasso <- PenalisedRegression(
+#'   xdata = simul$X, ydata = simul$Y,
+#'   Lambda = c(0.1, 0.2), family = "gaussian",
+#'   penalty.factor=c(rep(1,48),rep(0,2))
+#' )
 #' @export
 PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Storing extra arguments

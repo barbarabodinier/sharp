@@ -178,7 +178,8 @@ table(simul$theta, Clusters(stab))
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{Resample}}, \code{\link{HierarchicalClustering}}
+\code{\link{Resample}}, \code{\link{HierarchicalClustering}},
+  \code{\link{StabilityScore}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},

@@ -36,36 +36,34 @@
 #'   (number of outcomes to include, parameter of the underlying algorithm),
 #'   \code{alphay} (sparsity within the outcome groups, parameter of the
 #'   underlying algorithm), \code{piy} (threshold in selection proportion for
-#'   outcomes), \code{stability_score} (stability score). Columns that are not
-#'   relevant to the model are not reported. For example, \code{alpha_x} and
-#'   \code{alpha_y} are not used in sparse PLS models.} \item{summary_full}{a
-#'   matrix of the stability scores for the visited combinations of parameters.
-#'   Values are reported for the calibrated \code{pi}.} \item{selectedX}{a
-#'   binary matrix encoding stably selected predictors for the different
-#'   combinations of parameters listed in \code{summary}.} \item{selpropX}{a
-#'   matrix with the selection proportions of predictors for the different
-#'   combinations of parameters listed in \code{summary}.} \item{selectedY}{a
-#'   binary matrix encoding stably selected outcomes for the different
-#'   combinations of parameters listed in \code{summary}.} \item{selpropY}{a
-#'   matrix with the selection proportions of outcomes for the different
-#'   combinations of parameters listed in \code{summary}.}
-#'   \item{selectedX_full}{a binary matrix encoding stably selected predictors
-#'   for the different combinations of parameters listed in
-#'   \code{summary_full}.} \item{selpropX_full}{a binary matrix encoding stably
-#'   selected predictors for the different combinations of parameters listed in
-#'   \code{summary_full}.} \item{selectedY_full}{a binary matrix encoding stably
-#'   selected outcomes for the different combinations of parameters listed in
-#'   \code{summary_full}.} \item{selpropY_full}{a binary matrix encoding stably
-#'   selected outcomes for the different combinations of parameters listed in
-#'   \code{summary_full}.} \item{method}{a list with \code{type="bi_selection"},
+#'   outcomes), \code{S} (stability score). Columns that are not relevant to the
+#'   model are not reported. For example, \code{alpha_x} and \code{alpha_y} are
+#'   not used in sparse PLS models.} \item{summary_full}{a matrix of the
+#'   stability scores for the visited combinations of parameters. Values are
+#'   reported for the calibrated threshold(s) in selection proportions.}
+#'   \item{selectedX}{a binary matrix encoding stably selected predictors.}
+#'   \item{selpropX}{a matrix with the selection proportions of predictors.}
+#'   \item{selectedY}{a binary matrix encoding stably selected outcomes.}
+#'   \item{selpropY}{a matrix with the selection proportions of outcomes.}
+#'   \item{selectedX_full}{a binary matrix encoding stably selected predictors.}
+#'   \item{selpropX_full}{a binary matrix encoding stably selected predictors.}
+#'   \item{selectedY_full}{a binary matrix encoding stably selected outcomes.}
+#'   \item{selpropY_full}{a binary matrix encoding stably selected outcomes.}
+#'   \item{method}{a list with \code{type="bi_selection"},
 #'   \code{implementation}, \code{family}, \code{resampling} and
 #'   \code{PFER_method} values used for the run.} \item{params}{a list of input
 #'   values used for the run. The datasets \code{xdata} and \code{ydata} are
-#'   also included if \code{output_data=TRUE}.}
+#'   also included if \code{output_data=TRUE}.} The rows of \code{selectedX},
+#'   \code{selectedY}, \code{selpropX} and \code{selpropY} correspond to the
+#'   different combinations of parameters listed in \code{summary}. The rows of
+#'   \code{selectedX_full}, \code{selectedY_full}, \code{selpropX_full} and
+#'   \code{selpropY_full} correspond to the different combinations of parameters
+#'   listed in \code{summary_full}.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}},
-#'   \code{\link{SparseGroupPLS}}
+#'   \code{\link{SparseGroupPLS}}, \code{\link{Resample}},
+#'   \code{\link{StabilityScore}}
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
 #'
@@ -260,7 +258,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   selected_y <- selected_y_comp <- NULL
   params <- NULL
   params_comp <- matrix(NA, nrow = ncomp, ncol = 8)
-  colnames(params_comp) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
+  colnames(params_comp) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
 
   for (comp in 1:ncomp) {
     # Preparing empty objects to be filled at current iteration (comp)
@@ -276,7 +274,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       }
     }
     tmp_params <- matrix(NA, ncol = 7, nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
-    colnames(tmp_params) <- c("nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
+    colnames(tmp_params) <- c("nx", "alphax", "pix", "ny", "alphay", "piy", "S")
 
     # Initialisation of the run
     id <- 1
@@ -468,25 +466,25 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
     # Filling best parameters by component
     params_comp[comp, "comp"] <- comp
-    params_comp[comp, "nx"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "nx"]
-    params_comp[comp, "alphax"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "alphax"]
-    params_comp[comp, "pix"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "pix"]
-    params_comp[comp, "ny"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "ny"]
-    params_comp[comp, "alphay"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "alphay"]
-    params_comp[comp, "piy"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "piy"]
-    params_comp[comp, "stability_score"] <- tmp_params[which.max(tmp_params[, "stability_score"]), "stability_score"]
+    params_comp[comp, "nx"] <- tmp_params[which.max(tmp_params[, "S"]), "nx"]
+    params_comp[comp, "alphax"] <- tmp_params[which.max(tmp_params[, "S"]), "alphax"]
+    params_comp[comp, "pix"] <- tmp_params[which.max(tmp_params[, "S"]), "pix"]
+    params_comp[comp, "ny"] <- tmp_params[which.max(tmp_params[, "S"]), "ny"]
+    params_comp[comp, "alphay"] <- tmp_params[which.max(tmp_params[, "S"]), "alphay"]
+    params_comp[comp, "piy"] <- tmp_params[which.max(tmp_params[, "S"]), "piy"]
+    params_comp[comp, "S"] <- tmp_params[which.max(tmp_params[, "S"]), "S"]
 
     # Filling best selected/selection proportions by component
-    selected_x_comp <- rbind(selected_x_comp, tmp_selected_x[which.max(tmp_params[, "stability_score"]), ])
-    selprop_x_comp <- rbind(selprop_x_comp, tmp_selprop_x[which.max(tmp_params[, "stability_score"]), ])
+    selected_x_comp <- rbind(selected_x_comp, tmp_selected_x[which.max(tmp_params[, "S"]), ])
+    selprop_x_comp <- rbind(selprop_x_comp, tmp_selprop_x[which.max(tmp_params[, "S"]), ])
     if (!is.null(ydata)) {
-      selected_y_comp <- rbind(selected_y_comp, tmp_selected_y[which.max(tmp_params[, "stability_score"]), ])
-      selprop_y_comp <- rbind(selprop_y_comp, tmp_selprop_y[which.max(tmp_params[, "stability_score"]), ])
+      selected_y_comp <- rbind(selected_y_comp, tmp_selected_y[which.max(tmp_params[, "S"]), ])
+      selprop_y_comp <- rbind(selprop_y_comp, tmp_selprop_y[which.max(tmp_params[, "S"]), ])
     }
   }
 
   # Excluding irrelevant columns
-  colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "stability_score")
+  colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
   params_comp=params_comp[,which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1)))]
   params=params[,colnames(params_comp)]
 
@@ -529,7 +527,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       )
     )
   } else {
-    params_comp <- params_comp[, intersect(c("comp", "nx", "alphax", "pix", "stability_score"), colnames(params_comp))]
+    params_comp <- params_comp[, intersect(c("comp", "nx", "alphax", "pix", "S"), colnames(params_comp))]
     params <- params[, colnames(params_comp)]
     out <- list(
       summary = params_comp,

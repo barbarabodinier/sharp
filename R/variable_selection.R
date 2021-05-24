@@ -111,7 +111,7 @@
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-#'   \code{\link{Combine}}
+#'   \code{\link{Combine}}, \code{\link{StabilityScore}}
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
 #'

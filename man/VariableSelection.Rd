@@ -290,7 +290,7 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
 }
 \seealso{
 \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-  \code{\link{Combine}}
+  \code{\link{Combine}}, \code{\link{StabilityScore}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},

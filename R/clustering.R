@@ -60,7 +60,8 @@
 #'   \code{Lambda}.
 #'
 #' @family stability selection functions
-#' @seealso \code{\link{Resample}}, \code{\link{HierarchicalClustering}}
+#' @seealso \code{\link{Resample}}, \code{\link{HierarchicalClustering}},
+#'   \code{\link{StabilityScore}}
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
 #'
