@@ -201,21 +201,26 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
   # Building v matrix
   v <- bigblocks
+  v_vect <- v[upper.tri(v)]
   for (k in block_ids) {
     if (k %in% unique(diag(bigblocks))) {
       if (continuous) {
-        v[bigblocks == k] <- stats::runif(sum(bigblocks == k), min = min(v_within), max = max(v_within))
+        v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_within), max = max(v_within))
       } else {
-        v[bigblocks == k] <- base::sample(v_within, size = sum(bigblocks == k), replace = TRUE)
+        v_vect[bigblocks_vect == k] <- base::sample(v_within, size = sum(bigblocks_vect == k), replace = TRUE)
       }
     } else {
       if (continuous) {
-        v[bigblocks == k] <- stats::runif(sum(bigblocks == k), min = min(v_between), max = max(v_between))
+        v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_between), max = max(v_between))
       } else {
-        v[bigblocks == k] <- base::sample(v_between, size = sum(bigblocks == k), replace = TRUE)
+        v_vect[bigblocks_vect == k] <- base::sample(v_between, size = sum(bigblocks_vect == k), replace = TRUE)
       }
     }
   }
+  diag(v) <- 0
+  v[upper.tri(v)] <- v_vect
+  v[lower.tri(v)] <- 0
+  v <- v + t(v)
 
   # Simulation of the adjacency matrix
   if (is.null(theta)) {

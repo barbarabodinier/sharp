@@ -485,8 +485,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
   # Excluding irrelevant columns
   colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
-  params_comp <- params_comp[, which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1)))]
-  params <- params[, colnames(params_comp)]
+  params_comp <- params_comp[, which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1))), drop = FALSE]
+  params <- params[, colnames(params_comp), drop = FALSE]
 
   # Assigning column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
@@ -527,8 +527,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       )
     )
   } else {
-    params_comp <- params_comp[, intersect(c("comp", "nx", "alphax", "pix", "S"), colnames(params_comp))]
-    params <- params[, colnames(params_comp)]
+    params_comp <- params_comp[, intersect(c("comp", "nx", "alphax", "pix", "S"), colnames(params_comp)), drop = FALSE]
+    params <- params[, colnames(params_comp), drop = FALSE]
     out <- list(
       summary = data.frame(params_comp),
       summary_full = data.frame(params),
