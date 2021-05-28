@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1620723134840.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "5FDEC5FE",
+    "lastKnownWriteTime" : 1621869748,
+    "last_content_update" : 1621869748,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/penalised_models.R",
+    "project_path" : "R/penalised_models.R",
+    "properties" : {
+        "cursorPosition" : "190,49",
+        "scrollLine" : "180",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 21,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

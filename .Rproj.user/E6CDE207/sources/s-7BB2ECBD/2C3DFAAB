@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1620933751541.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2C3DFAAB",
+    "lastKnownWriteTime" : 1620936715,
+    "last_content_update" : 1620936715,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/clustering_models.R",
+    "project_path" : "R/clustering_models.R",
+    "properties" : {
+        "cursorPosition" : "17,2",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 33,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

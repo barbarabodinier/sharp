@@ -1,0 +1,512 @@
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+implementation = "SparseGroupPLS",
+output_data = TRUE
+)
+# sgPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+implementation = "SparsePLS",
+output_data = TRUE
+)
+load_all()
+# sgPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+implementation = "SparsePLS",
+output_data = TRUE
+)
+str(stab)
+stab$summary
+# sgPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2,
+implementation = "SparsePLS",
+output_data = TRUE
+)
+stab$summary
+stab$summary_full
+load_all()
+# sgPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2,
+implementation = "SparsePLS",
+output_data = TRUE
+)
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2,
+LambdaY = 1:2,
+implementation = "SparsePLS"
+)
+stab$summary
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2,
+implementation = "SparsePLS"
+)
+stab$summary
+stab$selectedX
+stab$selectedY
+use_tidy_style()
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+x <- simul$X
+y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
+y <- apply(y, 1, sum)
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:2,
+implementation = "SparsePLS"
+)
+stab$summary
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+x <- simul$X
+y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
+y <- apply(y, 1, sum)
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+load_all()
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+x <- simul$X
+y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
+y <- apply(y, 1, sum)
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+load_all()
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+x <- simul$X
+y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
+y <- apply(y, 1, sum)
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+# Data simulation
+pk <- 15
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+# sPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2,
+LambdaY = 1:2,
+implementation = "SparsePLS"
+)
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+LambdaY = 1:(ncol(y)-1),
+implementation = "SparsePLS"
+)
+# sgPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+implementation = "SparseGroupPLS",
+output_data = TRUE
+)
+# sgPLS: sparsity on both X and Y
+stab <- BiSelection(
+xdata = x, ydata = y,
+group_x = c(10, 5), group_y = c(1, 3),
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
+implementation = "SparseGroupPLS"
+)
+str(stab)
+stab$selectedX
+stab$selectedY
+stab$summary
+stab$summary
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+x <- simul$X
+y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
+y <- apply(y, 1, sum)
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+str(stab)
+load_all()
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+group_x = c(12, 8),
+family = "binomial", ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.3),
+implementation = "SparseGroupPLS"
+)
+load_all()
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+group_x = c(12, 8),
+family = "binomial", ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.3),
+implementation = "SparseGroupPLS"
+)
+# sPLS-DA: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+family = "binomial", ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+implementation = "SparsePLS"
+)
+stab$selectedX
+stab$summary
+SelectionPerformance(theta=stab$selectedX[1,], theta_star = simul$theta_pred)
+simul$theta_pred
+stab$params$K
+stab$params
+stab$methods
+pk <- 15
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+LambdaY = 1:(ncol(y)-1),
+implementation = "SparsePLS"
+)
+stab$summary
+SelectionPerformance(theta=stab$selectedX[1,], theta_star = simul$theta_pred)
+stab$selectedY
+load_all()
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+LambdaY = 1:(ncol(y)-1),
+implementation = "SparsePLS"
+)
+str(stab)
+stab$selectedX
+stab$selectedX_full
+head(stab$selectedX)
+head(stab$selectedX_full)
+head(stab$selpropX)
+head(stab$selpropY)
+head(y)
+load_all()
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 3,
+LambdaX = 1:(ncol(x)-1),
+LambdaY = 1:(ncol(y)-1),
+implementation = "SparsePLS"
+)
+str(stab)
+use_tidy_style()
+document()
+use_tidy_style()
+document()
+?sgPLS::sgPLS
+use_tidy_style()
+document()
+document()
+use_tidy_style()
+document()
+?VariableSelection
+?glmnet::cv.glmnet
+?glmnet::glmnet
+K <- 5
+pk <- 15
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+xdata = x, ydata = y,
+family = "gaussian", K = K, ncomp = 2,
+LambdaX = 1:2,
+LambdaY = 1:2,
+implementation = "SparsePLS"
+)
+stab <- BiSelection(
+xdata = x, ydata = y,
+group_x = c(10, 5), group_y = c(1, 3),
+family = "gaussian", K = K, ncomp = 2,
+LambdaX = 1:2, AlphaX = c(0.1, 0.3),
+LambdaY = 1:2, AlphaY = c(0.1, 0.3),
+implementation = "SparseGroupPLS"
+)
+document()
+library(focus)
+sgPLS::gPLS()
+?sgPLS::gPLS
+?sgPLS::gPLSda
+load_all()
+# Data simulation
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+# Running sgPLS with 1 group and sparsity of 0.5
+mypls <- GroupPLS(
+x = x, y = y, lambda = 1, family = "gaussian",
+group_x = c(20, 15, 25),
+)
+mypls
+sum(mypls$selected)
+mypls <- GroupPLS(
+x = x, y = y, lambda = 1, family = "gaussian",
+group_x = c(10, 15, 25),
+)
+sum(mypls$selected)
+mypls <- GroupPLS(
+x = x, y = y, lambda = 1, family = "gaussian",
+group_x = c(20, 15, 25),
+group_y = c(2, 2), keepY = 1
+)
+mypls
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
+mypls <- GroupPLS(
+x = simul$X, y = simul$Y, lambda = 1, family = "binomial",
+group_x = c(10, 15, 25)
+)
+mypls
+document()
+?GroupPLS
+use_tidy_style()
+document()
+library(focus)
+load_all()
+# Data simulation (continuous outcomes)
+pk <- 15
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
+ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
+colnames(ydata) <- paste0("outcome", 1:4)
+x <- simul$X
+y <- ydata
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2,
+implementation = "GroupPLS",
+output_data = TRUE
+)
+load_all()
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2,
+implementation = "GroupPLS",
+output_data = TRUE
+)
+stab
+# gPLS: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = y, group_x = c(10, 5),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2,
+implementation = "GroupPLS"
+)
+str(stab)
+stab$summary
+stab$selectedX
+stab$selectedY
+stab <- BiSelection(
+xdata = x, ydata = y,
+group_x = c(10, 5), group_y = c(1, 3),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2, LambdaY = 1:2,
+implementation = "GroupPLS"
+)
+stab$summary
+stab$summary_full
+load_all()
+stab <- BiSelection(
+xdata = x, ydata = y,
+group_x = c(10, 5), group_y = c(1, 3),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2, LambdaY = 1:2,
+implementation = "GroupPLS"
+)
+stab$summary
+stab$summary_full
+stab$selectedX
+stab$selectedY
+stab$selectedX_full
+stab$selectedY_full
+stab <- BiSelection(
+xdata = x, ydata = y,
+group_x = c(2, 10, 8),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2,
+implementation = "GroupPLS"
+)
+stab$summary
+stab$summary_full
+stab <- BiSelection(
+xdata = x, ydata = y,
+group_x = c(2, 10, 8), group_y = c(1, 3),
+family = "gaussian", ncomp = 3,
+LambdaX = 1:2, LambdaY = 1:2,
+implementation = "GroupPLS"
+)
+stab$summary
+stab$summary_full
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+x <- simul$X
+y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
+y <- apply(y, 1, sum)
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+group_x = c(2, 10, 8),
+family = "binomial", ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.3),
+implementation = "SparseGroupPLS"
+)
+# sgPLS-DA: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+group_x = c(2, 10, 8),
+family = "binomial", ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+implementation = "SparseGroupPLS"
+)
+# sgPLS-DA: sparsity on X
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+group_x = c(2, 10, 8), K=10,
+family = "binomial", ncomp = 3,
+LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+implementation = "SparseGroupPLS"
+)
+# gPLS-DA: sparsity on Y
+stab <- BiSelection(
+xdata = x, ydata = cbind(y),
+group_x = c(2, 10, 8),
+family = "binomial", ncomp = 3,
+LambdaX = 1:2,
+implementation = "GroupPLS"
+)
+stab
+str(stab)
+stab$summary
+stab$summary_full
+use_tidy_style()
+library(focus)
+?VariableSelection
+document()
+?VariableSelection
+library(focus)
+?VariableSelection
+document()
+library(focus)
+?BiSelection
+use_tidy_style()
+document()
+document()
+library(focus)
+?VariableSelection
+?GraphicalModel
+document()
+document()
+document()
+library(focus)
+document()
+?StabilityMetrics
+use_tidy_style()
+document()
+document()
+?StabilityScore
+document()
+document()
+use_tidy_style()
+document()
+?VariableSelection
+?BiSelection
+document()
+?VariableSelection
+?Combine
+?GraphicalModel
+# Single-block stability selection
+set.seed(1)
+simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
+stab <- GraphicalModel(data = simul$data)
+plot(Graph(stab))
+SelectionProportions(stab)
+SelectionProportionsGraphical(stab)
+SelectionProportions(stab)
+stab$methods
+stab$params
+str(stab$params)
+load_all()
+SelectionProportions(stab)
+# Multi-block stability selection
+set.seed(1)
+pk <- c(10, 10)
+simul <- SimulateGraphical(n = 50, pk = pk)
+stab <- GraphicalModel(data = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
+CalibrationPlot(stab)
+A <- Adjacency(stab)
+mygraph <- Graph(A)
+perf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
+SelectionProportions(stab)
+document()
+document()

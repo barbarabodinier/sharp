@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1619861297291.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EF5A6BB9",
+    "lastKnownWriteTime" : 1621869770,
+    "last_content_update" : 1621869770,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/tests/testthat/test-VariableSelection.R",
+    "project_path" : "tests/testthat/test-VariableSelection.R",
+    "properties" : {
+        "cursorPosition" : "68,40",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

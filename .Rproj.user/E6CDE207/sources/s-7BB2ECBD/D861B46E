@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1615830046008.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D861B46E",
+    "lastKnownWriteTime" : 1620935921,
+    "last_content_update" : 1620935921329,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/calibration.R",
+    "project_path" : "R/calibration.R",
+    "properties" : {
+        "cursorPosition" : "467,3",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 29,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

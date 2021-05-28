@@ -1,0 +1,36 @@
+Package: focus
+Type: Package
+Title: Feature selectiOn and Clustering Using Stability
+Version: 1.0.0
+Author: Barbara Bodinier [aut, cre]
+Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
+URL: https://github.com/barbarabodinier/focus
+BugReports: https://github.com/barbarabodinier/focus/issues
+Description: Implementation of stability-enhanced models 
+  for variable selection in regression, graphical modelling and clustering. 
+  These methods are based on resampling approaches to compute selection proportions. 
+  Calibration of the models is done via maximisation of a stability score 
+  measuring how unlikely it is that the selection procedure is uniform.
+License: GPL (>= 3)
+Encoding: UTF-8
+RoxygenNote: 7.1.1
+RdMacros: Rdpack
+Imports: 
+    glassoFast (>= 1.0.0),
+    abind,
+    glmnet,
+    grDevices,
+    huge,
+    igraph,
+    MASS,
+    parallel,
+    Rdpack,
+    withr (>= 2.4.0)
+Suggests:
+    corpcor,
+    gglasso,
+    mixOmics,
+    rmarkdown,
+    sgPLS,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1619980187172.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "71B98A16",
+    "lastKnownWriteTime" : 1620658939,
+    "last_content_update" : 1620658939661,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/tests/testthat/test-SparsePLS.R",
+    "project_path" : "tests/testthat/test-SparsePLS.R",
+    "properties" : {
+        "cursorPosition" : "25,52",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

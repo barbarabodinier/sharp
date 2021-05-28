@@ -1,0 +1,512 @@
+rm(list=ls())
+devtools::check()
+rm(list=ls())
+devtools::check()
+devtools::check()
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+devtools::check()
+rm(list = c("NetworkFunction", "SelectionFunction"))
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+source('~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/algorithms.R')
+devtools::check()
+devtools::check()
+rm(list = c("NetworkFunction", "SelectionFunction"))
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+devtools::check()
+library(focus)
+Sequential_template
+rm(list=ls())
+devtools::check()
+library(focus)
+# Computation of the stability score
+if (K>1){
+print(Sequential_template)
+metrics=ComputeMetrics(bigstab=bigstab, pk=pk, pi_list=pi_list, K=K,
+Sequential_template=Sequential_template, graph=TRUE,
+PFER_method=PFER_method, PFER_thr_blocks=PFER_thr_blocks, FDP_thr_blocks=FDP_thr_blocks)
+# for (k in 1:dim(bigstab)[3]){
+#   # Extracting corresponding selection proportions
+#   stab_iter=bigstab[,,k]
+#
+#   # Computing stability score with block-specific pi
+#   for (block_id in 1:nblocks){
+#     if (Sequential_template[k,block_id]){
+#       stab_iter_block=stab_iter[(bigblocks==block_id)&(upper.tri(bigblocks))] # selection proportions in the block
+#       q_block=round(sum(stab_iter_block)) # average number of edges selected by the original procedure in the block
+#       Q[k,block_id]=q_block
+#       N_block=length(stab_iter_block) # maximum number of edges in the block
+#       tmp_loglik=tmp_PFERs=tmp_FDPs=rep(NA, length(pi_list))
+#
+#       # Computing error rates and stability score for different values of pi
+#       for (j in 1:length(pi_list)){
+#         pi=pi_list[j]
+#         tmp_PFERs[j]=ComputePFER(q=q_block, pi=pi, N=N_block, K=K, PFER_method=PFER_method)
+#         tmp_FDPs[j]=ComputeFDP(PFER=tmp_PFERs[j], pi=pi, selprop=stab_iter_block)
+#         if ((tmp_PFERs[j]<=PFER_thr_blocks[block_id])&(tmp_FDPs[j]<FDP_thr_blocks[block_id])){
+#           tmp_loglik[j]=-StabilityScore(stab_iter=stab_iter_block, q=q_block, N=N_block, pi=pi, K=K)
+#         }
+#       }
+#
+#       # Storing stability score in a matrix if only one block
+#       if (nblocks==1){
+#         loglik[k,]=tmp_loglik
+#         PFER[k,]=tmp_PFERs
+#         FDP[k,]=tmp_FDPs
+#       } else {
+#         loglik[k,,block_id]=tmp_loglik
+#       }
+#
+#       # Keeping best stability score and other parameters at the max
+#       if (any(!is.na(tmp_loglik))){
+#         tmp_loglik[is.na(tmp_loglik)]=0
+#         myid=which.min(tmp_loglik)
+#         tmp_loglik[which(tmp_loglik==0)]=NA
+#         best_loglik[k,block_id]=tmp_loglik[myid]
+#         P[k,block_id]=pi_list[myid]
+#         Q_s[k,block_id]=sum(stab_iter_block>=pi_list[myid])
+#         best_PFER[k,block_id]=tmp_PFERs[myid]
+#         best_FDP[k,block_id]=tmp_FDPs[myid]
+#       }
+#     }
+#   }
+# }
+# best_loglik_blocks=best_loglik
+# best_loglik=matrix(apply(best_loglik,1,sum), ncol=1)
+if (verbose){
+utils::setTxtProgressBar(pb, 1)
+cat("\n")
+}
+} else {
+PFER=matrix(NA,nrow(Lambda),length(pi_list))
+for (k in 1:nrow(Lambda)){
+# Extracting corresponding selection proportions
+stab_iter=bigstab[,,k]
+# Getting number of selected variables per block
+for (block_id in 1:nblocks){
+stab_iter_block=stab_iter[(bigblocks==block_id)&(upper.tri(bigblocks))] # selection proportions in the block
+q_block=round(sum(stab_iter_block)) # average number of edges selected by the original procedure in the block
+Q[k,block_id]=q_block
+}
+}
+}
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+rev(1:3)
+GetArgmax(out)
+rm(list=ls())
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+.libPaths()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+??sample
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+library(focus)
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+library(focus)
+devtools::check()
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+devtools::check()
+library(focus)
+library(focus)
+?SimulateGraph
+SimulateGraph()
+?SimulateGraph
+SimulateAdjacency()
+test=function(){}
+test=function(){  theta=as.matrix(huge::huge.generator(n=2, d=10, prob=0.1,
+graph="random", verbose=FALSE, ...)$theta)
+# Re-organising the variables to avoid having centrality related to variable ID (e.g. for scale-free models)
+ids=sample(ncol(theta))
+theta=theta[ids,ids]
+return(theta)
+}
+test()
+test=function(){  theta=as.matrix(huge::huge.generator(n=2, d=10, prob=0.1,
+graph="random", verbose=FALSE)$theta)
+# Re-organising the variables to avoid having centrality related to variable ID (e.g. for scale-free models)
+ids=sample(ncol(theta))
+theta=theta[ids,ids]
+return(theta)
+}
+test()
+SimulateGraph(implementation="test")
+devtools::document()
+library(focus)
+?SimulateGraph
+rm(list=ls)
+rm(list=ls())
+devtools::document()
+library(focus)
+?SimulateGraph
+library(focus)
+devtools::document()
+library(focus)
+?SimulateGraph
+simul=SimulateGraph(n=100, pk=50, topology="random")
+simul$data
+dim(simul$data)
+sum(simul$theta)/2
+Graph(simul$theta)
+plot(Graph(simul$theta))
+simul=SimulateGraph(n=100, pk=20, topology="scale-free")
+plot(Graph(simul$theta))
+simul=SimulateGraph(n=100, pk=50, topology="random", nu=0.1)
+plot(Graph(simul$theta))
+set.seed(1)
+simul=SimulateGraph(n=100, pk=50, topology="random", nu=0.05)
+plot(Graph(simul$theta))
+CentralNode=function(pk, topology=NULL, nu=NULL, hub=1){
+theta=matrix(0, nrow=sum(pk), ncol=sum(pk))
+theta[hub,]=1
+theta[,hub]=1
+diag(theta)=0
+return(theta)
+}
+CentralNode(10)
+simul=SimulateGraph(n=100, pk=10, implementation="CentralNode")
+simul$data
+plot(Graph(simul$theta))
+simul=SimulateGraph(n=100, pk=10, implementation="CentralNode", hub=2)
+plot(Graph(simul$theta))
+devtools::document()
+library(focus)
+?SimulateGraph
+devtools::document()
+library(focus)
+?SimulateXY
+devtools::document()
+library(focus)
+?SimulateXY
+devtools::document()
+library(focus)
+?SimulateXY
+simul=SimulateXY(n=200, pk=100, family="gaussian")
+plot(simul$Y_pred, simul$Y)
+simul=SimulateXY(n=200, pk=100, family="gaussian", sd_pred_error=5)
+plot(simul$Y_pred, simul$Y)
+simul=SimulateXY(n=200, pk=100, family="binomial")
+boxplot(simul$logit_proba~simul$Y)
+devtools::document()
+library(focus)
+?SimulateXY
+# Data simulation (continuous outcome)
+simul=SimulateXY(n=200, pk=100, family="gaussian")
+plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
+simul=SimulateXY(n=200, pk=100, family="gaussian", sd_pred_error=5)
+plot(simul$Y_pred, simul$Y) # larger residual error
+# Data simulation (binary outcome)
+simul=SimulateXY(n=200, pk=100, family="binomial")
+boxplot(simul$logit_proba~simul$Y) # true logit probability by simulated binary outcome
+devtools::document()
+library(focus)
+?MakePositiveDefinite
+devtools::document()
+?SimulateGraph
+library(focus)
+?SimulateGraph
+simul=SimulateGraph(n=100, pk=50, topology="random", nu=0.05)
+devtools::document()
+library(focus)
+?MakePositiveDefinite
+devtools::document()
+devtools::document()
+library(focus)
+?SimulateAdjacency
+devtools::document()
+library(focus)
+?SimulateGraph
+devtools::document()
+library(focus)
+?SimulateGraph
+adjacency=SimulateAdjacency(pk=20, topology="scale-free")
+plot(Graph(adjacency))
+adjacency
+devtools::document()
+library(focus)
+?SimulateGraph
+devtools::document()
+library(focus)
+?SimulateGraph
+devtools::document()
+devtools::document()
+library(focus)
+?LambdaGridRegression
+devtools::document()
+library(focus)
+?LambdaGridRegression
+?glmnet
+library(glmnet)
+?glmnet
+devtools::document()
+library(focus)
+?LambdaGridRegression
+?glmnet::glmnet
+?LambdaGridRegression
+?glmnet::glmnet
+cv.glmnet
+require(gglasso)
+simul=SimulateXY(n=100, pk=20, family="gaussian")
+simul$X
+simul$Y
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian", Lambda_cardinal=20)
+Lambda
+out=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", Lambda=Lambda)
+SelectedVariables(out)
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="cv.gglasso", Lambda_cardinal=20)
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian", Lambda_cardinal=20, implementation="cv.gglasso")
+?cv.gglasso
+Manualcvgglasso=function(x, y, family){
+if (family=="gaussian"){
+return(cv.gglasso(x=x, y=y, pred.loss="L1"))
+}
+}
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian", Lambda_cardinal=20, implementation="Manualcvgglasso")
+Manualcvgglasso=function(x, y, family, ...){
+if (family=="gaussian"){
+return(cv.gglasso(x=x, y=y, pred.loss="L1", ...))
+}
+}
+rep(1:4, each=5)
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian",
+Lambda_cardinal=20, implementation="Manualcvgglasso", group=rep(1:4, each=5))
+Lambda
+devtools::document()
+Lambda
+devtools::document()
+?#'   if (family=="gaussian"){
+#'     return(cv.gglasso(x=x, y=y, pred.loss="L1", ...))
+#'   }
+library(focus)
+?LambdaGridRegression
+library(focus)
+?LambdaGridRegression
+devtools::document()
+library(focus)
+?LambdaGridRegression
+devtools::document()
+library(focus)
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian",
+Lambda_cardinal=20, implementation="Manualcvgglasso", group=rep(1:4, each=5))
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian")
+Lambda=LambdaGridRegression(xdata=simul$X, ydata=simul$Y, family="gaussian", K=5)
+Lambda=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", K=5)
+Lambda=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", K=3)
+Lambda=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", K=1)
+out=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", K=1)
+out$Q
+out=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", K=2)
+out
+str(out)
+out=VariableSelection(xdata=simul$X, ydata=simul$Y, family="gaussian", K=3)
+str(out)
+devtools::document()

@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1619626495743.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "7ECEF565",
+    "lastKnownWriteTime" : 1620929747,
+    "last_content_update" : 1620929747,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/parallelisation.R",
+    "project_path" : "R/parallelisation.R",
+    "properties" : {
+        "cursorPosition" : "65,33",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 24,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

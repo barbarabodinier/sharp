@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1615659762219.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "BD77338",
+    "lastKnownWriteTime" : 1621001518,
+    "last_content_update" : 1621001518185,
+    "path" : "~/Dropbox/Correlation_networks/Final_analyses_subset_NOWAC/Package/focus/R/check.R",
+    "project_path" : "R/check.R",
+    "properties" : {
+        "cursorPosition" : "288,21",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 35,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

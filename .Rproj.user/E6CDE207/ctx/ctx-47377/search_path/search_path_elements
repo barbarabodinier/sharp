@@ -1,0 +1,15 @@
+.GlobalEnv
+package:focus
+devtools_shims
+package:testthat
+tools:rstudio
+package:stats
+package:graphics
+package:grDevices
+package:utils
+package:datasets
+package:devtools
+package:usethis
+package:methods
+Autoloads
+package:base
