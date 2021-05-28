@@ -174,6 +174,7 @@ For visualisation, it can be converted into an igraph object:
 
 ```{r fig.height=10, fig.width=10, out.width="100%", fig.align="center"}
 mygraph=Graph(myadjacency)
+set.seed(1)
 plot(mygraph)
 ```
 

@@ -263,6 +263,7 @@ For visualisation, it can be converted into an igraph object:
 
 ``` r
 mygraph=Graph(myadjacency)
+set.seed(1)
 plot(mygraph)
 ```
 
