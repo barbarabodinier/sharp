@@ -236,7 +236,6 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
   # Filling off-diagonal entries of the precision matrix
   omega <- theta * v
-  diag(omega) <- 1
 
   # Calibrate u based on contrasts of the correlation matrix
   contrast <- NULL
@@ -285,7 +284,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
   # Computing calibrated precision matrix
   if (length(u) > 1) {
-    u_value <- u[which.max(contrast)]
+    u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
     omega <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
   } else {
     omega <- omega_tmp
@@ -488,8 +487,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #'   uniform distribution between the minimum and maximum values in
 #'   \code{beta_set} (\code{continuous=TRUE}) or from proposed values in
 #'   \code{beta_set} (\code{continuous=FALSE}).
-#' @param sd_pred_error residual standard deviation. Used only if
-#'   \code{family="gaussian"}.
+#' @param prop_ev proportion of explained variance in the outcome from the best
+#'   linear combination of the predictors. This value must be between 0 and 1.
 #' @param family type of outcome. If \code{family="gaussian"}, a normally
 #'   distributed outcome is simulated. If \code{family="binomial"}, a binary
 #'   outcome is simulated from a Bernouilli distribution where the probability
@@ -503,11 +502,11 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #'   \item{logit_proba}{logit of the true probability that the outcome is equal
 #'   to 1. This is obtained as a linear combination of (a subset of) the
 #'   variables in X. Only returned if \code{family="binomial"}.}
-#'   \item{theta}{binary vector indicating which variables in X were used
-#'   in the linear combination to obtain the outcome Y, i.e. indicating which
-#'   variables in X are signal (if equal to 1) or noise (if equal to 0)
-#'   variables in association with the outcome Y.} \item{beta}{true coefficients
-#'   used in the linear model for simulation of the outcome Y.}
+#'   \item{theta}{binary vector indicating which variables in X were used in the
+#'   linear combination to obtain the outcome Y, i.e. indicating which variables
+#'   in X are signal (if equal to 1) or noise (if equal to 0) variables in
+#'   association with the outcome Y.} \item{beta}{true coefficients used in the
+#'   linear model for simulation of the outcome Y.}
 #'
 #' @family simulation functions
 #'
@@ -540,9 +539,23 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #' @export
 SimulateRegression <- function(n = 100, pk = 10, X = NULL, theta = NULL,
                                nu_pred = 0.2, beta_set = c(-1, 1), continuous = FALSE,
-                               sd_pred_error = 1, family = "gaussian") {
+                               prop_ev = 0.8, family = "gaussian") {
+  # Checking the inputs
+  if ((!is.null(X)) & (!is.null(theta))) {
+    if (ncol(X) != length(theta)) {
+      stop("Arguments 'X' and 'theta' are not consistent. The length of vector 'theta' must be equal to the number of columns in 'X'.")
+    }
+  }
+
+  # Definition of the number of (noise+signal) predictor variables
+  if (is.null(theta)) {
+    p <- sum(pk)
+  } else {
+    pk <- p <- length(theta)
+  }
+
   # Simulation of the predictors if not provided
-  if ((is.null(X)) & (is.null(theta))) {
+  if (is.null(X)) {
     p <- sum(pk)
     X <- NULL
     for (k in 1:p) {
@@ -553,14 +566,6 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, theta = NULL,
     if (!is.null(X)) {
       n <- nrow(X)
       p <- ncol(X)
-    }
-    if (!is.null(theta)) {
-      p <- length(theta)
-    }
-    if ((!is.null(X)) & (!is.null(theta))) {
-      if (ncol(X) != length(theta)) {
-        stop("Arguments 'X' and 'theta' are not consistent. The length of vector 'theta' must be equal to the number of columns in 'X'.")
-      }
     }
   }
 
@@ -590,6 +595,9 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, theta = NULL,
 
   # Computing the predicted values of Y
   Y_pred <- X %*% beta
+
+  # Estimating variance of error term to reach specified proportion of explained variance
+  sd_pred_error <- sqrt(stats::var(Y_pred) * (1 / prop_ev - 1))
 
   # Introducing some centered gaussian error
   Y <- Y_pred + stats::rnorm(n, mean = 0, sd = sd_pred_error)
@@ -708,13 +716,15 @@ MakePositiveDefinite <- function(omega, u_value = 0.1, pd_strategy = "diagonally
 
 #' Matrix contrast
 #'
-#' Computes the matrix contrast, defined as the number of visited bins of
+#' Computes the matrix contrast, defined as the number of unique truncated
 #' entries with a specified number of digits.
 #'
 #' @param mat input matrix.
 #' @param digits number of digits to use.
 #'
 #' @return A single number, the contrast of the input matrix.
+#'
+#' @export
 Contrast <- function(mat, digits = 3) {
   return(length(unique(round(as.vector(abs(mat)), digits = digits))))
 }

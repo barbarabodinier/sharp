@@ -12,7 +12,7 @@ SimulateRegression(
   nu_pred = 0.2,
   beta_set = c(-1, 1),
   continuous = FALSE,
-  sd_pred_error = 1,
+  prop_ev = 0.8,
   family = "gaussian"
 )
 }
@@ -42,8 +42,8 @@ uniform distribution between the minimum and maximum values in
 \code{beta_set} (\code{continuous=TRUE}) or from proposed values in
 \code{beta_set} (\code{continuous=FALSE}).}
 
-\item{sd_pred_error}{residual standard deviation. Used only if
-\code{family="gaussian"}.}
+\item{prop_ev}{proportion of explained variance in the outcome from the best
+linear combination of the predictors. This value must be between 0 and 1.}
 
 \item{family}{type of outcome. If \code{family="gaussian"}, a normally
 distributed outcome is simulated. If \code{family="binomial"}, a binary
@@ -59,11 +59,11 @@ A list with: \item{X}{simulated dataset. A subset of these variables
   \item{logit_proba}{logit of the true probability that the outcome is equal
   to 1. This is obtained as a linear combination of (a subset of) the
   variables in X. Only returned if \code{family="binomial"}.}
-  \item{theta}{binary vector indicating which variables in X were used
-  in the linear combination to obtain the outcome Y, i.e. indicating which
-  variables in X are signal (if equal to 1) or noise (if equal to 0)
-  variables in association with the outcome Y.} \item{beta}{true coefficients
-  used in the linear model for simulation of the outcome Y.}
+  \item{theta}{binary vector indicating which variables in X were used in the
+  linear combination to obtain the outcome Y, i.e. indicating which variables
+  in X are signal (if equal to 1) or noise (if equal to 0) variables in
+  association with the outcome Y.} \item{beta}{true coefficients used in the
+  linear model for simulation of the outcome Y.}
 }
 \description{
 Simulate (i) a matrix X of n observations for \code{pk} normally distributed

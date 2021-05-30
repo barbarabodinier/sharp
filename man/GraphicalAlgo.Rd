@@ -55,9 +55,10 @@ symmetric matrix for which diagonal elements are equal to zero can be used.}
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty
 parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
-\code{start="warm"} can speed-up the computations. Only used for
-\code{implementation=PenalisedGraphical} (see argument \code{"start"} in
-\code{\link[glassoFast]{glassoFast}}).}
+\code{start="warm"} can speed-up the computations, but could lead to
+convergence issues (in particular with small \code{Lambda_cardinal}). Only
+used for \code{implementation=PenalisedGraphical} (see argument
+\code{"start"} in \code{\link[glassoFast]{glassoFast}}).}
 
 \item{...}{additional parameters passed to the function provided in
 \code{implementation}.}

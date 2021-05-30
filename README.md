@@ -75,13 +75,13 @@ parameter values used in the run can be extracted using:
 ``` r
 # First few penalty parameters
 print(head(stab$Lambda)) 
-#>         [,1]
-#> s0 1.3893601
-#> s1 1.2875289
-#> s2 1.1931612
-#> s3 1.1057101
-#> s4 1.0246686
-#> s5 0.9495669
+#>        [,1]
+#> s0 1.416551
+#> s1 1.321390
+#> s2 1.232622
+#> s3 1.149818
+#> s4 1.072576
+#> s5 1.000523
 
 # Grid of thresholds in selection proportion
 print(stab$params$pi_list)
@@ -101,6 +101,7 @@ score, measuring how unlikely it is that features are uniformly
 selected:
 
 ``` r
+par(mar=c(7, 5, 7, 6))
 CalibrationPlot(stab)
 ```
 
@@ -122,13 +123,13 @@ The calibrated set of stably selected variables is obtained from:
 stably_selected=SelectedVariables(stab)
 print(stably_selected)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>     0     0     0     0     0     0     1     1     1     0     0     0     0 
+#>     0     0     0     0     0     0     0     1     1     0     0     0     0 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
 #>     0     0     0     0     0     0     0     0     0     0     0     0     0 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
 #>     0     0     1     0     0     1     0     1     0     0     0     0     0 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>     1     0     0     1     1     1     0     0     0     0     1
+#>     1     0     1     1     1     1     0     0     0     0     1
 print(table(stably_selected))
 #> stably_selected
 #>  0  1 
@@ -144,13 +145,13 @@ extracted:
 selprop=SelectionProportions(stab)
 print(selprop)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.07  0.10  0.35  0.06  0.08  0.08  0.91  0.99  1.00  0.17  0.05  0.15  0.70 
+#>  0.09  0.19  0.38  0.07  0.11  0.17  0.79  0.95  1.00  0.22  0.07  0.15  0.70 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
-#>  0.14  0.56  0.09  0.09  0.23  0.05  0.11  0.05  0.10  0.04  0.02  0.10  0.01 
+#>  0.15  0.62  0.14  0.12  0.34  0.10  0.17  0.08  0.14  0.08  0.06  0.14  0.02 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>  0.07  0.16  0.96  0.14  0.11  0.91  0.07  0.99  0.29  0.18  0.04  0.05  0.11 
+#>  0.14  0.19  0.90  0.26  0.14  0.84  0.26  0.96  0.31  0.21  0.10  0.13  0.15 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>  0.99  0.05  0.74  0.99  1.00  0.95  0.11  0.20  0.09  0.03  0.95
+#>  0.98  0.13  0.84  0.94  1.00  0.88  0.20  0.24  0.17  0.07  0.87
 ```
 
 Selection proportions can be used to rank the variables by relevance in
@@ -202,6 +203,7 @@ algorithm and threshold in selection proportion. These parameters are
 jointly calibrated by maximising the stability score:
 
 ``` r
+par(mar=c(7, 5, 7, 6))
 CalibrationPlot(stab)
 ```
 
@@ -216,46 +218,46 @@ model is obtained with:
 myadjacency=Adjacency(stab)
 print(myadjacency)
 #>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13
-#> var1     0    0    0    0    0    0    0    0    0     0     0     0     1
-#> var2     0    0    0    0    0    0    0    0    0     0     0     0     0
+#> var1     0    0    0    0    0    0    0    0    0     0     0     0     0
+#> var2     0    0    0    0    0    0    1    0    0     0     0     0     0
 #> var3     0    0    0    0    0    0    0    0    0     0     0     0     0
 #> var4     0    0    0    0    0    0    0    1    0     0     0     0     0
 #> var5     0    0    0    0    0    0    0    0    1     0     0     0     0
 #> var6     0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var7     0    0    0    0    0    0    0    0    0     1     0     0     0
+#> var7     0    1    0    0    0    0    0    0    0     1     0     0     1
 #> var8     0    0    0    1    0    0    0    0    0     0     0     0     0
 #> var9     0    0    0    0    1    0    0    0    0     0     0     0     0
 #> var10    0    0    0    0    0    0    1    0    0     0     0     0     0
-#> var11    0    0    0    0    0    0    0    0    0     0     0     1     0
-#> var12    0    0    0    0    0    0    0    0    0     0     1     0     0
-#> var13    1    0    0    0    0    0    0    0    0     0     0     0     0
+#> var11    0    0    0    0    0    0    0    0    0     0     0     0     0
+#> var12    0    0    0    0    0    0    0    0    0     0     0     0     0
+#> var13    0    0    0    0    0    0    1    0    0     0     0     0     0
 #> var14    0    0    0    0    0    0    0    0    0     0     0     0     0
 #> var15    0    1    0    0    0    0    0    0    0     0     0     0     0
-#> var16    0    0    0    1    0    0    0    0    0     0     0     0     0
+#> var16    0    0    0    1    0    0    0    1    0     0     0     0     0
 #> var17    1    0    0    0    0    0    0    0    0     0     0     0     0
-#> var18    0    0    0    0    1    0    0    0    0     0     0     0     0
+#> var18    0    0    0    0    1    0    0    0    1     0     0     0     0
 #> var19    0    1    0    0    0    0    0    0    0     0     0     0     0
-#> var20    0    0    0    0    1    0    1    0    0     0     0     1     1
+#> var20    1    0    1    1    1    1    1    0    0     0     1     1     1
 #>       var14 var15 var16 var17 var18 var19 var20
-#> var1      0     0     0     1     0     0     0
+#> var1      0     0     0     1     0     0     1
 #> var2      0     1     0     0     0     1     0
-#> var3      0     0     0     0     0     0     0
-#> var4      0     0     1     0     0     0     0
+#> var3      0     0     0     0     0     0     1
+#> var4      0     0     1     0     0     0     1
 #> var5      0     0     0     0     1     0     1
-#> var6      0     0     0     0     0     0     0
+#> var6      0     0     0     0     0     0     1
 #> var7      0     0     0     0     0     0     1
-#> var8      0     0     0     0     0     0     0
-#> var9      0     0     0     0     0     0     0
+#> var8      0     0     1     0     0     0     0
+#> var9      0     0     0     0     1     0     0
 #> var10     0     0     0     0     0     0     0
-#> var11     0     0     0     0     0     0     0
+#> var11     0     0     0     0     0     0     1
 #> var12     0     0     0     0     0     0     1
 #> var13     0     0     0     0     0     0     1
 #> var14     0     0     0     0     0     0     1
-#> var15     0     0     0     0     0     0     0
+#> var15     0     0     0     0     0     1     0
 #> var16     0     0     0     0     0     0     0
 #> var17     0     0     0     0     0     0     1
 #> var18     0     0     0     0     0     0     0
-#> var19     0     0     0     0     0     0     0
+#> var19     0     1     0     0     0     0     0
 #> var20     1     0     0     1     0     0     0
 ```
 

@@ -15,6 +15,6 @@ Contrast(mat, digits = 3)
 A single number, the contrast of the input matrix.
 }
 \description{
-Computes the matrix contrast, defined as the number of visited bins of
+Computes the matrix contrast, defined as the number of unique truncated
 entries with a specified number of digits.
 }

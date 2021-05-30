@@ -21,6 +21,7 @@ test_that("single-block GraphicalModel()", {
       PFER_thr = PFER_thr,
       FDP_thr = FDP_thr,
       verbose = FALSE,
+      start = "cold",
       n_cores = n_cores
     )
 
@@ -44,7 +45,7 @@ test_that("single-block GraphicalModel()", {
     expect_equal(dim(stab$sign), c(pk, pk))
 
     # Group of outputs 4
-    default_params <- c("graphical_model", "PenalisedGraphical", "warm", "subsampling", "MB")
+    default_params <- c("graphical_model", "PenalisedGraphical", "cold", "subsampling", "MB")
     names(default_params) <- c("type", "implementation", "start", "resampling", "PFER_method")
     expect_equal(unlist(stab$methods), default_params)
 
@@ -81,6 +82,7 @@ test_that("multi-block GraphicalModel()", {
     tau = tau, n_cat = n_cat,
     PFER_thr = PFER_thr,
     FDP_thr = FDP_thr,
+    start = "cold",
     verbose = FALSE
   )
 
@@ -102,7 +104,7 @@ test_that("multi-block GraphicalModel()", {
   expect_equal(dim(stab$sign), c(sum(pk), sum(pk)))
 
   # Group of outputs 4
-  default_params <- c("graphical_model", "PenalisedGraphical", "warm", "subsampling", "MB")
+  default_params <- c("graphical_model", "PenalisedGraphical", "cold", "subsampling", "MB")
   names(default_params) <- c("type", "implementation", "start", "resampling", "PFER_method")
   expect_equal(unlist(stab$methods), default_params)
 

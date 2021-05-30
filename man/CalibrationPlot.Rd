@@ -22,8 +22,6 @@ CalibrationPlot(
   width = 7,
   height = 7,
   units = "in",
-  mar = NULL,
-  mfrow = NULL,
   ...
 )
 }
@@ -78,13 +76,6 @@ not NULL.}
 and "mm" (see \code{\link{png}} from the grDevices package). Only used if
 argument "filename" is not NULL and fileformat="png".}
 
-\item{mar}{vector of margins (see \code{\link{par}} from the graphics
-package). With mar=NULL, margins are automatically defined.}
-
-\item{mfrow}{vector defining the layout of the figure (see \code{\link{par}}
-from the graphics package). With mfrow=NULL, the generated figure has as
-many panels as there blocks in the model.}
-
 \item{...}{additional arguments to be passed to \code{\link{Heatmap}} or
 \code{\link{axis}} from the graphics package.}
 }
@@ -111,11 +102,14 @@ simul <- SimulateGraphical(pk = 20, nu = 0.1)
 stab <- GraphicalModel(xdata = simul$data)
 
 # Calibration plots
+par(mar=c(7, 5, 7, 6))
 CalibrationPlot(stab)
+par(mar=c(7, 5, 7, 1))
 CalibrationPlot(stab, metric = "lambda")
 CalibrationPlot(stab, metric = "pi")
 
 # User-defined colours (heatmap)
+par(mar=c(7, 5, 7, 6))
 CalibrationPlot(stab, colours = c("lightgrey", "blue"))
 CalibrationPlot(stab, colours = c("lightgrey", "blue", "black"))
 CalibrationPlot(stab,

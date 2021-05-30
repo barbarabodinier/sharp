@@ -37,11 +37,6 @@
 #' @param units units of width and height. Possible values are "px", "in", "cm"
 #'   and "mm" (see \code{\link{png}} from the grDevices package). Only used if
 #'   argument "filename" is not NULL and fileformat="png".
-#' @param mar vector of margins (see \code{\link{par}} from the graphics
-#'   package). With mar=NULL, margins are automatically defined.
-#' @param mfrow vector defining the layout of the figure (see \code{\link{par}}
-#'   from the graphics package). With mfrow=NULL, the generated figure has as
-#'   many panels as there blocks in the model.
 #' @param ... additional arguments to be passed to \code{\link{Heatmap}} or
 #'   \code{\link{axis}} from the graphics package.
 #'
@@ -64,11 +59,14 @@
 #' stab <- GraphicalModel(xdata = simul$data)
 #'
 #' # Calibration plots
+#' par(mar = c(7, 5, 7, 6))
 #' CalibrationPlot(stab)
+#' par(mar = c(7, 5, 7, 1))
 #' CalibrationPlot(stab, metric = "lambda")
 #' CalibrationPlot(stab, metric = "pi")
 #'
 #' # User-defined colours (heatmap)
+#' par(mar = c(7, 5, 7, 6))
 #' CalibrationPlot(stab, colours = c("lightgrey", "blue"))
 #' CalibrationPlot(stab, colours = c("lightgrey", "blue", "black"))
 #' CalibrationPlot(stab,
@@ -83,7 +81,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
                             legend = TRUE, legend_length = 15, legend_range = NULL,
                             xlab = expression(lambda), ylab = expression(pi), zlab = expression(italic(q)),
                             filename = NULL, fileformat = "pdf", res = 500,
-                            width = 7, height = 7, units = "in", mar = NULL, mfrow = NULL, ...) {
+                            width = 7, height = 7, units = "in", ...) {
   # Extracting the number of blocks/components
   if (is.null(block_id)) {
     bigblocks <- BlockMatrix(stability$params$pk)
@@ -106,16 +104,6 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
   }
 
   if (metric == "both") {
-    if (is.null(mar)) {
-      mar <- c(7, 5, 7, 7)
-    }
-    if (is.null(mfrow)) {
-      mfrow <- c(1, nblocks)
-    }
-
-    # Defining layout
-    withr::local_par(list(mar = mar, mfrow = mfrow))
-
     for (b in block_id) {
       # Extracting the stability scores
       if (length(stability$params$pk) == 1) {
@@ -188,16 +176,6 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
     }
   } else {
     if (metric == "lambda") {
-      if (is.null(mar)) {
-        mar <- c(7, 5, 7, 2)
-      }
-      if (is.null(mfrow)) {
-        mfrow <- c(1, nblocks)
-      }
-
-      # Defining layout
-      withr::local_par(list(mar = mar, mfrow = mfrow))
-
       for (b in block_id) {
         # Extracting the stability scores
         if (length(stability$params$pk) == 1) {
@@ -261,16 +239,6 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
     }
 
     if (metric == "pi") {
-      if (is.null(mar)) {
-        mar <- c(7, 5, 2, 2)
-      }
-      if (is.null(mfrow)) {
-        mfrow <- c(1, nblocks)
-      }
-
-      # Defining layout
-      withr::local_par(list(mar = mar, mfrow = mfrow))
-
       for (b in block_id) {
         # Extracting the stability scores
         if (length(stability$params$pk) == 1) {
