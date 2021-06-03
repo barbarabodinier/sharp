@@ -1,7 +1,7 @@
 Package: focus
 Type: Package
 Title: Feature selectiOn and Clustering Using Stability
-Version: 1.0.0
+Version: 1.0.1
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
 URL: https://github.com/barbarabodinier/focus
