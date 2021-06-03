@@ -10,7 +10,8 @@ SimulateGraphical(
   theta = NULL,
   implementation = SimulateAdjacency,
   topology = "random",
-  nu = 0.1,
+  nu_within = 0.1,
+  nu_between = NULL,
   output_matrices = FALSE,
   v_within = c(-1, 1),
   v_between = c(-0.1, 0.1),
@@ -49,10 +50,16 @@ entries are all equal to zero. This function is only applied if
 \code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
 "hub", "cluster", "band" and "scale-free".}
 
-\item{nu}{expected density of the graph. If \code{implementation="huge"},
-this argument is only used for \code{topology="random"} or
-\code{topology="cluster"} (see argument \code{prob} in
-\code{\link[huge]{huge.generator}}).}
+\item{nu_within}{expected density of within-group blocks the graph. If
+\code{length(pk)=1}, this is the expected density of the graph. If
+\code{implementation="huge"}, this argument is only used for
+\code{topology="random"} or \code{topology="cluster"} (see argument
+\code{prob} in \code{\link[huge]{huge.generator}}).}
+
+\item{nu_between}{expected density of between-group blocks in the graph.
+Similar to \code{nu_within}. By default, the same density is used for
+within and between blocks (\code{nu_within}=\code{nu_between}). Only used
+if \code{length(pk)>1}.}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
@@ -131,7 +138,7 @@ edges of a conditional independence graph.
 
 # Simulation of random graph with 50 nodes
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu = 0.05)
+simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
 dim(simul$data) # dimension of simulated dataset
 sum(simul$theta) / 2 # number of edges
 plot(Graph(simul$theta))
@@ -152,7 +159,7 @@ str(simul)
 # Simulation of multi-block data
 set.seed(1)
 pk <- c(20, 30)
-simul <- SimulateGraphical(n = 100, pk = pk, nu = 0.05)
+simul <- SimulateGraphical(n = 100, pk = pk, nu_within = 0.05)
 mycor <- cor(simul$data)
 Heatmap(mycor,
   colours = c("darkblue", "white", "firebrick3"),

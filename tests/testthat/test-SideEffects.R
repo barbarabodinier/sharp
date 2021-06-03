@@ -2,7 +2,7 @@ test_that("potential side effects", {
   skip_on_cran()
   # Make sure seed is not disturbed
   set.seed(1)
-  simul <- SimulateGraphical(n = 50, pk = 20, nu = 0.1)
+  simul <- SimulateGraphical(n = 50, pk = 20, nu_within = 0.1)
   set.seed(1)
   a <- runif(1)
   set.seed(1)

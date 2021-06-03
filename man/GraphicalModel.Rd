@@ -200,7 +200,7 @@ To ensure reproducibility of the results, the state of the random
 \dontshow{
 # Single-block stability selection
 set.seed(1)
-simul <- SimulateGraphical(n = 50, pk = 10, nu = 0.1)
+simul <- SimulateGraphical(n = 50, pk = 10, nu_within = 0.1)
 stab <- GraphicalModel(xdata = simul$data, K = 5, verbose = FALSE)
 CalibrationPlot(stab)
 A <- Adjacency(stab)
@@ -227,7 +227,7 @@ SelectionProportions(stab)
 
 # Single-block stability selection
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
+simul <- SimulateGraphical(n = 100, pk = 20, nu_within = 0.1)
 stab <- GraphicalModel(xdata = simul$data)
 plot(Graph(stab))
 
@@ -247,7 +247,7 @@ stab$Lambda
 
 # Example with user-defined function: shrinkage estimation and selection
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 20, nu = 0.1)
+simul <- SimulateGraphical(n = 100, pk = 20, nu_within = 0.1)
 if (requireNamespace("corpcor", quietly = TRUE)) {
   ShrinkageSelection <- function(xdata, Lambda, ...) {
     mypcor <- corpcor::pcor.shrink(xdata, verbose = FALSE)

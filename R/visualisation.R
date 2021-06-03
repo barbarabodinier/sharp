@@ -53,7 +53,7 @@
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateGraphical(pk = 20, nu = 0.1)
+#' simul <- SimulateGraphical(pk = 20, nu_within = 0.1)
 #'
 #' # Stability selection
 #' stab <- GraphicalModel(xdata = simul$data)

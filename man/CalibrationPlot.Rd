@@ -96,20 +96,20 @@ When selecting a single parameter, each point represents the best
 
 # Data simulation
 set.seed(1)
-simul <- SimulateGraphical(pk = 20, nu = 0.1)
+simul <- SimulateGraphical(pk = 20, nu_within = 0.1)
 
 # Stability selection
 stab <- GraphicalModel(xdata = simul$data)
 
 # Calibration plots
-par(mar=c(7, 5, 7, 6))
+par(mar = c(7, 5, 7, 6))
 CalibrationPlot(stab)
-par(mar=c(7, 5, 7, 1))
+par(mar = c(7, 5, 7, 1))
 CalibrationPlot(stab, metric = "lambda")
 CalibrationPlot(stab, metric = "pi")
 
 # User-defined colours (heatmap)
-par(mar=c(7, 5, 7, 6))
+par(mar = c(7, 5, 7, 6))
 CalibrationPlot(stab, colours = c("lightgrey", "blue"))
 CalibrationPlot(stab, colours = c("lightgrey", "blue", "black"))
 CalibrationPlot(stab,

@@ -77,9 +77,9 @@ among the variables in X, relevant predictors of the outcome Y.
 
 # Data simulation (continuous outcome)
 set.seed(1)
-simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian")
+simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", prop_ev = 0.8)
 plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
-simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", sd_pred_error = 5)
+simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", prop_ev = 0.3)
 plot(simul$Y_pred, simul$Y) # larger residual error
 
 # Outcome simulation from user-provided predictor data

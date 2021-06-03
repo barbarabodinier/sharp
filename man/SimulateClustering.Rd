@@ -8,7 +8,8 @@ SimulateClustering(
   n = c(10, 10),
   pk = 20,
   adjacency = NULL,
-  nu = 1,
+  nu_within = 1,
+  nu_between = 1,
   output_matrices = FALSE,
   v_within = -1,
   v_between = 0,
@@ -33,10 +34,16 @@ a block structure, the within-cluster observations must be more likely to
 be correlated than between clusters. For between-cluster relationships to
 be apparent, \code{v_between} must be nonzero. To be used with care.}
 
-\item{nu}{expected density of the graph. If \code{implementation="huge"},
-this argument is only used for \code{topology="random"} or
-\code{topology="cluster"} (see argument \code{prob} in
-\code{\link[huge]{huge.generator}}).}
+\item{nu_within}{expected density of within-group blocks the graph. If
+\code{length(pk)=1}, this is the expected density of the graph. If
+\code{implementation="huge"}, this argument is only used for
+\code{topology="random"} or \code{topology="cluster"} (see argument
+\code{prob} in \code{\link[huge]{huge.generator}}).}
+
+\item{nu_between}{expected density of between-group blocks in the graph.
+Similar to \code{nu_within}. By default, the same density is used for
+within and between blocks (\code{nu_within}=\code{nu_between}). Only used
+if \code{length(pk)>1}.}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
@@ -146,8 +153,8 @@ Heatmap(
 # Introducing between-cluster correlations
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100,
-  v_within = c(-1, -0.5), v_between = c(-0.1, 0), continuous = TRUE
+  n = c(5, 5, 5), pk = 100, nu_within = 1, nu_between = 0.3,
+  v_within = c(-1, -0.5), v_between = c(-0.5,0), continuous = TRUE
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
@@ -157,11 +164,11 @@ Heatmap(
 )
 
 # User-defined structure: between-cluster pair obs1-obs8
-theta <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
-theta[1, 8] <- theta[8, 1] <- 1
+adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
+adjacency[1, 8] <- adjacency[8, 1] <- 1
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100, adjacency = theta, output_matrices = TRUE,
+  n = c(5, 5, 5), pk = 100, adjacency = adjacency, output_matrices = TRUE,
   v_within = c(-1, -0.5), v_between = -1, continuous = TRUE
 )
 par(mar = c(5, 5, 5, 5))

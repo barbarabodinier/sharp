@@ -27,10 +27,15 @@
 #'   \code{implementation="huge"}, possible values are listed for the argument
 #'   \code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
 #'   "hub", "cluster", "band" and "scale-free".
-#' @param nu expected density of the graph. If \code{implementation="huge"},
-#'   this argument is only used for \code{topology="random"} or
-#'   \code{topology="cluster"} (see argument \code{prob} in
-#'   \code{\link[huge]{huge.generator}}).
+#' @param nu_within expected density of within-group blocks the graph. If
+#'   \code{length(pk)=1}, this is the expected density of the graph. If
+#'   \code{implementation="huge"}, this argument is only used for
+#'   \code{topology="random"} or \code{topology="cluster"} (see argument
+#'   \code{prob} in \code{\link[huge]{huge.generator}}).
+#' @param nu_between expected density of between-group blocks in the graph.
+#'   Similar to \code{nu_within}. By default, the same density is used for
+#'   within and between blocks (\code{nu_within}=\code{nu_between}). Only used
+#'   if \code{length(pk)>1}.
 #' @param output_matrices logical indicating if the true precision and (partial)
 #'   correlation matrices should be included in the output.
 #' @param v_within vector defining the (range of) nonzero entries in the
@@ -94,7 +99,7 @@
 #'
 #' # Simulation of random graph with 50 nodes
 #' set.seed(1)
-#' simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu = 0.05)
+#' simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
 #' dim(simul$data) # dimension of simulated dataset
 #' sum(simul$theta) / 2 # number of edges
 #' plot(Graph(simul$theta))
@@ -115,7 +120,7 @@
 #' # Simulation of multi-block data
 #' set.seed(1)
 #' pk <- c(20, 30)
-#' simul <- SimulateGraphical(n = 100, pk = pk, nu = 0.05)
+#' simul <- SimulateGraphical(n = 100, pk = pk, nu_within = 0.05)
 #' mycor <- cor(simul$data)
 #' Heatmap(mycor,
 #'   colours = c("darkblue", "white", "firebrick3"),
@@ -168,7 +173,8 @@
 #' }
 #' @export
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
-                              implementation = SimulateAdjacency, topology = "random", nu = 0.1,
+                              implementation = SimulateAdjacency, topology = "random",
+                              nu_within = 0.1, nu_between = NULL,
                               output_matrices = FALSE,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
@@ -189,6 +195,11 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
     if (ncol(theta) != p) {
       p <- pk <- ncol(theta)
     }
+  }
+
+  # Defining the between-block density
+  if (is.null(nu_between)) {
+    nu_between <- nu_within
   }
 
   # Creating matrix with block indices
@@ -224,7 +235,30 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
   # Simulation of the adjacency matrix
   if (is.null(theta)) {
-    theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu, ...))
+    if (length(pk) > 1) {
+      # Initialising theta
+      theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
+      theta_vect <- theta[upper.tri(theta)]
+
+      # Allowing for different densities in within and between blocks
+      theta_w <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
+      theta_w_vect <- theta_w[upper.tri(theta_w)]
+      theta_b <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_between, ...))
+      theta_b_vect <- theta_b[upper.tri(theta_b)]
+
+      # Filling within and between blocks
+      for (k in block_ids) {
+        if (k %in% unique(diag(bigblocks))) {
+          theta_vect[bigblocks_vect == k] <- theta_w_vect[bigblocks_vect == k]
+        } else {
+          theta_vect[bigblocks_vect == k] <- theta_b_vect[bigblocks_vect == k]
+        }
+      }
+      theta[upper.tri(theta)] <- theta_vect
+      theta <- theta + t(theta)
+    } else {
+      theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
+    }
   }
 
   # Ensuring the adjacency matrix is symmetric (undirected graph) with no self-loops
@@ -391,8 +425,8 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' # Introducing between-cluster correlations
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(5, 5, 5), pk = 100,
-#'   v_within = c(-1, -0.5), v_between = c(-0.1, 0), continuous = TRUE
+#'   n = c(5, 5, 5), pk = 100, nu_within = 1, nu_between = 0.3,
+#'   v_within = c(-1, -0.5), v_between = c(-0.5,0), continuous = TRUE
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -402,11 +436,11 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' )
 #'
 #' # User-defined structure: between-cluster pair obs1-obs8
-#' theta <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
-#' theta[1, 8] <- theta[8, 1] <- 1
+#' adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
+#' adjacency[1, 8] <- adjacency[8, 1] <- 1
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(5, 5, 5), pk = 100, adjacency = theta, output_matrices = TRUE,
+#'   n = c(5, 5, 5), pk = 100, adjacency = adjacency, output_matrices = TRUE,
 #'   v_within = c(-1, -0.5), v_between = -1, continuous = TRUE
 #' )
 #' par(mar = c(5, 5, 5, 5))
@@ -418,7 +452,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' }
 #' @export
 SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
-                               nu = 1, output_matrices = FALSE,
+                               nu_within = 1, nu_between = 1, output_matrices = FALSE,
                                v_within = -1, v_between = 0, continuous = FALSE,
                                pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
@@ -427,7 +461,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
     n = pk, pk = n, theta = adjacency,
     implementation = SimulateAdjacency,
     topology = "random",
-    nu = nu, # fully connected connected components by default with nu=1
+    nu_within = nu_within, # fully connected components by default
+    nu_between = nu_between, # fully connected by default but with v_between=0
     output_matrices = output_matrices,
     v_within = v_within,
     v_between = v_between, # unconnected blocks if set to zero
@@ -448,6 +483,9 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
     rownames(out$phi) <- colnames(out$phi) <- rownames(out$data)
     rownames(out$C) <- colnames(out$C) <- rownames(out$data)
   }
+
+  # Re-naming the outputs
+  out$adjacency <- out$theta
 
   # Definition of membership
   theta <- NULL
@@ -517,9 +555,9 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #'
 #' # Data simulation (continuous outcome)
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian")
+#' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", prop_ev = 0.8)
 #' plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
-#' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", sd_pred_error = 5)
+#' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", prop_ev = 0.3)
 #' plot(simul$Y_pred, simul$Y) # larger residual error
 #'
 #' # Outcome simulation from user-provided predictor data
@@ -626,6 +664,10 @@ SimulateRegression <- function(n = 100, pk = 10, X = NULL, theta = NULL,
 #'
 #' @inheritParams SimulateGraphical
 #' @param pk number of nodes.
+#' @param nu expected density of the graph. If \code{implementation="huge"},
+#'   this argument is only used for \code{topology="random"} or
+#'   \code{topology="cluster"} (see argument \code{prob} in
+#'   \code{\link[huge]{huge.generator}}).
 #' @param ... additional arguments to be passed to
 #'   \code{\link[huge]{huge.generator}}.
 #'
