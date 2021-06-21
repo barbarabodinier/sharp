@@ -331,11 +331,11 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
                     resolution = 10000, axes = TRUE,
                     legend = TRUE, legend_length = NULL, legend_range = NULL) {
   # Transposing the input matrix so that rows are rows
-  mat=t(mat)
+  mat <- t(mat)
 
   # Defining the legend length
-  if (is.null(legend_length)){
-    legend_length=ncol(mat)
+  if (is.null(legend_length)) {
+    legend_length <- ncol(mat)
   }
 
   # Preparing colours
