@@ -379,8 +379,8 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
 
   # Initialising array of selection proportions
   bigstab <- array(0,
-    dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)),
-    dimnames = list(colnames(xdata), colnames(xdata), NULL)
+                   dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)),
+                   dimnames = list(colnames(xdata), colnames(xdata), NULL)
   )
 
   # Setting seed for reproducibility
@@ -460,85 +460,85 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   }
 
   # Computation of the stability score
-  if (K > 2) {
-    metrics <- StabilityMetrics(
-      selprop = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
-      Sequential_template = Sequential_template, graph = TRUE,
-      PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
-    )
-    if (verbose) {
-      utils::setTxtProgressBar(pb, 1)
-      cat("\n")
-    }
-  } else {
-    # Initialising objects to be filled
-    Q <- matrix(NA, nrow = nrow(Lambda), ncol = nblocks)
-    for (k in 1:nrow(Lambda)) {
-      # Extracting corresponding selection proportions
-      stab_iter <- bigstab[, , k]
-
-      # Getting number of selected variables per block
-      for (block_id in 1:nblocks) {
-        stab_iter_block <- stab_iter[(bigblocks == block_id) & (upper.tri(bigblocks))] # selection proportions in the block
-        q_block <- round(sum(stab_iter_block)) # average number of edges selected by the original procedure in the block
-        Q[k, block_id] <- q_block
-      }
-    }
+  # if (K > 2) {
+  metrics <- StabilityMetrics(
+    selprop = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
+    Sequential_template = Sequential_template, graph = TRUE,
+    PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
+  )
+  if (verbose) {
+    utils::setTxtProgressBar(pb, 1)
+    cat("\n")
   }
+  # } else {
+  #   # Initialising objects to be filled
+  #   Q <- matrix(NA, nrow = nrow(Lambda), ncol = nblocks)
+  #   for (k in 1:nrow(Lambda)) {
+  #     # Extracting corresponding selection proportions
+  #     stab_iter <- bigstab[, , k]
+  #
+  #     # Getting number of selected variables per block
+  #     for (block_id in 1:nblocks) {
+  #       stab_iter_block <- stab_iter[(bigblocks == block_id) & (upper.tri(bigblocks))] # selection proportions in the block
+  #       q_block <- round(sum(stab_iter_block)) # average number of edges selected by the original procedure in the block
+  #       Q[k, block_id] <- q_block
+  #     }
+  #   }
+  # }
 
   # Preparing outputs
-  if (K > 2) {
-    myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
-    if (is.function(resampling)) {
-      myresampling <- as.character(substitute(resampling))
-    } else {
-      myresampling <- resampling
-    }
-    if (nblocks == 1) {
-      out <- list(
-        S = metrics$S, Lambda = Lambda,
-        Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
-        PFER = metrics$PFER, FDP = metrics$FDP,
-        S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
-        selprop = bigstab, sign = sign(mycor_for_sign),
-        methods = list(
-          type = "graphical_model", implementation = myimplementation, start = start,
-          resampling = myresampling, PFER_method = PFER_method
-        ),
-        params = list(
-          K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
-          pk = pk, n = nrow(xdata),
-          PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
-          lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
-        )
-      )
-      if (output_data) {
-        out$params <- c(out$params, list(xdata = xdata))
-      }
-    } else {
-      out <- list(
-        S = metrics$S, Lambda = Lambda,
-        Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
-        PFER = metrics$PFER, FDP = metrics$FDP,
-        S_2d = metrics$S_2d,
-        selprop = bigstab, sign = sign(mycor_for_sign),
-        methods = list(
-          type = "graphical_model", implementation = myimplementation, start = start,
-          resampling = myresampling, PFER_method = PFER_method
-        ),
-        params = list(
-          K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
-          pk = pk, n = nrow(xdata),
-          PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
-          lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
-        )
-      )
-      if (output_data) {
-        out$params <- c(out$params, list(xdata = xdata))
-      }
-    }
-    return(out)
+  # if (K > 2) {
+  myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
+  if (is.function(resampling)) {
+    myresampling <- as.character(substitute(resampling))
   } else {
-    return(list(Q = Q))
+    myresampling <- resampling
   }
+  if (nblocks == 1) {
+    out <- list(
+      S = metrics$S, Lambda = Lambda,
+      Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+      PFER = metrics$PFER, FDP = metrics$FDP,
+      S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
+      selprop = bigstab, sign = sign(mycor_for_sign),
+      methods = list(
+        type = "graphical_model", implementation = myimplementation, start = start,
+        resampling = myresampling, PFER_method = PFER_method
+      ),
+      params = list(
+        K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
+        pk = pk, n = nrow(xdata),
+        PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
+        lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
+      )
+    )
+    if (output_data) {
+      out$params <- c(out$params, list(xdata = xdata))
+    }
+  } else {
+    out <- list(
+      S = metrics$S, Lambda = Lambda,
+      Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+      PFER = metrics$PFER, FDP = metrics$FDP,
+      S_2d = metrics$S_2d,
+      selprop = bigstab, sign = sign(mycor_for_sign),
+      methods = list(
+        type = "graphical_model", implementation = myimplementation, start = start,
+        resampling = myresampling, PFER_method = PFER_method
+      ),
+      params = list(
+        K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
+        pk = pk, n = nrow(xdata),
+        PFER_thr = PFER_thr, FDP_thr = FDP_thr, seed = seed,
+        lambda_other_blocks = lambda_other_blocks, Sequential_template = Sequential_template
+      )
+    )
+    if (output_data) {
+      out$params <- c(out$params, list(xdata = xdata))
+    }
+  }
+  return(out)
+  # } else {
+  #   return(list(Q = Q))
+  # }
 }

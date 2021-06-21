@@ -386,14 +386,14 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   colnames(Beta) <- colnames(mybeta$selected)
   if (length(dim(mybeta$beta_full)) == 2) {
     Beta_full <- array(0,
-      dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
-      dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL)
+                       dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
+                       dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL)
     )
   } else {
     if (length(dim(mybeta$beta_full)) == 3) {
       Beta_full <- array(0,
-        dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
-        dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
+                         dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
+                         dimnames = list(rownames(Lambda), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
       )
     } else {
       stop(paste0("Invalid output from the variable selection function: ", implementation, "(). The output 'beta_full' must be an array with 2 or 3 dimensions."))
@@ -521,57 +521,57 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   }
 
   # Computation of the stability score over Lambda and pi_list
-  if (K > 2) {
-    metrics <- StabilityMetrics(
-      selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
-      Sequential_template = NULL, graph = FALSE,
-      PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
-    )
-    if (verbose) {
-      utils::setTxtProgressBar(pb, 1)
-      cat("\n")
-    }
-  } else {
-    Q <- matrix(NA, nrow = nrow(Lambda), ncol = 1)
-    for (k in 1:nrow(Lambda)) {
-      q_block <- sum(Beta[k, , 1] != 0)
-      Q[k, 1] <- round(q_block)
-    }
+  # if (K > 2) {
+  metrics <- StabilityMetrics(
+    selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+    Sequential_template = NULL, graph = FALSE,
+    PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
+  )
+  if (verbose) {
+    utils::setTxtProgressBar(pb, 1)
+    cat("\n")
   }
+  # } else {
+  #   Q <- matrix(NA, nrow = nrow(Lambda), ncol = 1)
+  #   for (k in 1:nrow(Lambda)) {
+  #     q_block <- sum(Beta[k, , 1] != 0)
+  #     Q[k, 1] <- round(q_block)
+  #   }
+  # }
   Beta <- Beta_full
 
   # Preparing outputs
-  if (K > 2) {
-    myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
-    if (is.function(resampling)) {
-      myresampling <- as.character(substitute(resampling))
-    } else {
-      myresampling <- resampling
-    }
-    out <- list(
-      S = metrics$S, Lambda = Lambda,
-      Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
-      PFER = metrics$PFER, FDP = metrics$FDP,
-      S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
-      selprop = bigstab, Beta = Beta,
-      methods = list(
-        type = "variable_selection", implementation = myimplementation, family = family,
-        resampling = myresampling, PFER_method = PFER_method
-      ),
-      params = list(
-        K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
-        pk = ncol(xdata), n = nrow(xdata),
-        PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-        seed = seed, xdata = xdata, ydata = ydata
-      )
-    )
-
-    if (output_data) {
-      out$params <- c(out$params, list(xdata = xdata, ydata = ydata))
-    }
-
-    return(out)
+  # if (K > 2) {
+  myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
+  if (is.function(resampling)) {
+    myresampling <- as.character(substitute(resampling))
   } else {
-    return(list(Q = Q, Beta = Beta))
+    myresampling <- resampling
   }
+  out <- list(
+    S = metrics$S, Lambda = Lambda,
+    Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+    PFER = metrics$PFER, FDP = metrics$FDP,
+    S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
+    selprop = bigstab, Beta = Beta,
+    methods = list(
+      type = "variable_selection", implementation = myimplementation, family = family,
+      resampling = myresampling, PFER_method = PFER_method
+    ),
+    params = list(
+      K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
+      pk = ncol(xdata), n = nrow(xdata),
+      PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+      seed = seed, xdata = xdata, ydata = ydata
+    )
+  )
+
+  if (output_data) {
+    out$params <- c(out$params, list(xdata = xdata, ydata = ydata))
+  }
+
+  return(out)
+  # } else {
+  #   return(list(Q = Q, Beta = Beta))
+  # }
 }

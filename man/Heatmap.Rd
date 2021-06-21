@@ -10,7 +10,7 @@ Heatmap(
   resolution = 10000,
   axes = TRUE,
   legend = TRUE,
-  legend_length = 15,
+  legend_length = NULL,
   legend_range = NULL
 )
 }

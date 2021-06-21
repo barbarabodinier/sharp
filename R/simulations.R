@@ -581,7 +581,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #' }
 #' @export
 SimulateRegression <- function(n = 100, pk = 10,
-                               X = NULL, adjacency = NULL, theta = NULL,
+                               X = NULL, theta = NULL,
                                nu_pred = 0.2, beta_set = c(-1, 1), continuous = FALSE,
                                prop_ev = 0.8, family = "gaussian") {
   # Checking the inputs
