@@ -11,9 +11,9 @@ SimulateClustering(
   nu_within = 1,
   nu_between = 1,
   output_matrices = FALSE,
-  v_within = -1,
+  v_within = c(-1, -0.5),
   v_between = 0,
-  continuous = FALSE,
+  continuous = TRUE,
   pd_strategy = "diagonally_dominant",
   u = NULL,
   niter_max_u_grid = 5,
@@ -137,11 +137,11 @@ Heatmap(
   legend_range = c(-1, 1)
 )
 
-# Simulation of more heterogeneous groups
+# Simulation with weaker within-cluster correlations
 set.seed(1)
 simul <- SimulateClustering(
   n = c(5, 5, 5), pk = 100,
-  v_within = c(-1, -0.5), continuous = TRUE
+  v_within = c(-1, -0.1), continuous = TRUE
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
@@ -154,7 +154,7 @@ Heatmap(
 set.seed(1)
 simul <- SimulateClustering(
   n = c(5, 5, 5), pk = 100, nu_within = 1, nu_between = 0.3,
-  v_within = c(-1, -0.5), v_between = c(-0.5,0), continuous = TRUE
+  v_within = c(-1, -0.5), v_between = c(-0.5, 0), continuous = TRUE
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

@@ -140,7 +140,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       Q <- Q[ids]
 
       # Heatmap representation
-      Heatmap(mat[nrow(mat):1, ncol(mat):1],
+      Heatmap(t(mat[nrow(mat):1, ncol(mat):1]),
         colours = colours, axes = FALSE,
         legend = legend, legend_length = legend_length, legend_range = legend_range
       )
@@ -329,7 +329,15 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 #' @export
 Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"),
                     resolution = 10000, axes = TRUE,
-                    legend = TRUE, legend_length = 15, legend_range = NULL) {
+                    legend = TRUE, legend_length = NULL, legend_range = NULL) {
+  # Transposing the input matrix so that rows are rows
+  mat=t(mat)
+
+  # Defining the legend length
+  if (is.null(legend_length)){
+    legend_length=ncol(mat)
+  }
+
   # Preparing colours
   colours <- grDevices::colorRampPalette(colours)(resolution)
   names(colours) <- 1:resolution

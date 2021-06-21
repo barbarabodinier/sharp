@@ -205,6 +205,9 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+
+  # Making as factor to allow for groups with 1 variable (for clustering)
+  bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
   N_blocks <- unname(table(bigblocks_vect))
   block_ids <- unique(as.vector(bigblocks))
   names(N_blocks) <- block_ids
@@ -214,17 +217,19 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
   v <- bigblocks
   v_vect <- v[upper.tri(v)]
   for (k in block_ids) {
-    if (k %in% unique(diag(bigblocks))) {
-      if (continuous) {
-        v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_within), max = max(v_within))
+    if (k %in% v_vect) {
+      if (k %in% unique(diag(bigblocks))) {
+        if (continuous) {
+          v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_within), max = max(v_within))
+        } else {
+          v_vect[bigblocks_vect == k] <- base::sample(v_within, size = sum(bigblocks_vect == k), replace = TRUE)
+        }
       } else {
-        v_vect[bigblocks_vect == k] <- base::sample(v_within, size = sum(bigblocks_vect == k), replace = TRUE)
-      }
-    } else {
-      if (continuous) {
-        v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_between), max = max(v_between))
-      } else {
-        v_vect[bigblocks_vect == k] <- base::sample(v_between, size = sum(bigblocks_vect == k), replace = TRUE)
+        if (continuous) {
+          v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_between), max = max(v_between))
+        } else {
+          v_vect[bigblocks_vect == k] <- base::sample(v_between, size = sum(bigblocks_vect == k), replace = TRUE)
+        }
       }
     }
   }
@@ -409,11 +414,11 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   legend_range = c(-1, 1)
 #' )
 #'
-#' # Simulation of more heterogeneous groups
+#' # Simulation with weaker within-cluster correlations
 #' set.seed(1)
 #' simul <- SimulateClustering(
 #'   n = c(5, 5, 5), pk = 100,
-#'   v_within = c(-1, -0.5), continuous = TRUE
+#'   v_within = c(-1, -0.1), continuous = TRUE
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -426,7 +431,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' set.seed(1)
 #' simul <- SimulateClustering(
 #'   n = c(5, 5, 5), pk = 100, nu_within = 1, nu_between = 0.3,
-#'   v_within = c(-1, -0.5), v_between = c(-0.5,0), continuous = TRUE
+#'   v_within = c(-1, -0.5), v_between = c(-0.5, 0), continuous = TRUE
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -453,7 +458,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' @export
 SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
                                nu_within = 1, nu_between = 1, output_matrices = FALSE,
-                               v_within = -1, v_between = 0, continuous = FALSE,
+                               v_within = c(-1, -0.5), v_between = 0, continuous = TRUE,
                                pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Using multi-block simulator with unconnected blocks
@@ -575,7 +580,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #' boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
 #' }
 #' @export
-SimulateRegression <- function(n = 100, pk = 10, X = NULL, theta = NULL,
+SimulateRegression <- function(n = 100, pk = 10,
+                               X = NULL, adjacency = NULL, theta = NULL,
                                nu_pred = 0.2, beta_set = c(-1, 1), continuous = FALSE,
                                prop_ev = 0.8, family = "gaussian") {
   # Checking the inputs
