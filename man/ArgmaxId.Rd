@@ -2,7 +2,7 @@
 % Please edit documentation in R/calibration.R
 \name{ArgmaxId}
 \alias{ArgmaxId}
-\title{Calibrated parameter IDs}
+\title{Calibrated parameter indices}
 \usage{
 ArgmaxId(stability = NULL, S = NULL)
 }
@@ -19,11 +19,11 @@ selection proportions. If \code{S=NULL}, argument \code{stability} must be
 provided.}
 }
 \value{
-A matrix of parameter IDs. In multi-block graphical modelling, rows
+A matrix of parameter indices. In multi-block graphical modelling, rows
   correspond to different blocks.
 }
 \description{
-Extracts the IDs of calibrated parameters with respect to the grids provided
+Extracts the indices of calibrated parameters with respect to the grids provided
 in \code{Lambda} and \code{pi_list} in \code{stability}.
 }
 \examples{

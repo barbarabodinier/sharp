@@ -1,6 +1,6 @@
-#' Calibrated parameter IDs
+#' Calibrated parameter indices
 #'
-#' Extracts the IDs of calibrated parameters with respect to the grids provided
+#' Extracts the indices of calibrated parameters with respect to the grids provided
 #' in \code{Lambda} and \code{pi_list} in \code{stability}.
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
@@ -13,7 +13,7 @@
 #'   selection proportions. If \code{S=NULL}, argument \code{stability} must be
 #'   provided.
 #'
-#' @return A matrix of parameter IDs. In multi-block graphical modelling, rows
+#' @return A matrix of parameter indices. In multi-block graphical modelling, rows
 #'   correspond to different blocks.
 #'
 #' @family calibration functions
