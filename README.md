@@ -19,16 +19,16 @@ how unlikely it is that the selection procedure is uniform.
 
 <!-- ``` r -->
 
-<!-- install.packages("focus") -->
+<!-- install.packages("focus") # devtools::install_github("barbarabodinier/focus") -->
 
 <!-- ``` -->
 
-The development version can be installed from
-[GitHub](https://github.com/) with:
+The development version can be downloaded from
+[GitHub](https://github.com/) and installed using the following command
+from a working directory containing the folder:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("barbarabodinier/focus")
+devtools::install("focus")
 ```
 
 ## Variable selection

@@ -29,14 +29,13 @@ measuring how unlikely it is that the selection procedure is uniform.
 <!-- You can install the released version of focus from [CRAN](https://CRAN.R-project.org) with: -->
 
 <!-- ``` r -->
-<!-- install.packages("focus") -->
+<!-- install.packages("focus") # devtools::install_github("barbarabodinier/focus") -->
 <!-- ``` -->
 
-The development version can be installed from [GitHub](https://github.com/) with:
+The development version can be downloaded from [GitHub](https://github.com/) and installed using the following command from a working directory containing the folder:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("barbarabodinier/focus")
+devtools::install("focus")
 ```
 
 ## Variable selection

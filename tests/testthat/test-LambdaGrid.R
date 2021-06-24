@@ -63,3 +63,4 @@ test_that("lambda grid size for GraphicalModel()", {
     verbose = FALSE
   )
 })
+

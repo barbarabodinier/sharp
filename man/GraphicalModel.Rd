@@ -179,7 +179,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   \code{selprop}, \code{sign} and those stored in \code{methods} or
   \code{params}, rows correspond to parameter values stored in the output
   \code{Lambda}. In multi-block stability selection, columns of these same
-  objects except correspond to different blocks.
+  objects correspond to different blocks.
 }
 \description{
 Runs stability selection graphical models with different combinations of

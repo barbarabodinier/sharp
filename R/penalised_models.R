@@ -51,7 +51,15 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   if (!is.infinite(mymodel$lambda[1])) {
     # Extracting and formatting the beta coefficients
     if (!family %in% c("mgaussian", "multinomial")) {
-      mybeta <- stats::coef(mymodel)
+      if (length(Lambda) > 1) {
+        mybeta <- suppressWarnings({
+          stats::coef(mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata, extra_args)
+        })
+      } else {
+        mybeta <- suppressWarnings({
+          stats::coef(mymodel, s = Lambda)
+        })
+      }
       mybeta <- t(as.matrix(mybeta))
 
       # Preparing the outputs
@@ -65,10 +73,19 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
       if (family == "mgaussian") {
         mybeta <- array(NA,
           dim = c(length(Lambda), ncol(xdata), ncol(ydata)),
-          dimnames = list(paste0("s", 0:(length(Lambda) - 1)), colnames(xdata), colnames(ydata))
+          dimnames = list(1:length(Lambda), colnames(xdata), colnames(ydata))
         )
+        if (length(Lambda) > 1) {
+          tmpcoefs <- suppressWarnings({
+            stats::coef(mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata, extra_args)
+          })
+        } else {
+          tmpcoefs <- suppressWarnings({
+            stats::coef(mymodel, s = Lambda)
+          })
+        }
         for (y_id in 1:ncol(ydata)) {
-          tmpbeta <- stats::coef(mymodel)[[y_id]]
+          tmpbeta <- tmpcoefs[[y_id]]
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
           mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta
@@ -78,13 +95,19 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
         y_levels <- sort(unique(ydata))
         mybeta <- array(NA,
           dim = c(length(Lambda), ncol(xdata), length(y_levels)),
-          dimnames = list(
-            paste0("s", 0:(length(Lambda) - 1)), colnames(xdata),
-            paste0("Y", y_levels)
-          )
+          dimnames = list(1:length(Lambda), colnames(xdata), paste0("Y", y_levels))
         )
+        if (length(Lambda) > 1) {
+          tmpcoefs <- suppressWarnings({
+            stats::coef(mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata, extra_args)
+          })
+        } else {
+          tmpcoefs <- suppressWarnings({
+            stats::coef(mymodel, s = Lambda)
+          })
+        }
         for (y_id in 1:length(y_levels)) {
-          tmpbeta <- stats::coef(mymodel)[[y_id]]
+          tmpbeta <- tmpcoefs[[y_id]]
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
           mybeta[rownames(tmpbeta), colnames(tmpbeta), y_id] <- tmpbeta

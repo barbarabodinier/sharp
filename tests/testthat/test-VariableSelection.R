@@ -401,3 +401,4 @@ test_that("cox regression in VariableSelection()", {
   )
   expect_equal(as.character(stab$methods$family), "cox")
 })
+
