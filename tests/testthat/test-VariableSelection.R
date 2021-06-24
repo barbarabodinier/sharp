@@ -101,6 +101,53 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
 })
 
 
+test_that("argument penalty.factor can be used in VariableSelection()", {
+  PFER_thr <- FDP_thr <- Inf
+  n <- 78
+  pk <- 12
+  nlambda <- 3
+  K <- 5
+  tau <- 0.55
+  n_cat <- 3
+  pi_list <- seq(0.6, 0.7, length.out = 15)
+  
+  # Binomial
+  simul <- SimulateRegression(n = n, pk = pk, family = "binomial")
+  
+  stab <- VariableSelection(
+    xdata = simul$X, ydata = simul$Y,
+    family = "binomial",
+    Lambda_cardinal = nlambda, K = K,
+    pi_list = pi_list,
+    tau = tau, n_cat = n_cat,
+    PFER_thr = PFER_thr,
+    FDP_thr = FDP_thr,
+    verbose = FALSE,
+    penalty.factor=c(rep(1,10), rep(0,2))
+  )
+  expect_equal(ncol(stab$selprop), 10)
+  
+  # Multivariate Gaussian
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = 12, family = "gaussian")
+  set.seed(2)
+  Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
+  
+  stab <- VariableSelection(
+    xdata = simul$X, ydata = Y,
+    family = "mgaussian",
+    Lambda_cardinal = nlambda, K = K,
+    pi_list = pi_list,
+    tau = tau, n_cat = n_cat,
+    PFER_thr = PFER_thr,
+    FDP_thr = FDP_thr,
+    verbose = FALSE,
+    penalty.factor=c(rep(1,10), rep(0,2))
+  )
+  expect_equal(ncol(stab$selprop), 10)
+})
+
+
 test_that("outputs from VariableSelection() are of correct dimensions (binomial)", {
   PFER_thr <- FDP_thr <- Inf
   n <- 78

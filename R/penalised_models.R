@@ -53,7 +53,9 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
     if (!family %in% c("mgaussian", "multinomial")) {
       if (length(Lambda) > 1) {
         mybeta <- suppressWarnings({
-          stats::coef(mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata, extra_args)
+          do.call(stats::coef,
+            args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), extra_args[ids])
+          )
         })
       } else {
         mybeta <- suppressWarnings({
@@ -77,7 +79,9 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
         )
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
-            stats::coef(mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata, extra_args)
+            do.call(stats::coef,
+              args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), extra_args[ids])
+            )
           })
         } else {
           tmpcoefs <- suppressWarnings({
@@ -99,7 +103,9 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
         )
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
-            stats::coef(mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata, extra_args)
+            do.call(stats::coef,
+              args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), extra_args[ids])
+            )
           })
         } else {
           tmpcoefs <- suppressWarnings({
