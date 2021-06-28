@@ -175,7 +175,7 @@ Clustering <- function(xdata, Lambda = NULL,
 
     # Removing graphical model specific outputs
     out$methods <- out$methods[-which(names(out$methods) %in% "start")]
-    out$params <- out$params[-which(names(out$params) %in% c("lambda_other_blocks", "Sequential_template"))]
+    out$params <- out$params[-which(names(out$params) %in% c("lambda_other_blocks"))]
     out <- out[-which(names(out) %in% c("sign"))]
 
     # Updating n and pk (using transpose)

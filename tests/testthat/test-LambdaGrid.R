@@ -2,7 +2,7 @@ test_that("lambda grid size for VariableSelection()", {
   skip_on_cran()
   n <- 78
   pk <- 12
-  nlambda <- 1
+  nlambda <- 0
   K <- 5
   tau <- 0.55
   n_cat <- 3
@@ -63,4 +63,3 @@ test_that("lambda grid size for GraphicalModel()", {
     verbose = FALSE
   )
 })
-

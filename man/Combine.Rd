@@ -4,7 +4,7 @@
 \alias{Combine}
 \title{Merging stability selection outputs}
 \usage{
-Combine(stability1, stability2, graph = TRUE)
+Combine(stability1, stability2)
 }
 \arguments{
 \item{stability1}{output from a first run of \code{\link{VariableSelection}}
@@ -12,10 +12,6 @@ or \code{\link{GraphicalModel}}.}
 
 \item{stability2}{output from a second run of \code{\link{VariableSelection}}
 or \code{\link{GraphicalModel}}.}
-
-\item{graph}{logical indicating if \code{\link{GraphicalModel}} (graph=TRUE)
-or \code{\link{VariableSelection}} (graph=FALSE) were used to generate the
-"stability1" and "stability2".}
 }
 \value{
 A single output of the same format.
@@ -35,6 +31,21 @@ The two runs must have been done using the same data, the same grids
   \code{stability1} and \code{stability2}.
 }
 \examples{
+
+## Variable selection
+# Data simulation
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+
+# Two runs
+stab1 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 1, K = 10)
+stab2 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 2, K = 10)
+
+# Merging the outputs
+stab <- Combine(stability1 = stab1, stability2 = stab2)
+print(stab$params$K)
+
+## Graphical modelling
 # Data simulation
 simul <- SimulateGraphical(pk = 20)
 
@@ -43,7 +54,23 @@ stab1 <- GraphicalModel(xdata = simul$data, seed = 1, K = 10)
 stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
 
 # Merging the outputs
-stab <- Combine(stability1 = stab1, stability2 = stab2, graph = TRUE)
+stab <- Combine(stability1 = stab1, stability2 = stab2)
+print(stab$params$K)
+
+## Clustering
+# Data simulation
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(5, 5, 5), pk = 100,
+  v_within = c(-1, -0.5), continuous = TRUE
+)
+
+# Two runs
+stab1 <- Clustering(xdata = simul$data, seed = 1, K = 10)
+stab2 <- Clustering(xdata = simul$data, seed = 2, K = 10)
+
+# Merging the outputs
+stab <- Combine(stability1 = stab1, stability2 = stab2)
 print(stab$params$K)
 }
 \seealso{

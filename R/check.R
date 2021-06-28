@@ -245,7 +245,7 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
   # Checking the inputs (Lambda_cardinal)
   Lambda_cardinal <- as.numeric(Lambda_cardinal)
   if (is.null(Lambda)) {
-    if ((length(Lambda_cardinal) != 1) | is.na(Lambda_cardinal) | (Lambda_cardinal < 2)) {
+    if ((length(Lambda_cardinal) != 1) | is.na(Lambda_cardinal) | (Lambda_cardinal < 1)) {
       warning("Invalid input for argument 'Lambda_cardinal'. The argument 'Lambda_cardinal' must be a single positive number. A value of 10 was used.")
       Lambda_cardinal <- 10
     }

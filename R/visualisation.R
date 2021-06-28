@@ -83,7 +83,7 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
                             filename = NULL, fileformat = "pdf", res = 500,
                             width = 7, height = 7, units = "in", ...) {
   # Extracting the number of blocks/components
-  if (is.null(block_id)) {
+  if ((stability$methods$type == "graphical_model") & (is.null(block_id))) {
     bigblocks <- BlockMatrix(stability$params$pk)
     bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
     N_blocks <- unname(table(bigblocks_vect))
@@ -91,6 +91,8 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
     names(N_blocks) <- blocks
     nblocks <- max(blocks)
     block_id <- 1:nblocks
+  } else {
+    block_id <- 1
   }
   nblocks <- length(block_id)
 

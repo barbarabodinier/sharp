@@ -7,9 +7,6 @@
 #'   or \code{\link{GraphicalModel}}.
 #' @param stability2 output from a second run of \code{\link{VariableSelection}}
 #'   or \code{\link{GraphicalModel}}.
-#' @param graph logical indicating if \code{\link{GraphicalModel}} (graph=TRUE)
-#'   or \code{\link{VariableSelection}} (graph=FALSE) were used to generate the
-#'   "stability1" and "stability2".
 #'
 #' @return A single output of the same format.
 #'
@@ -25,6 +22,21 @@
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
+#'
+#' ## Variable selection
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#'
+#' # Two runs
+#' stab1 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 1, K = 10)
+#' stab2 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 2, K = 10)
+#'
+#' # Merging the outputs
+#' stab <- Combine(stability1 = stab1, stability2 = stab2)
+#' print(stab$params$K)
+#'
+#' ## Graphical modelling
 #' # Data simulation
 #' simul <- SimulateGraphical(pk = 20)
 #'
@@ -33,10 +45,26 @@
 #' stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
 #'
 #' # Merging the outputs
-#' stab <- Combine(stability1 = stab1, stability2 = stab2, graph = TRUE)
+#' stab <- Combine(stability1 = stab1, stability2 = stab2)
+#' print(stab$params$K)
+#'
+#' ## Clustering
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(5, 5, 5), pk = 100,
+#'   v_within = c(-1, -0.5), continuous = TRUE
+#' )
+#'
+#' # Two runs
+#' stab1 <- Clustering(xdata = simul$data, seed = 1, K = 10)
+#' stab2 <- Clustering(xdata = simul$data, seed = 2, K = 10)
+#'
+#' # Merging the outputs
+#' stab <- Combine(stability1 = stab1, stability2 = stab2)
 #' print(stab$params$K)
 #' @export
-Combine <- function(stability1, stability2, graph = TRUE) {
+Combine <- function(stability1, stability2) {
   if (any(stability1$Lambda != stability2$Lambda)) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They were constructed using different Lambdas.")
   }
@@ -53,9 +81,18 @@ Combine <- function(stability1, stability2, graph = TRUE) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They were obtained from different datasets.")
   }
 
+  # Identifying the type of model (variable/pairs)
+  if (stability1$methods$type %in% c("graphical_model", "clustering")) {
+    graph <- TRUE
+  } else {
+    graph <- FALSE
+  }
+
   # Extracting the parameters
   Lambda <- stability1$Lambda
-  mysign <- stability1$sign
+  if (stability1$methods$type == "graphical_model") {
+    mysign <- stability1$sign
+  }
   pk <- stability1$params$pk
   pi_list <- stability1$params$pi_list
   n_cat <- stability1$params$n_cat
@@ -66,11 +103,11 @@ Combine <- function(stability1, stability2, graph = TRUE) {
   mymethods <- stability1$methods
   myparams <- stability1$params
 
-  # Creating matrix with block indices
+  # Creating matrix with block indices (specific to graphical models)
   nblocks <- 1
   N_blocks <- stability1$params$pk
   names(N_blocks) <- 1
-  if (graph) { # to avoid memory issues in high dimensional variable selection
+  if (stability1$methods$type == "graphical_model") { # to avoid memory issues in high dimensional variable selection
     bigblocks <- BlockMatrix(pk)
     bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
     N_blocks <- unname(table(bigblocks_vect))
@@ -112,30 +149,86 @@ Combine <- function(stability1, stability2, graph = TRUE) {
     }
   }
 
-  # Computation of the stability score
-  metrics <- StabilityMetrics(
-    selprop = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
-    Sequential_template = Sequential_template, graph = graph,
-    PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
-  )
+  # Concatenating the beta coefficients
+  if (stability1$methods$type == "variable_selection") {
+    if (length(dim(stability1$Beta)) == 4) {
+      Beta <- array(NA,
+        dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3], dim(stability1$Beta)[4]),
+        dimnames = list(dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]], c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]]), dimnames(stability1$Beta)[[4]])
+      )
+      Beta[, , 1:dim(stability1$Beta)[3], ] <- stability1$Beta
+      Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3], ] <- stability2$Beta
+    } else {
+      Beta <- array(NA,
+        dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3]),
+        dimnames = list(dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]], c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]]))
+      )
+      Beta[, , 1:dim(stability1$Beta)[3]] <- stability1$Beta
+      Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3]] <- stability2$Beta
+    }
+  }
 
-  if (nblocks == 1) {
+  # Computation of the stability score
+  if (stability1$methods$type == "graphical_model") {
+    metrics <- StabilityMetrics(
+      selprop = bigstab, pk = pk, pi_list = pi_list, K = K, n_cat = n_cat,
+      Sequential_template = Sequential_template, graph = graph,
+      PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
+    )
+  } else {
+    metrics <- StabilityMetrics(
+      selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+      Sequential_template = Sequential_template, graph = graph,
+      PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
+    )
+  }
+
+  if (stability1$methods$type == "graphical_model") {
+    if (nblocks == 1) {
+      return(list(
+        S = metrics$S, Lambda = Lambda,
+        Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+        PFER = metrics$PFER, FDP = metrics$FDP,
+        S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
+        selprop = bigstab,
+        sign = mysign,
+        methods = mymethods,
+        params = myparams
+      ))
+    } else {
+      return(list(
+        S = metrics$S, Lambda = Lambda,
+        Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+        PFER = metrics$PFER, FDP = metrics$FDP,
+        S_2d = metrics$S_2d,
+        selprop = bigstab,
+        sign = mysign,
+        methods = mymethods,
+        params = myparams
+      ))
+    }
+  }
+
+  if (stability1$methods$type == "variable_selection") {
     return(list(
       S = metrics$S, Lambda = Lambda,
       Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
       PFER = metrics$PFER, FDP = metrics$FDP,
       S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
-      selprop = bigstab, sign = mysign,
+      selprop = bigstab,
+      Beta = Beta,
       methods = mymethods,
       params = myparams
     ))
-  } else {
+  }
+
+  if (stability1$methods$type == "clustering") {
     return(list(
       S = metrics$S, Lambda = Lambda,
       Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
       PFER = metrics$PFER, FDP = metrics$FDP,
-      S_2d = metrics$S_2d,
-      selprop = bigstab, sign = mysign,
+      S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
+      selprop = bigstab,
       methods = mymethods,
       params = myparams
     ))

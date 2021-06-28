@@ -92,6 +92,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
     nlambda <- nrow(selprop)
   }
 
+  # Extracting pk
   if (is.null(pk)) {
     pk <- ncol(selprop)
   }
