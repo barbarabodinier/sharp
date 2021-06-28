@@ -4,7 +4,7 @@
 \alias{Combine}
 \title{Merging stability selection outputs}
 \usage{
-Combine(stability1, stability2)
+Combine(stability1, stability2, include_beta = TRUE)
 }
 \arguments{
 \item{stability1}{output from a first run of \code{\link{VariableSelection}}
@@ -12,6 +12,9 @@ or \code{\link{GraphicalModel}}.}
 
 \item{stability2}{output from a second run of \code{\link{VariableSelection}}
 or \code{\link{GraphicalModel}}.}
+
+\item{include_beta}{logical indicating if the beta coefficients of visited
+models should be concatenated.}
 }
 \value{
 A single output of the same format.
@@ -42,7 +45,7 @@ stab1 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 1, K = 10)
 stab2 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 2, K = 10)
 
 # Merging the outputs
-stab <- Combine(stability1 = stab1, stability2 = stab2)
+stab <- Combine(stability1 = stab1, stability2 = stab2, include_beta = FALSE)
 print(stab$params$K)
 
 ## Graphical modelling

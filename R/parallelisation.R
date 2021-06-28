@@ -7,6 +7,8 @@
 #'   or \code{\link{GraphicalModel}}.
 #' @param stability2 output from a second run of \code{\link{VariableSelection}}
 #'   or \code{\link{GraphicalModel}}.
+#' @param include_beta logical indicating if the beta coefficients of visited
+#'   models should be concatenated.
 #'
 #' @return A single output of the same format.
 #'
@@ -33,7 +35,7 @@
 #' stab2 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 2, K = 10)
 #'
 #' # Merging the outputs
-#' stab <- Combine(stability1 = stab1, stability2 = stab2)
+#' stab <- Combine(stability1 = stab1, stability2 = stab2, include_beta = FALSE)
 #' print(stab$params$K)
 #'
 #' ## Graphical modelling
@@ -64,7 +66,7 @@
 #' stab <- Combine(stability1 = stab1, stability2 = stab2)
 #' print(stab$params$K)
 #' @export
-Combine <- function(stability1, stability2) {
+Combine <- function(stability1, stability2, include_beta = TRUE) {
   if (any(stability1$Lambda != stability2$Lambda)) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They were constructed using different Lambdas.")
   }
@@ -151,20 +153,28 @@ Combine <- function(stability1, stability2) {
 
   # Concatenating the beta coefficients
   if (stability1$methods$type == "variable_selection") {
-    if (length(dim(stability1$Beta)) == 4) {
-      Beta <- array(NA,
-        dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3], dim(stability1$Beta)[4]),
-        dimnames = list(dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]], c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]]), dimnames(stability1$Beta)[[4]])
-      )
-      Beta[, , 1:dim(stability1$Beta)[3], ] <- stability1$Beta
-      Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3], ] <- stability2$Beta
-    } else {
-      Beta <- array(NA,
-        dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3]),
-        dimnames = list(dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]], c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]]))
-      )
-      Beta[, , 1:dim(stability1$Beta)[3]] <- stability1$Beta
-      Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3]] <- stability2$Beta
+    if (include_beta) {
+      if (length(dim(stability1$Beta)) == 4) {
+        Beta <- array(NA,
+          dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3], dim(stability1$Beta)[4]),
+          dimnames = list(
+            dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]],
+            c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]]), dimnames(stability1$Beta)[[4]]
+          )
+        )
+        Beta[, , 1:dim(stability1$Beta)[3], ] <- stability1$Beta
+        Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3], ] <- stability2$Beta
+      } else {
+        Beta <- array(NA,
+          dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3]),
+          dimnames = list(
+            dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]],
+            c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]])
+          )
+        )
+        Beta[, , 1:dim(stability1$Beta)[3]] <- stability1$Beta
+        Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3]] <- stability2$Beta
+      }
     }
   }
 
@@ -183,6 +193,7 @@ Combine <- function(stability1, stability2) {
     )
   }
 
+  # Preparing output
   if (stability1$methods$type == "graphical_model") {
     if (nblocks == 1) {
       return(list(
@@ -210,16 +221,28 @@ Combine <- function(stability1, stability2) {
   }
 
   if (stability1$methods$type == "variable_selection") {
-    return(list(
-      S = metrics$S, Lambda = Lambda,
-      Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
-      PFER = metrics$PFER, FDP = metrics$FDP,
-      S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
-      selprop = bigstab,
-      Beta = Beta,
-      methods = mymethods,
-      params = myparams
-    ))
+    if (include_beta) {
+      return(list(
+        S = metrics$S, Lambda = Lambda,
+        Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+        PFER = metrics$PFER, FDP = metrics$FDP,
+        S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
+        selprop = bigstab,
+        Beta = Beta,
+        methods = mymethods,
+        params = myparams
+      ))
+    } else {
+      return(list(
+        S = metrics$S, Lambda = Lambda,
+        Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
+        PFER = metrics$PFER, FDP = metrics$FDP,
+        S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
+        selprop = bigstab,
+        methods = mymethods,
+        params = myparams
+      ))
+    }
   }
 
   if (stability1$methods$type == "clustering") {
