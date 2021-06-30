@@ -10,14 +10,13 @@ SimulateAdjacency(pk = 10, topology = "random", nu = 0.1, ...)
 \item{pk}{number of nodes.}
 
 \item{topology}{topology of the simulated graph. If using
-\code{implementation="huge"}, possible values are listed for the argument
-\code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
-"hub", "cluster", "band" and "scale-free".}
+\code{implementation=SimulateAdjacency}, possible values are listed for the
+argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
+"random", "hub", "cluster", "band" and "scale-free".}
 
-\item{nu}{expected density of the graph. If \code{implementation="huge"},
-this argument is only used for \code{topology="random"} or
-\code{topology="cluster"} (see argument \code{prob} in
-\code{\link[huge]{huge.generator}}).}
+\item{nu}{expected density of the graph. This argument is only used for
+\code{topology="random"} or \code{topology="cluster"} (see argument
+\code{prob} in \code{\link[huge]{huge.generator}}).}
 
 \item{...}{additional arguments to be passed to
 \code{\link[huge]{huge.generator}}.}
@@ -40,6 +39,7 @@ plot(Graph(adjacency))
 }
 \seealso{
 Other simulation functions: 
+\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}

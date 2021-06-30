@@ -15,7 +15,7 @@
 #'   This argument is only used if \code{sum(pk)} is equal to the number of
 #'   rows/columns in \code{theta} is not provided.
 #' @param theta optional binary and symmetric adjacency matrix encoding the
-#'   conditional graph structure.
+#'   conditional independence structure.
 #' @param implementation function for simulation of the graph. By default,
 #'   functionalities implemented in \code{\link[huge]{huge.generator}} are used.
 #'   Alternatively, a user-defined function can be used. It must take \code{pk},
@@ -24,12 +24,12 @@
 #'   entries are all equal to zero. This function is only applied if
 #'   \code{theta} is not provided.
 #' @param topology topology of the simulated graph. If using
-#'   \code{implementation="huge"}, possible values are listed for the argument
-#'   \code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
-#'   "hub", "cluster", "band" and "scale-free".
+#'   \code{implementation=SimulateAdjacency}, possible values are listed for the
+#'   argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
+#'   "random", "hub", "cluster", "band" and "scale-free".
 #' @param nu_within expected density of within-group blocks the graph. If
 #'   \code{length(pk)=1}, this is the expected density of the graph. If
-#'   \code{implementation="huge"}, this argument is only used for
+#'   \code{implementation=SimulateAdjacency}, this argument is only used for
 #'   \code{topology="random"} or \code{topology="cluster"} (see argument
 #'   \code{prob} in \code{\link[huge]{huge.generator}}).
 #' @param nu_between expected density of between-group blocks in the graph.
@@ -78,12 +78,12 @@
 #' @param ... additional arguments passed to the graph simulation function
 #'   provided in \code{implementation}.
 #'
-#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
-#'   \code{\link{GraphicalModel}}
+#' @seealso \code{\link{SimulatePrecision}}, \code{\link{MakePositiveDefinite}},
+#'   \code{\link{Contrast}}, \code{\link{GraphicalModel}}
 #' @family simulation functions
 #'
 #' @return A list with: \item{data}{simulated data with \code{n} observation and
-#'   \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
+#'   \code{sum(pk)} variables.} \item{theta}{adjacency matrix of the simulated
 #'   graph} \item{omega}{true simulated precision matrix. Only returned if
 #'   \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
 #'   matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
@@ -179,16 +179,6 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5, ...) {
-  # Defining grid of u values if not provided
-  if (is.null(u)) {
-    u <- 10^-(seq(0, 5, by = 0.1))
-    refining_u_grid <- TRUE
-    niter_max <- 5
-    tolerance <- 10
-  } else {
-    refining_u_grid <- FALSE
-  }
-
   # Defining number of nodes
   p <- sum(pk)
   if (!is.null(theta)) {
@@ -202,132 +192,23 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
     nu_between <- nu_within
   }
 
-  # Creating matrix with block indices
-  bigblocks <- BlockMatrix(pk)
-  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-
-  # Making as factor to allow for groups with 1 variable (for clustering)
-  bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
-  N_blocks <- unname(table(bigblocks_vect))
-  block_ids <- unique(as.vector(bigblocks))
-  names(N_blocks) <- block_ids
-  nblocks <- max(block_ids)
-
-  # Building v matrix
-  v <- bigblocks
-  v_vect <- v[upper.tri(v)]
-  for (k in block_ids) {
-    if (k %in% v_vect) {
-      if (k %in% unique(diag(bigblocks))) {
-        if (continuous) {
-          v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_within), max = max(v_within))
-        } else {
-          v_vect[bigblocks_vect == k] <- base::sample(v_within, size = sum(bigblocks_vect == k), replace = TRUE)
-        }
-      } else {
-        if (continuous) {
-          v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_between), max = max(v_between))
-        } else {
-          v_vect[bigblocks_vect == k] <- base::sample(v_between, size = sum(bigblocks_vect == k), replace = TRUE)
-        }
-      }
-    }
-  }
-  diag(v) <- 0
-  v[upper.tri(v)] <- v_vect
-  v[lower.tri(v)] <- 0
-  v <- v + t(v)
-
-  # Simulation of the adjacency matrix
+  # Building adjacency matrix
   if (is.null(theta)) {
-    if (length(pk) > 1) {
-      # Initialising theta
-      theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
-      theta_vect <- theta[upper.tri(theta)]
-
-      # Allowing for different densities in within and between blocks
-      theta_w <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
-      theta_w_vect <- theta_w[upper.tri(theta_w)]
-      theta_b <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_between, ...))
-      theta_b_vect <- theta_b[upper.tri(theta_b)]
-
-      # Filling within and between blocks
-      for (k in block_ids) {
-        if (k %in% unique(diag(bigblocks))) {
-          theta_vect[bigblocks_vect == k] <- theta_w_vect[bigblocks_vect == k]
-        } else {
-          theta_vect[bigblocks_vect == k] <- theta_b_vect[bigblocks_vect == k]
-        }
-      }
-      theta[upper.tri(theta)] <- theta_vect
-      theta <- theta + t(theta)
-    } else {
-      theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
-    }
+    theta <- SimulateBlockAdjacency(
+      pk = pk,
+      implementation = implementation, topology = topology,
+      nu_within = nu_within, nu_between = nu_between, ...
+    )
   }
 
-  # Ensuring the adjacency matrix is symmetric (undirected graph) with no self-loops
-  theta <- ifelse(theta + t(theta) != 0, yes = 1, no = 0)
-  diag(theta) <- 0
-
-  # Setting variable names
-  colnames(theta) <- rownames(theta) <- paste0("var", 1:ncol(theta))
-
-  # Filling off-diagonal entries of the precision matrix
-  omega <- theta * v
-
-  # Calibrate u based on contrasts of the correlation matrix
-  contrast <- NULL
-  for (u_value in u) {
-    omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-    C <- stats::cov2cor(solve(omega_tmp))
-    contrast <- c(contrast, Contrast(C))
-  }
-
-  # Avoiding extreme values in u grid if not provided by the user
-  if (refining_u_grid) {
-    stop <- 0
-    niter <- 1
-    while (stop == 0) {
-      niter <- niter + 1
-      if (niter == niter_max_u_grid) {
-        stop <- 1
-      }
-      # Satisfied with calibrated u if the argmax is not too close to the boundaries (as defined from tolerance_u_grid)
-      if (any(which(contrast == max(contrast)) %in% seq(tolerance_u_grid, length(u) - tolerance_u_grid) == TRUE)) {
-        stop <- 1
-      } else {
-        # Adding smaller values of u
-        if (any(which(contrast == max(contrast)) %in% seq(1, tolerance_u_grid) == TRUE)) {
-          u <- c(u, 10^-seq(min(-log10(u)) - u_delta, min(-log10(u)), by = 0.1))
-        }
-
-        # Adding larger values of u
-        if (any(which(contrast == max(contrast)) %in% seq(length(u) - tolerance_u_grid, length(u)) == TRUE)) {
-          u <- c(u, 10^-seq(max(-log10(u)), max(-log10(u) + u_delta), by = 0.1))
-        }
-
-        # Sorting values in u
-        u <- sort(u, decreasing = TRUE)
-
-        # Computing the contrast for all visited values of u
-        contrast <- NULL
-        for (u_value in u) {
-          omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-          C <- stats::cov2cor(solve(omega_tmp))
-          contrast <- c(contrast, Contrast(C))
-        }
-      }
-    }
-  }
-
-  # Computing calibrated precision matrix
-  if (length(u) > 1) {
-    u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
-    omega <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-  } else {
-    omega <- omega_tmp
-  }
+  # Simulation of a precision matrix
+  out <- SimulatePrecision(
+    pk = pk, theta = theta,
+    v_within = v_within, v_between = v_between, continuous = continuous,
+    pd_strategy = pd_strategy, u = u,
+    niter_max_u_grid = niter_max_u_grid, tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
+  )
+  omega <- out$omega
 
   # Computing the correlation matrix
   C <- stats::cov2cor(solve(omega)) # true correlation matrix
@@ -346,7 +227,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
     return(list(
       data = x, theta = theta,
       omega = omega, phi = phi, C = C,
-      u = u_value, u_grid = u, contrast_path = contrast
+      u = out$u, u_grid = out$u_grid, contrast_path = out$contrast_path
     ))
   } else {
     return(list(data = x, theta = theta))
@@ -581,7 +462,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #' }
 #' @export
 SimulateRegression <- function(n = 100, pk = 10,
-                               X = NULL, theta = NULL,
+                               X = NULL, theta = NULL, adjacency = NULL,
                                nu_pred = 0.2, beta_set = c(-1, 1), continuous = FALSE,
                                prop_ev = 0.8, family = "gaussian") {
   # Checking the inputs
@@ -670,10 +551,9 @@ SimulateRegression <- function(n = 100, pk = 10,
 #'
 #' @inheritParams SimulateGraphical
 #' @param pk number of nodes.
-#' @param nu expected density of the graph. If \code{implementation="huge"},
-#'   this argument is only used for \code{topology="random"} or
-#'   \code{topology="cluster"} (see argument \code{prob} in
-#'   \code{\link[huge]{huge.generator}}).
+#' @param nu expected density of the graph. This argument is only used for
+#'   \code{topology="random"} or \code{topology="cluster"} (see argument
+#'   \code{prob} in \code{\link[huge]{huge.generator}}).
 #' @param ... additional arguments to be passed to
 #'   \code{\link[huge]{huge.generator}}.
 #'
@@ -715,6 +595,251 @@ SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   return(theta)
 }
 
+
+#' Simulation of an undirected graph with block structure
+#'
+#' Simulates the adjacency matrix of an unweighted, undirected graph with no
+#' self-loops, and with different densities in diagonal compared to off-diagonal
+#' blocks.
+#'
+#' @inheritParams SimulateGraphical
+#'
+#' @return A symmetric adjacency matrix encoding an unweighted, undirected graph
+#'   with no self-loops, and with different densities in diagonal compared to off-diagonal
+#' blocks.
+#' 
+#' @family simulation functions
+#'
+#' @export
+SimulateBlockAdjacency <- function(pk = 10,
+                                   implementation = SimulateAdjacency, topology = "random",
+                                   nu_within = 0.1, nu_between = NULL, ...) {
+  # Creating matrix with block indices
+  bigblocks <- BlockMatrix(pk)
+  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+
+  # Making as factor to allow for groups with 1 variable (for clustering)
+  bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
+  block_ids <- unique(as.vector(bigblocks))
+
+  # Simulation of the adjacency matrix
+  if (length(pk) > 1) {
+    # Initialising theta
+    theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
+    theta_vect <- theta[upper.tri(theta)]
+
+    # Allowing for different densities in within and between blocks
+    theta_w <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
+    theta_w_vect <- theta_w[upper.tri(theta_w)]
+    theta_b <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_between, ...))
+    theta_b_vect <- theta_b[upper.tri(theta_b)]
+
+    # Filling within and between blocks
+    for (k in block_ids) {
+      if (k %in% unique(diag(bigblocks))) {
+        theta_vect[bigblocks_vect == k] <- theta_w_vect[bigblocks_vect == k]
+      } else {
+        theta_vect[bigblocks_vect == k] <- theta_b_vect[bigblocks_vect == k]
+      }
+    }
+    theta[upper.tri(theta)] <- theta_vect
+    theta <- theta + t(theta)
+  } else {
+    theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
+  }
+
+  # Ensuring the adjacency matrix is symmetric (undirected graph) with no self-loops
+  theta <- ifelse(theta + t(theta) != 0, yes = 1, no = 0)
+  diag(theta) <- 0
+
+  # Setting variable names
+  colnames(theta) <- rownames(theta) <- paste0("var", 1:ncol(theta))
+
+  return(theta)
+}
+
+
+#' Simulation of symmetric matrix with block structure
+#'
+#' Simulates a symmetric matrix with block structure. Matrix entries are
+#' sampled from (i) a discrete uniform distribution taking values in
+#' \code{v_within} (for entries in the diagonal block) or \code{v_between} (for
+#' entries in off-diagonal blocks) if \code{continuous=FALSE}, or (ii) a
+#' continuous uniform distribution taking values in the range given by
+#' \code{v_within} or \code{v_between} if \code{continuous=TRUE}.
+#'
+#' @param pk vector of the number of variables per group, defining the block
+#'   structure.
+#' @param v_within vector defining the (range of) nonzero entries in the
+#'   diagonal blocks. If \code{continuous=FALSE}, \code{v_within} is the set of
+#'   possible values. If \code{continuous=FALSE}, \code{v_within} is the range
+#'   of possible values.
+#' @param v_between vector defining the (range of) nonzero entries in the
+#'   off-diagonal blocks. If \code{continuous=FALSE}, \code{v_between} is the
+#'   set of possible precision values. If \code{continuous=FALSE},
+#'   \code{v_between} is the range of possible precision values. This argument
+#'   is only used if \code{length(pk)>1}.
+#' @param continuous logical indicating whether to sample precision values from
+#'   a uniform distribution between the minimum and maximum values in
+#'   \code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
+#'   (\code{continuous=TRUE}) or from proposed values in \code{v_within}
+#'   (diagonal blocks) or \code{v_between} (off-diagonal blocks)
+#'   (\code{continuous=FALSE}).
+#'
+#' @return A symmetric matrix with uniformly distributed entries sampled from
+#'   different distributions for diagonal and off-diagonal blocks.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Simulating a symmetric with 2 blocks
+#' mat <- SimulateSymmetricMatrix(pk = c(5, 5))
+#' }
+#'
+#' @keywords internal
+SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE) {
+  # Creating matrix with block indices
+  bigblocks <- BlockMatrix(pk)
+  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+
+  # Making as factor to allow for groups with 1 variable (for clustering)
+  bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
+  block_ids <- unique(as.vector(bigblocks))
+
+  # Building v matrix
+  v <- bigblocks
+  v_vect <- v[upper.tri(v)]
+  for (k in block_ids) {
+    if (k %in% v_vect) {
+      if (k %in% unique(diag(bigblocks))) {
+        if (continuous) {
+          v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_within), max = max(v_within))
+        } else {
+          v_vect[bigblocks_vect == k] <- base::sample(v_within, size = sum(bigblocks_vect == k), replace = TRUE)
+        }
+      } else {
+        if (continuous) {
+          v_vect[bigblocks_vect == k] <- stats::runif(sum(bigblocks_vect == k), min = min(v_between), max = max(v_between))
+        } else {
+          v_vect[bigblocks_vect == k] <- base::sample(v_between, size = sum(bigblocks_vect == k), replace = TRUE)
+        }
+      }
+    }
+  }
+  diag(v) <- 0
+  v[upper.tri(v)] <- v_vect
+  v[lower.tri(v)] <- 0
+  v <- v + t(v)
+
+  return(v)
+}
+
+
+#' Simulation of a precision matrix
+#'
+#' Simulates a sparse precision matrix from an adjacency matrix \code{theta}
+#' encoding a conditional independence graph. Zero entries in the precision
+#' matrix indicate pairwise conditional independence.
+#'
+#' @inheritParams SimulateGraphical
+#' @param theta binary and symmetric adjacency matrix encoding the conditional
+#'   independence structure.
+#'
+#' @return A list with: \item{omega}{true simulated precision matrix.}
+#'   \item{u}{chosen value of u.} \item{u_grid}{grid of u values.}
+#'   \item{contrast_path}{contrast values obtained for the values of u listed in
+#'   u_grid.}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Simulation of an adjacency matrix
+#' theta <- SimulateBlockAdjacency(pk = c(5, 5))
+#' print(theta)
+#'
+#' # Simulation of a precision matrix
+#' simul <- SimulatePrecision(theta = theta)
+#' print(simul$omega)
+#' }
+#' @export
+SimulatePrecision <- function(pk = 10, theta,
+                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
+                              pd_strategy = "diagonally_dominant",
+                              u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
+  # Defining grid of u values if not provided
+  if (is.null(u)) {
+    u <- 10^-(seq(0, 5, by = 0.1))
+    refining_u_grid <- TRUE
+    niter_max <- 5
+    tolerance <- 10
+  } else {
+    refining_u_grid <- FALSE
+  }
+
+  # Building v matrix
+  v <- SimulateSymmetricMatrix(pk = pk, v_within = v_within, v_between = v_between, continuous = continuous)
+
+  # Filling off-diagonal entries of the precision matrix
+  omega <- theta * v
+
+  # Calibrate u based on contrasts of the correlation matrix
+  contrast <- NULL
+  for (u_value in u) {
+    omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
+    C <- stats::cov2cor(solve(omega_tmp))
+    contrast <- c(contrast, Contrast(C))
+  }
+
+  # Avoiding extreme values in u grid if not provided by the user
+  if (refining_u_grid) {
+    stop <- 0
+    niter <- 1
+    while (stop == 0) {
+      niter <- niter + 1
+      if (niter == niter_max_u_grid) {
+        stop <- 1
+      }
+      # Satisfied with calibrated u if the argmax is not too close to the boundaries (as defined from tolerance_u_grid)
+      if (any(which(contrast == max(contrast)) %in% seq(tolerance_u_grid, length(u) - tolerance_u_grid) == TRUE)) {
+        stop <- 1
+      } else {
+        # Adding smaller values of u
+        if (any(which(contrast == max(contrast)) %in% seq(1, tolerance_u_grid) == TRUE)) {
+          u <- c(u, 10^-seq(min(-log10(u)) - u_delta, min(-log10(u)), by = 0.1))
+        }
+
+        # Adding larger values of u
+        if (any(which(contrast == max(contrast)) %in% seq(length(u) - tolerance_u_grid, length(u)) == TRUE)) {
+          u <- c(u, 10^-seq(max(-log10(u)), max(-log10(u) + u_delta), by = 0.1))
+        }
+
+        # Sorting values in u
+        u <- sort(u, decreasing = TRUE)
+
+        # Computing the contrast for all visited values of u
+        contrast <- NULL
+        for (u_value in u) {
+          omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
+          C <- stats::cov2cor(solve(omega_tmp))
+          contrast <- c(contrast, Contrast(C))
+        }
+      }
+    }
+  }
+
+  # Computing calibrated precision matrix
+  if (length(u) > 1) {
+    u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
+    omega <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
+  } else {
+    omega <- omega_tmp
+  }
+
+  return(list(
+    omega = omega,
+    u = u_value, u_grid = u, contrast_path = contrast
+  ))
+}
 
 #' Making positive definite
 #'

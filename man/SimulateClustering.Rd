@@ -36,7 +36,7 @@ be apparent, \code{v_between} must be nonzero. To be used with care.}
 
 \item{nu_within}{expected density of within-group blocks the graph. If
 \code{length(pk)=1}, this is the expected density of the graph. If
-\code{implementation="huge"}, this argument is only used for
+\code{implementation=SimulateAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument
 \code{prob} in \code{\link[huge]{huge.generator}}).}
 
@@ -185,11 +185,13 @@ Heatmap(
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
+\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
+\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}
 }

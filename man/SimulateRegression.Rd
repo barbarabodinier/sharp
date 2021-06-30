@@ -9,6 +9,7 @@ SimulateRegression(
   pk = 10,
   X = NULL,
   theta = NULL,
+  adjacency = NULL,
   nu_pred = 0.2,
   beta_set = c(-1, 1),
   continuous = FALSE,
@@ -102,6 +103,7 @@ boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binar
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
+\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()}
 }

@@ -35,7 +35,7 @@ This argument is only used if \code{sum(pk)} is equal to the number of
 rows/columns in \code{theta} is not provided.}
 
 \item{theta}{optional binary and symmetric adjacency matrix encoding the
-conditional graph structure.}
+conditional independence structure.}
 
 \item{implementation}{function for simulation of the graph. By default,
 functionalities implemented in \code{\link[huge]{huge.generator}} are used.
@@ -46,13 +46,13 @@ entries are all equal to zero. This function is only applied if
 \code{theta} is not provided.}
 
 \item{topology}{topology of the simulated graph. If using
-\code{implementation="huge"}, possible values are listed for the argument
-\code{graph} of \code{\link[huge]{huge.generator}}. These are: "random",
-"hub", "cluster", "band" and "scale-free".}
+\code{implementation=SimulateAdjacency}, possible values are listed for the
+argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
+"random", "hub", "cluster", "band" and "scale-free".}
 
 \item{nu_within}{expected density of within-group blocks the graph. If
 \code{length(pk)=1}, this is the expected density of the graph. If
-\code{implementation="huge"}, this argument is only used for
+\code{implementation=SimulateAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument
 \code{prob} in \code{\link[huge]{huge.generator}}).}
 
@@ -114,7 +114,7 @@ provided in \code{implementation}.}
 }
 \value{
 A list with: \item{data}{simulated data with \code{n} observation and
-  \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
+  \code{sum(pk)} variables.} \item{theta}{adjacency matrix of the simulated
   graph} \item{omega}{true simulated precision matrix. Only returned if
   \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
   matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
@@ -212,11 +212,12 @@ Heatmap(mycor,
 }
 }
 \seealso{
-\code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
-  \code{\link{GraphicalModel}}
+\code{\link{SimulatePrecision}}, \code{\link{MakePositiveDefinite}},
+  \code{\link{Contrast}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
+\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateRegression}()}
 }
