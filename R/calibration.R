@@ -214,7 +214,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' simul <- SimulateRegression(pk = 50)
 #'
 #' # Stability selection
-#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 #'
 #' # Calibrated set
 #' selected <- SelectedVariables(stab)
@@ -298,7 +298,7 @@ Clusters <- function(stability, argmax_id = NULL) {
 #' simul <- SimulateRegression(pk = 50)
 #'
 #' # Stability selection
-#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 #'
 #' # Calibrated selection proportions
 #' prop <- SelectionProportions(stab)
@@ -425,7 +425,7 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #'
 #' # Stability selection
-#' stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian")
+#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 #'
 #' # Coefficients of visited models
 #' coefs <- Coefficients(stab)
@@ -437,7 +437,7 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #'
 #' # Stability selection
 #' stab <- VariableSelection(
-#'   xdata = simul$X, ydata = simul$Y,
+#'   xdata = simul$xdata, ydata = simul$ydata,
 #'   implementation = SparsePLS, family = "gaussian"
 #' )
 #'

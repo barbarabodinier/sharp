@@ -27,7 +27,7 @@
 #'   \code{implementation=SimulateAdjacency}, possible values are listed for the
 #'   argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 #'   "random", "hub", "cluster", "band" and "scale-free".
-#' @param nu_within expected density of within-group blocks the graph. If
+#' @param nu_within expected density of within-group blocks in the graph. If
 #'   \code{length(pk)=1}, this is the expected density of the graph. If
 #'   \code{implementation=SimulateAdjacency}, this argument is only used for
 #'   \code{topology="random"} or \code{topology="cluster"} (see argument
@@ -387,50 +387,92 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 
 #' Simulation of predictors and associated outcome
 #'
-#' Simulate (i) a matrix X of n observations for \code{pk} normally distributed
-#' variables, and (ii) an outcome Y obtained from a linear combination of (a
-#' subset of) the \code{pk} variables in X. The outputs of this function can be
-#' used to evaluate the ability of variable selection algorithms to identify,
-#' among the variables in X, relevant predictors of the outcome Y.
+#' Simulates (i) a matrix \code{xdata} of \code{n} observations for
+#' \code{sum(pk)} normally distributed predictor variables, (ii) a matrix
+#' \code{zdata} of \code{length(pk)} orthogonal latent variables, and (iii) a
+#' matrix \code{ydata} of \code{length(pk)} outcome variables. The conditional
+#' independence structure between the predictors and latent variables is encoded
+#' in a precision matrix, where the diagonal entries corresponding to latent
+#' variables are tuned to reach a user-defined expected proportion of explained
+#' variance. To ensure that latent variables are orthogonal (these can be
+#' interpreted as the Principal Components of a Partial Least Squares model),
+#' the predictors contributing to their definition are taken from independent
+#' blocks of variables. The outcome variables are then obtained from a linear
+#' combination of the latent variables. The outputs of this function can be used
+#' to evaluate the ability of variable selection algorithms to identify, among
+#' the variables in \code{xdata}, relevant predictors of the outcome variables
+#' in \code{ydata}.
 #'
 #' @inheritParams SimulateGraphical
-#' @param pk number of variables in the simulated dataset X.
-#' @param X matrix of predictors. With \code{X=NULL}, the matrix of predictors
-#'   is simulated for \code{pk} variables and \code{n} observations. If \code{X}
-#'   is provided, (a subset of) its variables will be used to simulate the
-#'   outcome data.
-#' @param theta optional binary vector encoding true predictors.
-#' @param nu_pred density of the set of variables to be used for the simulation
-#'   of the outcome data (i.e. number of true predictors over the number of
-#'   potential predictors).
-#' @param beta_set vector defining the (range of) coefficients used in the
-#'   linear combination. If \code{continuous=FALSE}, \code{beta_set} is the set
-#'   of possible coefficients. If \code{continuous=FALSE}, \code{beta_set} is
-#'   the range of possible coefficients.
-#' @param continuous logical indicating whether to sample coefficients from a
-#'   uniform distribution between the minimum and maximum values in
-#'   \code{beta_set} (\code{continuous=TRUE}) or from proposed values in
-#'   \code{beta_set} (\code{continuous=FALSE}).
-#' @param prop_ev proportion of explained variance in the outcome from the best
-#'   linear combination of the predictors. This value must be between 0 and 1.
-#' @param family type of outcome. If \code{family="gaussian"}, a normally
-#'   distributed outcome is simulated. If \code{family="binomial"}, a binary
-#'   outcome is simulated from a Bernouilli distribution where the probability
-#'   is defined as a linear combination of (a subset of) the \code{pk}
-#'   variables.
+#' @param pk vector with the number of predictors in each independent block of
+#'   variables in \code{xdata}. The number of independent blocks, which
+#'   determines the maximum number of orthogonal latent variables that can be
+#'   simulated, is given by \code{length(pk)}.
+#' @param family type of outcome. If \code{family="gaussian"}, normally
+#'   distributed outcomes are simulated. If \code{family="binomial"} or
+#'   \code{family="multinomial"}, binary outcome(s) are simulated from a
+#'   multinomial distribution where the probability is defined from a linear
+#'   combination of normally distributed outcomes.
+#' @param N number of classes of the categorical outcome. Only used if
+#'   \code{family="multinomial"}.
+#' @param ev vector of the expected proportions of explained variances for each
+#'   of the orthogonal latent variables. It must contain values in ]0,1[, and
+#'   must be a vector of length \code{length(pk)} or a single value to generate
+#'   latent variables with the same expected proportion of explained variance.
+#' @param adjacency_x optional matrix encoding the conditional independence
+#'   structure between predictor variables in \code{xdata}. This argument must
+#'   be a binary symmetric matrix of size \code{sum(pk)} with zeros on the
+#'   diagonal.
+#' @param nu_within expected density of conditional links in the within-group
+#'   blocks. For independent predictors, use \code{nu_within=0}. This argument
+#'   is only used if \code{adjancency_x} is not provided.
+#' @param theta_xz optional binary matrix encoding the predictor variables from
+#'   \code{xdata} (columns) contributing to the definition of the orthogonal
+#'   latent outcomes from \code{zdata} (rows).
+#' @param nu_xz density of the set of variables to be used for the simulation of
+#'   the orthogonal latent outcomes. This argument is only used if
+#'   \code{theta_xz} is not provided.
+#' @param theta_zy optional binary matrix encoding the latent variables from
+#'   \code{zdata} (columns) contributing to the definition of the observed
+#'   outcomes from \code{ydata} (rows). This argument must be a square matrix of
+#'   size \code{length(pk)}. If \code{theta_zy} is a diagonal matrix, each
+#'   latent variable contributes to the definition of one observed outcome so
+#'   that there is a one-to-one relationship between latent and observed
+#'   outcomes (i.e. they are colinear). Nonzero off-diagonal elements in
+#'   \code{theta_zy} introduce some correlation between the observed outcomes by
+#'   construction from linear combinations implicating common latent outcomes.
+#'   This argument is only used if \code{eta} is not provided.
+#' @param nu_zy probability for each of the off-diagonal elements in
+#'   \code{theta_zy} to be a 1. If \code{nu_zy=0}, \code{theta_zy} is a diagonal
+#'   matrix. This argument is only used if \code{theta_zy} is not provided.
+#' @param eta optional matrix of coefficients used in the linear combination of
+#'   latent outcomes to generate observed outcomes.
+#' @param eta_set vector defining the range of values from which \code{eta} is
+#'   sampled. This argument is only used if \code{eta} is not provided.
 #'
-#' @return A list with: \item{X}{simulated dataset. A subset of these variables
-#'   were used in the linear combination defining the outcome Y.}
-#'   \item{Y}{simulated outcome Y.} \item{proba}{true probability that the
-#'   outcome is equal to 1. Only returned if \code{family="binomial"}.}
-#'   \item{logit_proba}{logit of the true probability that the outcome is equal
-#'   to 1. This is obtained as a linear combination of (a subset of) the
-#'   variables in X. Only returned if \code{family="binomial"}.}
-#'   \item{theta}{binary vector indicating which variables in X were used in the
-#'   linear combination to obtain the outcome Y, i.e. indicating which variables
-#'   in X are signal (if equal to 1) or noise (if equal to 0) variables in
-#'   association with the outcome Y.} \item{beta}{true coefficients used in the
-#'   linear model for simulation of the outcome Y.}
+#' @return A list with: \item{xdata}{simulated predictor data.}
+#'   \item{ydata}{simulated outcome data.} \item{proba}{simulated probability of
+#'   belonging to each outcome class. Only used for \code{family="binomial"} or
+#'   \code{family="multinomial"}.} \item{logit_proba}{logit of the simulated
+#'   probability of belonging to each outcome class. Only used for
+#'   \code{family="binomial"} or \code{family="multinomial"}.}
+#'   \item{zdata}{simulated data for orthogonal latent outcomes.}
+#'   \item{beta}{matrix of true beta coefficients used to generate outcomes in
+#'   \code{ydata} from predictors in \code{xdata}.} \item{theta}{binary matrix
+#'   indicating the predictors from \code{xdata} contributing to the definition
+#'   of each of the outcome variables in \code{ydata}.} \item{eta}{matrix of
+#'   coefficients used in the linear combination of latent variables from
+#'   \code{zdata} to define observed outcomes in \code{ydata}.}
+#'   \item{theta_zy}{binary matrix indicating the latent variables from
+#'   \code{zdata} used in the definition of observed outcomes in \code{ydata}.}
+#'   \item{xi}{matrix of true beta coefficients used to generate orthogonal
+#'   latent outcomes in \code{zdata} from predictors in \code{xdata}.}
+#'   \item{theta_xz}{binary matrix indicating the predictors from \code{xdata}
+#'   contributing to the definition of each of the latent outcome variables in
+#'   \code{zdata}.} \item{omega_xz}{precision matrix for variables in
+#'   \code{xdata} and \code{zdata}.} \item{adjacency}{binary matrix encoding the
+#'   conditional independence structure between variables from \code{xdata}
+#'   (var), \code{zdata} (latent) and \code{ydata} (outcome).}
 #'
 #' @family simulation functions
 #'
@@ -439,105 +481,261 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #' @examples
 #' \dontrun{
 #'
-#' # Data simulation (continuous outcome)
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", prop_ev = 0.8)
-#' plot(simul$Y_pred, simul$Y) # true linear combination vs simulated outcome
-#' simul <- SimulateRegression(n = 200, pk = 100, family = "gaussian", prop_ev = 0.3)
-#' plot(simul$Y_pred, simul$Y) # larger residual error
+#' ## Continuous outcomes
 #'
-#' # Outcome simulation from user-provided predictor data
+#' # Univariate outcome
 #' set.seed(1)
-#' X <- matrix(rnorm(n = 200), nrow = 20, ncol = 10)
-#' simul <- SimulateRegression(X = X, family = "gaussian")
+#' simul <- SimulateRegression(pk = c(5, 7, 3))
+#' plot(Graph(simul$adjacency,
+#'   satellites = TRUE,
+#'   node_colour = c(rep("red", 3), rep("orange", 3), rep("skyblue", 15))
+#' ))
+#' print(simul$theta)
 #'
-#' # Manually chosen set of predictors
-#' mytheta <- c(rep(0, 8), rep(1, 2))
-#' simul <- SimulateRegression(X = X, theta = mytheta, family = "gaussian")
-#'
-#' # Data simulation (binary outcome)
+#' # Multivariate outcome
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 100, family = "binomial")
-#' boxplot(simul$logit_proba ~ simul$Y) # true logit probability by simulated binary outcome
+#' simul <- SimulateRegression(pk = c(5, 7, 3))
+#' plot(Graph(simul$adjacency,
+#'   satellites = TRUE,
+#'   node_colour = c(rep("red", 3), rep("orange", 3), rep("skyblue", 15))
+#' ))
+#' print(simul$theta)
+#'
+#' # Independent predictors
+#' set.seed(1)
+#' simul <- SimulateRegression(pk = c(5, 3), nu_within = 0)
+#' plot(Graph(simul$adjacency,
+#'   satellites = TRUE,
+#'   node_colour = c(rep("red", 2), rep("orange", 2), rep("skyblue", 8))
+#' ))
+#'
+#' # Blocks of strongly inter-connected predictors
+#' set.seed(1)
+#' simul <- SimulateRegression(pk = c(5, 5), nu_within = 0.9)
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(simul$xdata),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#' par(mar = rep(0, 4))
+#' plot(Graph(simul$adjacency,
+#'   satellites = TRUE,
+#'   node_colour = c(rep("red", 2), rep("orange", 2), rep("skyblue", 10))
+#' ))
+#'
+#'
+#' ## Categorical outcomes
+#'
+#' # Binary outcome
+#' set.seed(1)
+#' simul <- SimulateRegression(pk = 20, family = "binomial")
+#' table(simul$ydata[, 1])
+#'
+#' # Categorical outcome
+#' set.seed(1)
+#' simul <- SimulateRegression(pk = 20, family = "multinomial")
+#' apply(simul$ydata, 2, sum)
 #' }
 #' @export
-SimulateRegression <- function(n = 100, pk = 10,
-                               X = NULL, theta = NULL, adjacency = NULL,
-                               nu_pred = 0.2, beta_set = c(-1, 1), continuous = FALSE,
-                               prop_ev = 0.8, family = "gaussian") {
+SimulateRegression <- function(n = 100, pk = 10, N = 3,
+                               family = "gaussian", ev = 0.8,
+                               adjacency_x = NULL, nu_within = 0.1,
+                               theta_xz = NULL, nu_xz = 0.2,
+                               theta_zy = NULL, nu_zy = 0.5,
+                               eta = NULL, eta_set = c(-1, 1),
+                               v_within = c(-1, 1), continuous = FALSE,
+                               pd_strategy = "diagonally_dominant",
+                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking the inputs
-  if ((!is.null(X)) & (!is.null(theta))) {
-    if (ncol(X) != length(theta)) {
-      stop("Arguments 'X' and 'theta' are not consistent. The length of vector 'theta' must be equal to the number of columns in 'X'.")
+  if ((length(pk) > 1) & (family == "multinomial")) {
+    stop("The simulation of multiple categorical outcomes is not possible with the current implementation.")
+  }
+
+  # Definition of the number of latent outcome variables
+  q <- length(pk)
+  p <- sum(pk)
+  if (length(nu_xz) != q) {
+    nu_xz <- rep(nu_xz[1], q)
+  }
+  if (length(ev) != q) {
+    ev <- rep(ev[1], q)
+  }
+
+  # Checking the values of ev
+  if (any(ev <= 0) | any(ev >= 1)) {
+    stop("Invalid input for argument 'ev'. Please provide values strictly between 0 and 1.")
+  }
+
+  # Simulation of the conditional independence structure with independent blocks
+  if (is.null(adjacency_x)) {
+    adjacency_x <- SimulateBlockAdjacency(
+      pk = pk, nu_between = 0, nu_within = nu_within,
+      implementation = SimulateAdjacency,
+      topology = "random"
+    )
+  }
+
+  # Simulation of the binary contribution status of predictors for latent outcome variables
+  if (is.null(theta_xz)) {
+    theta_xz <- SamplePredictors(pk = pk, q = q, nu = nu_xz, orthogonal = TRUE)
+  }
+  colnames(theta_xz) <- paste0("latent", 1:ncol(theta_xz))
+  rownames(theta_xz) <- paste0("var", 1:nrow(theta_xz))
+
+  # Simulation of precision matrix for both predictors and latent outcomes
+  big_theta <- cbind(
+    rbind(matrix(0, nrow = q, ncol = q), theta_xz),
+    rbind(t(theta_xz), adjacency_x)
+  )
+  rownames(big_theta) <- colnames(big_theta)
+  out <- SimulatePrecision(
+    theta = big_theta, v_within = v_within,
+    continuous = continuous, pd_strategy = pd_strategy,
+    u = u, niter_max_u_grid = niter_max_u_grid,
+    tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
+  )
+  omega <- out$omega
+
+  # Setting diagonal precision for latent outcomes to reach expected proportion of explained variance
+  xi <- NULL
+  for (j in 1:q) {
+    pred_ids <- seq(q + 1, q + p)
+    omega[j, j] <- omega[j, pred_ids, drop = FALSE] %*% solve(omega[pred_ids, pred_ids]) %*% t(omega[j, pred_ids, drop = FALSE]) * 1 / ev[j]
+    xi <- cbind(xi, 1 / omega[j, j] * omega[j, pred_ids])
+  }
+  colnames(xi) <- colnames(theta_xz)
+
+  # Computing the correlation matrix
+  C <- stats::cov2cor(solve(omega)) # true correlation matrix
+
+  # Simulation of data from multivariate normal distribution
+  x <- MASS::mvrnorm(n, rep(0, p + q), C)
+  rownames(x) <- paste0("obs", 1:nrow(x))
+
+  # Separating predictors from latent outcome variables
+  xdata <- x[, grep("var", colnames(x)), drop = FALSE]
+  zdata <- x[, grep("latent", colnames(x)), drop = FALSE]
+
+  if (family == "multinomial") {
+    if (is.null(theta_zy)) {
+      theta_zy <- SamplePredictors(pk = q, q = q, nu = nu_zy, orthogonal = FALSE)
+    }
+
+    proba <- matrix(NA, nrow = n, ncol = N)
+    for (j in 1:N) {
+      eta <- matrix(stats::runif(q * q, min = min(eta_set), max = max(eta_set)),
+        ncol = q, nrow = q
+      )
+      eta <- eta * theta_zy
+
+      rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
+      colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
+      ydata <- zdata %*% eta
+
+      if (j == 1) {
+        beta <- xi %*% eta
+        theta <- ifelse(beta != 0, yes = 1, no = 0)
+      }
+
+      proba[, j] <- 1 / (1 + exp(-ydata[, 1])) # inverse logit
+    }
+    proba <- t(apply(proba, 1, cumsum)) / N
+
+    ydata_cat <- matrix(0, nrow = n, ncol = N)
+    for (i in 1:n) {
+      r <- stats::runif(n = 1)
+      if (any(r < proba[i, ])) {
+        ydata_cat[i, min(which(r < proba[i, ]))] <- 1
+      }
+    }
+
+    # Setting row and column names
+    rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
+    colnames(ydata_cat) <- colnames(proba) <- paste0("cat", 1:N)
+  } else {
+    # Simulation of eta coefficients to get observed outcomes from latent outcomes
+    if (is.null(eta)) {
+      if (is.null(theta_zy)) {
+        theta_zy <- SamplePredictors(pk = q, q = q, nu = nu_zy, orthogonal = FALSE)
+      }
+      eta <- matrix(stats::runif(q * q, min = min(eta_set), max = max(eta_set)),
+        ncol = q, nrow = q
+      )
+      eta <- eta * theta_zy
+    } else {
+      theta_zy <- ifelse(eta != 0, yes = 1, no = 0)
+    }
+    rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
+    colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
+    ydata <- zdata %*% eta
+
+    # Computing the xy coefficients and binary contribution status
+    beta <- xi %*% eta
+    theta <- ifelse(beta != 0, yes = 1, no = 0)
+
+    # Compute binary outcome for logistic regression
+    if (family == "binomial") {
+      proba <- matrix(NA, nrow = n, ncol = q)
+      for (j in 1:q) {
+        proba[, j] <- 1 / (1 + exp(-ydata[, j])) # inverse logit
+      }
+
+      ydata_cat <- matrix(0, nrow = n, ncol = q)
+      for (j in 1:q) {
+        for (i in 1:n) {
+          ydata_cat[i, j] <- stats::rbinom(n = 1, size = 1, prob = proba[i, j])
+        }
+      }
+
+      # Setting row and column names
+      rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
+      colnames(ydata_cat) <- colnames(proba) <- colnames(ydata)
     }
   }
 
-  # Definition of the number of (noise+signal) predictor variables
-  if (is.null(theta)) {
-    p <- sum(pk)
-  } else {
-    pk <- p <- length(theta)
-  }
-
-  # Simulation of the predictors if not provided
-  if (is.null(X)) {
-    p <- sum(pk)
-    X <- NULL
-    for (k in 1:p) {
-      X <- cbind(X, stats::rnorm(n, mean = 0, sd = 1))
-    }
-    X <- scale(X)
-  } else {
-    if (!is.null(X)) {
-      n <- nrow(X)
-      p <- ncol(X)
-    }
-  }
-
-  # Setting column names for predictors
-  if (is.null(colnames(X))) {
-    colnames(X) <- paste0("var", 1:ncol(X))
-  }
-
-  # Setting row names for predictors
-  if (is.null(rownames(X))) {
-    rownames(X) <- paste0("obs", 1:nrow(X))
-  }
-
-  # Getting the binary vector of true predictors
-  if (is.null(theta)) {
-    theta <- stats::rbinom(p, size = 1, prob = nu_pred)
-  }
-  names(theta) <- colnames(X)
-
-  # Simulating a vector of betas
-  if (continuous) {
-    beta <- stats::runif(p, min = min(beta_set), max = max(beta_set))
-  } else {
-    beta <- base::sample(beta_set, size = p, replace = TRUE)
-  }
-  beta <- beta * theta
-
-  # Computing the predicted values of Y
-  Y_pred <- X %*% beta
-
-  # Estimating variance of error term to reach specified proportion of explained variance
-  sd_pred_error <- sqrt(stats::var(Y_pred) * (1 / prop_ev - 1))
-
-  # Introducing some centered gaussian error
-  Y <- Y_pred + stats::rnorm(n, mean = 0, sd = sd_pred_error)
-
-  # Compute binary outcome for logistic regression
-  if (family == "binomial") {
-    proba <- 1 / (1 + exp(-Y)) # inverse logit
-    Y_bin <- base::cbind(stats::rbinom(n, size = 1, prob = proba))
-  }
+  # Extracting the conditional independence structure between x, z and y
+  adjacency <- rbind(
+    cbind(matrix(0, nrow = q, ncol = q), t(theta_zy), matrix(0, nrow = q, ncol = p)),
+    cbind(rbind(theta_zy, matrix(0, nrow = p, ncol = q)), big_theta)
+  )
+  rownames(adjacency) <- colnames(adjacency) <- c(colnames(theta_zy), rownames(big_theta))
 
   # Return the simulated X and Y
-  if (family == "binomial") {
-    out <- list(X = X, Y = Y_bin, proba = proba, logit_proba = Y, logit_proba_pred = Y_pred, theta = theta, beta = beta)
+  if (family %in% c("binomial", "multinomial")) {
+    if (family == "binomial") {
+      out <- list(
+        xdata = xdata, ydata = ydata_cat,
+        proba = proba, logit_proba = ydata,
+        zdata = zdata,
+        beta = beta, theta = theta,
+        eta = eta, theta_zy = theta_zy,
+        xi = xi, theta_xz = theta_xz,
+        omega_xz = omega,
+        adjacency = adjacency
+      )
+    }
+    if (family == "multinomial") {
+      out <- list(
+        xdata = xdata, ydata = ydata_cat,
+        proba = proba, logit_proba = ydata,
+        zdata = zdata,
+        theta = theta,
+        theta_zy = theta_zy,
+        xi = xi, theta_xz = theta_xz,
+        omega_xz = omega,
+        adjacency = adjacency
+      )
+    }
   } else {
-    out <- list(X = X, Y = Y, Y_pred = Y_pred, theta = theta, beta = beta)
+    out <- list(
+      xdata = xdata, ydata = ydata, zdata = zdata,
+      beta = beta, theta = theta,
+      eta = eta, theta_zy = theta_zy,
+      xi = xi, theta_xz = theta_xz,
+      omega_xz = omega,
+      adjacency = adjacency
+    )
   }
 
   return(out)
@@ -607,7 +805,7 @@ SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #' @return A symmetric adjacency matrix encoding an unweighted, undirected graph
 #'   with no self-loops, and with different densities in diagonal compared to off-diagonal
 #' blocks.
-#' 
+#'
 #' @family simulation functions
 #'
 #' @export
@@ -689,13 +887,6 @@ SimulateBlockAdjacency <- function(pk = 10,
 #' @return A symmetric matrix with uniformly distributed entries sampled from
 #'   different distributions for diagonal and off-diagonal blocks.
 #'
-#' @examples
-#' \dontrun{
-#'
-#' # Simulating a symmetric with 2 blocks
-#' mat <- SimulateSymmetricMatrix(pk = c(5, 5))
-#' }
-#'
 #' @keywords internal
 SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE) {
   # Creating matrix with block indices
@@ -762,10 +953,19 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
 #' print(simul$omega)
 #' }
 #' @export
-SimulatePrecision <- function(pk = 10, theta,
+SimulatePrecision <- function(pk = NULL, theta,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
+  # Checking inputs and defining pk
+  if (is.null(pk)) {
+    pk <- ncol(theta)
+  } else {
+    if (sum(pk) != ncol(theta)) {
+      stop("Arguments 'pk' and 'theta' are not consistent. The sum of 'pk' entries must be equal to the number of rows and columns in 'theta'.")
+    }
+  }
+
   # Defining grid of u values if not provided
   if (is.null(u)) {
     u <- 10^-(seq(0, 5, by = 0.1))
@@ -840,6 +1040,61 @@ SimulatePrecision <- function(pk = 10, theta,
     u = u_value, u_grid = u, contrast_path = contrast
   ))
 }
+
+
+#' Simulation of binary contribution status
+#'
+#' Simulates the binary contribution status of potential predictor variables
+#' from different blocks to outcome variables. For each outcome, the set of true
+#' predictors is sampled from one block of potential predictors. If the blocks
+#' of variables are independent, the outcomes will be independent too.
+#'
+#' @inheritParams SimulateSymmetricMatrix
+#' @param q number of outcome variables. By default, one block of predictor is
+#'   linked to one outcome, i.e. \code{q=sum(pk)}.
+#' @param nu vector of probabilities. Each entry corresponds to one block of
+#'   predictors and defines the probability for each predictor within the block
+#'   to be chosen as true predictor of the corresponding outcome variable.
+#' @param orthogonal logical indicating if the outcomes have to be defined from
+#'   independent blocks of predictors as encoded in \code{pk}.
+#'
+#' @return A binary matrix encoding the contribution status of each predictor
+#'   variable (columns) to each outcome variable (rows).
+#'
+#' @keywords internal
+SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
+  # Definition of the number of outcome variables
+  if (is.null(q)) {
+    q <- length(pk)
+  }
+  if (length(nu) != q) {
+    nu <- rep(nu[1], q)
+  }
+
+  # Simulation of the binary status for true predictors
+  theta <- matrix(0, nrow = q, ncol = sum(pk))
+  for (k in 1:q) {
+    if (orthogonal) {
+      if (k > 1) {
+        ids <- seq(cumsum(pk)[k - 1] + 1, cumsum(pk)[k])
+      } else {
+        ids <- seq(1, cumsum(pk)[k])
+      }
+      theta[k, ids] <- stats::rbinom(pk[k], size = 1, prob = nu[k])
+
+      # Introducing at least one true predictor
+      if (sum(theta[k, ids]) == 0) {
+        theta[k, sample(ids, size = 1)] <- 1
+      }
+    } else {
+      theta[k, ] <- stats::rbinom(sum(pk), size = 1, prob = nu[k])
+      theta[k, k] <- 1
+    }
+  }
+
+  return(t(theta))
+}
+
 
 #' Making positive definite
 #'

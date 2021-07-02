@@ -3,11 +3,9 @@ test_that("sgPLS models are working", {
   pk <- 15
   # Sparse PLS (1 outcome)
   set.seed(1)
-  simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
-  ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
-  colnames(ydata) <- paste0("outcome", 1:4)
-  x <- simul$X
-  y <- ydata
+  simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
 
   # With fixed sparsity within groups
   alpha <- 0.5

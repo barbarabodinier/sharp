@@ -162,11 +162,11 @@ To ensure reproducibility of the results, the state of the random
 # Linear regression
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = 10, family = "gaussian")
-stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian", K = 5, verbose = FALSE)
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian", K = 5, verbose = FALSE)
 CalibrationPlot(stab)
 myselected <- SelectedVariables(stab)
 coefs <- Coefficients(stab)
-perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta)
+perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta[, 1])
 SelectionProportions(stab)
 }
 \dontrun{
@@ -174,28 +174,28 @@ SelectionProportions(stab)
 # Linear regression
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "gaussian")
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 print(SelectedVariables(stab))
 
 # Regression with multivariate outcomes
-set.seed(2)
-Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
-stab <- VariableSelection(xdata = simul$X, ydata = Y, family = "mgaussian")
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
 print(SelectedVariables(stab))
 dim(stab$Beta)
 
 # Logistic regression
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-stab <- VariableSelection(xdata = simul$X, ydata = simul$Y, family = "binomial")
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "binomial")
 print(SelectedVariables(stab))
 
 # Multinomial regression
-set.seed(2)
-Y <- simul$Y + sample(c(0, 1), size = nrow(simul$Y), replace = TRUE)
+set.seed(1)
+simul <- SimulateRegression(n = 200, pk = 15, family = "multinomial")
 stab <- VariableSelection(
-  xdata = simul$X, ydata = Y,
-  family = "multinomial", lambda.min.ratio = 0.1
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "multinomial"
 )
 print(SelectedVariables(stab))
 
@@ -203,8 +203,8 @@ print(SelectedVariables(stab))
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 stab <- VariableSelection(
-  xdata = simul$X,
-  Lambda = 1:(ncol(simul$X) - 1),
+  xdata = simul$xdata,
+  Lambda = 1:(ncol(simul$xdata) - 1),
   implementation = SparsePCA
 )
 CalibrationPlot(stab, xlab = "")
@@ -214,8 +214,8 @@ print(SelectedVariables(stab))
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 stab <- VariableSelection(
-  xdata = simul$X, ydata = simul$Y,
-  Lambda = 1:(ncol(simul$X) - 1),
+  xdata = simul$xdata, ydata = simul$ydata,
+  Lambda = 1:(ncol(simul$xdata) - 1),
   implementation = SparsePLS, family = "gaussian"
 )
 CalibrationPlot(stab, xlab = "")
@@ -225,8 +225,8 @@ print(SelectedVariables(stab))
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 stab <- VariableSelection(
-  xdata = simul$X, ydata = simul$Y,
-  Lambda = 1:(ncol(simul$X) - 1),
+  xdata = simul$xdata, ydata = simul$ydata,
+  Lambda = 1:(ncol(simul$xdata) - 1),
   implementation = SparsePLS,
   family = "binomial"
 )
@@ -248,10 +248,10 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
     }
   }
   Lambda <- LambdaGridRegression(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     family = "binomial", Lambda_cardinal = 20,
     implementation = ManualGridGroupLasso,
-    group = sort(rep(1:4, length.out = ncol(simul$X)))
+    group = sort(rep(1:4, length.out = ncol(simul$xdata)))
   )
   GroupLasso <- function(xdata, ydata, Lambda, family, ...) {
     # Running the regression
@@ -273,9 +273,9 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
     return(list(selected = selected, beta_full = beta_full))
   }
   stab <- VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     implementation = GroupLasso, family = "binomial", Lambda = Lambda,
-    group = sort(rep(1:4, length.out = ncol(simul$X)))
+    group = sort(rep(1:4, length.out = ncol(simul$xdata)))
   )
   print(SelectedVariables(stab))
 }

@@ -69,11 +69,9 @@ Runs a group Partial Least Squares model using implementation from
 ## Group PLS
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
-colnames(ydata) <- paste0("outcome", 1:4)
-x <- simul$X
-y <- ydata
+simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
 
 # Running gPLS with 1 group and sparsity of 0.5
 mypls <- GroupPLS(
@@ -95,7 +93,7 @@ simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
 
 # Running sgPLS-DA with 1 group and sparsity of 0.9
 mypls <- GroupPLS(
-  xdata = simul$X, ydata = simul$Y, Lambda = 1, family = "binomial",
+  xdata = simul$xdata, ydata = simul$ydata, Lambda = 1, family = "binomial",
   group_x = c(10, 15, 25), test = 0
 )
 }

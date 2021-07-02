@@ -3,11 +3,9 @@ test_that("BiSelection() models are working", {
   K <- 5
   pk <- 15
   set.seed(1)
-  simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
-  ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
-  colnames(ydata) <- paste0("outcome", 1:4)
-  x <- simul$X
-  y <- ydata
+  simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
 
   # sPLS: sparsity on both X and Y
   stab <- BiSelection(
@@ -46,11 +44,11 @@ test_that("BiSelection() models are working", {
   }
 
   # Resampling keeping proportions by Y and Z
-  ids <- Resample(data = simul$Y, family = "binomial", resampling = BalancedResampling, Z = conf)
+  ids <- Resample(data = simul$ydata, family = "binomial", resampling = BalancedResampling, Z = conf)
 
   # Bi-selection
   stab <- BiSelection(
-    xdata = simul$X, ydata = simul$Y, family = "binomial",
+    xdata = simul$xdata, ydata = simul$ydata, family = "binomial",
     resampling = BalancedResampling, Z = conf
   )
 })

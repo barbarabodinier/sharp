@@ -50,7 +50,7 @@ entries are all equal to zero. This function is only applied if
 argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 "random", "hub", "cluster", "band" and "scale-free".}
 
-\item{nu_within}{expected density of within-group blocks the graph. If
+\item{nu_within}{expected density of within-group blocks in the graph. If
 \code{length(pk)=1}, this is the expected density of the graph. If
 \code{implementation=SimulateAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument

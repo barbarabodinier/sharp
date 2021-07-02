@@ -5,7 +5,7 @@
 \title{Simulation of a precision matrix}
 \usage{
 SimulatePrecision(
-  pk = 10,
+  pk = NULL,
   theta,
   v_within = c(-1, 1),
   v_between = c(-0.1, 0.1),

@@ -52,11 +52,11 @@ set.seed(1)
 simul=SimulateRegression(n=100, pk=50)
 
 # Potential predictors
-X=simul$X 
+X=simul$xdata
 print(dim(X))
 
 # Continuous outcome
-Y=simul$Y 
+Y=simul$ydata
 print(dim(Y))
 ```
 

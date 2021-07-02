@@ -31,8 +31,8 @@
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #'
 #' # Two runs
-#' stab1 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 1, K = 10)
-#' stab2 <- VariableSelection(xdata = simul$X, ydata = simul$Y, seed = 2, K = 10)
+#' stab1 <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, seed = 1, K = 10)
+#' stab2 <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, seed = 2, K = 10)
 #'
 #' # Merging the outputs
 #' stab <- Combine(stability1 = stab1, stability2 = stab2, include_beta = FALSE)

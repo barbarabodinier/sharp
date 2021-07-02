@@ -34,7 +34,7 @@ a block structure, the within-cluster observations must be more likely to
 be correlated than between clusters. For between-cluster relationships to
 be apparent, \code{v_between} must be nonzero. To be used with care.}
 
-\item{nu_within}{expected density of within-group blocks the graph. If
+\item{nu_within}{expected density of within-group blocks in the graph. If
 \code{length(pk)=1}, this is the expected density of the graph. If
 \code{implementation=SimulateAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument

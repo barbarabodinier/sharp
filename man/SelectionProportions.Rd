@@ -31,7 +31,7 @@ set.seed(1)
 simul <- SimulateRegression(pk = 50)
 
 # Stability selection
-stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 
 # Calibrated selection proportions
 prop <- SelectionProportions(stab)

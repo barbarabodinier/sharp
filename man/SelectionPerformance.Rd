@@ -55,7 +55,7 @@ be used in simulation studies (i.e. when the true model is known).
 # Variable selection model
 set.seed(1)
 simul <- SimulateRegression(pk = 30)
-stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 perf <- SelectionPerformance(theta = SelectedVariables(stab), theta_star = simul$theta)
 
 # Single-block graphical model

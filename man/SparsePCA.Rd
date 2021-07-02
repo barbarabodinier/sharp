@@ -37,7 +37,7 @@ Runs a sparse Principal Component Analysis model using implementation from
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-x <- simul$X
+x <- simul$xdata
 
 # Sparse PCA
 mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)

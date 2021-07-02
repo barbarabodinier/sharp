@@ -60,11 +60,9 @@ Runs a sparse Partial Least Squares model using implementation from
 ## Sparse PLS
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-ydata <- cbind(simul$Y, matrix(rnorm(100 * 3), ncol = 3))
-colnames(ydata) <- paste0("outcome", 1:4)
-x <- simul$X
-y <- ydata
+simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
 
 # Running sPLS with 2 X-variables and 1 Y-variable
 mypls <- SparsePLS(xdata = x, ydata = y, Lambda = 2, family = "gaussian", keepY = 1)
@@ -75,7 +73,7 @@ set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 
 # Running sPLS-DA with 2 X-variables and 1 Y-variable
-mypls <- SparsePLS(xdata = simul$X, ydata = simul$Y, Lambda = 2, family = "binomial")
+mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
 }
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}

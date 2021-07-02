@@ -26,17 +26,17 @@
 #'
 #' # Running the LASSO
 #' mylasso <- SelectionAlgo(
-#'   xdata = simul$X, ydata = simul$Y,
+#'   xdata = simul$xdata, ydata = simul$ydata,
 #'   Lambda = c(0.1, 0.2), family = "gaussian",
 #' )
 #'
 #' # Simulation of additional outcomes
-#' set.seed(2)
-#' Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
+#' set.seed(1)
+#' simul <- SimulateRegression(pk = c(15, 15, 20))
 #'
 #' # Running multivariate Gaussian LASSO
 #' mylasso <- SelectionAlgo(
-#'   xdata = simul$X, ydata = Y,
+#'   xdata = simul$xdata, ydata = simul$ydata,
 #'   Lambda = c(0.1, 0.2), family = "mgaussian"
 #' )
 #' str(mylasso)

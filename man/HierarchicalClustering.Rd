@@ -29,7 +29,7 @@ Runs hierarchical clustering using implementation from
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(pk = 50, n = 10)
+simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
-myhclust <- HierarchicalClustering(xdata = simul$X, Lambda = 1:5)
+myhclust <- HierarchicalClustering(xdata = t(simul$data), Lambda = 1:20)
 }

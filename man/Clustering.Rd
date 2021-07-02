@@ -143,7 +143,7 @@ To ensure reproducibility of the results, the state of the random
 set.seed(1)
 simul <- SimulateClustering(n = c(5, 5, 5), pk = 10)
 stab <- Clustering(
-  xdata = t(simul$data),
+  xdata = simul$data,
   Lambda = 1:3, K = 5,
   verbose = FALSE
 )

@@ -14,7 +14,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
       if ((!is.infinite(PFER_thr)) & !is.infinite(FDP_thr)) {
         # Using only PFER_thr if both PFER_thr and FDP_thr are provided
         expect_warning(VariableSelection(
-          xdata = simul$X, ydata = simul$Y,
+          xdata = simul$xdata, ydata = simul$ydata,
           Lambda_cardinal = nlambda, K = K,
           pi_list = pi_list,
           tau = tau, n_cat = n_cat,
@@ -23,7 +23,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
           verbose = FALSE
         ))
         stab <- suppressWarnings(VariableSelection(
-          xdata = simul$X, ydata = simul$Y,
+          xdata = simul$xdata, ydata = simul$ydata,
           Lambda_cardinal = nlambda, K = K,
           pi_list = pi_list,
           tau = tau, n_cat = n_cat,
@@ -35,7 +35,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
         expect_equal(stab$params$FDP_thr, Inf)
       } else {
         stab <- VariableSelection(
-          xdata = simul$X, ydata = simul$Y,
+          xdata = simul$xdata, ydata = simul$ydata,
           Lambda_cardinal = nlambda, K = K,
           pi_list = pi_list,
           tau = tau, n_cat = n_cat,
@@ -76,14 +76,14 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
         expect_equal(stab$params$pk, pk)
         expect_equal(stab$params$PFER_thr, PFER_thr)
         expect_equal(stab$params$FDP_thr, FDP_thr)
-        expect_equal(stab$params$n, nrow(simul$X))
+        expect_equal(stab$params$n, nrow(simul$xdata))
       }
     }
   }
 
   # Checking the error messages for incompatible glmnet families
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -91,7 +91,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
     family = "cox"
   ))
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -115,7 +115,7 @@ test_that("argument penalty.factor can be used in VariableSelection()", {
   simul <- SimulateRegression(n = n, pk = pk, family = "binomial")
 
   stab <- VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     family = "binomial",
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
@@ -129,12 +129,10 @@ test_that("argument penalty.factor can be used in VariableSelection()", {
 
   # Multivariate Gaussian
   set.seed(1)
-  simul <- SimulateRegression(n = 100, pk = 12, family = "gaussian")
-  set.seed(2)
-  Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
+  simul <- SimulateRegression(n = 100, pk = c(6, 6), family = "gaussian")
 
   stab <- VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     family = "mgaussian",
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
@@ -162,7 +160,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (binomial)
   simul <- SimulateRegression(n = n, pk = pk, family = "binomial")
 
   stab <- VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     family = "binomial",
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
@@ -204,14 +202,14 @@ test_that("outputs from VariableSelection() are of correct dimensions (binomial)
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(stab$params$n, nrow(simul$X))
+  expect_equal(stab$params$n, nrow(simul$xdata))
 
   # Checking the error messages for incompatible glmnet family
   # Cannot throw error for gaussian if wanted to consider 0/1 as continuous
   # Cannot throw error for multinomial as it works
   # Rely on glmnet for dealing correctly with these
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -232,12 +230,11 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
   n_cat <- 3
   pi_list <- seq(0.6, 0.7, length.out = 15)
 
-  # Binomial
   simul <- SimulateRegression(n = n, pk = pk, family = "gaussian")
-  Y <- cbind(simul$Y, matrix(rnorm(nrow(simul$Y) * 2), ncol = 2))
+  Y <- cbind(simul$ydata, matrix(rnorm(nrow(simul$ydata) * 2), ncol = 2))
 
   stab <- VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     family = "mgaussian",
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
@@ -279,11 +276,11 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(stab$params$n, nrow(simul$X))
+  expect_equal(stab$params$n, nrow(simul$xdata))
 
   # Checking the error messages for incompatible glmnet families
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -291,7 +288,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
     family = "gaussian"
   ))
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -299,7 +296,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
     family = "binomial"
   ))
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -307,7 +304,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
     family = "cox"
   ))
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -320,7 +317,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
 test_that("outputs from VariableSelection() are of correct dimensions (multinomial)", {
   skip_on_cran()
   PFER_thr <- FDP_thr <- Inf
-  n <- 78
+  n <- 200
   pk <- 12
   nlambda <- 3
   K <- 5
@@ -330,12 +327,14 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
 
   # Binomial
   set.seed(1)
-  simul <- SimulateRegression(n = n, pk = pk, family = "binomial")
-  Y <- simul$Y
-  Y[Y == 0] <- sample(c(0, 2), size = sum(Y == 0), replace = TRUE)
-
+  simul <- SimulateRegression(n = n, pk = pk, family = "multinomial")
+  Y=simul$ydata
+  Y[,2]=Y[,2]*2
+  Y[,3]=Y[,3]*3
+  Y=apply(Y,1,sum)
+  
   stab <- VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     family = "multinomial",
     Lambda_cardinal = nlambda, K = K,
     lambda.min.ratio = 0.1,
@@ -378,12 +377,12 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   expect_equal(stab$params$pk, pk)
   expect_equal(stab$params$PFER_thr, PFER_thr)
   expect_equal(stab$params$FDP_thr, FDP_thr)
-  expect_equal(stab$params$n, nrow(simul$X))
+  expect_equal(stab$params$n, nrow(simul$xdata))
 
   # Checking the error messages for incompatible glmnet families
   # Cannot throw error for gaussian if wanted to consider categories as continuous
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -391,7 +390,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
     family = "binomial"
   ))
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -399,7 +398,7 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
     family = "cox"
   ))
   expect_error(VariableSelection(
-    xdata = simul$X, ydata = Y,
+    xdata = simul$xdata, ydata = Y,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -417,10 +416,10 @@ test_that("variables with null sd in VariableSelection()", {
   n_cat <- 3
   pi_list <- seq(0.6, 0.7, length.out = 15)
   simul <- SimulateRegression(n = n, pk = pk, family = "gaussian")
-  simul$X[, 1] <- rep(0, nrow(simul$X))
+  simul$xdata[, 1] <- rep(0, nrow(simul$xdata))
 
   stab <- VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,

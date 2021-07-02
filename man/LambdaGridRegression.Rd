@@ -70,13 +70,13 @@ simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated d
 
 # Lambda grid for linear regression
 Lambda <- LambdaGridRegression(
-  xdata = simul$X, ydata = simul$Y,
+  xdata = simul$xdata, ydata = simul$ydata,
   family = "gaussian", Lambda_cardinal = 20
 )
 
 # Grid can be used in VariableSelection()
 stab <- VariableSelection(
-  xdata = simul$X, ydata = simul$Y,
+  xdata = simul$xdata, ydata = simul$ydata,
   family = "gaussian", Lambda = Lambda
 )
 print(SelectedVariables(stab))

@@ -76,17 +76,12 @@
 #'
 #' # Data simulation
 #' K <- 5
-#' pk <- 15
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
-#' ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
-#' colnames(ydata) <- paste0("outcome", 1:4)
-#' x <- simul$X
-#' y <- ydata
+#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
 #'
 #' # sPLS: sparsity on both X and Y
 #' stab <- BiSelection(
-#'   xdata = x, ydata = y,
+#'   xdata = simul$xdata, ydata = simul$ydata,
 #'   family = "gaussian", K = K, ncomp = 2,
 #'   LambdaX = 1:2,
 #'   LambdaY = 1:2,
@@ -95,7 +90,7 @@
 #'
 #' # sPCA: sparsity on X
 #' stab <- BiSelection(
-#'   xdata = x,
+#'   xdata = simul$xdata,
 #'   K = K, ncomp = 2,
 #'   LambdaX = 1:2,
 #'   implementation = SparsePCA
@@ -105,13 +100,10 @@
 #' \dontrun{
 #'
 #' # Data simulation (continuous outcomes)
-#' pk <- 15
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
-#' ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
-#' colnames(ydata) <- paste0("outcome", 1:4)
-#' x <- simul$X
-#' y <- ydata
+#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' x <- simul$xdata
+#' y <- simul$ydata
 #'
 #' # sPCA: sparsity on X (unsupervised)
 #' stab <- BiSelection(
@@ -177,10 +169,9 @@
 #'
 #' # Data simulation (categorical outcomes)
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-#' x <- simul$X
-#' y <- cbind(simul$Y, matrix(sample(c(0, 1), size = 200 * 3, replace = TRUE), ncol = 3))
-#' y <- apply(y, 1, sum)
+#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 10), family = "binomial")
+#' x <- simul$xdata
+#' y <- simul$ydata
 #'
 #' # sPLS-DA: sparsity on X
 #' stab <- BiSelection(

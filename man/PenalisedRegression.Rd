@@ -50,7 +50,7 @@ simul <- SimulateRegression(pk = 50)
 
 # Running the LASSO
 mylasso <- PenalisedRegression(
-  xdata = simul$X, ydata = simul$Y,
+  xdata = simul$xdata, ydata = simul$ydata,
   Lambda = c(0.1, 0.2), family = "gaussian"
 )
 }

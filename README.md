@@ -46,12 +46,12 @@ set.seed(1)
 simul=SimulateRegression(n=100, pk=50)
 
 # Potential predictors
-X=simul$X 
+X=simul$xdata
 print(dim(X))
 #> [1] 100  50
 
 # Continuous outcome
-Y=simul$Y 
+Y=simul$ydata
 print(dim(Y))
 #> [1] 100   1
 ```
@@ -75,13 +75,13 @@ parameter values used in the run can be extracted using:
 ``` r
 # First few penalty parameters
 print(head(stab$Lambda)) 
-#>        [,1]
-#> s0 1.416551
-#> s1 1.321390
-#> s2 1.232622
-#> s3 1.149818
-#> s4 1.072576
-#> s5 1.000523
+#>         [,1]
+#> s0 0.2444800
+#> s1 0.2272008
+#> s2 0.2111428
+#> s3 0.1962198
+#> s4 0.1823515
+#> s5 0.1694634
 
 # Grid of thresholds in selection proportion
 print(stab$params$pi_list)
@@ -123,17 +123,17 @@ The calibrated set of stably selected variables is obtained from:
 stably_selected=SelectedVariables(stab)
 print(stably_selected)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>     0     0     0     0     0     0     0     1     1     0     0     0     0 
-#> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
 #>     0     0     0     0     0     0     0     0     0     0     0     0     0 
+#> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
+#>     0     0     0     0     0     0     1     0     0     0     0     0     0 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>     0     0     1     0     0     1     0     1     0     0     0     0     0 
+#>     0     0     1     0     0     0     0     1     0     0     0     0     0 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>     1     0     1     1     1     1     0     0     0     0     1
+#>     0     0     1     0     0     0     0     0     0     1     0
 print(table(stably_selected))
 #> stably_selected
 #>  0  1 
-#> 39 11
+#> 45  5
 ```
 
 In this example, 11 variables are stably selected.
@@ -145,13 +145,13 @@ extracted:
 selprop=SelectionProportions(stab)
 print(selprop)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.09  0.19  0.38  0.07  0.11  0.17  0.79  0.95  1.00  0.22  0.07  0.15  0.70 
+#>  0.00  0.00  0.00  0.00  0.78  0.00  0.00  0.01  0.00  0.01  0.00  0.10  0.00 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
-#>  0.15  0.62  0.14  0.12  0.34  0.10  0.17  0.08  0.14  0.08  0.06  0.14  0.02 
+#>  0.03  0.06  0.00  0.01  0.00  0.02  1.00  0.00  0.13  0.04  0.40  0.08  0.85 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>  0.14  0.19  0.90  0.26  0.14  0.84  0.26  0.96  0.31  0.21  0.10  0.13  0.15 
+#>  0.00  0.00  0.98  0.00  0.00  0.00  0.00  1.00  0.16  0.00  0.01  0.04  0.00 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>  0.98  0.13  0.84  0.94  1.00  0.88  0.20  0.24  0.17  0.07  0.87
+#>  0.12  0.00  0.91  0.00  0.00  0.01  0.00  0.02  0.00  0.99  0.01
 ```
 
 Selection proportions can be used to rank the variables by relevance in
@@ -218,47 +218,47 @@ model is obtained with:
 myadjacency=Adjacency(stab)
 print(myadjacency)
 #>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13
-#> var1     0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var2     0    0    0    0    0    0    1    0    0     0     0     0     0
-#> var3     0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var4     0    0    0    0    0    0    0    1    0     0     0     0     0
-#> var5     0    0    0    0    0    0    0    0    1     0     0     0     0
-#> var6     0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var7     0    1    0    0    0    0    0    0    0     1     0     0     1
-#> var8     0    0    0    1    0    0    0    0    0     0     0     0     0
-#> var9     0    0    0    0    1    0    0    0    0     0     0     0     0
-#> var10    0    0    0    0    0    0    1    0    0     0     0     0     0
-#> var11    0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var12    0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var13    0    0    0    0    0    0    1    0    0     0     0     0     0
-#> var14    0    0    0    0    0    0    0    0    0     0     0     0     0
-#> var15    0    1    0    0    0    0    0    0    0     0     0     0     0
-#> var16    0    0    0    1    0    0    0    1    0     0     0     0     0
-#> var17    1    0    0    0    0    0    0    0    0     0     0     0     0
-#> var18    0    0    0    0    1    0    0    0    1     0     0     0     0
-#> var19    0    1    0    0    0    0    0    0    0     0     0     0     0
-#> var20    1    0    1    1    1    1    1    0    0     0     1     1     1
+#> var1     0    1    1    1    0    0    0    0    0     0     0     0     1
+#> var2     1    0    1    0    0    0    0    0    0     0     0     1     0
+#> var3     1    1    0    1    1    0    0    0    0     1     0     1     1
+#> var4     1    0    1    0    0    0    0    0    0     0     0     1     0
+#> var5     0    0    1    0    0    0    1    1    0     0     1     0     0
+#> var6     0    0    0    0    0    0    0    0    0     1     0     0     0
+#> var7     0    0    0    0    1    0    0    1    1     0     1     0     0
+#> var8     0    0    0    0    1    0    1    0    0     0     1     0     0
+#> var9     0    0    0    0    0    0    1    0    0     0     0     0     0
+#> var10    0    0    1    0    0    1    0    0    0     0     0     0     1
+#> var11    0    0    0    0    1    0    1    1    0     0     0     0     0
+#> var12    0    1    1    1    0    0    0    0    0     0     0     0     1
+#> var13    1    0    1    0    0    0    0    0    0     1     0     1     0
+#> var14    1    0    1    0    1    0    1    1    0     0     1     0     0
+#> var15    0    0    0    0    1    0    1    1    0     0     1     0     0
+#> var16    0    0    0    0    0    0    0    0    1     0     0     0     0
+#> var17    0    0    1    0    0    0    0    0    0     1     0     1     1
+#> var18    0    0    0    0    1    0    1    0    1     0     0     0     0
+#> var19    0    0    0    0    0    0    0    0    1     0     0     0     0
+#> var20    0    0    0    0    0    0    0    0    1     0     0     0     0
 #>       var14 var15 var16 var17 var18 var19 var20
-#> var1      0     0     0     1     0     0     1
-#> var2      0     1     0     0     0     1     0
-#> var3      0     0     0     0     0     0     1
-#> var4      0     0     1     0     0     0     1
-#> var5      0     0     0     0     1     0     1
-#> var6      0     0     0     0     0     0     1
-#> var7      0     0     0     0     0     0     1
-#> var8      0     0     1     0     0     0     0
-#> var9      0     0     0     0     1     0     0
-#> var10     0     0     0     0     0     0     0
-#> var11     0     0     0     0     0     0     1
-#> var12     0     0     0     0     0     0     1
-#> var13     0     0     0     0     0     0     1
-#> var14     0     0     0     0     0     0     1
-#> var15     0     0     0     0     0     1     0
-#> var16     0     0     0     0     0     0     0
-#> var17     0     0     0     0     0     0     1
-#> var18     0     0     0     0     0     0     0
-#> var19     0     1     0     0     0     0     0
-#> var20     1     0     0     1     0     0     0
+#> var1      1     0     0     0     0     0     0
+#> var2      0     0     0     0     0     0     0
+#> var3      1     0     0     1     0     0     0
+#> var4      0     0     0     0     0     0     0
+#> var5      1     1     0     0     1     0     0
+#> var6      0     0     0     0     0     0     0
+#> var7      1     1     0     0     1     0     0
+#> var8      1     1     0     0     0     0     0
+#> var9      0     0     1     0     1     1     1
+#> var10     0     0     0     1     0     0     0
+#> var11     1     1     0     0     0     0     0
+#> var12     0     0     0     1     0     0     0
+#> var13     0     0     0     1     0     0     0
+#> var14     0     0     0     0     0     0     0
+#> var15     0     0     0     0     0     0     0
+#> var16     0     0     0     0     0     1     0
+#> var17     0     0     0     0     0     0     0
+#> var18     0     0     0     0     0     1     1
+#> var19     0     0     1     0     1     0     1
+#> var20     0     0     0     0     1     1     0
 ```
 
 For visualisation, it can be converted into an igraph object:

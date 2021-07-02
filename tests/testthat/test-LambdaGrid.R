@@ -10,7 +10,7 @@ test_that("lambda grid size for VariableSelection()", {
   simul <- SimulateRegression(n = n, pk = pk, family = "gaussian")
 
   expect_warning(VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     Lambda_cardinal = nlambda, K = K,
     pi_list = pi_list,
     tau = tau, n_cat = n_cat,
@@ -18,7 +18,7 @@ test_that("lambda grid size for VariableSelection()", {
   ))
 
   stab <- VariableSelection(
-    xdata = simul$X, ydata = simul$Y,
+    xdata = simul$xdata, ydata = simul$ydata,
     Lambda = 0.5,
     K = K,
     pi_list = pi_list,

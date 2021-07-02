@@ -50,11 +50,11 @@ With categorical outcomes (i.e. "family" argument is set to
 simul <- SimulateRegression()
 
 # Subsampling
-ids <- Resample(data = simul$Y, family = "gaussian")
+ids <- Resample(data = simul$ydata, family = "gaussian")
 sum(duplicated(ids))
 
 # Bootstrapping
-ids <- Resample(data = simul$Y, family = "gaussian", resampling = "bootstrap")
+ids <- Resample(data = simul$ydata, family = "gaussian", resampling = "bootstrap")
 sum(duplicated(ids))
 
 ## Logistic regression framework
@@ -62,10 +62,10 @@ sum(duplicated(ids))
 simul <- SimulateRegression(family = "binomial")
 
 # Subsampling
-ids <- Resample(data = simul$Y, family = "binomial")
+ids <- Resample(data = simul$ydata, family = "binomial")
 sum(duplicated(ids))
-prop.table(table(simul$Y))
-prop.table(table(simul$Y[ids]))
+prop.table(table(simul$ydata))
+prop.table(table(simul$ydata[ids]))
 
 # Data simulation for a binary confounder
 conf <- ifelse(runif(n = 100) > 0.5, yes = 1, no = 0)
@@ -81,13 +81,13 @@ BalancedResampling <- function(data, tau, Z, ...) {
 }
 
 # Resampling keeping proportions by Y and Z
-ids <- Resample(data = simul$Y, family = "binomial", resampling = BalancedResampling, Z = conf)
-prop.table(table(simul$Y, conf))
-prop.table(table(simul$Y[ids], conf[ids]))
+ids <- Resample(data = simul$ydata, family = "binomial", resampling = BalancedResampling, Z = conf)
+prop.table(table(simul$ydata, conf))
+prop.table(table(simul$ydata[ids], conf[ids]))
 
 # User-defined resampling for stability selection
 stab <- VariableSelection(
-  xdata = simul$X, ydata = simul$Y, family = "binomial",
+  xdata = simul$xdata, ydata = simul$ydata, family = "binomial",
   resampling = BalancedResampling, Z = conf
 )
 }

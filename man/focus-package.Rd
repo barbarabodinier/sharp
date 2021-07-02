@@ -25,7 +25,7 @@ set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50)
 
 # Stability selection
-stab <- VariableSelection(xdata = simul$X, ydata = simul$Y)
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 CalibrationPlot(stab)
 argmax <- Argmax(stab) # calibrated parameters
 stably_selected <- SelectedVariables(stab) # stably selected variables
@@ -33,20 +33,17 @@ stably_selected <- SelectedVariables(stab) # stably selected variables
 ## PLS models
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 50, pk = pk, family = "gaussian")
-ydata <- cbind(simul$Y, matrix(rnorm(50 * 3), ncol = 3))
-colnames(ydata) <- paste0("outcome", 1:4)
-x <- simul$X
-y <- ydata
+simul <- SimulateRegression(n = 50, pk = c(10, 20, 30), family = "gaussian")
 
 # Stability selection
 stab <- BiSelection(
-  xdata = x, ydata = y,
+  xdata = simul$xdata, ydata = simul$ydata,
   family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(x) - 1),
-  LambdaY = 1:(ncol(y) - 1),
+  LambdaX = 1:(ncol(simul$xdata) - 1),
+  LambdaY = 1:(ncol(simul$ydata) - 1),
   implementation = SparsePLS
 )
+print(stab$summary)
 
 ## Graphical models
 # Data simulation
