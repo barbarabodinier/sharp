@@ -77,7 +77,7 @@ Clusters(stab)
 \references{
 \insertRef{ourstabilityselection}{focus}
 
-  \insertRef{stabilityselectionMB}{focus}
-
   \insertRef{stabilityselectionSS}{focus}
+
+  \insertRef{stabilityselectionMB}{focus}
 }
