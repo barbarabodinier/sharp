@@ -9,10 +9,10 @@
 #' @inheritParams VariableSelection
 #' @param group_x vector encoding the grouping structure among predictors. This
 #'   argument indicates the number of variables in each group. Only used with
-#'   \code{implementation="SparseGroupPLS"}.
+#'   \code{implementation=SparseGroupPLS}.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
-#'   Only used with \code{implementation="SparseGroupPLS"}.
+#'   Only used with \code{implementation=SparseGroupPLS}.
 #' @param LambdaX matrix of parameters controlling the number of selected
 #'   variables (sparse PLS) or groups (sparse group PLS) in X.
 #' @param LambdaY matrix of parameters controlling the number of selected
@@ -20,10 +20,10 @@
 #'   \code{family="gaussian"}.
 #' @param AlphaX matrix of parameters controlling the level of sparsity within
 #'   groups (sparse group PLS) in X. Only used with
-#'   \code{implementation="SparseGroupPLS"}.
+#'   \code{implementation=SparseGroupPLS}.
 #' @param AlphaY matrix of parameters controlling the level of sparsity within
 #'   groups (sparse group PLS) in X. Only used with
-#'   \code{implementation="SparseGroupPLS"} and \code{family="gaussian"}.
+#'   \code{implementation=SparseGroupPLS} and \code{family="gaussian"}.
 #' @param ncomp number of components.
 #'
 #' @return A list with: \item{summary}{a matrix of the best stability scores and

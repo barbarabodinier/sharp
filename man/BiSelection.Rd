@@ -41,11 +41,11 @@ with character/numeric values, or a factor.}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group. Only used with
-\code{implementation="SparseGroupPLS"}.}
+\code{implementation=SparseGroupPLS}.}
 
 \item{group_y}{optional vector encoding the grouping structure among
 outcomes. This argument indicates the number of variables in each group.
-Only used with \code{implementation="SparseGroupPLS"}.}
+Only used with \code{implementation=SparseGroupPLS}.}
 
 \item{LambdaX}{matrix of parameters controlling the number of selected
 variables (sparse PLS) or groups (sparse group PLS) in X.}
@@ -56,11 +56,11 @@ variables (sparse PLS) or groups (sparse group PLS) in Y. Only used with
 
 \item{AlphaX}{matrix of parameters controlling the level of sparsity within
 groups (sparse group PLS) in X. Only used with
-\code{implementation="SparseGroupPLS"}.}
+\code{implementation=SparseGroupPLS}.}
 
 \item{AlphaY}{matrix of parameters controlling the level of sparsity within
 groups (sparse group PLS) in X. Only used with
-\code{implementation="SparseGroupPLS"} and \code{family="gaussian"}.}
+\code{implementation=SparseGroupPLS} and \code{family="gaussian"}.}
 
 \item{ncomp}{number of components.}
 
