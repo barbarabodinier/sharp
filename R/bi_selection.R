@@ -65,7 +65,13 @@
 #'   \code{\link{SparseGroupPLS}}, \code{\link{Resample}},
 #'   \code{\link{StabilityScore}}
 #'
-#' @references \insertRef{ourstabilityselection}{focus}
+#' @references \insertRef{sparsegroupPLS}{focus}
+#' 
+#' \insertRef{sparsePLS}{focus}
+#' 
+#' \insertRef{sparsePCA}{focus}
+#' 
+#' \insertRef{ourstabilityselection}{focus}
 #'
 #'   \insertRef{stabilityselectionMB}{focus}
 #'

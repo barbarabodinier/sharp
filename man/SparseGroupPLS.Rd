@@ -105,6 +105,9 @@ mypls <- SparseGroupPLS(
   group_x = c(10, 15, 25), alpha.x = 0.9
 )
 }
+\references{
+\insertRef{sparsegroupPLS}{focus}
+}
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 

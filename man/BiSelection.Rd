@@ -300,6 +300,12 @@ stab <- BiSelection(
 }
 }
 \references{
+\insertRef{sparsegroupPLS}{focus}
+
+\insertRef{sparsePLS}{focus}
+
+\insertRef{sparsePCA}{focus}
+
 \insertRef{ourstabilityselection}{focus}
 
   \insertRef{stabilityselectionMB}{focus}

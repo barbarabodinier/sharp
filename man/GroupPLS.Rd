@@ -97,6 +97,9 @@ mypls <- GroupPLS(
   group_x = c(10, 15, 25), test = 0
 )
 }
+\references{
+\insertRef{sparsegroupPLS}{focus}
+}
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 

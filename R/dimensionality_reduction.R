@@ -29,6 +29,8 @@
 #'
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+#' 
+#' @references \insertRef{sparsePLS}{focus}
 #'
 #' @examples
 #' ## Sparse PLS
@@ -188,6 +190,8 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
 #'
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+#' 
+#' @references \insertRef{sparsegroupPLS}{focus}
 #'
 #' @examples
 #' ## Sparse group PLS
@@ -381,6 +385,8 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #'
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+#' 
+#' @references \insertRef{sparsegroupPLS}{focus}
 #'
 #' @examples
 #' ## Group PLS
@@ -561,6 +567,8 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #'
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+#' 
+#' @references \insertRef{sparsePCA}{focus}
 #'
 #' @examples
 #' # Data simulation

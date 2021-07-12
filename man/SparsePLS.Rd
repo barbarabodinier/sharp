@@ -75,6 +75,9 @@ simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 # Running sPLS-DA with 2 X-variables and 1 Y-variable
 mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
 }
+\references{
+\insertRef{sparsePLS}{focus}
+}
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 

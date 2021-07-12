@@ -42,6 +42,9 @@ x <- simul$xdata
 # Sparse PCA
 mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)
 }
+\references{
+\insertRef{sparsePCA}{focus}
+}
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 
