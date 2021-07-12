@@ -4,7 +4,13 @@
 \alias{StabilityScore}
 \title{Stability score}
 \usage{
-StabilityScore(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat = 3)
+StabilityScore(
+  selprop,
+  pi_list = seq(0.6, 0.9, by = 0.01),
+  K,
+  n_cat = 3,
+  group = NULL
+)
 }
 \arguments{
 \item{selprop}{array of selection proportions.}
@@ -17,6 +23,10 @@ StabilityScore(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat = 3)
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
+
+\item{group}{vector encoding the grouping structure among predictors. This
+argument indicates the number of variables in each group and only needs to
+be provided for group penalisation (not sparse group).}
 }
 \value{
 A vector of stability scores obtained with the different thresholds

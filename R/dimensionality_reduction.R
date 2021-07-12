@@ -28,8 +28,8 @@
 #'   components (denoted by "PC").}
 #'
 #' @family penalised dimensionality reduction functions
-#' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
-#' 
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
+#'
 #' @references \insertRef{sparsePLS}{focus}
 #'
 #' @examples
@@ -189,29 +189,29 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
 #'   components (denoted by "PC").}
 #'
 #' @family penalised dimensionality reduction functions
-#' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
-#' 
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
+#'
 #' @references \insertRef{sparsegroupPLS}{focus}
 #'
 #' @examples
 #' ## Sparse group PLS
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+#' simul <- SimulateRegression(n = 100, pk = c(10, 15, 5), family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'
 #' # Running sgPLS with 1 group and sparsity of 0.5
 #' mypls <- SparseGroupPLS(
 #'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-#'   group_x = c(10, 15, 25), alpha.x = 0.5
+#'   group_x = c(10, 15, 5), alpha.x = 0.5
 #' )
 #'
 #' # Running sgPLS with groups on outcomes
 #' mypls <- SparseGroupPLS(
 #'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-#'   group_x = c(10, 15, 25), alpha.x = 0.5,
-#'   group_y = c(2, 2), keepY = 1, alpha.y = 0.9
+#'   group_x = c(10, 15, 5), alpha.x = 0.5,
+#'   group_y = c(2, 1), keepY = 1, alpha.y = 0.9
 #' )
 #'
 #' ## Sparse group PLS-DA
@@ -239,6 +239,16 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
   # Checking arguments
   if (!family %in% c("binomial", "gaussian")) {
     stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
+  }
+
+  # Checking groups
+  if (sum(group_x) != ncol(xdata)) {
+    stop("Invalid input for argument 'group_x'. The sum of the number of variables per group must be equal to the total number of variables in 'xdata'.")
+  }
+  if (!is.null(group_y)) {
+    if (sum(group_y) != ncol(ydata)) {
+      stop("Invalid input for argument 'group_y'. The sum of the number of variables per group must be equal to the total number of variables in 'ydata'.")
+    }
   }
 
   # Re-formatting y
@@ -384,15 +394,15 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #'   components (denoted by "PC").}
 #'
 #' @family penalised dimensionality reduction functions
-#' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
-#' 
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
+#'
 #' @references \insertRef{sparsegroupPLS}{focus}
 #'
 #' @examples
 #' ## Group PLS
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+#' simul <- SimulateRegression(n = 100, pk = c(10, 20, 20), family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'
@@ -406,7 +416,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #' mypls <- GroupPLS(
 #'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
 #'   group_x = c(10, 15, 25),
-#'   group_y = c(2, 2), keepY = 1
+#'   group_y = c(2, 1), keepY = 1
 #' )
 #'
 #' ## Group PLS-DA
@@ -433,6 +443,16 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
   # Checking arguments
   if (!family %in% c("binomial", "gaussian")) {
     stop("Invalid input for argument 'family'. For PLS models, argument 'family' must be 'gaussian' or 'binomial'.")
+  }
+
+  # Checking groups
+  if (sum(group_x) != ncol(xdata)) {
+    stop("Invalid input for argument 'group_x'. The sum of the number of variables per group must be equal to the total number of variables in 'xdata'.")
+  }
+  if (!is.null(group_y)) {
+    if (sum(group_y) != ncol(ydata)) {
+      stop("Invalid input for argument 'group_y'. The sum of the number of variables per group must be equal to the total number of variables in 'ydata'.")
+    }
   }
 
   # Re-formatting y
@@ -566,8 +586,8 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #'   components (denoted by "PC").}
 #'
 #' @family penalised dimensionality reduction functions
-#' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
-#' 
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
+#'
 #' @references \insertRef{sparsePCA}{focus}
 #'
 #' @examples

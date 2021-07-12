@@ -14,7 +14,8 @@ StabilityMetrics(
   PFER_thr_blocks = Inf,
   FDP_thr_blocks = Inf,
   Sequential_template = NULL,
-  graph = TRUE
+  graph = TRUE,
+  group = NULL
 )
 }
 \arguments{
@@ -59,6 +60,10 @@ calibration of the blocks are allowed (all entries are set to \code{TRUE}).}
 
 \item{graph}{logical indicating if stability selection is performed in a
 regression (if \code{FALSE}) or graphical (if \code{TRUE}) framework.}
+
+\item{group}{vector encoding the grouping structure among predictors. This
+argument indicates the number of variables in each group and only needs to
+be provided for group penalisation (not sparse group).}
 }
 \value{
 A list with: \item{S}{a matrix of the best (block-specific) stability
@@ -111,11 +116,32 @@ sparsity of the underlying algorithm and for different thresholds in
 selection proportions.
 }
 \examples{
+## Sparse or sparse group penalisation
 # Simulating set of selection proportions
+set.seed(1)
 selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
 
 # Computing stability scores for different thresholds
-metrics <- StabilityMetrics(selprop = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
+metrics <- StabilityMetrics(
+  selprop = selprop, pi = c(0.6, 0.7, 0.8),
+  K = 100, graph = FALSE
+)
+
+## Group penalisation
+# Simulating set of selection proportions
+set.seed(1)
+selprop <- matrix(round(runif(n = 6), digits = 2), nrow = 2)
+selprop <- cbind(
+  selprop[, 1], selprop[, 1],
+  selprop[, 2], selprop[, 2],
+  matrix(rep(selprop[, 3], each = 6), nrow = 2, byrow = TRUE)
+)
+
+# Computing stability scores for different thresholds
+metrics <- StabilityMetrics(
+  selprop = selprop, pi = c(0.6, 0.7, 0.8),
+  K = 100, graph = FALSE, group = c(2, 2, 6)
+)
 }
 \references{
 \insertRef{ourstabilityselection}{focus}

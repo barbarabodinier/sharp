@@ -66,11 +66,11 @@
 #'   \code{\link{StabilityScore}}
 #'
 #' @references \insertRef{sparsegroupPLS}{focus}
-#' 
+#'
 #' \insertRef{sparsePLS}{focus}
-#' 
+#'
 #' \insertRef{sparsePCA}{focus}
-#' 
+#'
 #' \insertRef{ourstabilityselection}{focus}
 #'
 #'   \insertRef{stabilityselectionMB}{focus}
@@ -114,7 +114,7 @@
 #' # sPCA: sparsity on X (unsupervised)
 #' stab <- BiSelection(
 #'   xdata = x,
-#'   K = K, ncomp = 3,
+#'   ncomp = 3,
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   implementation = SparsePCA
 #' )
@@ -139,7 +139,7 @@
 #' # sgPLS: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
-#'   group_x = c(2, 10, 8),
+#'   group_x = c(2, 8, 5),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
@@ -148,7 +148,7 @@
 #' # sgPLS: sparsity on both X and Y
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
-#'   group_x = c(2, 10, 8), group_y = c(1, 3),
+#'   group_x = c(2, 8, 5), group_y = c(1, 2),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
@@ -158,7 +158,7 @@
 #' # gPLS: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
-#'   group_x = c(2, 10, 8),
+#'   group_x = c(2, 8, 5),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2,
 #'   implementation = GroupPLS
@@ -167,7 +167,7 @@
 #' # gPLS: sparsity on both X and Y
 #' stab <- BiSelection(
 #'   xdata = x, ydata = y,
-#'   group_x = c(2, 10, 8), group_y = c(1, 3),
+#'   group_x = c(2, 8, 5), group_y = c(1, 2),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, LambdaY = 1:2,
 #'   implementation = GroupPLS
@@ -175,7 +175,7 @@
 #'
 #' # Data simulation (categorical outcomes)
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 10), family = "binomial")
+#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "binomial")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'
@@ -190,7 +190,7 @@
 #' # sgPLS-DA: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = cbind(y),
-#'   group_x = c(2, 10, 8), K = 10,
+#'   group_x = c(2, 8, 5),
 #'   family = "binomial", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
@@ -199,7 +199,7 @@
 #' # gPLS-DA: sparsity on Y
 #' stab <- BiSelection(
 #'   xdata = x, ydata = cbind(y),
-#'   group_x = c(2, 10, 8),
+#'   group_x = c(2, 8, 5),
 #'   family = "binomial", ncomp = 3,
 #'   LambdaX = 1:2,
 #'   implementation = GroupPLS
@@ -386,6 +386,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 group_x = group_x, group_y = group_y,
+                group_penalisation = TRUE,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
                 ncomp = comp, ...
@@ -400,6 +401,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 group_x = group_x, group_y = group_y,
+                group_penalisation = TRUE,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 ncomp = comp, ...
               )

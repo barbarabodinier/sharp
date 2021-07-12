@@ -165,6 +165,7 @@
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 20, nu_within = 0.1)
 #' if (requireNamespace("corpcor", quietly = TRUE)) {
+#'   # Writing user-defined algorithm in a portable function
 #'   ShrinkageSelection <- function(xdata, Lambda, ...) {
 #'     mypcor <- corpcor::pcor.shrink(xdata, verbose = FALSE)
 #'     adjacency <- NULL
@@ -175,10 +176,14 @@
 #'     }
 #'     return(adjacency)
 #'   }
+#'
+#'   # Running the algorithm without stability
 #'   myglasso <- GraphicalAlgo(
 #'     xdata = simul$data,
 #'     Lambda = matrix(c(0.05, 0.1), ncol = 1), implementation = ShrinkageSelection
 #'   )
+#'
+#'   # Stability selection using shrinkage estimation and selection
 #'   stab <- GraphicalModel(
 #'     xdata = simul$data, Lambda = matrix(c(0.01, 0.05, 0.1), ncol = 1),
 #'     implementation = ShrinkageSelection

@@ -62,6 +62,11 @@
 #'   unconstrained calibration is used.
 #' @param Lambda_cardinal number of values in the grid of parameters controlling
 #'   the level of sparsity in the underlying algorithm.
+#' @param group_penalisation logical indicating if a group penalisation should
+#'   be considered in the stability score. An extra argument \code{group_x}, a
+#'   vector encoding the number of variables in each group, must be provided if
+#'   \code{group_penalisation=TRUE}. The use of \code{group_penalisation=TRUE}
+#'   strictly applies to group (not sparse-group) penalisation.
 #' @param n_cores number of cores to use for parallel computing. Only available
 #'   on Unix systems.
 #' @param output_data logical indicating if the input datasets \code{xdata} and
@@ -183,6 +188,18 @@
 #' CalibrationPlot(stab, xlab = "")
 #' print(SelectedVariables(stab))
 #'
+#' # Group PLS (1 outcome, 1 component)
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   Lambda = 1:5,
+#'   group_x = c(5, 5, 10, 20, 10),
+#'   group_penalisation = TRUE,
+#'   implementation = GroupPLS, family = "gaussian"
+#' )
+#' par(mar = c(3, 5, 1, 5))
+#' CalibrationPlot(stab, xlab = "")
+#' print(SelectedVariables(stab))
+#'
 #' # Sparse PLS-DA (1 outcome, 1 component)
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
@@ -199,32 +216,42 @@
 #' if (requireNamespace("gglasso", quietly = TRUE)) {
 #'   set.seed(1)
 #'   simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-#'   ManualGridGroupLasso <- function(xdata, ydata, family, ...) {
+#'   ManualGridGroupLasso <- function(xdata, ydata, family, group_x, ...) {
+#'     # Defining the grouping
+#'     group <- do.call(c, lapply(1:length(group_x), FUN = function(i) {
+#'       rep(i, group_x[i])
+#'     }))
+#'
 #'     if (family == "binomial") {
 #'       ytmp <- ydata
 #'       ytmp[ytmp == min(ytmp)] <- -1
 #'       ytmp[ytmp == max(ytmp)] <- 1
-#'       return(gglasso::gglasso(xdata, ytmp, loss = "logit", ...))
+#'       return(gglasso::gglasso(xdata, ytmp, loss = "logit", group = group, ...))
 #'     } else {
-#'       return(gglasso::gglasso(xdata, ydata, lambda = lambda, loss = "ls", ...))
+#'       return(gglasso::gglasso(xdata, ydata, lambda = lambda, loss = "ls", group = group, ...))
 #'     }
 #'   }
 #'   Lambda <- LambdaGridRegression(
 #'     xdata = simul$xdata, ydata = simul$ydata,
 #'     family = "binomial", Lambda_cardinal = 20,
 #'     implementation = ManualGridGroupLasso,
-#'     group = sort(rep(1:4, length.out = ncol(simul$xdata)))
+#'     group_x = rep(5, 4)
 #'   )
-#'   GroupLasso <- function(xdata, ydata, Lambda, family, ...) {
+#'   GroupLasso <- function(xdata, ydata, Lambda, family, group_x, ...) {
+#'     # Defining the grouping
+#'     group <- do.call(c, lapply(1:length(group_x), FUN = function(i) {
+#'       rep(i, group_x[i])
+#'     }))
+#'
 #'     # Running the regression
 #'     if (family == "binomial") {
 #'       ytmp <- ydata
 #'       ytmp[ytmp == min(ytmp)] <- -1
 #'       ytmp[ytmp == max(ytmp)] <- 1
-#'       mymodel <- gglasso::gglasso(xdata, ytmp, lambda = Lambda, loss = "logit", ...)
+#'       mymodel <- gglasso::gglasso(xdata, ytmp, lambda = Lambda, loss = "logit", group = group, ...)
 #'     }
 #'     if (family == "gaussian") {
-#'       mymodel <- gglasso::gglasso(xdata, ydata, lambda = Lambda, loss = "ls", ...)
+#'       mymodel <- gglasso::gglasso(xdata, ydata, lambda = Lambda, loss = "ls", group = group, ...)
 #'     }
 #'     # Extracting and formatting the beta coefficients
 #'     beta_full <- t(as.matrix(mymodel$beta))
@@ -237,7 +264,8 @@
 #'   stab <- VariableSelection(
 #'     xdata = simul$xdata, ydata = simul$ydata,
 #'     implementation = GroupLasso, family = "binomial", Lambda = Lambda,
-#'     group = sort(rep(1:4, length.out = ncol(simul$xdata)))
+#'     group_x = rep(5, 4),
+#'     group_penalisation = TRUE
 #'   )
 #'   print(SelectedVariables(stab))
 #' }
@@ -247,7 +275,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,
                               family = "gaussian", implementation = PenalisedRegression,
                               resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                              Lambda_cardinal = 100,
+                              Lambda_cardinal = 100, group_penalisation = FALSE,
                               n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Object preparation, error and warning messages
   CheckInputRegression(
@@ -259,6 +287,16 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     Lambda_cardinal = Lambda_cardinal,
     verbose = verbose
   )
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Checking that group_x is provided for group penalisation
+  if (group_penalisation) {
+    if (!"group_x" %in% names(extra_args)) {
+      stop("Please provide argument 'group_x' for group penalisation. Argument 'group_x' should be a vector with the number of variables in each group.")
+    }
+  }
 
   if (is.null(Lambda)) {
     # Defining grid of lambda values (using glmnet implementation)
@@ -285,6 +323,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
       K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       family = family, implementation = implementation, resampling = resampling,
       PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+      group_penalisation = group_penalisation,
       output_data = output_data, verbose = verbose, ...
     ))
   })
@@ -366,7 +405,11 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              family = "gaussian", implementation = PenalisedRegression,
                              resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
+                             group_penalisation = FALSE,
                              output_data = FALSE, verbose = TRUE, ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Defining K if using complementary pairs (SS)
   if (PFER_method == "SS") {
     K <- ceiling(K / 2) * 2
@@ -521,11 +564,19 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   }
 
   # Computation of the stability score over Lambda and pi_list
-  metrics <- StabilityMetrics(
-    selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
-    Sequential_template = NULL, graph = FALSE,
-    PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
-  )
+  if (group_penalisation) {
+    metrics <- StabilityMetrics(
+      selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+      Sequential_template = NULL, graph = FALSE, group = extra_args$group_x,
+      PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
+    )
+  } else {
+    metrics <- StabilityMetrics(
+      selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+      Sequential_template = NULL, graph = FALSE,
+      PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
+    )
+  }
   if (verbose) {
     utils::setTxtProgressBar(pb, 1)
     cat("\n")

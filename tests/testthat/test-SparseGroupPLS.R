@@ -23,7 +23,7 @@ test_that("sgPLS models are working", {
   stab <- BiSelection(
     xdata = x, ydata = y, K = K,
     group_x = c(10, 5),
-    group_y = c(1, 3),
+    group_y = c(1, 2),
     AlphaX = seq(0.1, 0.9, by = 0.1),
     LambdaX = 1:2,
     AlphaY = seq(0.1, 0.9, by = 0.1),

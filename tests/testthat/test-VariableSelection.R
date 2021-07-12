@@ -328,11 +328,11 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   # Binomial
   set.seed(1)
   simul <- SimulateRegression(n = n, pk = pk, family = "multinomial")
-  Y=simul$ydata
-  Y[,2]=Y[,2]*2
-  Y[,3]=Y[,3]*3
-  Y=apply(Y,1,sum)
-  
+  Y <- simul$ydata
+  Y[, 2] <- Y[, 2] * 2
+  Y[, 3] <- Y[, 3] * 3
+  Y <- apply(Y, 1, sum)
+
   stab <- VariableSelection(
     xdata = simul$xdata, ydata = simul$ydata,
     family = "multinomial",

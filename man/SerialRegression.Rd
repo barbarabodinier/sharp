@@ -19,6 +19,7 @@ SerialRegression(
   PFER_method = "MB",
   PFER_thr = Inf,
   FDP_thr = Inf,
+  group_penalisation = FALSE,
   output_data = FALSE,
   verbose = TRUE,
   ...
@@ -88,6 +89,12 @@ calibration is used.}
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
 unconstrained calibration is used.}
+
+\item{group_penalisation}{logical indicating if a group penalisation should
+be considered in the stability score. An extra argument \code{group_x}, a
+vector encoding the number of variables in each group, must be provided if
+\code{group_penalisation=TRUE}. The use of \code{group_penalisation=TRUE}
+strictly applies to group (not sparse-group) penalisation.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

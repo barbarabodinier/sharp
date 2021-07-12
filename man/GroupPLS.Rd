@@ -69,7 +69,7 @@ Runs a group Partial Least Squares model using implementation from
 ## Group PLS
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+simul <- SimulateRegression(n = 100, pk = c(10, 20, 20), family = "gaussian")
 x <- simul$xdata
 y <- simul$ydata
 
@@ -83,7 +83,7 @@ mypls <- GroupPLS(
 mypls <- GroupPLS(
   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
   group_x = c(10, 15, 25),
-  group_y = c(2, 2), keepY = 1
+  group_y = c(2, 1), keepY = 1
 )
 
 ## Group PLS-DA
@@ -101,7 +101,7 @@ mypls <- GroupPLS(
 \insertRef{sparsegroupPLS}{focus}
 }
 \seealso{
-\code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+\code{\link{VariableSelection}}, \code{\link{BiSelection}}
 
 Other penalised dimensionality reduction functions: 
 \code{\link{SparseGroupPLS}()},

@@ -79,7 +79,7 @@ mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family 
 \insertRef{sparsePLS}{focus}
 }
 \seealso{
-\code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+\code{\link{VariableSelection}}, \code{\link{BiSelection}}
 
 Other penalised dimensionality reduction functions: 
 \code{\link{GroupPLS}()},

@@ -46,7 +46,7 @@ mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)
 \insertRef{sparsePCA}{focus}
 }
 \seealso{
-\code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+\code{\link{VariableSelection}}, \code{\link{BiSelection}}
 
 Other penalised dimensionality reduction functions: 
 \code{\link{GroupPLS}()},

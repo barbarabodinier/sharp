@@ -77,21 +77,21 @@ Runs a sparse group Partial Least Squares model using implementation from
 ## Sparse group PLS
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+simul <- SimulateRegression(n = 100, pk = c(10, 15, 5), family = "gaussian")
 x <- simul$xdata
 y <- simul$ydata
 
 # Running sgPLS with 1 group and sparsity of 0.5
 mypls <- SparseGroupPLS(
   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-  group_x = c(10, 15, 25), alpha.x = 0.5
+  group_x = c(10, 15, 5), alpha.x = 0.5
 )
 
 # Running sgPLS with groups on outcomes
 mypls <- SparseGroupPLS(
   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-  group_x = c(10, 15, 25), alpha.x = 0.5,
-  group_y = c(2, 2), keepY = 1, alpha.y = 0.9
+  group_x = c(10, 15, 5), alpha.x = 0.5,
+  group_y = c(2, 1), keepY = 1, alpha.y = 0.9
 )
 
 ## Sparse group PLS-DA
@@ -109,7 +109,7 @@ mypls <- SparseGroupPLS(
 \insertRef{sparsegroupPLS}{focus}
 }
 \seealso{
-\code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
+\code{\link{VariableSelection}}, \code{\link{BiSelection}}
 
 Other penalised dimensionality reduction functions: 
 \code{\link{GroupPLS}()},

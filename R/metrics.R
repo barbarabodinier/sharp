@@ -23,6 +23,9 @@
 #'   calibration of the blocks are allowed (all entries are set to \code{TRUE}).
 #' @param graph logical indicating if stability selection is performed in a
 #'   regression (if \code{FALSE}) or graphical (if \code{TRUE}) framework.
+#' @param group vector encoding the grouping structure among predictors. This
+#'   argument indicates the number of variables in each group and only needs to
+#'   be provided for group penalisation (not sparse group).
 #'
 #' @return A list with: \item{S}{a matrix of the best (block-specific) stability
 #'   scores for different (sets of) penalty parameters. In multi-block stability
@@ -76,16 +79,37 @@
 #'   \insertRef{stabilityselectionSS}{focus}
 #'
 #' @examples
+#' ## Sparse or sparse group penalisation
 #' # Simulating set of selection proportions
+#' set.seed(1)
 #' selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
 #'
 #' # Computing stability scores for different thresholds
-#' metrics <- StabilityMetrics(selprop = selprop, pi = c(0.6, 0.7, 0.8), K = 100, graph = FALSE)
+#' metrics <- StabilityMetrics(
+#'   selprop = selprop, pi = c(0.6, 0.7, 0.8),
+#'   K = 100, graph = FALSE
+#' )
+#'
+#' ## Group penalisation
+#' # Simulating set of selection proportions
+#' set.seed(1)
+#' selprop <- matrix(round(runif(n = 6), digits = 2), nrow = 2)
+#' selprop <- cbind(
+#'   selprop[, 1], selprop[, 1],
+#'   selprop[, 2], selprop[, 2],
+#'   matrix(rep(selprop[, 3], each = 6), nrow = 2, byrow = TRUE)
+#' )
+#'
+#' # Computing stability scores for different thresholds
+#' metrics <- StabilityMetrics(
+#'   selprop = selprop, pi = c(0.6, 0.7, 0.8),
+#'   K = 100, graph = FALSE, group = c(2, 2, 6)
+#' )
 #' @export
 StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                              K = 100, n_cat = 3,
                              PFER_method = "MB", PFER_thr_blocks = Inf, FDP_thr_blocks = Inf,
-                             Sequential_template = NULL, graph = TRUE) {
+                             Sequential_template = NULL, graph = TRUE, group = NULL) {
   if (graph) {
     nlambda <- dim(selprop)[3]
   } else {
@@ -138,6 +162,12 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
         } else {
           stab_iter_block <- stab_iter
         }
+
+        # Using group penalisation (extracting one per group)
+        if (!is.null(group)) {
+          stab_iter_block <- stab_iter_block[cumsum(group)]
+        }
+
         q_block <- round(sum(stab_iter_block)) # average number of edges selected by the original procedure in the block
         Q[k, block_id] <- q_block
         N_block <- length(stab_iter_block) # maximum number of edges in the block
@@ -149,7 +179,8 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
           tmp_PFERs[j] <- PFER(q = q_block, pi = pi, N = N_block, K = K, PFER_method = PFER_method)
           tmp_FDPs[j] <- FDP(selprop = stab_iter_block, PFER = tmp_PFERs[j], pi = pi)
           if ((tmp_PFERs[j] <= PFER_thr_blocks[block_id]) & (tmp_FDPs[j] <= FDP_thr_blocks[block_id])) {
-            tmp_loglik[j] <- StabilityScore(selprop = stab_iter_block, pi_list = pi, K = K, n_cat = n_cat)
+            # Computing stability score (group penalisation is accounted for above so no need here)
+            tmp_loglik[j] <- StabilityScore(selprop = stab_iter_block, pi_list = pi, K = K, n_cat = n_cat, group = NULL)
           }
         }
 

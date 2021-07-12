@@ -20,6 +20,7 @@ VariableSelection(
   PFER_thr = Inf,
   FDP_thr = Inf,
   Lambda_cardinal = 100,
+  group_penalisation = FALSE,
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
@@ -96,6 +97,12 @@ unconstrained calibration is used.}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
 the level of sparsity in the underlying algorithm.}
+
+\item{group_penalisation}{logical indicating if a group penalisation should
+be considered in the stability score. An extra argument \code{group_x}, a
+vector encoding the number of variables in each group, must be provided if
+\code{group_penalisation=TRUE}. The use of \code{group_penalisation=TRUE}
+strictly applies to group (not sparse-group) penalisation.}
 
 \item{n_cores}{number of cores to use for parallel computing. Only available
 on Unix systems.}
@@ -221,6 +228,18 @@ stab <- VariableSelection(
 CalibrationPlot(stab, xlab = "")
 print(SelectedVariables(stab))
 
+# Group PLS (1 outcome, 1 component)
+stab <- VariableSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  Lambda = 1:5,
+  group_x = c(5, 5, 10, 20, 10),
+  group_penalisation = TRUE,
+  implementation = GroupPLS, family = "gaussian"
+)
+par(mar = c(3, 5, 1, 5))
+CalibrationPlot(stab, xlab = "")
+print(SelectedVariables(stab))
+
 # Sparse PLS-DA (1 outcome, 1 component)
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
@@ -237,32 +256,42 @@ print(SelectedVariables(stab))
 if (requireNamespace("gglasso", quietly = TRUE)) {
   set.seed(1)
   simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-  ManualGridGroupLasso <- function(xdata, ydata, family, ...) {
+  ManualGridGroupLasso <- function(xdata, ydata, family, group_x, ...) {
+    # Defining the grouping
+    group <- do.call(c, lapply(1:length(group_x), FUN = function(i) {
+      rep(i, group_x[i])
+    }))
+
     if (family == "binomial") {
       ytmp <- ydata
       ytmp[ytmp == min(ytmp)] <- -1
       ytmp[ytmp == max(ytmp)] <- 1
-      return(gglasso::gglasso(xdata, ytmp, loss = "logit", ...))
+      return(gglasso::gglasso(xdata, ytmp, loss = "logit", group = group, ...))
     } else {
-      return(gglasso::gglasso(xdata, ydata, lambda = lambda, loss = "ls", ...))
+      return(gglasso::gglasso(xdata, ydata, lambda = lambda, loss = "ls", group = group, ...))
     }
   }
   Lambda <- LambdaGridRegression(
     xdata = simul$xdata, ydata = simul$ydata,
     family = "binomial", Lambda_cardinal = 20,
     implementation = ManualGridGroupLasso,
-    group = sort(rep(1:4, length.out = ncol(simul$xdata)))
+    group_x = rep(5, 4)
   )
-  GroupLasso <- function(xdata, ydata, Lambda, family, ...) {
+  GroupLasso <- function(xdata, ydata, Lambda, family, group_x, ...) {
+    # Defining the grouping
+    group <- do.call(c, lapply(1:length(group_x), FUN = function(i) {
+      rep(i, group_x[i])
+    }))
+
     # Running the regression
     if (family == "binomial") {
       ytmp <- ydata
       ytmp[ytmp == min(ytmp)] <- -1
       ytmp[ytmp == max(ytmp)] <- 1
-      mymodel <- gglasso::gglasso(xdata, ytmp, lambda = Lambda, loss = "logit", ...)
+      mymodel <- gglasso::gglasso(xdata, ytmp, lambda = Lambda, loss = "logit", group = group, ...)
     }
     if (family == "gaussian") {
-      mymodel <- gglasso::gglasso(xdata, ydata, lambda = Lambda, loss = "ls", ...)
+      mymodel <- gglasso::gglasso(xdata, ydata, lambda = Lambda, loss = "ls", group = group, ...)
     }
     # Extracting and formatting the beta coefficients
     beta_full <- t(as.matrix(mymodel$beta))
@@ -275,7 +304,8 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   stab <- VariableSelection(
     xdata = simul$xdata, ydata = simul$ydata,
     implementation = GroupLasso, family = "binomial", Lambda = Lambda,
-    group = sort(rep(1:4, length.out = ncol(simul$xdata)))
+    group_x = rep(5, 4),
+    group_penalisation = TRUE
   )
   print(SelectedVariables(stab))
 }

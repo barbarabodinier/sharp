@@ -22,10 +22,15 @@
 #' # Computing stability scores for different thresholds
 #' score <- StabilityScore(selprop, pi_list = c(0.6, 0.7, 0.8), K = 100)
 #' @export
-StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat = 3) {
+StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat = 3, group = NULL) {
   # Preparing objects
   if (is.matrix(selprop)) {
     selprop <- selprop[upper.tri(selprop)]
+  }
+
+  # Using group penalisation (extracting one per group)
+  if (!is.null(group)) {
+    selprop <- selprop[cumsum(group)]
   }
 
   # Computing the number of features (edges/variables)
