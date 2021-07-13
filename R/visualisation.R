@@ -350,7 +350,9 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
 
   # Defining extreme values
   if (is.null(legend_range)) {
-    myrange <- c(min(vect, na.rm = TRUE), max(vect, na.rm = TRUE))
+    # myrange <- c(min(vect, na.rm = TRUE), max(vect, na.rm = TRUE))
+    myrange <- range(vect, na.rm = TRUE)
+    myrange <- c(floor(myrange[1]), ceiling(myrange[2]))
   } else {
     myrange <- legend_range
   }
@@ -383,7 +385,6 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
   if (legend) {
     withr::local_par(list(xpd = TRUE))
     legend_width_factor <- 1.05
-    myrange <- round(myrange)
     mylegend_values <- seq(myrange[1], myrange[2], length.out = 100)
     mylegend_values <- unique(round(mylegend_values, digits = -max(nchar(round(myrange))) + 2))
     if (is.null(legend_range)) {
