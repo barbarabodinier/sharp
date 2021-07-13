@@ -419,7 +419,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
             if (!is.null(ydata)) {
               tmpcoef <- mycoefs[i, , ]
-              mytmp <- rep(NA, nrow(tmpcoef))
+              mytmp <- rep(NA, ifelse(length(dim(tmpcoef))==2, yes=nrow(tmpcoef), no=1))
               for (l in 1:nrow(tmpcoef)) {
                 mytmp[l] <- sum(tmpcoef[l, ] != 0) / length(tmpcoef[l, ])
               }
