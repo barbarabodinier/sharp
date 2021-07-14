@@ -31,7 +31,7 @@ A list with: \item{selected}{matrix of binary selection status. Rows
 }
 \description{
 Runs a sparse Principal Component Analysis model using implementation from
-\code{\link[elasticnet]{spca}}. This function is not using stability.
+\code{\link[mixOmics]{spca}}. This function is not using stability.
 }
 \examples{
 # Data simulation
@@ -43,7 +43,7 @@ x <- simul$xdata
 mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)
 }
 \references{
-\insertRef{sparsePCA}{focus}
+\insertRef{sparsePCASVD}{focus}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

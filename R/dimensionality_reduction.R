@@ -566,7 +566,7 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' Sparse Principal Component Analysis
 #'
 #' Runs a sparse Principal Component Analysis model using implementation from
-#' \code{\link[elasticnet]{spca}}. This function is not using stability.
+#' \code{\link[mixOmics]{spca}}. This function is not using stability.
 #'
 #' @param xdata data matrix with observations as rows and variables as columns.
 #' @param Lambda matrix of parameters controlling the number of selected
@@ -588,7 +588,7 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{sparsePCA}{focus}
+#' @references \insertRef{sparsePCASVD}{focus}
 #'
 #' @examples
 #' # Data simulation
