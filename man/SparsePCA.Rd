@@ -4,7 +4,7 @@
 \alias{SparsePCA}
 \title{Sparse Principal Component Analysis}
 \usage{
-SparsePCA(xdata, Lambda, ncomp = 1, keepX_previous = NULL, ...)
+SparsePCA(xdata, Lambda, ncomp = 1, keepX_previous = NULL, algo = "sPCA", ...)
 }
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
@@ -15,11 +15,17 @@ variables at current component, as defined by \code{ncomp}.}
 \item{ncomp}{number of components.}
 
 \item{keepX_previous}{number of selected predictors in previous components.
-Only used if \code{ncomp > 1}. The argument \code{keepX} in
-\code{\link[mixOmics]{spca}} is obtained by concatenating
-\code{keepX_previous} and \code{Lambda}.}
+Only used if \code{ncomp > 1}.}
 
-\item{...}{additional arguments to be passed to \code{\link[mixOmics]{spca}}.}
+\item{algo}{character string indicating the name of the algorithm to use for
+sparse PCA. Possible values are: "sPCA" (for the algorithm proposed by Zou,
+Hastie and Tibshirani and implemented in \code{\link[elasticnet]{spca}}) or
+"rSVD" (for the regularised SVD approach proposed by Shen and Huang and
+implemented in \code{\link[mixOmics]{spca}}).}
+
+\item{...}{additional arguments to be passed to
+\code{\link[elasticnet]{spca}} (if \code{algo="sPCA"}) or
+\code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}).}
 }
 \value{
 A list with: \item{selected}{matrix of binary selection status. Rows
@@ -31,7 +37,9 @@ A list with: \item{selected}{matrix of binary selection status. Rows
 }
 \description{
 Runs a sparse Principal Component Analysis model using implementation from
-\code{\link[mixOmics]{spca}}. This function is not using stability.
+\code{\link[elasticnet]{spca}} (if \code{algo="sPCA"}) or
+\code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}). This function is not
+using stability.
 }
 \examples{
 # Data simulation
@@ -39,11 +47,16 @@ set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 x <- simul$xdata
 
-# Sparse PCA
-mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)
+# Sparse PCA (by Zou, Hastie, Tibshirani)
+mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "sPCA")
+
+# Sparse PCA (by Shen and Huang)
+mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "rSVD")
 }
 \references{
-\insertRef{sparsePCASVD}{focus}
+\insertRef{sparsePCA}{focus}
+
+  \insertRef{sparsePCASVD}{focus}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

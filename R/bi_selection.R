@@ -1,7 +1,7 @@
 #' Variable selection for predictors and outcomes
 #'
 #' Runs stability selection regression models with different combinations of
-#' parameters controlling the sparsity in PLS models and thresholds in selection
+#' parameters controlling the sparsity in PLS/PCA models and thresholds in selection
 #' proportions. These parameters are jointly calibrated by maximising the
 #' stability score of the model (possibly under a constraint on the expected
 #' number of falsely stably selected features).
@@ -71,11 +71,13 @@
 #'
 #' \insertRef{sparsePCA}{focus}
 #'
+#' \insertRef{sparsePCASVD}{focus}
+#'
+#' \insertRef{stabilityselectionMB}{focus}
+#'
+#' \insertRef{stabilityselectionSS}{focus}
+#'
 #' \insertRef{ourstabilityselection}{focus}
-#'
-#'   \insertRef{stabilityselectionMB}{focus}
-#'
-#'   \insertRef{stabilityselectionSS}{focus}
 #'
 #' @examples
 #' \dontshow{

@@ -27,6 +27,7 @@ Imports:
     Rdpack,
     withr (>= 2.4.0)
 Suggests:
+    elasticnet,
     corpcor,
     gglasso,
     mixOmics,

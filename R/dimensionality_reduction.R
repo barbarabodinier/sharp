@@ -566,17 +566,24 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' Sparse Principal Component Analysis
 #'
 #' Runs a sparse Principal Component Analysis model using implementation from
-#' \code{\link[mixOmics]{spca}}. This function is not using stability.
+#' \code{\link[elasticnet]{spca}} (if \code{algo="sPCA"}) or
+#' \code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}). This function is not
+#' using stability.
 #'
 #' @param xdata data matrix with observations as rows and variables as columns.
 #' @param Lambda matrix of parameters controlling the number of selected
 #'   variables at current component, as defined by \code{ncomp}.
 #' @param ncomp number of components.
 #' @param keepX_previous number of selected predictors in previous components.
-#'   Only used if \code{ncomp > 1}. The argument \code{keepX} in
-#'   \code{\link[mixOmics]{spca}} is obtained by concatenating
-#'   \code{keepX_previous} and \code{Lambda}.
-#' @param ... additional arguments to be passed to \code{\link[mixOmics]{spca}}.
+#'   Only used if \code{ncomp > 1}.
+#' @param algo character string indicating the name of the algorithm to use for
+#'   sparse PCA. Possible values are: "sPCA" (for the algorithm proposed by Zou,
+#'   Hastie and Tibshirani and implemented in \code{\link[elasticnet]{spca}}) or
+#'   "rSVD" (for the regularised SVD approach proposed by Shen and Huang and
+#'   implemented in \code{\link[mixOmics]{spca}}).
+#' @param ... additional arguments to be passed to
+#'   \code{\link[elasticnet]{spca}} (if \code{algo="sPCA"}) or
+#'   \code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}).
 #'
 #' @return A list with: \item{selected}{matrix of binary selection status. Rows
 #'   correspond to different model parameters. Columns correspond to
@@ -588,7 +595,9 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{sparsePCASVD}{focus}
+#' @references \insertRef{sparsePCA}{focus}
+#'
+#'   \insertRef{sparsePCASVD}{focus}
 #'
 #' @examples
 #' # Data simulation
@@ -596,13 +605,30 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' x <- simul$xdata
 #'
-#' # Sparse PCA
-#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10)
+#' # Sparse PCA (by Zou, Hastie, Tibshirani)
+#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "sPCA")
+#'
+#' # Sparse PCA (by Shen and Huang)
+#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "rSVD")
 #' @export
-SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, ...) {
+SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, algo = "sPCA", ...) {
+  # Checking input value for algo
+  if (!algo %in% c("sPCA", "rSVD")) {
+    stop("Invalid input for argument 'algo'. Possible values are: 'sPCA' or 'rSVD'.")
+  }
+
   # Checking mixOmics package is installed
-  if (!requireNamespace("mixOmics")) {
-    stop("This function requires the 'mixOmics' package.")
+  if (algo == "rSVD") {
+    if (!requireNamespace("mixOmics")) {
+      stop("This function requires the 'mixOmics' package.")
+    }
+  }
+
+  # Checking elasticnet package is installed
+  if (algo == "sPCA") {
+    if (!requireNamespace("elasticnet")) {
+      stop("This function requires the 'elasticnet' package.")
+    }
   }
 
   # Storing extra arguments
@@ -623,17 +649,6 @@ SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, ...) {
   rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
   colnames(beta_full) <- c(paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))))
 
-  # if (family == "gaussian") {
-  #   beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
-  #   rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
-  #   colnames(beta_full) <- c(
-  #     paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-  #     paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
-  #   )
-  # } else {
-  #   ncat <- length(unique(ydata))
-  # }
-
   # Loop over all parameters (number of selected variables in X in current component)
   for (k in 1:length(Lambda)) {
     # Number of selected variables per component in X
@@ -643,11 +658,21 @@ SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, ...) {
     ids <- which(names(extra_args) %in% names(formals(mixOmics::spca)))
     ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
 
-    # Running PLS model
-    mymodel <- do.call(mixOmics::spca, args = c(list(X = xdata, ncomp = ncomp, keepX = nvarx), extra_args[ids]))
+    if (algo == "rSVD") {
+      # Running PLS model
+      mymodel <- do.call(mixOmics::spca, args = c(list(X = xdata, ncomp = ncomp, keepX = nvarx), extra_args[ids]))
 
-    # Extracting X and Y loadings
-    Xloadings <- mymodel$loadings$X
+      # Extracting X and Y loadings
+      Xloadings <- mymodel$loadings$X
+    }
+
+    if (algo == "sPCA") {
+      # Running PLS model
+      mymodel <- do.call(elasticnet::spca, args = c(list(x = xdata, K = ncomp, para = nvarx, sparse = "varnum"), extra_args[ids]))
+
+      # Extracting X and Y loadings
+      Xloadings <- mymodel$loadings
+    }
 
     # Exporting the set of loadings to look at for selection with current component
     beta[k, ] <- Xloadings[, ncomp, drop = FALSE]
