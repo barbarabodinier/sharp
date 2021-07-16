@@ -238,7 +238,6 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
           resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
           verbose = FALSE, ...
         ) # Only 1 iteration to get the Q
-        print(myscreen$Q)
 
         if (l < nrow(Lambda)) {
           # Updating the smallest lambda if the density of the block is still below max_density
