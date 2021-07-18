@@ -67,13 +67,13 @@ correlation matrices should be included in the output.}
 \item{v_within}{vector defining the (range of) nonzero entries in the
 diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
-\code{continuous=FALSE}, \code{v_within} is the range of possible precision
+\code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
 
 \item{v_between}{vector defining the (range of) nonzero entries in the
 off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 \code{v_between} is the set of possible precision values. If
-\code{continuous=FALSE}, \code{v_between} is the range of possible
+\code{continuous=TRUE}, \code{v_between} is the range of possible
 precision values. This argument is only used if \code{length(pk)>1}.}
 
 \item{continuous}{logical indicating whether to sample precision values from

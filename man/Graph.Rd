@@ -9,6 +9,7 @@ Graph(
   node_label = NULL,
   node_colour = NULL,
   node_shape = NULL,
+  mode = "undirected",
   weighted = FALSE,
   satellites = FALSE
 )
@@ -30,6 +31,11 @@ many entries as there are rows/columns in the adjacency matrix and must be
 in the same order (the order is used to assign shapes to nodes). Possible
 values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
 \code{"star"}.}
+
+\item{mode}{character string indicating how the adjacency matrix should be
+interpreted. Possible values include \code{"undirected"} or
+\code{"directed"}. See \code{\link[igraph]{graph_from_adjacency_matrix}}
+for more options.}
 
 \item{weighted}{indicating if entries of the adjacency matrix should define
 edge width. If \code{weighted=FALSE}, an unweigthed igraph object is

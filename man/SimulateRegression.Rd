@@ -90,7 +90,7 @@ sampled. This argument is only used if \code{eta} is not provided.}
 \item{v_within}{vector defining the (range of) nonzero entries in the
 diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
-\code{continuous=FALSE}, \code{v_within} is the range of possible precision
+\code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
 
 \item{continuous}{logical indicating whether to sample precision values from

@@ -16,6 +16,10 @@
 #'   in the same order (the order is used to assign shapes to nodes). Possible
 #'   values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
 #'   \code{"star"}.
+#' @param mode character string indicating how the adjacency matrix should be
+#'   interpreted. Possible values include \code{"undirected"} or
+#'   \code{"directed"}. See \code{\link[igraph]{graph_from_adjacency_matrix}}
+#'   for more options.
 #' @param weighted indicating if entries of the adjacency matrix should define
 #'   edge width. If \code{weighted=FALSE}, an unweigthed igraph object is
 #'   created, all edges have the same width. If \code{weighted=TRUE}, edge width
@@ -55,7 +59,7 @@
 #'
 #' @export
 Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape = NULL,
-                  weighted = FALSE, satellites = FALSE) {
+                  mode = "undirected", weighted = FALSE, satellites = FALSE) {
   # Checking input values (weighted)
   if (!is.null(weighted)) {
     if (!weighted %in% c(TRUE, FALSE)) {
@@ -170,8 +174,13 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
   }
 
   # Estimating igraph object
-  mygraph <- igraph::graph_from_adjacency_matrix(adjacency, mode = "undirected", weighted = weighted)
+  mygraph <- igraph::graph_from_adjacency_matrix(adjacency, mode = mode, weighted = weighted)
   mydegrees <- igraph::degree(mygraph)
+  
+  # Changing arrow size for directed graphs
+  if (mode=="directed"){
+    E(mygraph)$arrow.size=0.2
+  }
 
   # Including/excluding satellites (nodes with no edges)
   if (!satellites) {

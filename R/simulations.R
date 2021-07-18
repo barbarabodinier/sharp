@@ -41,12 +41,12 @@
 #' @param v_within vector defining the (range of) nonzero entries in the
 #'   diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 #'   \code{v_within} is the set of possible precision values. If
-#'   \code{continuous=FALSE}, \code{v_within} is the range of possible precision
+#'   \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 #'   values.
 #' @param v_between vector defining the (range of) nonzero entries in the
 #'   off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
 #'   \code{v_between} is the set of possible precision values. If
-#'   \code{continuous=FALSE}, \code{v_between} is the range of possible
+#'   \code{continuous=TRUE}, \code{v_between} is the range of possible
 #'   precision values. This argument is only used if \code{length(pk)>1}.
 #' @param continuous logical indicating whether to sample precision values from
 #'   a uniform distribution between the minimum and maximum values in
