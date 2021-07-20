@@ -62,6 +62,9 @@
 #'   unconstrained calibration is used.
 #' @param Lambda_cardinal number of values in the grid of parameters controlling
 #'   the level of sparsity in the underlying algorithm.
+#' @param group_x vector encoding the grouping structure among predictors. This
+#'   argument indicates the number of variables in each group. Only used with
+#'   \code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.
 #' @param group_penalisation logical indicating if a group penalisation should
 #'   be considered in the stability score. An extra argument \code{group_x}, a
 #'   vector encoding the number of variables in each group, must be provided if
@@ -275,8 +278,18 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,
                               family = "gaussian", implementation = PenalisedRegression,
                               resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                              Lambda_cardinal = 100, group_penalisation = FALSE,
+                              Lambda_cardinal = 100, group_x = NULL, group_penalisation = FALSE,
                               n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+  # Defining Lambda if used with sparse PCA or PLS
+  if (is.null(Lambda)) {
+    if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
+      Lambda <- seq(1, length(group_x) - 1)
+    }
+    if (as.character(substitute(implementation)) %in% c("SparsePLS", "SparsePCA")) {
+      Lambda <- seq(1, ncol(xdata) - 1)
+    }
+  }
+
   # Object preparation, error and warning messages
   CheckInputRegression(
     xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
@@ -323,7 +336,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
       K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       family = family, implementation = implementation, resampling = resampling,
       PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-      group_penalisation = group_penalisation,
+      group_x = group_x, group_penalisation = group_penalisation,
       output_data = output_data, verbose = verbose, ...
     ))
   })
@@ -405,7 +418,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              family = "gaussian", implementation = PenalisedRegression,
                              resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                             group_penalisation = FALSE,
+                             group_x = NULL, group_penalisation = FALSE,
                              output_data = FALSE, verbose = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
@@ -423,7 +436,11 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
   Xsub <- xdata[s, ]
   Ysub <- ydata[s, ]
-  mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+  mybeta <- SelectionAlgo(
+    xdata = Xsub, ydata = Ysub,
+    Lambda = Lambda[, 1], group_x = group_x,
+    family = family, implementation = implementation, ...
+  )
   Beta <- array(0, dim = c(nrow(mybeta$selected), ncol(mybeta$selected), K))
   rownames(Beta) <- rownames(mybeta$selected)
   colnames(Beta) <- colnames(mybeta$selected)
@@ -455,14 +472,22 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
       Xsub <- xdata[s, ]
       Ysub <- ydata[s, ]
-      mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+      mybeta <- SelectionAlgo(
+        xdata = Xsub, ydata = Ysub,
+        Lambda = Lambda[, 1], group_x = group_x,
+        family = family, implementation = implementation, ...
+      )
 
       # Resampling if model failed to converge
       while (is.infinite(mybeta$selected[1])) {
         s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
         Xsub <- xdata[s, ]
         Ysub <- ydata[s, ]
-        mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+        mybeta <- SelectionAlgo(
+          xdata = Xsub, ydata = Ysub,
+          Lambda = Lambda[, 1], group_x = group_x,
+          family = family, implementation = implementation, ...
+        )
       }
 
       # Storing (one set of) beta coefficients, used to define set of selected variables
@@ -498,12 +523,20 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       # First subset
       Xsub <- xdata[s, ]
       Ysub <- ydata[s, ]
-      mybeta1 <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+      mybeta1 <- SelectionAlgo(
+        xdata = Xsub, ydata = Ysub,
+        Lambda = Lambda[, 1], group_x = group_x,
+        family = family, implementation = implementation, ...
+      )
 
       # Complementary subset
       Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
       Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
-      mybeta2 <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+      mybeta2 <- SelectionAlgo(
+        xdata = Xsub, ydata = Ysub,
+        Lambda = Lambda[, 1], group_x = group_x,
+        family = family, implementation = implementation, ...
+      )
 
       # Resampling if model failed to converge
       while (is.infinite(mybeta1$selected[1]) | is.infinite(mybeta2$selected[1])) {
@@ -512,12 +545,20 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
         # First subset
         Xsub <- xdata[s, ]
         Ysub <- ydata[s, ]
-        mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+        mybeta <- SelectionAlgo(
+          xdata = Xsub, ydata = Ysub,
+          Lambda = Lambda[, 1], group_x = group_x,
+          family = family, implementation = implementation, ...
+        )
 
         # Complementary subset
         Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
         Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
-        mybeta <- SelectionAlgo(xdata = Xsub, ydata = Ysub, Lambda = Lambda[, 1], family = family, implementation = implementation, ...)
+        mybeta <- SelectionAlgo(
+          xdata = Xsub, ydata = Ysub,
+          Lambda = Lambda[, 1], group_x = group_x,
+          family = family, implementation = implementation, ...
+        )
       }
 
       # Storing beta coefficients from first set
@@ -567,7 +608,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   if (group_penalisation) {
     metrics <- StabilityMetrics(
       selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
-      Sequential_template = NULL, graph = FALSE, group = extra_args$group_x,
+      Sequential_template = NULL, graph = FALSE, group = group_x,
       PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
     )
   } else {

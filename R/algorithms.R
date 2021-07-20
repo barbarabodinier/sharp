@@ -43,7 +43,9 @@
 #' }
 #'
 #' @export
-SelectionAlgo <- function(xdata, ydata = NULL, Lambda, family = NULL, implementation = PenalisedRegression, ...) {
+SelectionAlgo <- function(xdata, ydata = NULL,
+                          Lambda, group_x = NULL,
+                          family = NULL, implementation = PenalisedRegression, ...) {
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
   for (j in 1:ncol(xdata)) {
@@ -56,7 +58,7 @@ SelectionAlgo <- function(xdata, ydata = NULL, Lambda, family = NULL, implementa
   }
 
   # Applying user-defined function for variable selection
-  mybeta <- do.call(implementation, args = list(xdata = xdata, ydata = ydata, Lambda = Lambda, family = family, ...))
+  mybeta <- do.call(implementation, args = list(xdata = xdata, ydata = ydata, Lambda = Lambda, group_x = group_x, family = family, ...))
   selected <- mybeta$selected
   beta_full <- mybeta$beta_full
 

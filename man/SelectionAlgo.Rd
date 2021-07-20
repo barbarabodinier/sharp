@@ -8,6 +8,7 @@ SelectionAlgo(
   xdata,
   ydata = NULL,
   Lambda,
+  group_x = NULL,
   family = NULL,
   implementation = PenalisedRegression,
   ...
@@ -28,6 +29,10 @@ penalty parameters. If \code{Lambda=NULL},
 \code{\link{LambdaGridRegression}} is used to define a relevant grid. If
 \code{implementation} is not set to \code{PenalisedRegression},
 \code{Lambda} must be provided.}
+
+\item{group_x}{vector encoding the grouping structure among predictors. This
+argument indicates the number of variables in each group. Only used with
+\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
 
 \item{family}{type of regression model. If
 \code{implementation=PenalisedRegression}, this argument is defined as in

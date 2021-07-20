@@ -19,6 +19,7 @@ SerialRegression(
   PFER_method = "MB",
   PFER_thr = Inf,
   FDP_thr = Inf,
+  group_x = NULL,
   group_penalisation = FALSE,
   output_data = FALSE,
   verbose = TRUE,
@@ -89,6 +90,10 @@ calibration is used.}
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
 unconstrained calibration is used.}
+
+\item{group_x}{vector encoding the grouping structure among predictors. This
+argument indicates the number of variables in each group. Only used with
+\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
 
 \item{group_penalisation}{logical indicating if a group penalisation should
 be considered in the stability score. An extra argument \code{group_x}, a

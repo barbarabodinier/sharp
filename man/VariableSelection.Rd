@@ -20,6 +20,7 @@ VariableSelection(
   PFER_thr = Inf,
   FDP_thr = Inf,
   Lambda_cardinal = 100,
+  group_x = NULL,
   group_penalisation = FALSE,
   n_cores = 1,
   output_data = FALSE,
@@ -97,6 +98,10 @@ unconstrained calibration is used.}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
 the level of sparsity in the underlying algorithm.}
+
+\item{group_x}{vector encoding the grouping structure among predictors. This
+argument indicates the number of variables in each group. Only used with
+\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
 
 \item{group_penalisation}{logical indicating if a group penalisation should
 be considered in the stability score. An extra argument \code{group_x}, a

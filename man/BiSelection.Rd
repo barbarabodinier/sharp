@@ -41,7 +41,7 @@ with character/numeric values, or a factor.}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group. Only used with
-\code{implementation=SparseGroupPLS}.}
+\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
 
 \item{group_y}{optional vector encoding the grouping structure among
 outcomes. This argument indicates the number of variables in each group.

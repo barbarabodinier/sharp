@@ -176,10 +176,10 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
   # Estimating igraph object
   mygraph <- igraph::graph_from_adjacency_matrix(adjacency, mode = mode, weighted = weighted)
   mydegrees <- igraph::degree(mygraph)
-  
+
   # Changing arrow size for directed graphs
-  if (mode=="directed"){
-    E(mygraph)$arrow.size=0.2
+  if (mode == "directed") {
+    igraph::E(mygraph)$arrow.size <- 0.2
   }
 
   # Including/excluding satellites (nodes with no edges)

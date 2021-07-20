@@ -7,9 +7,6 @@
 #' number of falsely stably selected features).
 #'
 #' @inheritParams VariableSelection
-#' @param group_x vector encoding the grouping structure among predictors. This
-#'   argument indicates the number of variables in each group. Only used with
-#'   \code{implementation=SparseGroupPLS}.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
 #'   Only used with \code{implementation=SparseGroupPLS}.
@@ -216,12 +213,13 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                         resampling = "subsampling", PFER_method = "MB",
                         PFER_thr = Inf, FDP_thr = Inf,
                         n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+  # Defining Lambda if used with sparse PCA or PLS
   if (is.null(LambdaX)) {
     if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
-      LambdaX <- 1:length(group_x)
+      LambdaX <- seq(1, length(group_x) - 1)
     }
-    if (as.character(substitute(implementation)) == "SparsePLS") {
-      LambdaX <- 1:ncol(xdata)
+    if (as.character(substitute(implementation)) %in% c("SparsePLS", "SparsePCA")) {
+      LambdaX <- seq(1, ncol(xdata) - 1)
     }
   }
 
@@ -354,7 +352,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 resampling = resampling, PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = FALSE,
-                group_x = group_x, group_y = group_y,
+                group_x = NAToNULL(group_x), group_y = group_y,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
                 keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
@@ -370,7 +368,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 resampling = resampling, PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = FALSE,
-                group_x = group_x, group_y = group_y,
+                group_x = NAToNULL(group_x), group_y = group_y,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
                 ncomp = comp, ...
@@ -387,7 +385,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 resampling = resampling, PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
-                group_x = group_x, group_y = group_y,
+                group_x = NAToNULL(group_x), group_y = group_y,
                 group_penalisation = TRUE,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
@@ -402,7 +400,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 resampling = resampling, PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
-                group_x = group_x, group_y = group_y,
+                group_x = NAToNULL(group_x), group_y = group_y,
                 group_penalisation = TRUE,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 ncomp = comp, ...
@@ -427,7 +425,15 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
               }
               tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
               if (any(mytmp != 1)) {
-                hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
+                # Computing stability score for Y variables
+                if (as.character(substitute(implementation)) == "GroupPLS") {
+                  hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp,
+                    pi_list = stab$params$pi_list, K = K,
+                    group = NAToNULL(group_y)
+                  ))]
+                } else {
+                  hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
+                }
                 tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(mytmp >= hat_pi, yes = 1, no = 0)
               } else {
                 tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- 1

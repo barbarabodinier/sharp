@@ -17,7 +17,7 @@
 #' @param theta optional binary and symmetric adjacency matrix encoding the
 #'   conditional independence structure.
 #' @param implementation function for simulation of the graph. By default,
-#'   functionalities implemented in \code{\link[huge]{huge.generator}} are used.
+#'   algorithms implemented in \code{\link[huge]{huge.generator}} are used.
 #'   Alternatively, a user-defined function can be used. It must take \code{pk},
 #'   \code{topology} and \code{nu} as arguments and return a
 #'   \code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
