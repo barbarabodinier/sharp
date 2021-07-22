@@ -668,7 +668,8 @@ SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, algo = "s
 
     if (algo == "sPCA") {
       # Running PLS model
-      mymodel <- do.call(elasticnet::spca, args = c(list(x = xdata, K = ncomp, para = nvarx, sparse = "varnum"), extra_args[ids]))
+      mymodel <- do.call(elasticnet::spca, args = c(list(x = cor(xdata), type="Gram", 
+                                                         K = ncomp, para = nvarx, sparse = "varnum"), extra_args[ids]))
 
       # Extracting X and Y loadings
       Xloadings <- mymodel$loadings

@@ -175,10 +175,10 @@
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               implementation = SimulateAdjacency, topology = "random",
                               nu_within = 0.1, nu_between = NULL,
-                              output_matrices = FALSE,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
-                              u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5, ...) {
+                              u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5, 
+                              output_matrices = FALSE, ...) {
   # Defining number of nodes
   p <- sum(pk)
   if (!is.null(theta)) {
@@ -338,10 +338,11 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' }
 #' @export
 SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
-                               nu_within = 1, nu_between = 1, output_matrices = FALSE,
+                               nu_within = 1, nu_between = 1, 
                                v_within = c(-1, -0.5), v_between = 0, continuous = TRUE,
                                pd_strategy = "diagonally_dominant",
-                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
+                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
+                               output_matrices = FALSE) {
   # Using multi-block simulator with unconnected blocks
   out <- SimulateGraphical(
     n = pk, pk = n, theta = adjacency,
@@ -887,7 +888,7 @@ SimulateBlockAdjacency <- function(pk = 10,
 #' @return A symmetric matrix with uniformly distributed entries sampled from
 #'   different distributions for diagonal and off-diagonal blocks.
 #'
-#' @keywords internal
+#' @export
 SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE) {
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
