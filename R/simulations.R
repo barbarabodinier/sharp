@@ -84,10 +84,10 @@
 #'
 #' @return A list with: \item{data}{simulated data with \code{n} observation and
 #'   \code{sum(pk)} variables.} \item{theta}{adjacency matrix of the simulated
-#'   graph} \item{omega}{true simulated precision matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
-#'   matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
-#'   simulated correlation matrix. Only returned if
+#'   graph} \item{omega}{simulated (true) precision matrix. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
+#'   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
+#'   \item{C}{ simulated (true) correlation matrix. Only returned if
 #'   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
 #'   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
 #'   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
@@ -245,9 +245,9 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
 #' Simulation of data with underlying clusters
 #'
-#' Simulates multivariate Normal data with clusters of participants sharing
-#' similar variable profiles. This simulator is based on a graph structure
-#' encoding conditional correlations between the observations.
+#' Simulates multivariate Normal data with clusters of participants with similar
+#' profiles. This simulator is based on a graph structure encoding conditional
+#' correlations between the observations.
 #'
 #' @inheritParams SimulateGraphical
 #' @param n vector of the number of observations per cluster in the simulated
@@ -260,16 +260,15 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   be correlated than between clusters. For between-cluster relationships to
 #'   be apparent, \code{v_between} must be nonzero.
 #'
-#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
-#'   \code{\link{GraphicalModel}}
+#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 #' @family simulation functions
 #'
 #' @return A list with: \item{data}{simulated data with \code{n} observation and
 #'   \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
-#'   graph} \item{omega}{true simulated precision matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
-#'   matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
-#'   simulated correlation matrix. Only returned if
+#'   graph} \item{omega}{simulated (true) precision matrix. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
+#'   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
+#'   \item{C}{ simulated (true) correlation matrix. Only returned if
 #'   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
 #'   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
 #'   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
@@ -287,8 +286,6 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   of correlated observations. Note that as \code{v_within} is controlling
 #'   entries in the precision matrix, all values must be negative to generate
 #'   positive correlations.
-#'
-#' @family simulation functions
 #'
 #' @examples
 #' \dontrun{
@@ -347,6 +344,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), seq(3, 7)))
 #' adjacency <- matrix(0, 15, 15)
 #' adjacency[1, 1:5] <- adjacency[1:5, 1] <- 1
+#' diag(adjacency) <- 0
 #' set.seed(1)
 #' simul <- SimulateClustering(
 #'   n = c(5, 5, 5), pk = 50, adjacency = adjacency, v_between = -1
@@ -371,7 +369,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
     implementation = SimulateAdjacency,
     topology = "random",
     nu_within = nu_within, # fully connected components by default
-    nu_between = nu_between, # fully connected by default but with v_between=0
+    nu_between = nu_between,
     output_matrices = output_matrices,
     v_within = v_within,
     v_between = v_between, # unconnected blocks if set to zero
@@ -403,6 +401,130 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
   }
   names(theta) <- rownames(out$data)
   out$theta <- theta
+
+  return(out)
+}
+
+
+#' Simulation of sparse orthogonal components
+#'
+#' Simulates variables following a multivariate Normal distribution that could
+#' be obtained from a sparse linear combination of orthogonal latent variables.
+#' This generates blocks of mutually independent variables, where all variables
+#' from a block can be obtained from a linear combination of the same latent
+#' variables. The latent variables would correspond to Principal Components from
+#' a sparse Principal Component Analysis. The loadings coefficients, their
+#' support, and the proportions of explained variance by each of the latent
+#' variables are returned. This function can be used to evaluate the performance
+#' of sparse Principal Component Analysis algorithms.
+#'
+#' @inheritParams SimulateGraphical
+#' @param adjacency optional binary and symmetric adjacency matrix encoding the
+#'   conditional graph structure between observations. The clusters encoded in
+#'   this argument must be in line with those indicated in \code{pk}. Edges in
+#'   off-diagonal blocks are not allowed to ensure that the simulated orthogonal
+#'   components are sparse. Corresponding entries in the precision matrix will
+#'   be set to zero.
+#'
+#' @details The data is simulated from a centered multivariate Normal
+#'   distribution with a block-diagonal covariance matrix. Independence between
+#'   variables from the different blocks ensures that sparse orthogonal
+#'   components can be generated. The block-diagonal (partial) correlation
+#'   matrix is obtained using a graph structure encoding the conditional
+#'   independence between variables. The orthogonal latent variables are
+#'   obtained from eigendecomposition of the true correlation matrix. The sparse
+#'   eigenvectors contain the weights of the linear combination of variables to
+#'   construct the latent variable (loadings coefficients). The proportion of
+#'   explained variance by each of the latent variable is computed from
+#'   eigenvalues. As latent variables are defined from the true correlation
+#'   matrix, the number of sparse orthogonal components is not limited by the
+#'   number of observations and is equal to \code{sum(pk)}.
+#'
+#' @return A list with: \item{data}{simulated data with \code{n} observation and
+#'   \code{sum(pk)} variables.} \item{loadings}{loadings coefficients of the
+#'   orthogonal latent variables (principal components).} \item{theta}{support
+#'   of the loadings coefficients.} \item{ev}{proportion of explained variance
+#'   by each of the orthogonal latent variables.} \item{adjacency}{adjacency
+#'   matrix of the simulated graph.} \item{omega}{simulated (true) precision
+#'   matrix. Only returned if \code{output_matrices=TRUE}.} \item{phi}{simulated
+#'   (true) partial correlation matrix. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{C}{ simulated (true) correlation
+#'   matrix. Only returned if \code{output_matrices=TRUE}.}
+#'
+#' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
+#' @family simulation functions
+#'
+#' @examples
+#' \dontrun{
+#' # Simulation of 3 components with high e.v.
+#' set.seed(1)
+#' simul <- SimulateComponents(pk = c(5, 3, 4))
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(simul$data),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
+#' print(simul$ev)
+#'
+#' # Simulation of multiple components with moderate e.v.
+#' simul <- SimulateComponents(
+#'   pk = sample(3:10, size = 5, replace = TRUE),
+#'   nu_within = 0.3, v_within = c(-0.8, -0.5)
+#' )
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(simul$data),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
+#' }
+#' @export
+SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
+                               nu_within = 1, v_within = c(-1, -0.9), continuous = TRUE,
+                               pd_strategy = "min_eigenvalue",
+                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
+                               output_matrices = FALSE) {
+  # Using multi-block simulator with unconnected blocks
+  out <- SimulateGraphical(
+    n = n, pk = pk, theta = adjacency,
+    implementation = SimulateAdjacency,
+    topology = "random",
+    nu_within = nu_within, # fully connected components by default
+    nu_between = 0, # need unconnected blocks
+    v_within = v_within,
+    v_between = 0,
+    continuous = continuous,
+    pd_strategy = pd_strategy,
+    u = u, niter_max_u_grid = niter_max_u_grid,
+    tolerance_u_grid = tolerance_u_grid, u_delta = u_delta,
+    output_matrices = TRUE
+  )
+
+  # Eigendecomposition of the covariance
+  eig <- eigen(out$C)
+
+  # Re-naming the outputs
+  out$adjacency <- out$theta
+
+  # Definition of sparse principal components
+  out$loadings <- round(eig$vectors, digits = 10)
+  out$theta <- ifelse(out$loadings != 0, yes = 1, no = 0)
+  rownames(out$theta) <- rownames(out$loadings) <- colnames(out$adjacency)
+  colnames(out$theta) <- colnames(out$loadings) <- paste0("PC", 1:ncol(out$theta))
+
+  # Definition of proportion of explained variance
+  ev <- eig$values / sum(eig$values)
+  names(ev) <- colnames(out$theta)
+  out$ev <- ev
+
+  # Re-arranging the output
+  out <- out[c("data", "loadings", "theta", "ev", "omega", "phi", "C", "u")]
+  if (!output_matrices) {
+    out <- out[c("data", "loadings", "theta", "ev")]
+  }
 
   return(out)
 }
@@ -1127,9 +1249,9 @@ SimulatePrecision <- function(pk = NULL, theta,
       # Computing sum of the p.d. matrices
       omega <- omega + omega_block
     }
-    
+
     # Setting row and column names
-    rownames(omega)=colnames(omega)=colnames(theta)
+    rownames(omega) <- colnames(omega) <- colnames(theta)
   }
 
   # Returning the output

@@ -171,10 +171,10 @@
 #'
 #' # Sparse PCA (1 component)
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#' simul <- SimulateComponents(pk = c(5, 3, 4))
 #' stab <- VariableSelection(
-#'   xdata = simul$xdata,
-#'   Lambda = 1:(ncol(simul$xdata) - 1),
+#'   xdata = simul$data,
+#'   Lambda = 1:(ncol(simul$data) - 1),
 #'   implementation = SparsePCA
 #' )
 #' CalibrationPlot(stab, xlab = "")

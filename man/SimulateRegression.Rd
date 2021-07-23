@@ -239,6 +239,7 @@ Other simulation functions:
 \code{\link{SimulateAdjacency}()},
 \code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
+\code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()}
 }
 \concept{simulation functions}

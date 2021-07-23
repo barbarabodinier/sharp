@@ -93,9 +93,13 @@
 #'   implementation = SparsePLS
 #' )
 #'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateComponents(n = 50, pk = c(5, 5, 5))
+#'
 #' # sPCA: sparsity on X
 #' stab <- BiSelection(
-#'   xdata = simul$xdata,
+#'   xdata = simul$data,
 #'   K = K, ncomp = 2,
 #'   LambdaX = 1:2,
 #'   implementation = SparsePCA
@@ -104,19 +108,23 @@
 #'
 #' \dontrun{
 #'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateComponents(pk = c(5, 3, 4))
+#'
+#' # sPCA: sparsity on X (unsupervised)
+#' stab <- BiSelection(
+#'   xdata = simul$data,
+#'   ncomp = 3,
+#'   LambdaX = 1:(ncol(simul$data) - 1),
+#'   implementation = SparsePCA
+#' )
+#'
 #' # Data simulation (continuous outcomes)
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
-#'
-#' # sPCA: sparsity on X (unsupervised)
-#' stab <- BiSelection(
-#'   xdata = x,
-#'   ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   implementation = SparsePCA
-#' )
 #'
 #' # sPLS: sparsity on X
 #' stab <- BiSelection(

@@ -115,10 +115,10 @@ provided in \code{implementation}.}
 \value{
 A list with: \item{data}{simulated data with \code{n} observation and
   \code{sum(pk)} variables.} \item{theta}{adjacency matrix of the simulated
-  graph} \item{omega}{true simulated precision matrix. Only returned if
-  \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
-  matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
-  simulated correlation matrix. Only returned if
+  graph} \item{omega}{simulated (true) precision matrix. Only returned if
+  \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
+  correlation matrix. Only returned if \code{output_matrices=TRUE}.}
+  \item{C}{ simulated (true) correlation matrix. Only returned if
   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
@@ -219,6 +219,7 @@ Other simulation functions:
 \code{\link{SimulateAdjacency}()},
 \code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
+\code{\link{SimulateComponents}()},
 \code{\link{SimulateRegression}()}
 }
 \concept{simulation functions}

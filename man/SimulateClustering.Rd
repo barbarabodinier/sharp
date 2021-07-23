@@ -96,10 +96,10 @@ correlation matrices should be included in the output.}
 \value{
 A list with: \item{data}{simulated data with \code{n} observation and
   \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
-  graph} \item{omega}{true simulated precision matrix. Only returned if
-  \code{output_matrices=TRUE}.} \item{phi}{true simulated partial correlation
-  matrix. Only returned if \code{output_matrices=TRUE}.} \item{C}{true
-  simulated correlation matrix. Only returned if
+  graph} \item{omega}{simulated (true) precision matrix. Only returned if
+  \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
+  correlation matrix. Only returned if \code{output_matrices=TRUE}.}
+  \item{C}{ simulated (true) correlation matrix. Only returned if
   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
@@ -107,9 +107,9 @@ A list with: \item{data}{simulated data with \code{n} observation and
   \code{output_matrices=TRUE}.}
 }
 \description{
-Simulates multivariate Normal data with clusters of participants sharing
-similar variable profiles. This simulator is based on a graph structure
-encoding conditional correlations between the observations.
+Simulates multivariate Normal data with clusters of participants with similar
+profiles. This simulator is based on a graph structure encoding conditional
+correlations between the observations.
 }
 \details{
 By default, with \code{nu=1}, a graph with \code{length(n)} fully
@@ -181,6 +181,7 @@ Heatmap(
 adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), seq(3, 7)))
 adjacency <- matrix(0, 15, 15)
 adjacency[1, 1:5] <- adjacency[1:5, 1] <- 1
+diag(adjacency) <- 0
 set.seed(1)
 simul <- SimulateClustering(
   n = c(5, 5, 5), pk = 50, adjacency = adjacency, v_between = -1
@@ -194,18 +195,12 @@ Heatmap(
 }
 }
 \seealso{
-\code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
-  \code{\link{GraphicalModel}}
+\code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
 \code{\link{SimulateBlockAdjacency}()},
-\code{\link{SimulateGraphical}()},
-\code{\link{SimulateRegression}()}
-
-Other simulation functions: 
-\code{\link{SimulateAdjacency}()},
-\code{\link{SimulateBlockAdjacency}()},
+\code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}
 }

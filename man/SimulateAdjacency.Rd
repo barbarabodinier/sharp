@@ -41,6 +41,7 @@ plot(Graph(adjacency))
 Other simulation functions: 
 \code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
+\code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}
 }
