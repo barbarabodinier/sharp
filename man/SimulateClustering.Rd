@@ -9,16 +9,16 @@ SimulateClustering(
   pk = 20,
   adjacency = NULL,
   nu_within = 1,
-  nu_between = 1,
-  output_matrices = FALSE,
-  v_within = c(-1, -0.5),
-  v_between = 0,
+  nu_between = 0,
+  v_within = c(-1, -0.9),
+  v_between = -0.1,
   continuous = TRUE,
-  pd_strategy = "diagonally_dominant",
+  pd_strategy = "min_eigenvalue",
   u = NULL,
   niter_max_u_grid = 5,
   tolerance_u_grid = 10,
-  u_delta = 5
+  u_delta = 5,
+  output_matrices = FALSE
 )
 }
 \arguments{
@@ -32,7 +32,7 @@ conditional graph structure between observations. The clusters encoded in
 this argument must be in line with those indicated in \code{n}. To generate
 a block structure, the within-cluster observations must be more likely to
 be correlated than between clusters. For between-cluster relationships to
-be apparent, \code{v_between} must be nonzero. To be used with care.}
+be apparent, \code{v_between} must be nonzero.}
 
 \item{nu_within}{expected density of within-group blocks in the graph. If
 \code{length(pk)=1}, this is the expected density of the graph. If
@@ -45,20 +45,17 @@ Similar to \code{nu_within}. By default, the same density is used for
 within and between blocks (\code{nu_within}=\code{nu_between}). Only used
 if \code{length(pk)>1}.}
 
-\item{output_matrices}{logical indicating if the true precision and (partial)
-correlation matrices should be included in the output.}
-
 \item{v_within}{vector defining the (range of) nonzero entries in the
-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+diagonal blocks of the precision matrix. These values must be between -1
+and 1 if \code{pd_strategy="min_eigenvalue"}. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
 \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
 
 \item{v_between}{vector defining the (range of) nonzero entries in the
-off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
-\code{v_between} is the set of possible precision values. If
-\code{continuous=TRUE}, \code{v_between} is the range of possible
-precision values. This argument is only used if \code{length(pk)>1}.}
+off-diagonal blocks of the precision matrix. This argument is the same as
+\code{v_within} but for off-diagonal blocks. It is only used if
+\code{length(pk)>1}.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in
@@ -72,8 +69,8 @@ positive definite (and hence can be a covariance matrix). With
 \code{pd_strategy="diagonally_dominant"}, the precision matrix is made
 diagonally dominant by setting the diagonal entries to the sum of absolute
 values on the corresponding row and a constant u. With
-\code{pd_strategy="nonnegative_eigenvalues"}, diagonal entries are set to
-the sum of the absolute value of the smallest eigenvalue and a constant u.}
+\code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
+the absolute value of the smallest eigenvalue and a constant u.}
 
 \item{u}{optional vector of values for constant u used to ensure positive
 definiteness of the simulated precision matrix. The value that maximises
@@ -92,6 +89,9 @@ the end of the grid (first or last value). This parameter is only used with
 \item{u_delta}{difference in log10-scale between the smallest (or largest) u
 values in the grid used in the current iteration and the one built for next
 iteration. This parameter is only used with \code{u=NULL}.}
+
+\item{output_matrices}{logical indicating if the true precision and (partial)
+correlation matrices should be included in the output.}
 }
 \value{
 A list with: \item{data}{simulated data with \code{n} observation and
@@ -121,15 +121,15 @@ By default, with \code{nu=1}, a graph with \code{length(n)} fully
   observations instead of variables). Using a smaller value for \code{nu} or
   a larger range for \code{v_within} will generate more heterogeneous blocks
   of correlated observations. Note that as \code{v_within} is controlling
-  entries in the precision matrix, it must be negative to yield positive
-  correlations.
+  entries in the precision matrix, all values must be negative to generate
+  positive correlations.
 }
 \examples{
 \dontrun{
 
 # Simulation of 15 observations belonging to 3 groups
 set.seed(1)
-simul <- SimulateClustering(n = c(5, 5, 5), pk = 100)
+simul <- SimulateClustering(n = c(10, 10, 10), pk = 50)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(t(simul$data)),
@@ -140,8 +140,21 @@ Heatmap(
 # Simulation with weaker within-cluster correlations
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100,
-  v_within = c(-1, -0.1), continuous = TRUE
+  n = c(10, 10, 10), pk = 50,
+  v_within = c(-1, -0.8), continuous = TRUE
+)
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = cor(t(simul$data)),
+  colours = c("navy", "white", "red"),
+  legend_range = c(-1, 1)
+)
+
+# Simulation with different cluster sizes
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(10, 5, 5), pk = 50,
+  v_within = c(-1, -0.8), continuous = TRUE
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
@@ -153,8 +166,9 @@ Heatmap(
 # Introducing between-cluster correlations
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100, nu_within = 1, nu_between = 0.3,
-  v_within = c(-1, -0.5), v_between = c(-0.5, 0), continuous = TRUE
+  n = c(10, 10, 10), pk = 50,
+  nu_within = 1, nu_between = 0.05,
+  v_within = -1
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
@@ -164,12 +178,12 @@ Heatmap(
 )
 
 # User-defined structure: between-cluster pair obs1-obs8
-adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
-adjacency[1, 8] <- adjacency[8, 1] <- 1
+adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), seq(3, 7)))
+adjacency <- matrix(0, 15, 15)
+adjacency[1, 1:5] <- adjacency[1:5, 1] <- 1
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100, adjacency = adjacency, output_matrices = TRUE,
-  v_within = c(-1, -0.5), v_between = -1, continuous = TRUE
+  n = c(5, 5, 5), pk = 50, adjacency = adjacency, v_between = -1
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

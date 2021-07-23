@@ -377,6 +377,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
           }
           if (as.character(substitute(implementation)) == "GroupPLS") {
             if (family == "gaussian") {
+              print(group_x)
               stab <- VariableSelection(
                 xdata = xdata, ydata = ydata,
                 Lambda = LambdaX, pi_list = pi_list,

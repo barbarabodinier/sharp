@@ -12,7 +12,6 @@ SimulateGraphical(
   topology = "random",
   nu_within = 0.1,
   nu_between = NULL,
-  output_matrices = FALSE,
   v_within = c(-1, 1),
   v_between = c(-0.1, 0.1),
   continuous = FALSE,
@@ -21,6 +20,7 @@ SimulateGraphical(
   niter_max_u_grid = 5,
   tolerance_u_grid = 10,
   u_delta = 5,
+  output_matrices = FALSE,
   ...
 )
 }
@@ -61,20 +61,17 @@ Similar to \code{nu_within}. By default, the same density is used for
 within and between blocks (\code{nu_within}=\code{nu_between}). Only used
 if \code{length(pk)>1}.}
 
-\item{output_matrices}{logical indicating if the true precision and (partial)
-correlation matrices should be included in the output.}
-
 \item{v_within}{vector defining the (range of) nonzero entries in the
-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+diagonal blocks of the precision matrix. These values must be between -1
+and 1 if \code{pd_strategy="min_eigenvalue"}. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
 \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
 
 \item{v_between}{vector defining the (range of) nonzero entries in the
-off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
-\code{v_between} is the set of possible precision values. If
-\code{continuous=TRUE}, \code{v_between} is the range of possible
-precision values. This argument is only used if \code{length(pk)>1}.}
+off-diagonal blocks of the precision matrix. This argument is the same as
+\code{v_within} but for off-diagonal blocks. It is only used if
+\code{length(pk)>1}.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in
@@ -88,8 +85,8 @@ positive definite (and hence can be a covariance matrix). With
 \code{pd_strategy="diagonally_dominant"}, the precision matrix is made
 diagonally dominant by setting the diagonal entries to the sum of absolute
 values on the corresponding row and a constant u. With
-\code{pd_strategy="nonnegative_eigenvalues"}, diagonal entries are set to
-the sum of the absolute value of the smallest eigenvalue and a constant u.}
+\code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
+the absolute value of the smallest eigenvalue and a constant u.}
 
 \item{u}{optional vector of values for constant u used to ensure positive
 definiteness of the simulated precision matrix. The value that maximises
@@ -108,6 +105,9 @@ the end of the grid (first or last value). This parameter is only used with
 \item{u_delta}{difference in log10-scale between the smallest (or largest) u
 values in the grid used in the current iteration and the one built for next
 iteration. This parameter is only used with \code{u=NULL}.}
+
+\item{output_matrices}{logical indicating if the true precision and (partial)
+correlation matrices should be included in the output.}
 
 \item{...}{additional arguments passed to the graph simulation function
 provided in \code{implementation}.}

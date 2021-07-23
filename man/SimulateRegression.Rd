@@ -88,7 +88,8 @@ latent outcomes to generate observed outcomes.}
 sampled. This argument is only used if \code{eta} is not provided.}
 
 \item{v_within}{vector defining the (range of) nonzero entries in the
-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+diagonal blocks of the precision matrix. These values must be between -1
+and 1 if \code{pd_strategy="min_eigenvalue"}. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
 \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
@@ -105,8 +106,8 @@ positive definite (and hence can be a covariance matrix). With
 \code{pd_strategy="diagonally_dominant"}, the precision matrix is made
 diagonally dominant by setting the diagonal entries to the sum of absolute
 values on the corresponding row and a constant u. With
-\code{pd_strategy="nonnegative_eigenvalues"}, diagonal entries are set to
-the sum of the absolute value of the smallest eigenvalue and a constant u.}
+\code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
+the absolute value of the smallest eigenvalue and a constant u.}
 
 \item{u}{optional vector of values for constant u used to ensure positive
 definiteness of the simulated precision matrix. The value that maximises
@@ -201,7 +202,10 @@ plot(Graph(simul$adjacency,
 
 # Blocks of strongly inter-connected predictors
 set.seed(1)
-simul <- SimulateRegression(pk = c(5, 5), nu_within = 0.9)
+simul <- SimulateRegression(
+  pk = c(5, 5), nu_within = 0.5,
+  v_within = c(-1, -0.5), continuous = TRUE, pd_strategy = "min_eigenvalue"
+)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$xdata),

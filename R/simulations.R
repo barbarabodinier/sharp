@@ -39,15 +39,15 @@
 #' @param output_matrices logical indicating if the true precision and (partial)
 #'   correlation matrices should be included in the output.
 #' @param v_within vector defining the (range of) nonzero entries in the
-#'   diagonal blocks of the precision matrix. If \code{continuous=FALSE},
+#'   diagonal blocks of the precision matrix. These values must be between -1
+#'   and 1 if \code{pd_strategy="min_eigenvalue"}. If \code{continuous=FALSE},
 #'   \code{v_within} is the set of possible precision values. If
 #'   \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 #'   values.
 #' @param v_between vector defining the (range of) nonzero entries in the
-#'   off-diagonal blocks of the precision matrix. If \code{continuous=FALSE},
-#'   \code{v_between} is the set of possible precision values. If
-#'   \code{continuous=TRUE}, \code{v_between} is the range of possible
-#'   precision values. This argument is only used if \code{length(pk)>1}.
+#'   off-diagonal blocks of the precision matrix. This argument is the same as
+#'   \code{v_within} but for off-diagonal blocks. It is only used if
+#'   \code{length(pk)>1}.
 #' @param continuous logical indicating whether to sample precision values from
 #'   a uniform distribution between the minimum and maximum values in
 #'   \code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
@@ -59,8 +59,8 @@
 #'   \code{pd_strategy="diagonally_dominant"}, the precision matrix is made
 #'   diagonally dominant by setting the diagonal entries to the sum of absolute
 #'   values on the corresponding row and a constant u. With
-#'   \code{pd_strategy="nonnegative_eigenvalues"}, diagonal entries are set to
-#'   the sum of the absolute value of the smallest eigenvalue and a constant u.
+#'   \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
+#'   the absolute value of the smallest eigenvalue and a constant u.
 #' @param u optional vector of values for constant u used to ensure positive
 #'   definiteness of the simulated precision matrix. The value that maximises
 #'   the contrast of the simulated correlation matrix over the grid \code{u} is
@@ -177,7 +177,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               nu_within = 0.1, nu_between = NULL,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
-                              u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5, 
+                              u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                               output_matrices = FALSE, ...) {
   # Defining number of nodes
   p <- sum(pk)
@@ -224,11 +224,19 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
   rownames(x) <- paste0("obs", 1:nrow(x))
 
   if (output_matrices) {
-    return(list(
-      data = x, theta = theta,
-      omega = omega, phi = phi, C = C,
-      u = out$u, u_grid = out$u_grid, contrast_path = out$contrast_path
-    ))
+    if (pd_strategy == "diagonally_dominant") {
+      return(list(
+        data = x, theta = theta,
+        omega = omega, phi = phi, C = C,
+        u = out$u, u_grid = out$u_grid, contrast_path = out$contrast_path
+      ))
+    } else {
+      return(list(
+        data = x, theta = theta,
+        omega = omega, phi = phi, C = C,
+        u = out$u
+      ))
+    }
   } else {
     return(list(data = x, theta = theta))
   }
@@ -250,7 +258,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   this argument must be in line with those indicated in \code{n}. To generate
 #'   a block structure, the within-cluster observations must be more likely to
 #'   be correlated than between clusters. For between-cluster relationships to
-#'   be apparent, \code{v_between} must be nonzero. To be used with care.
+#'   be apparent, \code{v_between} must be nonzero.
 #'
 #' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{Contrast}},
 #'   \code{\link{GraphicalModel}}
@@ -277,8 +285,8 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   observations instead of variables). Using a smaller value for \code{nu} or
 #'   a larger range for \code{v_within} will generate more heterogeneous blocks
 #'   of correlated observations. Note that as \code{v_within} is controlling
-#'   entries in the precision matrix, it must be negative to yield positive
-#'   correlations.
+#'   entries in the precision matrix, all values must be negative to generate
+#'   positive correlations.
 #'
 #' @family simulation functions
 #'
@@ -287,7 +295,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'
 #' # Simulation of 15 observations belonging to 3 groups
 #' set.seed(1)
-#' simul <- SimulateClustering(n = c(5, 5, 5), pk = 100)
+#' simul <- SimulateClustering(n = c(10, 10, 10), pk = 50)
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(t(simul$data)),
@@ -298,8 +306,21 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' # Simulation with weaker within-cluster correlations
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(5, 5, 5), pk = 100,
-#'   v_within = c(-1, -0.1), continuous = TRUE
+#'   n = c(10, 10, 10), pk = 50,
+#'   v_within = c(-1, -0.8), continuous = TRUE
+#' )
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' # Simulation with different cluster sizes
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(10, 5, 5), pk = 50,
+#'   v_within = c(-1, -0.8), continuous = TRUE
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -311,8 +332,9 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' # Introducing between-cluster correlations
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(5, 5, 5), pk = 100, nu_within = 1, nu_between = 0.3,
-#'   v_within = c(-1, -0.5), v_between = c(-0.5, 0), continuous = TRUE
+#'   n = c(10, 10, 10), pk = 50,
+#'   nu_within = 1, nu_between = 0.05,
+#'   v_within = -1
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -322,12 +344,12 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' )
 #'
 #' # User-defined structure: between-cluster pair obs1-obs8
-#' adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), rep(3, 5)))
-#' adjacency[1, 8] <- adjacency[8, 1] <- 1
+#' adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), seq(3, 7)))
+#' adjacency <- matrix(0, 15, 15)
+#' adjacency[1, 1:5] <- adjacency[1:5, 1] <- 1
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(5, 5, 5), pk = 100, adjacency = adjacency, output_matrices = TRUE,
-#'   v_within = c(-1, -0.5), v_between = -1, continuous = TRUE
+#'   n = c(5, 5, 5), pk = 50, adjacency = adjacency, v_between = -1
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -338,9 +360,9 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' }
 #' @export
 SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
-                               nu_within = 1, nu_between = 1, 
-                               v_within = c(-1, -0.5), v_between = 0, continuous = TRUE,
-                               pd_strategy = "diagonally_dominant",
+                               nu_within = 1, nu_between = 0,
+                               v_within = c(-1, -0.9), v_between = -0.1, continuous = TRUE,
+                               pd_strategy = "min_eigenvalue",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
   # Using multi-block simulator with unconnected blocks
@@ -512,7 +534,10 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
 #'
 #' # Blocks of strongly inter-connected predictors
 #' set.seed(1)
-#' simul <- SimulateRegression(pk = c(5, 5), nu_within = 0.9)
+#' simul <- SimulateRegression(
+#'   pk = c(5, 5), nu_within = 0.5,
+#'   v_within = c(-1, -0.5), continuous = TRUE, pd_strategy = "min_eigenvalue"
+#' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$xdata),
@@ -967,79 +992,159 @@ SimulatePrecision <- function(pk = NULL, theta,
     }
   }
 
-  # Defining grid of u values if not provided
-  if (is.null(u)) {
-    u <- 10^-(seq(0, 5, by = 0.1))
-    refining_u_grid <- TRUE
-    niter_max <- 5
-    tolerance <- 10
-  } else {
-    refining_u_grid <- FALSE
+  # Checking the choice of pd_strategy
+  if (!pd_strategy %in% c("diagonally_dominant", "min_eigenvalue")) {
+    stop("Invalid input for argument 'pd_strategy'. Possible values are: 'diagonally_dominant' or 'min_eigenvalue'.")
   }
+
+  # Ensuring that v values are lower than or equal to 1
+  if (any(abs(v_within) > 1)) {
+    v_within <- v_within / max(abs(v_within))
+    message("The values provided in 'v_within' have been re-scaled to be lower than or equal to 1 in absolute value.")
+  }
+
+  # Ensuring that diagonal entries of theta are zero
+  diag(theta) <- 0
 
   # Building v matrix
   v <- SimulateSymmetricMatrix(pk = pk, v_within = v_within, v_between = v_between, continuous = continuous)
 
-  # Filling off-diagonal entries of the precision matrix
-  omega <- theta * v
+  # Preparing realistic diagonally dominant precision matrix
+  if (pd_strategy == "diagonally_dominant") {
+    # Defining grid of u values if not provided
+    if (is.null(u)) {
+      u <- 10^-(seq(0, 5, by = 0.1))
+      refining_u_grid <- TRUE
+      niter_max <- 5
+      tolerance <- 10
+    } else {
+      refining_u_grid <- FALSE
+    }
 
-  # Calibrate u based on contrasts of the correlation matrix
-  contrast <- NULL
-  for (u_value in u) {
-    omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-    C <- stats::cov2cor(solve(omega_tmp))
-    contrast <- c(contrast, Contrast(C))
-  }
+    # Filling off-diagonal entries of the precision matrix
+    omega <- theta * v
 
-  # Avoiding extreme values in u grid if not provided by the user
-  if (refining_u_grid) {
-    stop <- 0
-    niter <- 1
-    while (stop == 0) {
-      niter <- niter + 1
-      if (niter == niter_max_u_grid) {
-        stop <- 1
-      }
-      # Satisfied with calibrated u if the argmax is not too close to the boundaries (as defined from tolerance_u_grid)
-      if (any(which(contrast == max(contrast)) %in% seq(tolerance_u_grid, length(u) - tolerance_u_grid) == TRUE)) {
-        stop <- 1
-      } else {
-        # Adding smaller values of u
-        if (any(which(contrast == max(contrast)) %in% seq(1, tolerance_u_grid) == TRUE)) {
-          u <- c(u, 10^-seq(min(-log10(u)) - u_delta, min(-log10(u)), by = 0.1))
+    # Calibrate u based on contrasts of the correlation matrix
+    contrast <- NULL
+    for (u_value in u) {
+      omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
+      C <- stats::cov2cor(solve(omega_tmp))
+      contrast <- c(contrast, Contrast(C))
+    }
+
+    # Avoiding extreme values in u grid if not provided by the user
+    if (refining_u_grid) {
+      stop <- 0
+      niter <- 1
+      while (stop == 0) {
+        niter <- niter + 1
+        if (niter == niter_max_u_grid) {
+          stop <- 1
         }
+        # Satisfied with calibrated u if the argmax is not too close to the boundaries (as defined from tolerance_u_grid)
+        if (any(which(contrast == max(contrast)) %in% seq(tolerance_u_grid, length(u) - tolerance_u_grid) == TRUE)) {
+          stop <- 1
+        } else {
+          # Adding smaller values of u
+          if (any(which(contrast == max(contrast)) %in% seq(1, tolerance_u_grid) == TRUE)) {
+            u <- c(u, 10^-seq(min(-log10(u)) - u_delta, min(-log10(u)), by = 0.1))
+          }
 
-        # Adding larger values of u
-        if (any(which(contrast == max(contrast)) %in% seq(length(u) - tolerance_u_grid, length(u)) == TRUE)) {
-          u <- c(u, 10^-seq(max(-log10(u)), max(-log10(u) + u_delta), by = 0.1))
-        }
+          # Adding larger values of u
+          if (any(which(contrast == max(contrast)) %in% seq(length(u) - tolerance_u_grid, length(u)) == TRUE)) {
+            u <- c(u, 10^-seq(max(-log10(u)), max(-log10(u) + u_delta), by = 0.1))
+          }
 
-        # Sorting values in u
-        u <- sort(u, decreasing = TRUE)
+          # Sorting values in u
+          u <- sort(u, decreasing = TRUE)
 
-        # Computing the contrast for all visited values of u
-        contrast <- NULL
-        for (u_value in u) {
-          omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-          C <- stats::cov2cor(solve(omega_tmp))
-          contrast <- c(contrast, Contrast(C))
+          # Computing the contrast for all visited values of u
+          contrast <- NULL
+          for (u_value in u) {
+            omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
+            C <- stats::cov2cor(solve(omega_tmp))
+            contrast <- c(contrast, Contrast(C))
+          }
         }
       }
     }
+
+    # Computing calibrated precision matrix
+    if (length(u) > 1) {
+      u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
+      omega <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
+    } else {
+      omega <- omega_tmp
+    }
   }
 
-  # Computing calibrated precision matrix
-  if (length(u) > 1) {
-    u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
-    omega <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-  } else {
-    omega <- omega_tmp
+  # Allowing for higher correlations using smallest eigenvalue
+  if (pd_strategy == "min_eigenvalue") {
+    # Defining a small constant
+    if (is.null(u)) {
+      u <- 1e-5
+    }
+
+    # Initialisation of full precision matrix
+    omega <- matrix(0, ncol = sum(pk), nrow = sum(pk))
+
+    # Creating matrix with block indices
+    bigblocks <- BlockMatrix(pk)
+
+    # Making positive definite diagonal blocks (Schur complement shows it is p.d.)
+    for (i in unique(diag(bigblocks))) {
+      # Filling off-diagonal entries of the precision matrix (for corresponding diagonal block)
+      omega_block <- matrix((theta * v)[which(bigblocks == i)], ncol = sum(diag(bigblocks) == i))
+
+      # Computing the signed adjacency
+      signed_theta <- sign(omega_block)
+
+      # Defining a positive definite precision with entries in 0, 1, -1
+      omega_tmp <- MakePositiveDefinite(omega = signed_theta, u_value = u, pd_strategy = pd_strategy)
+
+      # Using sampled entries (need to be lower than or equal to 1 in absolute value)
+      diag(omega_block) <- diag(omega_tmp)
+
+      # Filling full precision matrix
+      omega[which(bigblocks == i)] <- omega_block
+    }
+
+    # Accounting for off-diagonal blocks (sum of p.d. is p.d.)
+    if (length(pk) > 1) {
+      # Filling off-diagonal entries of the precision matrix (for off-diagonal blocks)
+      omega_block <- theta * v
+      omega_block[which(bigblocks %in% unique(diag(bigblocks)))] <- 0
+
+      # Computing the signed adjacency
+      signed_theta <- sign(omega_block)
+
+      # Defining a positive definite precision with entries in 0, 1, -1
+      omega_tmp <- MakePositiveDefinite(omega = signed_theta, u_value = u, pd_strategy = pd_strategy)
+
+      # Using sampled entries (need to be lower than or equal to 1 in absolute value)
+      diag(omega_block) <- diag(omega_tmp)
+
+      # Computing sum of the p.d. matrices
+      omega <- omega + omega_block
+    }
+    
+    # Setting row and column names
+    rownames(omega)=colnames(omega)=colnames(theta)
   }
 
-  return(list(
-    omega = omega,
-    u = u_value, u_grid = u, contrast_path = contrast
-  ))
+  # Returning the output
+  if (pd_strategy == "diagonally_dominant") {
+    return(list(
+      omega = omega,
+      u = u_value, u_grid = u, contrast_path = contrast
+    ))
+  }
+
+  if (pd_strategy == "min_eigenvalue") {
+    return(list(
+      omega = omega, u = u
+    ))
+  }
 }
 
 
@@ -1124,18 +1229,18 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #' sigma_pd <- MakePositiveDefinite(sigma, pd = "diagonally_dominant")
 #'
 #' # Non-negative eigenvalues
-#' sigma_pd <- MakePositiveDefinite(sigma, pd = "nonnegative_eigenvalues")
+#' sigma_pd <- MakePositiveDefinite(sigma, pd = "min_eigenvalue")
 #' eigen(sigma_pd)$values
 #' }
 #' @export
-MakePositiveDefinite <- function(omega, u_value = 0.1, pd_strategy = "diagonally_dominant") {
+MakePositiveDefinite <- function(omega, u_value = 1e-5, pd_strategy = "diagonally_dominant") {
   # Adding a small number (u) to the diagonal
   if (pd_strategy == "diagonally_dominant") {
     diag(omega) <- apply(abs(omega), 1, sum) + u_value
   }
 
   # Ensuring positive eigenvalues
-  if (pd_strategy == "nonnegative_eigenvalues") {
+  if (pd_strategy == "min_eigenvalue") {
     diag(omega) <- abs(min(eigen(omega)$values)) + u_value # used in huge
   }
 

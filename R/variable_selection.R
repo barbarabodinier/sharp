@@ -306,7 +306,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 
   # Checking that group_x is provided for group penalisation
   if (group_penalisation) {
-    if (!"group_x" %in% names(extra_args)) {
+    if (is.null(group_x)) {
       stop("Please provide argument 'group_x' for group penalisation. Argument 'group_x' should be a vector with the number of variables in each group.")
     }
   }
