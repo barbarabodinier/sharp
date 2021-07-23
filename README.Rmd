@@ -176,7 +176,7 @@ print(myadjacency)
 
 For visualisation, it can be converted into an igraph object:
 
-```{r fig.height=5, fig.width=5, out.width="100%", fig.align="center"}
+```{r fig.height=9, fig.width=9, out.width="100%", fig.align="center"}
 mygraph <- Graph(myadjacency)
 set.seed(1)
 plot(mygraph)
@@ -242,7 +242,7 @@ print(myadjacency)
 
 This matrix can be interpreted like an adjacency matrix and visualised as a graph:
 
-```{r fig.height=5, fig.width=5, out.width="100%", fig.align="center"}
+```{r fig.height=9, fig.width=9, out.width="100%", fig.align="center"}
 mygraph <- Graph(myadjacency)
 set.seed(1)
 plot(mygraph)

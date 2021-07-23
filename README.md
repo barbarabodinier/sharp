@@ -372,7 +372,7 @@ reconstructed from a sparse linear combination of orthogonal variables
 ``` r
 # Data simulation
 set.seed(1)
-simul <- SimulateComponents(n=100, pk = c(3, 5, 4), v_within=c(-1,-0.8))
+simul <- SimulateComponents(n = 100, pk = c(3, 5, 4), v_within = c(-1, -0.8))
 X <- simul$data
 
 # Visualisation of correlations between participants
@@ -395,7 +395,7 @@ contributing to the Principal Components (PCs). Stability selection can
 be applied on the first three PCs using:
 
 ``` r
-stab <- BiSelection(xdata = X, implementation = SparsePCA, ncomp=3)
+stab <- BiSelection(xdata = X, implementation = SparsePCA, ncomp = 3)
 #> Component 1
 #> Loading required namespace: elasticnet
 #> Component 2
