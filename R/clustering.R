@@ -1,6 +1,6 @@
-#' Stability clustering
+#' Consensus clustering
 #'
-#' Runs stability clustering models with different combinations of parameters
+#' Runs consensus clustering models with different combinations of parameters
 #' controlling the number of clusters in the underlying algorithm and thresholds
 #' in co-membership proportions. These two parameters are jointly calibrated by
 #' maximising the stability score of the model (possibly under a constraint on
@@ -22,7 +22,7 @@
 #'
 #' @details To ensure reproducibility of the results, the state of the random
 #'   number generator is fixed to \code{seed}. For parallelisation of the code,
-#'   stability clustering results produced with different \code{seed}s and all
+#'   consensus clustering results produced with different \code{seed}s and all
 #'   other parameters equal can be combined (more details in
 #'   \code{\link{Combine}}).
 #'
@@ -36,9 +36,9 @@
 #'   algorithm. } \item{P}{a matrix of calibrated thresholds in co-membership
 #'   proportions for different parameters controlling the number of clusters in
 #'   the underlying algorithm. } \item{PFER}{a matrix of the upper-bounds in
-#'   PFER of calibrated stability clustering models with different (sets of)
+#'   PFER of calibrated consensus clustering models with different (sets of)
 #'   parameters controlling the number of clusters in the underlying algorithm.}
-#'   \item{FDP}{a matrix of the upper-bounds in FDP of calibrated stability
+#'   \item{FDP}{a matrix of the upper-bounds in FDP of calibrated consensus
 #'   clustering models with different parameters controlling the number of
 #'   clusters in the underlying algorithm.} \item{S_2d}{an array of stability
 #'   scores obtained with different combinations of parameters. Columns
@@ -95,7 +95,7 @@
 #'   legend_range = c(-1, 1)
 #' )
 #'
-#' # Stability selection
+#' # Consensus clustering
 #' stab <- Clustering(xdata = simul$data)
 #' CalibrationPlot(stab, xlab = expression(italic(k)))
 #' table(simul$theta, Clusters(stab))

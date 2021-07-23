@@ -3,8 +3,8 @@
 #' Implementation of stability-enhanced models for variable selection in
 #' regression, graphical modelling and clustering. These methods are based on
 #' resampling approaches to compute selection proportions. Calibration of the
-#' models is done via maximisation of a stability score measuring how unlikely
-#' it is that the selection procedure is uniform.
+#' models is done via maximisation of a stability score measuring the likelihood
+#' of selecting informative (not uniformly chosen) features.
 #'
 #' \tabular{ll}{ Package: \tab focus\cr Type: \tab Package\cr Version: \tab
 #' 0.1\cr Date: \tab 2021-04-30\cr License: \tab GPL (>= 3)\cr Maintainer: \tab
@@ -70,7 +70,7 @@
 #'   legend_range = c(-1, 1)
 #' )
 #'
-#' # Stability selection
+#' # Consensus clustering
 #' stab <- Clustering(xdata = simul$data)
 #' CalibrationPlot(stab, xlab = expression(italic(k)))
 #' Clusters(stab)

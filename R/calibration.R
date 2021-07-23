@@ -255,7 +255,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 50, n = 10)
 #'
-#' # Stability selection
+#' # Consensus clustering
 #' stab <- Clustering(xdata = simul$data, Lambda = 1:nrow(simul$data))
 #'
 #' # Stable cluster membership
