@@ -52,6 +52,9 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, ...) {
 
   # Defining clusters
   mygroups <- do.call(stats::cutree, args = list(tree = myclust, k = Lambda))
+  if (is.null(dim(mygroups))){
+    mygroups=cbind(mygroups)
+  }
   for (i in 1:nrow(Lambda)) {
     adjacency[, , i] <- CoMembership(groups = mygroups[, i])
   }
