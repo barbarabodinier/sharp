@@ -44,9 +44,10 @@ is not provided, it is set to \code{seq(1, nrow(xdata))}.}
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{implementation}{function to use for clustering. If
-\code{implementation=HierarchicalClustering}, the algorithm implemented in
-\code{\link[stats]{hclust}} is used. Alternatively, a function taking
+\item{implementation}{function to use for clustering. Possible functions
+include \code{\link{HierarchicalClustering}} (hierarchical clustering),
+\code{\link{KMeansClustering}} (k-means) and \code{\link{PAMClustering}}
+(Partioning Around Medoids). Alternatively, a user-defined function taking
 \code{xdata} and \code{Lambda} as arguments and returning a binary and
 symmetric matrix for which diagonal elements are equal to zero can be used.}
 
@@ -164,8 +165,26 @@ Heatmap(
   legend_range = c(-1, 1)
 )
 
-# Consensus clustering
+# Consensus clustering based on hierarchical clustering
 stab <- Clustering(xdata = simul$data)
+CalibrationPlot(stab, xlab = expression(italic(k)))
+SelectionProportions(stab)
+plot(Graph(Adjacency(stab), satellites = TRUE))
+table(simul$theta, Clusters(stab))
+
+# Consensus clustering based on k-means clustering
+stab <- Clustering(
+  xdata = simul$data,
+  implementation = KMeansClustering
+)
+CalibrationPlot(stab, xlab = expression(italic(k)))
+table(simul$theta, Clusters(stab))
+
+# Consensus clustering based on PAM clustering
+stab <- Clustering(
+  xdata = simul$data,
+  implementation = PAMClustering
+)
 CalibrationPlot(stab, xlab = expression(italic(k)))
 table(simul$theta, Clusters(stab))
 }

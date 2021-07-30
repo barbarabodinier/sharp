@@ -28,6 +28,7 @@ Imports:
     withr (>= 2.4.0)
 Suggests:
     elasticnet,
+    cluster,
     corpcor,
     gglasso,
     mixOmics,
