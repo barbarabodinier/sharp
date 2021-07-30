@@ -4,7 +4,10 @@
 #' \code{\link[stats]{hclust}}. This function is not using stability.
 #'
 #' @inheritParams Clustering
-#' @param ... additional parameters passed to \code{\link[stats]{hclust}}.
+#' @param rows logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
+#'   should be conducted.
+#' @param ... additional parameters passed to \code{\link[stats]{dist}} or
+#'   \code{\link[stats]{hclust}}.
 #'
 #' @return An array with binary and symmetric co-membership matrices.
 #'
@@ -14,9 +17,10 @@
 #' set.seed(1)
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
-#' myhclust <- HierarchicalClustering(xdata = t(simul$data), Lambda = 1:20)
+#' # Hierarchical clustering
+#' myhclust <- HierarchicalClustering(xdata = simul$data, Lambda = 1:20)
 #' @export
-HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, ...) {
+HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -26,7 +30,9 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, ...) {
   }
 
   # Transposing for clustering of columns
-  xdata <- t(xdata)
+  if (!rows) {
+    xdata <- t(xdata)
+  }
 
   # Re-formatting Lambda
   if (is.vector(Lambda)) {
@@ -52,11 +58,69 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, ...) {
 
   # Defining clusters
   mygroups <- do.call(stats::cutree, args = list(tree = myclust, k = Lambda))
-  if (is.null(dim(mygroups))){
-    mygroups=cbind(mygroups)
+  if (is.null(dim(mygroups))) {
+    mygroups <- cbind(mygroups)
   }
   for (i in 1:nrow(Lambda)) {
     adjacency[, , i] <- CoMembership(groups = mygroups[, i])
+  }
+
+  return(adjacency)
+}
+
+
+#' K-means clustering
+#'
+#' Runs k-means clustering using implementation from
+#' \code{\link[stats]{kmeans}}. This function is not using stability.
+#'
+#' @inheritParams HierarchicalClustering
+#' @param ... additional parameters passed to \code{\link[stats]{kmeans}}.
+#'
+#' @return An array with binary and symmetric co-membership matrices.
+#'
+#' @examples
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(10, 10), pk = 50)
+#'
+#' # k-means clustering
+#' mykmeans <- KMeansClustering(xdata = simul$data, Lambda = 1:20)
+#' @export
+KMeansClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Scaling the data
+  if (scale) {
+    xdata <- scale(xdata)
+  }
+
+  # Transposing for clustering of columns
+  if (!rows) {
+    xdata <- t(xdata)
+  }
+
+  # Re-formatting Lambda
+  if (is.vector(Lambda)) {
+    Lambda <- cbind(Lambda)
+  }
+
+  # Initialisation of array storing co-membership matrices
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+
+  # Extracting relevant extra arguments (kmeans)
+  ids <- which(names(extra_args) %in% names(formals(stats::kmeans)))
+  ids <- ids[!ids %in% c("d")]
+
+  # Running k-means clustering
+  for (k in 1:nrow(Lambda)) {
+    if (Lambda[k, 1] < nrow(xdata)) {
+      myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = Lambda[k, 1]), extra_args[ids]))
+      mygroups <- myclust$cluster
+      adjacency[, , k] <- CoMembership(groups = mygroups)
+    }
   }
 
   return(adjacency)

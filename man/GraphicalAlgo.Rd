@@ -85,6 +85,10 @@ simul <- SimulateGraphical()
 
 # Running graphical LASSO
 myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+
+# Data simulation
+set.seed(1)
+simul <- SimulateClustering(n = c(10, 10), pk = 50)
 }
 }
 \seealso{

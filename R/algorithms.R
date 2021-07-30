@@ -113,6 +113,10 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #'
 #' # Running graphical LASSO
 #' myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #' }
 #' @export
 GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
@@ -138,10 +142,18 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
   }
 
   # Computing adjacency matrices
-  adjacency <- do.call(implementation, args = list(
-    xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
-    scale = scale, start = start, ...
-  ))
+  if ("rows" %in% names(formals(implementation))) {
+    # Specifying that clustering has to be done on colums (xdata has been transposed)
+    adjacency <- do.call(implementation, args = list(
+      xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
+      scale = scale, start = start, rows = FALSE, ...
+    ))
+  } else {
+    adjacency <- do.call(implementation, args = list(
+      xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
+      scale = scale, start = start, ...
+    ))
+  }
 
   # Ensuring that there is no edge for variables with always the same value (null standard deviation)
   for (k in 1:dim(adjacency)[3]) {
