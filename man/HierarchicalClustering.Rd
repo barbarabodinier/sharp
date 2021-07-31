@@ -38,3 +38,10 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 # Hierarchical clustering
 myhclust <- HierarchicalClustering(xdata = simul$data, Lambda = 1:20)
 }
+\seealso{
+Other clustering algorithms: 
+\code{\link{GMMClustering}()},
+\code{\link{KMeansClustering}()},
+\code{\link{PAMClustering}()}
+}
+\concept{clustering algorithms}

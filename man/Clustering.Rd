@@ -46,10 +46,11 @@ Possible values are 2 or 3.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),
-\code{\link{KMeansClustering}} (k-means) and \code{\link{PAMClustering}}
-(Partioning Around Medoids). Alternatively, a user-defined function taking
-\code{xdata} and \code{Lambda} as arguments and returning a binary and
-symmetric matrix for which diagonal elements are equal to zero can be used.}
+\code{\link{KMeansClustering}} (k-means), \code{\link{GMMClustering}}
+(Gaussian Mixture Models) and \code{\link{PAMClustering}} (Partioning
+Around Medoids). Alternatively, a user-defined function taking \code{xdata}
+and \code{Lambda} as arguments and returning a binary and symmetric matrix
+for which diagonal elements are equal to zero can be used.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
@@ -203,8 +204,9 @@ table(simul$theta, Clusters(stab))
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{Resample}}, \code{\link{HierarchicalClustering}},
-  \code{\link{StabilityScore}}
+\code{\link{Resample}}, \code{\link{StabilityScore}},
+  \code{\link{HierarchicalClustering}}, \code{\link{KMeansClustering}},
+  \code{\link{GMMClustering}}, \code{\link{PAMClustering}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},

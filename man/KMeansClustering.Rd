@@ -37,3 +37,10 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 # k-means clustering
 mykmeans <- KMeansClustering(xdata = simul$data, Lambda = 1:20)
 }
+\seealso{
+Other clustering algorithms: 
+\code{\link{GMMClustering}()},
+\code{\link{HierarchicalClustering}()},
+\code{\link{PAMClustering}()}
+}
+\concept{clustering algorithms}

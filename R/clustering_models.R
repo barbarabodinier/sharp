@@ -10,6 +10,8 @@
 #'   \code{\link[stats]{hclust}}.
 #'
 #' @return An array with binary and symmetric co-membership matrices.
+#' 
+#' @family clustering algorithms
 #'
 #' @examples
 #'
@@ -78,6 +80,8 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TR
 #' @param ... additional parameters passed to \code{\link[stats]{kmeans}}.
 #'
 #' @return An array with binary and symmetric co-membership matrices.
+#' 
+#' @family clustering algorithms
 #'
 #' @examples
 #'
@@ -140,6 +144,8 @@ KMeansClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ..
 #' @param ... additional parameters passed to \code{\link[mclust]{Mclust}}.
 #'
 #' @return An array with binary and symmetric co-membership matrices.
+#' 
+#' @family clustering algorithms
 #'
 #' @examples
 #'
@@ -210,6 +216,8 @@ GMMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) 
 #'   \code{\link[cluster]{pam}}.
 #'
 #' @return An array with binary and symmetric co-membership matrices.
+#' 
+#' @family clustering algorithms
 #'
 #' @examples
 #'
