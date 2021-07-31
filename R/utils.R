@@ -28,12 +28,19 @@ NAToNULL <- function(x) {
 #'
 #' @export
 CoMembership <- function(groups) {
-  comembership <- matrix(0, nrow = length(groups), ncol = length(groups))
-  for (i in 1:(nrow(comembership) - 1)) {
-    for (j in (i + 1):ncol(comembership)) {
-      comembership[i, j] <- ifelse(groups[i] == groups[j], yes = 1, no = 0)
-    }
+  if (length(unique(groups)) > 1) {
+    # Building binary cluster membership for each feature
+    V <- stats::model.matrix(~ as.factor(groups) - 1)
+
+    # Building cluster co-membership
+    comembership <- V %*% t(V)
+  } else {
+    comembership <- matrix(1, nrow = length(groups), ncol = length(groups))
   }
-  comembership <- comembership + t(comembership)
+
+  # Re-formatting co-membership matrix
+  diag(comembership) <- 0
+  rownames(comembership) <- colnames(comembership) <- names(groups)
+
   return(comembership)
 }
