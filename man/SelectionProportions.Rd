@@ -20,6 +20,7 @@ A symmetric matrix (graphical model) or vector (variable selection)
 }
 \description{
 Extracts the selection proportions of the (calibrated) stability selection
+model or co-membership proportions of the (calibrated) consensus clustering
 model.
 }
 \examples{

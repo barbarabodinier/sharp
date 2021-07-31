@@ -276,6 +276,7 @@ Clusters <- function(stability, argmax_id = NULL) {
 #' Selection proportions
 #'
 #' Extracts the selection proportions of the (calibrated) stability selection
+#' model or co-membership proportions of the (calibrated) consensus clustering
 #' model.
 #'
 #' @inheritParams Adjacency
@@ -329,11 +330,16 @@ Clusters <- function(stability, argmax_id = NULL) {
 #'
 #' @export
 SelectionProportions <- function(stability, argmax_id = NULL) {
-  if ("Sequential_template" %in% names(stability$params)) {
+  if (stability$methods$type %in% c("clustering", "graphical_model")) {
     out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
-  } else {
+  }
+  if (stability$methods$type == "variable_selection") {
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
+  if (stability$methods$type == "bi_selection") {
+    out <- stability$selpropX
+  }
+
   return(out)
 }
 

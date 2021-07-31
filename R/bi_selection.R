@@ -504,10 +504,12 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   params_comp <- params_comp[, which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1))), drop = FALSE]
   params <- params[, colnames(params_comp), drop = FALSE]
 
-  # Assigning column names
+  # Assigning row and column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
+  rownames(selected_x_comp) <- rownames(selprop_x_comp) <- paste0("comp", 1:ncomp)
   if (!is.null(ydata)) {
     colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
+    rownames(selected_y_comp) <- rownames(selprop_y_comp) <- paste0("comp", 1:ncomp)
   }
 
   # Preparing outputs
