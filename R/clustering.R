@@ -16,10 +16,11 @@
 #'   include \code{\link{HierarchicalClustering}} (hierarchical clustering),
 #'   \code{\link{KMeansClustering}} (k-means), \code{\link{GMMClustering}}
 #'   (Gaussian Mixture Models), \code{\link{PAMClustering}} (Partioning Around
-#'   Medoids) and \code{\link{CLARAClustering}} (Clustering Large Applications).
-#'   Alternatively, a user-defined function taking \code{xdata} and
-#'   \code{Lambda} as arguments and returning a binary and symmetric matrix for
-#'   which diagonal elements are equal to zero can be used.
+#'   Medoids), \code{\link{CLARAClustering}} (Clustering Large Applications) and
+#'   \code{\link{DBSCANClustering}} (Density-Based Spatial Clustering of
+#'   Applications with Noise). Alternatively, a user-defined function taking
+#'   \code{xdata} and \code{Lambda} as arguments and returning a binary and
+#'   symmetric matrix for which diagonal elements are equal to zero can be used.
 #' @param scale logical indicating if the data should be scaled to ensure that
 #'   all variables contribute equally to the clustering of the observations.
 #'
@@ -85,7 +86,6 @@
 #' mymembership <- Clusters(stab)
 #' }
 #' \dontrun{
-#'
 #' # Simulation of 15 observations belonging to 3 groups
 #' set.seed(1)
 #' simul <- SimulateClustering(
@@ -131,10 +131,20 @@
 #' stab <- Clustering(
 #'   xdata = simul$data,
 #'   implementation = CLARAClustering,
+#'   Lambda = 2:5,
+#'   sampsize = 10
 #' )
 #' table(simul$theta, Clusters(stab))
-#' }
 #'
+#' # Consensus clustering based on DBSCAN algorithm
+#' stab <- Clustering(
+#'   xdata = simul$data,
+#'   implementation = DBSCANClustering,
+#'   Lambda = seq(6, 10, by = 0.1)
+#' )
+#' CalibrationPlot(stab, xlab = "eps")
+#' table(simul$theta, Clusters(stab))
+#' }
 #' @export
 Clustering <- function(xdata, Lambda = NULL,
                        pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,

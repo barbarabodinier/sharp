@@ -31,6 +31,7 @@ Suggests:
     elasticnet,
     cluster,
     corpcor,
+    dbscan,
     gglasso,
     mixOmics,
     rmarkdown,

@@ -42,6 +42,7 @@ mypam <- CLARAClustering(xdata = simul$data, Lambda = 1:20)
 }
 \seealso{
 Other clustering algorithms: 
+\code{\link{DBSCANClustering}()},
 \code{\link{GMMClustering}()},
 \code{\link{HierarchicalClustering}()},
 \code{\link{KMeansClustering}()},

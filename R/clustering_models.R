@@ -360,3 +360,69 @@ CLARAClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...
 
   return(adjacency)
 }
+
+
+#' Density-Based Spatial Clustering of Applications with Noise
+#'
+#' Runs Density-Based Spatial Clustering of Applications with Noise (DBSCAN)
+#' algorithm using implementation from \code{\link[dbscan]{dbscan}}. This
+#' function is not using stability.
+#'
+#' @inheritParams HierarchicalClustering
+#' @param ... additional parameters passed to \code{\link[dbscan]{dbscan}}.
+#'
+#' @return An array with binary and symmetric co-membership matrices.
+#'
+#' @family clustering algorithms
+#'
+#' @examples
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(10, 10), pk = 50)
+#'
+#' # PAM clustering
+#' mydbscan <- DBSCANClustering(xdata = simul$data, Lambda = seq(6, 10, by = 0.1))
+#' @export
+DBSCANClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+  # Checking dbscan package is installed
+  if (!requireNamespace("dbscan")) {
+    stop("This function requires the 'dbscan' package.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Transposing for clustering of columns
+  if (!rows) {
+    xdata <- t(xdata)
+  }
+
+  # Scaling the data
+  if (scale) {
+    xdata <- scale(xdata)
+  }
+
+  # Re-formatting Lambda
+  if (is.vector(Lambda)) {
+    Lambda <- cbind(Lambda)
+  }
+
+  # Initialisation of array storing co-membership matrices
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+
+  # Extracting relevant extra arguments (dbscan)
+  ids <- which(names(extra_args) %in% names(formals(dbscan::dbscan)))
+  ids <- ids[!ids %in% c("x", "eps", "minPts")]
+
+  # Running k-means clustering
+  for (k in 1:nrow(Lambda)) {
+    mygroups <- do.call(dbscan::dbscan, args = c(
+      list(x = xdata, eps = Lambda[k, 1], minPts = 1),
+      extra_args[ids]
+    ))$cluster
+    adjacency[, , k] <- CoMembership(groups = mygroups)
+  }
+
+  return(adjacency)
+}
