@@ -40,6 +40,7 @@ myhclust <- HierarchicalClustering(xdata = simul$data, Lambda = 1:20)
 }
 \seealso{
 Other clustering algorithms: 
+\code{\link{CLARAClustering}()},
 \code{\link{GMMClustering}()},
 \code{\link{KMeansClustering}()},
 \code{\link{PAMClustering}()}

@@ -60,7 +60,7 @@ Clusters(stab)
 ## PCA models
 # Data simulation
 set.seed(1)
-simul <- SimulateComponents(n=100, pk = c(10, 10, 10))
+simul <- SimulateComponents(n = 100, pk = c(10, 10, 10))
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$data),
@@ -70,7 +70,7 @@ Heatmap(
 
 # Stability selection
 stab <- BiSelection(
-  xdata = simul$data, 
+  xdata = simul$data,
   ncomp = 3,
   implementation = SparsePCA
 )

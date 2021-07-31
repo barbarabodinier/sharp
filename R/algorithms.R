@@ -143,7 +143,7 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 
   # Computing adjacency matrices
   if ("rows" %in% names(formals(implementation))) {
-    # Specifying that clustering has to be done on colums (xdata has been transposed)
+    # Specifying that clustering has to be done on columns (xdata has been transposed)
     adjacency <- do.call(implementation, args = list(
       xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
       scale = scale, start = start, rows = FALSE, ...

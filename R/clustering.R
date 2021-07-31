@@ -15,10 +15,11 @@
 #' @param implementation function to use for clustering. Possible functions
 #'   include \code{\link{HierarchicalClustering}} (hierarchical clustering),
 #'   \code{\link{KMeansClustering}} (k-means), \code{\link{GMMClustering}}
-#'   (Gaussian Mixture Models) and \code{\link{PAMClustering}} (Partioning
-#'   Around Medoids). Alternatively, a user-defined function taking \code{xdata}
-#'   and \code{Lambda} as arguments and returning a binary and symmetric matrix
-#'   for which diagonal elements are equal to zero can be used.
+#'   (Gaussian Mixture Models), \code{\link{PAMClustering}} (Partioning Around
+#'   Medoids) and \code{\link{CLARAClustering}} (Clustering Large Applications).
+#'   Alternatively, a user-defined function taking \code{xdata} and
+#'   \code{Lambda} as arguments and returning a binary and symmetric matrix for
+#'   which diagonal elements are equal to zero can be used.
 #' @param scale logical indicating if the data should be scaled to ensure that
 #'   all variables contribute equally to the clustering of the observations.
 #'
@@ -123,6 +124,13 @@
 #' stab <- Clustering(
 #'   xdata = simul$data,
 #'   implementation = PAMClustering
+#' )
+#' table(simul$theta, Clusters(stab))
+#'
+#' # Consensus clustering based on CLARA algorithm
+#' stab <- Clustering(
+#'   xdata = simul$data,
+#'   implementation = CLARAClustering,
 #' )
 #' table(simul$theta, Clusters(stab))
 #' }

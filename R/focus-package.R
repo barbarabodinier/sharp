@@ -30,7 +30,7 @@
 #' CalibrationPlot(stab)
 #' argmax <- Argmax(stab) # calibrated parameters
 #' stably_selected <- SelectedVariables(stab) # stably selected variables
-#' 
+#'
 #' ## Graphical models
 #' # Data simulation
 #' set.seed(1)
@@ -58,11 +58,11 @@
 #' stab <- Clustering(xdata = simul$data)
 #' CalibrationPlot(stab, xlab = expression(italic(k)))
 #' Clusters(stab)
-#' 
+#'
 #' ## PCA models
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateComponents(n=100, pk = c(10, 10, 10))
+#' simul <- SimulateComponents(n = 100, pk = c(10, 10, 10))
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$data),
@@ -72,12 +72,12 @@
 #'
 #' # Stability selection
 #' stab <- BiSelection(
-#'   xdata = simul$data, 
+#'   xdata = simul$data,
 #'   ncomp = 3,
 #'   implementation = SparsePCA
 #' )
 #' print(stab$summary)
-#' 
+#'
 #' ## PLS models
 #' # Data simulation
 #' set.seed(1)

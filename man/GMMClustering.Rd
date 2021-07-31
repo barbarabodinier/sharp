@@ -36,10 +36,10 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
 # Clustering using Gaussian Mixture Models
 mygmm <- GMMClustering(xdata = simul$data, Lambda = 1:20)
-
 }
 \seealso{
 Other clustering algorithms: 
+\code{\link{CLARAClustering}()},
 \code{\link{HierarchicalClustering}()},
 \code{\link{KMeansClustering}()},
 \code{\link{PAMClustering}()}
