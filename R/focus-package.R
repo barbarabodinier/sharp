@@ -20,7 +20,6 @@
 #' @name focus-package
 #' @examples
 #' \dontrun{
-#'
 #' ## Regression models
 #' # Data simulation
 #' set.seed(1)
@@ -31,22 +30,7 @@
 #' CalibrationPlot(stab)
 #' argmax <- Argmax(stab) # calibrated parameters
 #' stably_selected <- SelectedVariables(stab) # stably selected variables
-#'
-#' ## PLS models
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = c(10, 20, 30), family = "gaussian")
-#'
-#' # Stability selection
-#' stab <- BiSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(simul$xdata) - 1),
-#'   LambdaY = 1:(ncol(simul$ydata) - 1),
-#'   implementation = SparsePLS
-#' )
-#' print(stab$summary)
-#'
+#' 
 #' ## Graphical models
 #' # Data simulation
 #' set.seed(1)
@@ -74,5 +58,37 @@
 #' stab <- Clustering(xdata = simul$data)
 #' CalibrationPlot(stab, xlab = expression(italic(k)))
 #' Clusters(stab)
+#' 
+#' ## PCA models
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateComponents(n=100, pk = c(10, 10, 10))
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(simul$data),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' # Stability selection
+#' stab <- BiSelection(
+#'   xdata = simul$data, 
+#'   ncomp = 3,
+#'   implementation = SparsePCA
+#' )
+#' print(stab$summary)
+#' 
+#' ## PLS models
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 50, pk = c(10, 20, 30), family = "gaussian")
+#'
+#' # Stability selection
+#' stab <- BiSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "gaussian", ncomp = 3,
+#'   implementation = SparsePLS
+#' )
+#' print(stab$summary)
 #' }
 NULL
