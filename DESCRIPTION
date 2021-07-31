@@ -23,6 +23,7 @@ Imports:
     huge,
     igraph,
     MASS,
+    mclust,
     parallel,
     Rdpack,
     withr (>= 2.4.0)

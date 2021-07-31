@@ -17,7 +17,7 @@ is not provided, it is set to \code{seq(1, nrow(xdata))}.}
 all variables contribute equally to the clustering of the observations.}
 
 \item{rows}{logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
-should be conducted.}
+should be inferred.}
 
 \item{...}{additional parameters passed to \code{\link[stats]{kmeans}}.}
 }

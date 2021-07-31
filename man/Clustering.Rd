@@ -177,7 +177,13 @@ stab <- Clustering(
   xdata = simul$data,
   implementation = KMeansClustering
 )
-CalibrationPlot(stab, xlab = expression(italic(k)))
+table(simul$theta, Clusters(stab))
+
+# Consensus clustering based on Gaussian Mixture Models
+stab <- Clustering(
+  xdata = simul$data,
+  implementation = GMMClustering
+)
 table(simul$theta, Clusters(stab))
 
 # Consensus clustering based on PAM clustering
@@ -185,7 +191,6 @@ stab <- Clustering(
   xdata = simul$data,
   implementation = PAMClustering
 )
-CalibrationPlot(stab, xlab = expression(italic(k)))
 table(simul$theta, Clusters(stab))
 }
 
