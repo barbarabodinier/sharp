@@ -382,7 +382,10 @@ CLARAClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # PAM clustering
-#' mydbscan <- DBSCANClustering(xdata = simul$data, Lambda = seq(6, 10, by = 0.1))
+#' mydbscan <- DBSCANClustering(
+#'   xdata = simul$data,
+#'   Lambda = seq(6, 10, by = 0.1)
+#' )
 #' @export
 DBSCANClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking dbscan package is installed
