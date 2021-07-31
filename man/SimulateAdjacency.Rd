@@ -14,9 +14,10 @@ SimulateAdjacency(pk = 10, topology = "random", nu = 0.1, ...)
 argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 "random", "hub", "cluster", "band" and "scale-free".}
 
-\item{nu}{expected density of the graph. This argument is only used for
-\code{topology="random"} or \code{topology="cluster"} (see argument
-\code{prob} in \code{\link[huge]{huge.generator}}).}
+\item{nu}{expected density (number of edges over the number of node pairs) of
+the graph. This argument is only used for \code{topology="random"} or
+\code{topology="cluster"} (see argument \code{prob} in
+\code{\link[huge]{huge.generator}}).}
 
 \item{...}{additional arguments to be passed to
 \code{\link[huge]{huge.generator}}.}

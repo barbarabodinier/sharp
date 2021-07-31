@@ -50,16 +50,17 @@ entries are all equal to zero. This function is only applied if
 argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 "random", "hub", "cluster", "band" and "scale-free".}
 
-\item{nu_within}{expected density of within-group blocks in the graph. If
-\code{length(pk)=1}, this is the expected density of the graph. If
+\item{nu_within}{expected density (number of edges over the number of node
+pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
+the expected density of the graph. If
 \code{implementation=SimulateAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument
 \code{prob} in \code{\link[huge]{huge.generator}}).}
 
-\item{nu_between}{expected density of between-group blocks in the graph.
-Similar to \code{nu_within}. By default, the same density is used for
-within and between blocks (\code{nu_within}=\code{nu_between}). Only used
-if \code{length(pk)>1}.}
+\item{nu_between}{expected density (number of edges over the number of node
+pairs) of between-group blocks in the graph. Similar to \code{nu_within}.
+By default, the same density is used for within and between blocks
+(\code{nu_within}=\code{nu_between}). Only used if \code{length(pk)>1}.}
 
 \item{v_within}{vector defining the (range of) nonzero entries in the
 diagonal blocks of the precision matrix. These values must be between -1

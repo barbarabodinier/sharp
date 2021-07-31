@@ -54,17 +54,18 @@ structure between predictor variables in \code{xdata}. This argument must
 be a binary symmetric matrix of size \code{sum(pk)} with zeros on the
 diagonal.}
 
-\item{nu_within}{expected density of conditional links in the within-group
-blocks. For independent predictors, use \code{nu_within=0}. This argument
-is only used if \code{adjancency_x} is not provided.}
+\item{nu_within}{expected density (number of edges over the number of node
+pairs) of the conditional independence graph in the within-group blocks for
+predictors. For independent predictors, use \code{nu_within=0}. This
+argument is only used if \code{adjancency_x} is not provided.}
 
 \item{theta_xz}{optional binary matrix encoding the predictor variables from
 \code{xdata} (columns) contributing to the definition of the orthogonal
 latent outcomes from \code{zdata} (rows).}
 
-\item{nu_xz}{density of the set of variables to be used for the simulation of
-the orthogonal latent outcomes. This argument is only used if
-\code{theta_xz} is not provided.}
+\item{nu_xz}{proportion of relevant predictors over the total number of
+predictors to be used for the simulation of the orthogonal latent outcomes.
+This argument is only used if \code{theta_xz} is not provided.}
 
 \item{theta_zy}{optional binary matrix encoding the latent variables from
 \code{zdata} (columns) contributing to the definition of the observed

@@ -27,15 +27,16 @@
 #'   \code{implementation=SimulateAdjacency}, possible values are listed for the
 #'   argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 #'   "random", "hub", "cluster", "band" and "scale-free".
-#' @param nu_within expected density of within-group blocks in the graph. If
-#'   \code{length(pk)=1}, this is the expected density of the graph. If
+#' @param nu_within expected density (number of edges over the number of node
+#'   pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
+#'   the expected density of the graph. If
 #'   \code{implementation=SimulateAdjacency}, this argument is only used for
 #'   \code{topology="random"} or \code{topology="cluster"} (see argument
 #'   \code{prob} in \code{\link[huge]{huge.generator}}).
-#' @param nu_between expected density of between-group blocks in the graph.
-#'   Similar to \code{nu_within}. By default, the same density is used for
-#'   within and between blocks (\code{nu_within}=\code{nu_between}). Only used
-#'   if \code{length(pk)>1}.
+#' @param nu_between expected density (number of edges over the number of node
+#'   pairs) of between-group blocks in the graph. Similar to \code{nu_within}.
+#'   By default, the same density is used for within and between blocks
+#'   (\code{nu_within}=\code{nu_between}). Only used if \code{length(pk)>1}.
 #' @param output_matrices logical indicating if the true precision and (partial)
 #'   correlation matrices should be included in the output.
 #' @param v_within vector defining the (range of) nonzero entries in the
@@ -568,15 +569,16 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
 #'   structure between predictor variables in \code{xdata}. This argument must
 #'   be a binary symmetric matrix of size \code{sum(pk)} with zeros on the
 #'   diagonal.
-#' @param nu_within expected density of conditional links in the within-group
-#'   blocks. For independent predictors, use \code{nu_within=0}. This argument
-#'   is only used if \code{adjancency_x} is not provided.
+#' @param nu_within expected density (number of edges over the number of node
+#'   pairs) of the conditional independence graph in the within-group blocks for
+#'   predictors. For independent predictors, use \code{nu_within=0}. This
+#'   argument is only used if \code{adjancency_x} is not provided.
 #' @param theta_xz optional binary matrix encoding the predictor variables from
 #'   \code{xdata} (columns) contributing to the definition of the orthogonal
 #'   latent outcomes from \code{zdata} (rows).
-#' @param nu_xz density of the set of variables to be used for the simulation of
-#'   the orthogonal latent outcomes. This argument is only used if
-#'   \code{theta_xz} is not provided.
+#' @param nu_xz proportion of relevant predictors over the total number of
+#'   predictors to be used for the simulation of the orthogonal latent outcomes.
+#'   This argument is only used if \code{theta_xz} is not provided.
 #' @param theta_zy optional binary matrix encoding the latent variables from
 #'   \code{zdata} (columns) contributing to the definition of the observed
 #'   outcomes from \code{ydata} (rows). This argument must be a square matrix of
@@ -897,9 +899,10 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 #'
 #' @inheritParams SimulateGraphical
 #' @param pk number of nodes.
-#' @param nu expected density of the graph. This argument is only used for
-#'   \code{topology="random"} or \code{topology="cluster"} (see argument
-#'   \code{prob} in \code{\link[huge]{huge.generator}}).
+#' @param nu expected density (number of edges over the number of node pairs) of
+#'   the graph. This argument is only used for \code{topology="random"} or
+#'   \code{topology="cluster"} (see argument \code{prob} in
+#'   \code{\link[huge]{huge.generator}}).
 #' @param ... additional arguments to be passed to
 #'   \code{\link[huge]{huge.generator}}.
 #'
