@@ -67,7 +67,7 @@ function is not using stability.
 \examples{
 \dontrun{
 
-# Data simulation
+# Data simulation (univariate outcome)
 set.seed(1)
 simul <- SimulateRegression(pk = 50)
 
@@ -77,7 +77,7 @@ mylasso <- SelectionAlgo(
   Lambda = c(0.1, 0.2), family = "gaussian",
 )
 
-# Simulation of additional outcomes
+# Data simulation (multivariate outcome)
 set.seed(1)
 simul <- SimulateRegression(pk = c(15, 15, 20))
 

@@ -84,11 +84,21 @@ set.seed(1)
 simul <- SimulateGraphical()
 
 # Running graphical LASSO
-myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+myglasso <- GraphicalAlgo(
+  xdata = simul$data,
+  Lambda = cbind(c(0.1, 0.2))
+)
 
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(n = c(10, 10), pk = 50)
+
+# Running graphical LASSO
+myglasso <- GraphicalAlgo(
+  xdata = t(simul$data),
+  Lambda = cbind(c(2, 3)),
+  implementation = HierarchicalClustering
+)
 }
 }
 \seealso{

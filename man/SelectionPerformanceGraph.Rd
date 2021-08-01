@@ -101,7 +101,8 @@ plot(perfgraph, layout = layout_with_kk(perfgraph))
 \seealso{
 \code{\link{GraphicalModel}}, \code{\link{Graph}}
 
-Other selection performance functions: 
+Other functions for evaluation of model performance: 
+\code{\link{ClusteringPerformance}()},
 \code{\link{SelectionPerformance}()}
 }
-\concept{selection performance functions}
+\concept{functions for evaluation of model performance}

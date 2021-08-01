@@ -103,7 +103,10 @@
 #' stab <- Clustering(xdata = simul$data)
 #' CalibrationPlot(stab, xlab = expression(italic(k)))
 #' SelectionProportions(stab)
-#' plot(Graph(Adjacency(stab), satellites = TRUE))
+#' plot(Graph(Adjacency(stab),
+#'   satellites = TRUE,
+#'   node_colour = simul$theta
+#' ))
 #' table(simul$theta, Clusters(stab))
 #'
 #' # Consensus clustering based on k-means clustering

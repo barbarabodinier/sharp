@@ -20,7 +20,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Data simulation
+#' # Data simulation (univariate outcome)
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
 #'
@@ -30,7 +30,7 @@
 #'   Lambda = c(0.1, 0.2), family = "gaussian",
 #' )
 #'
-#' # Simulation of additional outcomes
+#' # Data simulation (multivariate outcome)
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = c(15, 15, 20))
 #'
@@ -112,11 +112,21 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #' simul <- SimulateGraphical()
 #'
 #' # Running graphical LASSO
-#' myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+#' myglasso <- GraphicalAlgo(
+#'   xdata = simul$data,
+#'   Lambda = cbind(c(0.1, 0.2))
+#' )
 #'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
+#'
+#' # Running graphical LASSO
+#' myglasso <- GraphicalAlgo(
+#'   xdata = t(simul$data),
+#'   Lambda = cbind(c(2, 3)),
+#'   implementation = HierarchicalClustering
+#' )
 #' }
 #' @export
 GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,

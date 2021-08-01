@@ -399,7 +399,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   # Using MB formula of the PFER
   if (PFER_method == "MB") {
     for (i in 1:K) {
-      # Subsampling of the data
+      # Resampling of the data
       s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)
       xdata_sub <- xdata[s, ]
 

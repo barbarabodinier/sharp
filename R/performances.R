@@ -33,7 +33,7 @@
 #'   subsequent rows correspond to each of the blocks. The order of the blocks
 #'   is defined as in \code{\link{BlockStructure}}.
 #'
-#' @family selection performance functions
+#' @family functions for evaluation of model performance
 #'
 #' @examples
 #' \dontrun{
@@ -83,12 +83,15 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
       cor_vect <- NULL
     }
 
-    return(rbind(
-      SelectionPerformanceSingle(Asum, cor = cor, thr = thr),
-      SelectionPerformanceSingle(Asum_vect[bigblocks_vect == 1], cor = cor_vect[bigblocks_vect == 1], thr = thr),
-      SelectionPerformanceSingle(Asum_vect[bigblocks_vect == 2], cor = cor_vect[bigblocks_vect == 2], thr = thr),
-      SelectionPerformanceSingle(Asum_vect[bigblocks_vect == 3], cor = cor_vect[bigblocks_vect == 3], thr = thr)
-    ))
+    out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
+    for (k in sort(unique(bigblocks_vect))) {
+      tmp <- SelectionPerformanceSingle(Asum_vect[bigblocks_vect == k],
+        cor = cor_vect[bigblocks_vect == k], thr = thr
+      )
+      out <- rbind(out, tmp)
+    }
+
+    return(out)
   }
 }
 
@@ -127,7 +130,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   provided and \code{fileformat="png"}.
 #' @param ... additional arguments to be passed to \code{\link{Graph}}.
 #'
-#' @family selection performance functions
+#' @family functions for evaluation of model performance
 #' @seealso \code{\link{GraphicalModel}}, \code{\link{Graph}}
 #'
 #' @examples
@@ -303,5 +306,99 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
       sensitivity = sensitivity, specificity = specificity,
       accuracy = accuracy, precision = precision, recall = recall, F1_score = F1_score
     ))
+  }
+}
+
+
+#' Clustering performance
+#'
+#' Computes different metrics of clustering performance by comparing true and
+#' predicted pairwise co-membership. This function can only be used in
+#' simulation studies (i.e. when the true cluster membership is known).
+#'
+#' @inheritParams GraphicalModel
+#' @param theta binary vector of selected variables (in variable selection) or
+#'   binary adjacency matrix (in graphical modelling).
+#' @param theta_star binary vector of true predictors (in variable selection) or
+#'   true binary adjacency matrix (in graphical modelling).
+#'
+#' @return A matrix of selection metrics including:
+#'
+#'   \item{TP}{number of True Positives (TP)} \item{FN}{number of False
+#'   Negatives (TN)} \item{FP}{number of False Positives (FP)} \item{TN}{number
+#'   of True Negatives (TN)} \item{sensitivity}{sensitivity, i.e. TP/(TP+FN)}
+#'   \item{specificity}{specificity, i.e. TN/(TN+FP)} \item{accuracy}{accuracy,
+#'   i.e. (TP+TN)/(TP+TN+FP+FN)} \item{precision}{precision (p), i.e.
+#'   TP/(TP+FP)} \item{recall}{recall (r), i.e. TP/(TP+FN)}
+#'   \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)} \item{rand}{Rand index, i.e.
+#'   (TP+TN)/(TP+FP+TN+FN)}
+#'
+#'   Block-specific performances are reported if "pk" is not NULL. In this case,
+#'   the first row of the matrix corresponds to the overall performances, and
+#'   subsequent rows correspond to each of the blocks. The order of the blocks
+#'   is defined as in \code{\link{BlockStructure}}.
+#'
+#' @family functions for evaluation of model performance
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Simulation of 15 observations belonging to 3 groups
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = rep(10, 5), pk = 100,
+#'   v_within = c(-1, -0.5), continuous = TRUE
+#' )
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(t(simul$data)),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#'
+#' # Consensus clustering based on hierarchical clustering
+#' stab <- Clustering(xdata = simul$data)
+#' perf <- ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
+#' }
+#'
+#' @export
+ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
+  # Computing co-membership matrices
+  theta <- CoMembership(theta)
+  theta_star <- CoMembership(theta_star)
+
+  # Storing similarities/differences between estimated and true sets
+  Asum <- theta + 2 * theta_star
+
+  # Extracting block-specific performances
+  if (is.null(pk)) {
+    tmp <- SelectionPerformanceSingle(Asum, cor = NULL, thr = 0.5)
+    rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
+    tmp <- cbind(tmp, rand = rand)
+    return(tmp)
+  } else {
+    Asum_vect <- Asum[upper.tri(Asum)]
+    bigblocks <- BlockMatrix(pk)
+    bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+    if (!is.null(cor)) {
+      cor_vect <- cor[upper.tri(cor)]
+    } else {
+      cor_vect <- NULL
+    }
+
+    tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
+    rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
+    tmp <- cbind(tmp, rand = rand)
+    out <- tmp
+    for (k in sort(unique(bigblocks_vect))) {
+      tmp <- SelectionPerformanceSingle(Asum_vect[bigblocks_vect == k],
+        cor = cor_vect[bigblocks_vect == k], thr = thr
+      )
+      rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
+      tmp <- cbind(tmp, rand = rand)
+      out <- rbind(out, tmp)
+    }
+
+    return(out)
   }
 }
