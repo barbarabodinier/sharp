@@ -109,7 +109,7 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
   if (!requireNamespace("sparcl")) {
     stop("This function requires the 'sparcl' package.")
   }
-  
+
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -139,7 +139,7 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
 
   # Extracting relevant extra arguments (hclust)
   ids <- which(names(extra_args) %in% names(formals(stats::hclust)))
-  ids <- ids[!ids %in% c("x")]
+  ids <- ids[!ids %in% c("x", "wbound", "silent")]
 
   # Initialisation of array storing co-membership matrices
   adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * nrow(Lambda)))
@@ -149,7 +149,10 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
   id <- 0
   for (i in 1:nrow(Lambda)) {
     # Running sparse hierarchical clustering
-    myclust <- do.call(sparcl::HierarchicalSparseCluster, args = c(list(x = xdata, wbound = Lambda[i, 1]), extra_args[ids]))
+    myclust <- do.call(sparcl::HierarchicalSparseCluster, args = c(
+      list(x = xdata, wbound = Lambda[i, 1], silent = TRUE),
+      extra_args[ids]
+    ))
 
     # Defining clusters
     mygroups <- do.call(stats::cutree, args = list(tree = myclust$hc, k = nc))

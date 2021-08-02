@@ -188,7 +188,7 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 #' @param nc matrix of parameters controlling the number of clusters in the
 #'   underlying algorithm specified in \code{implementation}. If \code{nc}
 #'   is not provided, it is set to \code{seq(1, nrow(xdata))}.
-#' @param Lambda vector of penalty parameters. 
+#' @param Lambda vector of penalty parameters.
 #' @param ... additional parameters passed to the function provided in
 #'   \code{implementation}.
 #'
@@ -213,15 +213,22 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 #'   n = c(5, 5, 5), pk = 100
 #' )
 #'
-#' # Running the LASSO
+#' # Running hierarchical clustering
 #' myclust <- ClusteringAlgo(
 #'   xdata = simul$data, nc = 2:5,
 #'   implementation = HierarchicalClustering
 #' )
+#'
+#' # Running sparse hierarchical clustering
+#' myclust <- ClusteringAlgo(
+#'   xdata = simul$data,
+#'   Lambda = c(1.5, 2), nc = 2:5,
+#'   implementation = SparseHierarchicalClustering
+#' )
 #' }
 #'
 #' @export
-ClusteringAlgo <- function(xdata, 
+ClusteringAlgo <- function(xdata,
                            Lambda = NULL, nc,
                            implementation = HierarchicalClustering, ...) {
   # Making sure none of the variables has a null standard deviation
