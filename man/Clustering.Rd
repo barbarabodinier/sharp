@@ -128,7 +128,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   \code{Lambda}.
 }
 \description{
-Runs consensus clustering models with different combinations of parameters
+Runs (sparse) consensus clustering models with different combinations of parameters
 controlling the number of clusters in the underlying algorithm and thresholds
 in co-membership proportions. These two parameters are jointly calibrated by
 maximising the stability score of the model (possibly under a constraint on

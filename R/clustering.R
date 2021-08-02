@@ -1,6 +1,6 @@
 #' Consensus clustering
 #'
-#' Runs consensus clustering models with different combinations of parameters
+#' Runs (sparse) consensus clustering models with different combinations of parameters
 #' controlling the number of clusters in the underlying algorithm and thresholds
 #' in co-membership proportions. These two parameters are jointly calibrated by
 #' maximising the stability score of the model (possibly under a constraint on
@@ -158,10 +158,10 @@ Clustering <- function(xdata, Lambda = NULL,
   if (is.null(Lambda)) {
     Lambda <- cbind(seq(1, nrow(xdata)))
   }
-
+  
   # Transposing of xdata for consistency with clustering literature (i.e. clustering of rows)
   xdata <- t(xdata)
-
+  
   # Error and warning messages
   pk <- NULL
   lambda_other_blocks <- 0.1
@@ -180,7 +180,7 @@ Clustering <- function(xdata, Lambda = NULL,
     lambda_max = lambda_max, lambda_path_factor = lambda_path_factor, max_density = max_density,
     verbose = verbose
   )
-
+  
   # Check if parallelisation is possible (forking)
   if (.Platform$OS.type != "unix") {
     if (n_cores > 1) {
@@ -188,7 +188,7 @@ Clustering <- function(xdata, Lambda = NULL,
     }
     n_cores <- 1
   }
-
+  
   # Stability selection and score
   mypar <- parallel::mclapply(X = 1:n_cores, FUN = function(k) {
     return(SerialGraphical(
@@ -199,7 +199,7 @@ Clustering <- function(xdata, Lambda = NULL,
       output_data = output_data, verbose = verbose, ...
     ))
   }) # keep pk for correct number of blocks etc
-
+  
   # Combining the outputs from parallel iterations
   out <- mypar[[1]]
   if (n_cores > 1) {
@@ -207,7 +207,7 @@ Clustering <- function(xdata, Lambda = NULL,
       out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[2]], graph = TRUE))
     }
   }
-
+  
   # Re-set the function names
   if ("methods" %in% names(out)) {
     myimplementation <- as.character(substitute(implementation))
@@ -219,18 +219,19 @@ Clustering <- function(xdata, Lambda = NULL,
     out$methods$implementation <- myimplementation
     out$methods$resampling <- myresampling
     out$methods$type <- "clustering"
-
+    
     # Removing graphical model specific outputs
     out$methods <- out$methods[-which(names(out$methods) %in% "start")]
     out$params <- out$params[-which(names(out$params) %in% c("lambda_other_blocks"))]
     out <- out[-which(names(out) %in% c("sign"))]
-
+    
     # Updating n and pk (using transpose)
     n <- out$params$pk
     pk <- out$params$n
     out$params$pk <- pk
     out$params$n <- out$params$n
   }
-
+  
   return(out)
 }
+

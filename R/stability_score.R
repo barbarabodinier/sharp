@@ -34,10 +34,10 @@ StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat
   }
 
   # Computing the number of features (edges/variables)
-  N <- length(selprop)
+  N <- sum(!is.na(selprop))
 
   # Computing the average number of selected features
-  q <- round(sum(selprop))
+  q <- round(sum(selprop, na.rm=TRUE))
 
   # Loop over the values of pi
   score <- rep(NA, length(pi_list))
@@ -53,8 +53,8 @@ StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat
       l <- NA
     } else {
       if (n_cat == 2) {
-        S_0 <- sum(selprop < pi) # Number of not stably selected features
-        S_1 <- sum(selprop >= pi) # Number of stably selected features
+        S_0 <- sum(selprop < pi, na.rm = TRUE) # Number of not stably selected features
+        S_1 <- sum(selprop >= pi, na.rm = TRUE) # Number of stably selected features
 
         # Checking consistency
         if (S_0 + S_1 != N) {
@@ -66,9 +66,9 @@ StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat
       }
 
       if (n_cat == 3) {
-        S_0 <- sum(selprop <= (1 - pi)) # Number of stable-out features
-        S_1 <- sum(selprop >= pi) # Number of stable-in features
-        U <- sum((selprop < pi) & (selprop > (1 - pi))) # Number of unstable features
+        S_0 <- sum(selprop <= (1 - pi), na.rm = TRUE) # Number of stable-out features
+        S_1 <- sum(selprop >= pi, na.rm = TRUE) # Number of stable-in features
+        U <- sum((selprop < pi) & (selprop > (1 - pi)), na.rm = TRUE) # Number of unstable features
 
         # Checking consistency
         if (S_0 + S_1 + U != N) {

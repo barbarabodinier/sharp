@@ -165,11 +165,12 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
     }
     id <- id + nrow(nc)
   }
+  
+  # Setting row and column names
+  rownames(weight)=paste0("s", seq(0, nrow(weight)-1))
+  colnames(weight)=colnames(xdata)
 
-  # Defining selection status from weights
-  selected <- ifelse(weight == 0, yes = 0, no = 1)
-
-  return(list(comembership = adjacency, selected = selected, weight = weight))
+  return(list(comembership = adjacency, weight = weight))
 }
 
 

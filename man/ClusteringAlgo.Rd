@@ -59,10 +59,17 @@ simul <- SimulateClustering(
   n = c(5, 5, 5), pk = 100
 )
 
-# Running the LASSO
+# Running hierarchical clustering
 myclust <- ClusteringAlgo(
   xdata = simul$data, nc = 2:5,
   implementation = HierarchicalClustering
+)
+
+# Running sparse hierarchical clustering
+myclust <- ClusteringAlgo(
+  xdata = simul$data,
+  Lambda = c(1.5, 2), nc = 2:5,
+  implementation = SparseHierarchicalClustering
 )
 }
 
