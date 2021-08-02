@@ -153,11 +153,11 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 
   # Computing adjacency matrices
   if ("rows" %in% names(formals(implementation))) {
-    # Clustering algorithm (Lambda becomes nc)
+    # Clustering algorithm (Lambda becomes)
     adjacency <- do.call(implementation, args = list(
       xdata = xdata, pk = pk, nc = Lambda, Sequential_template = Sequential_template,
       scale = scale, start = start, rows = FALSE, ...
-    ))
+    ))$comembership
   } else {
     adjacency <- do.call(implementation, args = list(
       xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
@@ -175,3 +175,4 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 
   return(adjacency)
 }
+

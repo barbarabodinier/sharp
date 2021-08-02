@@ -70,7 +70,7 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
     adjacency[, , i] <- CoMembership(groups = mygroups[, i])
   }
 
-  return(adjacency)
+  return(list(comembership=adjacency))
 }
 
 
@@ -134,7 +134,7 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(adjacency)
+  return(list(comembership=adjacency))
 }
 
 
@@ -204,7 +204,7 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(adjacency)
+  return(list(comembership=adjacency))
 }
 
 
@@ -287,7 +287,7 @@ PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(adjacency)
+  return(list(comembership=adjacency))
 }
 
 
@@ -361,7 +361,7 @@ CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(adjacency)
+  return(list(comembership=adjacency))
 }
 
 
@@ -430,5 +430,5 @@ DBSCANClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     adjacency[, , k] <- CoMembership(groups = mygroups)
   }
 
-  return(adjacency)
+  return(list(comembership=adjacency))
 }
