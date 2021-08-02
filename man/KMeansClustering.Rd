@@ -4,13 +4,13 @@
 \alias{KMeansClustering}
 \title{K-means clustering}
 \usage{
-KMeansClustering(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...)
+KMeansClustering(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...)
 }
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
-\item{Lambda}{matrix of parameters controlling the number of clusters in the
-underlying algorithm specified in \code{implementation}. If \code{Lambda}
+\item{nc}{matrix of parameters controlling the number of clusters in the
+underlying algorithm specified in \code{implementation}. If \code{nc}
 is not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
@@ -35,7 +35,7 @@ set.seed(1)
 simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
 # k-means clustering
-mykmeans <- KMeansClustering(xdata = simul$data, Lambda = 1:20)
+mykmeans <- KMeansClustering(xdata = simul$data, nc = 1:20)
 }
 \seealso{
 Other clustering algorithms: 

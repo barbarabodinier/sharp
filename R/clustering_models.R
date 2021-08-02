@@ -4,6 +4,9 @@
 #' \code{\link[stats]{hclust}}. This function is not using stability.
 #'
 #' @inheritParams Clustering
+#' @param nc matrix of parameters controlling the number of clusters in the
+#'   underlying algorithm specified in \code{implementation}. If \code{nc}
+#'   is not provided, it is set to \code{seq(1, nrow(xdata))}.
 #' @param rows logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
 #'   should be inferred.
 #' @param ... additional parameters passed to \code{\link[stats]{dist}} or
@@ -20,9 +23,9 @@
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # Hierarchical clustering
-#' myhclust <- HierarchicalClustering(xdata = simul$data, Lambda = 1:20)
+#' myhclust <- HierarchicalClustering(xdata = simul$data, nc = 1:20)
 #' @export
-HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -36,9 +39,9 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TR
     xdata <- scale(xdata)
   }
 
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
+  # Re-formatting nc
+  if (is.vector(nc)) {
+    nc <- cbind(nc)
   }
 
   # Extracting relevant extra arguments (distance)
@@ -56,14 +59,14 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TR
   myclust <- do.call(stats::hclust, args = c(list(d = mydistance), extra_args[ids]))
 
   # Initialisation of array storing co-membership matrices
-  adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+  adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
   # Defining clusters
-  mygroups <- do.call(stats::cutree, args = list(tree = myclust, k = Lambda))
+  mygroups <- do.call(stats::cutree, args = list(tree = myclust, k = nc))
   if (is.null(dim(mygroups))) {
     mygroups <- cbind(mygroups)
   }
-  for (i in 1:nrow(Lambda)) {
+  for (i in 1:nrow(nc)) {
     adjacency[, , i] <- CoMembership(groups = mygroups[, i])
   }
 
@@ -90,9 +93,9 @@ HierarchicalClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TR
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # k-means clustering
-#' mykmeans <- KMeansClustering(xdata = simul$data, Lambda = 1:20)
+#' mykmeans <- KMeansClustering(xdata = simul$data, nc = 1:20)
 #' @export
-KMeansClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -106,25 +109,25 @@ KMeansClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ..
     xdata <- scale(xdata)
   }
 
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
+  # Re-formatting nc
+  if (is.vector(nc)) {
+    nc <- cbind(nc)
   }
 
   # Initialisation of array storing co-membership matrices
-  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
   # Extracting relevant extra arguments (kmeans)
   ids <- which(names(extra_args) %in% names(formals(stats::kmeans)))
   ids <- ids[!ids %in% c("x", "centers")]
 
   # Running k-means clustering
-  for (k in 1:nrow(Lambda)) {
-    if (Lambda[k, 1] == 1) {
+  for (k in 1:nrow(nc)) {
+    if (nc[k, 1] == 1) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
-      if (Lambda[k, 1] < nrow(xdata)) {
-        myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = Lambda[k, 1]), extra_args[ids]))
+      if (nc[k, 1] < nrow(xdata)) {
+        myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = nc[k, 1]), extra_args[ids]))
         mygroups <- myclust$cluster
         adjacency[, , k] <- CoMembership(groups = mygroups)
       }
@@ -154,10 +157,10 @@ KMeansClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ..
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # Clustering using Gaussian Mixture Models
-#' mygmm <- GMMClustering(xdata = simul$data, Lambda = 1:20)
+#' mygmm <- GMMClustering(xdata = simul$data, nc = 1:20)
 #' @importFrom mclust mclustBIC
 #' @export
-GMMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking mclust package is installed
   if (!requireNamespace("mclust")) {
     stop("This function requires the 'mclust' package.")
@@ -176,25 +179,25 @@ GMMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) 
     xdata <- scale(xdata)
   }
 
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
+  # Re-formatting nc
+  if (is.vector(nc)) {
+    nc <- cbind(nc)
   }
 
   # Initialisation of array storing co-membership matrices
-  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
   # Extracting relevant extra arguments (kmeans)
   ids <- which(names(extra_args) %in% names(formals(stats::kmeans)))
   ids <- ids[!ids %in% c("data", "G", "verbose")]
 
   # Running k-means clustering
-  for (k in 1:nrow(Lambda)) {
-    if (Lambda[k, 1] == 1) {
+  for (k in 1:nrow(nc)) {
+    if (nc[k, 1] == 1) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
-      if (Lambda[k, 1] < nrow(xdata)) {
-        myclust <- do.call(mclust::Mclust, args = c(list(data = xdata, G = Lambda[k, 1], verbose = FALSE), extra_args[ids]))
+      if (nc[k, 1] < nrow(xdata)) {
+        myclust <- do.call(mclust::Mclust, args = c(list(data = xdata, G = nc[k, 1], verbose = FALSE), extra_args[ids]))
         mygroups <- myclust$classification
         adjacency[, , k] <- CoMembership(groups = mygroups)
       }
@@ -229,9 +232,9 @@ GMMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) 
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # PAM clustering
-#' mypam <- PAMClustering(xdata = simul$data, Lambda = 1:20)
+#' mypam <- PAMClustering(xdata = simul$data, nc = 1:20)
 #' @export
-PAMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking cluster package is installed
   if (!requireNamespace("cluster")) {
     stop("This function requires the 'cluster' package.")
@@ -250,13 +253,13 @@ PAMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) 
     xdata <- scale(xdata)
   }
 
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
+  # Re-formatting nc
+  if (is.vector(nc)) {
+    nc <- cbind(nc)
   }
 
   # Initialisation of array storing co-membership matrices
-  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
   # Extracting relevant extra arguments (distance)
   ids <- which(names(extra_args) %in% names(formals(stats::dist)))
@@ -270,13 +273,13 @@ PAMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) 
   ids <- ids[!ids %in% c("x", "k", "diss", "cluster.only")]
 
   # Running k-means clustering
-  for (k in 1:nrow(Lambda)) {
-    if (Lambda[k, 1] == 1) {
+  for (k in 1:nrow(nc)) {
+    if (nc[k, 1] == 1) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
-      if (Lambda[k, 1] < nrow(xdata)) {
+      if (nc[k, 1] < nrow(xdata)) {
         mygroups <- do.call(cluster::pam, args = c(
-          list(x = mydistance, k = Lambda[k, 1], diss = TRUE, cluster.only = TRUE),
+          list(x = mydistance, k = nc[k, 1], diss = TRUE, cluster.only = TRUE),
           extra_args[ids]
         ))
         adjacency[, , k] <- CoMembership(groups = mygroups)
@@ -310,9 +313,9 @@ PAMClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) 
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # PAM clustering
-#' mypam <- CLARAClustering(xdata = simul$data, Lambda = 1:20)
+#' mypam <- CLARAClustering(xdata = simul$data, nc = 1:20)
 #' @export
-CLARAClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking cluster package is installed
   if (!requireNamespace("cluster")) {
     stop("This function requires the 'cluster' package.")
@@ -331,26 +334,26 @@ CLARAClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...
     xdata <- scale(xdata)
   }
 
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
+  # Re-formatting nc
+  if (is.vector(nc)) {
+    nc <- cbind(nc)
   }
 
   # Initialisation of array storing co-membership matrices
-  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
   # Extracting relevant extra arguments (clara)
   ids <- which(names(extra_args) %in% names(formals(cluster::clara)))
   ids <- ids[!ids %in% c("x", "k", "cluster.only", "stand")]
 
   # Running k-means clustering
-  for (k in 1:nrow(Lambda)) {
-    if (Lambda[k, 1] == 1) {
+  for (k in 1:nrow(nc)) {
+    if (nc[k, 1] == 1) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
-      if (Lambda[k, 1] < nrow(xdata)) {
+      if (nc[k, 1] < nrow(xdata)) {
         mygroups <- do.call(cluster::clara, args = c(
-          list(x = xdata, k = Lambda[k, 1], stand = scale, cluster.only = TRUE),
+          list(x = xdata, k = nc[k, 1], stand = scale, cluster.only = TRUE),
           extra_args[ids]
         ))
         adjacency[, , k] <- CoMembership(groups = mygroups)
@@ -384,10 +387,10 @@ CLARAClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...
 #' # PAM clustering
 #' mydbscan <- DBSCANClustering(
 #'   xdata = simul$data,
-#'   Lambda = seq(6, 10, by = 0.1)
+#'   nc = seq(6, 10, by = 0.1)
 #' )
 #' @export
-DBSCANClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...) {
+DBSCANClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking dbscan package is installed
   if (!requireNamespace("dbscan")) {
     stop("This function requires the 'dbscan' package.")
@@ -406,22 +409,22 @@ DBSCANClustering <- function(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ..
     xdata <- scale(xdata)
   }
 
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
+  # Re-formatting nc
+  if (is.vector(nc)) {
+    nc <- cbind(nc)
   }
 
   # Initialisation of array storing co-membership matrices
-  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(Lambda)))
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
   # Extracting relevant extra arguments (dbscan)
   ids <- which(names(extra_args) %in% names(formals(dbscan::dbscan)))
   ids <- ids[!ids %in% c("x", "eps", "minPts")]
 
   # Running k-means clustering
-  for (k in 1:nrow(Lambda)) {
+  for (k in 1:nrow(nc)) {
     mygroups <- do.call(dbscan::dbscan, args = c(
-      list(x = xdata, eps = Lambda[k, 1], minPts = 1),
+      list(x = xdata, eps = nc[k, 1], minPts = 1),
       extra_args[ids]
     ))$cluster
     adjacency[, , k] <- CoMembership(groups = mygroups)

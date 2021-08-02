@@ -4,13 +4,13 @@
 \alias{DBSCANClustering}
 \title{Density-Based Spatial Clustering of Applications with Noise}
 \usage{
-DBSCANClustering(xdata, Lambda = NULL, scale = TRUE, rows = TRUE, ...)
+DBSCANClustering(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...)
 }
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
-\item{Lambda}{matrix of parameters controlling the number of clusters in the
-underlying algorithm specified in \code{implementation}. If \code{Lambda}
+\item{nc}{matrix of parameters controlling the number of clusters in the
+underlying algorithm specified in \code{implementation}. If \code{nc}
 is not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
@@ -38,7 +38,7 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 # PAM clustering
 mydbscan <- DBSCANClustering(
   xdata = simul$data,
-  Lambda = seq(6, 10, by = 0.1)
+  nc = seq(6, 10, by = 0.1)
 )
 }
 \seealso{
