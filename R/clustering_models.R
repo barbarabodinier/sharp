@@ -40,8 +40,12 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
   }
 
   # Re-formatting nc
-  if (is.vector(nc)) {
-    nc <- cbind(nc)
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
   }
 
   # Extracting relevant extra arguments (distance)
@@ -70,7 +74,99 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
     adjacency[, , i] <- CoMembership(groups = mygroups[, i])
   }
 
-  return(list(comembership=adjacency))
+  return(list(comembership = adjacency))
+}
+
+
+#' Sparse hierarchical clustering
+#'
+#' Runs sparse hierarchical clustering using implementation from
+#' \code{\link[sparcl]{HierarchicalSparseCluster}}. This function is not using
+#' stability.
+#'
+#' @inheritParams HierarchicalClustering
+#' @param Lambda vector of penalty parameters. Provided values must be striclty
+#'   greater than 1, see argument \code{wbound} from
+#'   \code{\link[sparcl]{HierarchicalSparseCluster}}.
+#' @param ... additional parameters passed to
+#'   \code{\link[sparcl]{HierarchicalSparseCluster}}.
+#'
+#' @return An array with binary and symmetric co-membership matrices.
+#'
+#' @family clustering algorithms
+#'
+#' @examples
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(n = c(10, 10), pk = 50)
+#'
+#' # Hierarchical clustering
+#' myhclust <- SparseHierarchicalClustering(xdata = simul$data, nc = 1:20, Lambda = c(1.5, 2))
+#' @export
+SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE, rows = TRUE, ...) {
+  # Checking sparcl package is installed
+  if (!requireNamespace("sparcl")) {
+    stop("This function requires the 'sparcl' package.")
+  }
+  
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Transposing for clustering of columns
+  if (!rows) {
+    xdata <- t(xdata)
+  }
+
+  # Scaling the data
+  if (scale) {
+    xdata <- scale(xdata)
+  }
+
+  # Re-formatting Lambda
+  if (is.vector(Lambda)) {
+    Lambda <- cbind(Lambda)
+  }
+
+  # Re-formatting nc
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
+  }
+
+  # Extracting relevant extra arguments (hclust)
+  ids <- which(names(extra_args) %in% names(formals(stats::hclust)))
+  ids <- ids[!ids %in% c("x")]
+
+  # Initialisation of array storing co-membership matrices
+  adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * nrow(Lambda)))
+  weight <- matrix(NA, nrow = nrow(nc) * nrow(Lambda), ncol = ncol(xdata))
+
+  # Iterating over the pair of parameters
+  id <- 0
+  for (i in 1:nrow(Lambda)) {
+    # Running sparse hierarchical clustering
+    myclust <- do.call(sparcl::HierarchicalSparseCluster, args = c(list(x = xdata, wbound = Lambda[i, 1]), extra_args[ids]))
+
+    # Defining clusters
+    mygroups <- do.call(stats::cutree, args = list(tree = myclust$hc, k = nc))
+    if (is.null(dim(mygroups))) {
+      mygroups <- cbind(mygroups)
+    }
+    for (j in 1:nrow(nc)) {
+      adjacency[, , id + j] <- CoMembership(groups = mygroups[, j])
+      weight[id + j, ] <- myclust$ws[, 1]
+    }
+    id <- id + nrow(nc)
+  }
+
+  # Defining selection status from weights
+  selected <- ifelse(weight == 0, yes = 0, no = 1)
+
+  return(list(comembership = adjacency, selected = selected, weight = weight))
 }
 
 
@@ -110,8 +206,12 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   }
 
   # Re-formatting nc
-  if (is.vector(nc)) {
-    nc <- cbind(nc)
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
   }
 
   # Initialisation of array storing co-membership matrices
@@ -134,7 +234,7 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(list(comembership=adjacency))
+  return(list(comembership = adjacency))
 }
 
 
@@ -180,8 +280,12 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   }
 
   # Re-formatting nc
-  if (is.vector(nc)) {
-    nc <- cbind(nc)
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
   }
 
   # Initialisation of array storing co-membership matrices
@@ -204,7 +308,7 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(list(comembership=adjacency))
+  return(list(comembership = adjacency))
 }
 
 
@@ -254,8 +358,12 @@ PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   }
 
   # Re-formatting nc
-  if (is.vector(nc)) {
-    nc <- cbind(nc)
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
   }
 
   # Initialisation of array storing co-membership matrices
@@ -287,7 +395,7 @@ PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(list(comembership=adjacency))
+  return(list(comembership = adjacency))
 }
 
 
@@ -335,8 +443,12 @@ CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   }
 
   # Re-formatting nc
-  if (is.vector(nc)) {
-    nc <- cbind(nc)
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
   }
 
   # Initialisation of array storing co-membership matrices
@@ -361,7 +473,7 @@ CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     }
   }
 
-  return(list(comembership=adjacency))
+  return(list(comembership = adjacency))
 }
 
 
@@ -410,8 +522,12 @@ DBSCANClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   }
 
   # Re-formatting nc
-  if (is.vector(nc)) {
-    nc <- cbind(nc)
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
   }
 
   # Initialisation of array storing co-membership matrices
@@ -430,5 +546,5 @@ DBSCANClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
     adjacency[, , k] <- CoMembership(groups = mygroups)
   }
 
-  return(list(comembership=adjacency))
+  return(list(comembership = adjacency))
 }

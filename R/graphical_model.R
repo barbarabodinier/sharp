@@ -191,7 +191,7 @@
 #'   stable_adjacency <- Adjacency(stab)
 #' }
 #'
-#' # Example for the detection of block structure 
+#' # Example for the detection of block structure
 #' set.seed(1)
 #' pk <- sample(1:5, size = 5, replace = TRUE)
 #' simul <- SimulateComponents(

@@ -364,9 +364,9 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #' @export
 ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
   # Initialising unused parameters
-  cor = NULL
-  thr = 0.5
-  
+  cor <- NULL
+  thr <- 0.5
+
   # Computing co-membership matrices
   theta <- CoMembership(theta)
   theta_star <- CoMembership(theta_star)
