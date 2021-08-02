@@ -4,9 +4,6 @@
 #' \code{\link[stats]{hclust}}. This function is not using stability.
 #'
 #' @inheritParams Clustering
-#' @param nc matrix of parameters controlling the number of clusters in the
-#'   underlying algorithm specified in \code{implementation}. If \code{nc}
-#'   is not provided, it is set to \code{seq(1, nrow(xdata))}.
 #' @param rows logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
 #'   should be inferred.
 #' @param ... additional parameters passed to \code{\link[stats]{dist}} or
@@ -165,10 +162,10 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
     }
     id <- id + nrow(nc)
   }
-  
+
   # Setting row and column names
-  rownames(weight)=paste0("s", seq(0, nrow(weight)-1))
-  colnames(weight)=colnames(xdata)
+  rownames(weight) <- paste0("s", seq(0, nrow(weight) - 1))
+  colnames(weight) <- colnames(xdata)
 
   return(list(comembership = adjacency, weight = weight))
 }
@@ -261,7 +258,7 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # Clustering using Gaussian Mixture Models
-#' mygmm <- GMMClustering(xdata = simul$data, nc = 1:20)
+#' mygmm <- GMMClustering(xdata = simul$data, nc = 1:30)
 #' @importFrom mclust mclustBIC
 #' @export
 GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {

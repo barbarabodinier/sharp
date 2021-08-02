@@ -7,17 +7,14 @@
 Clustering(
   xdata,
   Lambda = NULL,
+  nc = NULL,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
   tau = 0.5,
   seed = 1,
   n_cat = 3,
-  implementation = HierarchicalClustering,
+  implementation = SparseHierarchicalClustering,
   scale = TRUE,
-  resampling = "subsampling",
-  PFER_method = "MB",
-  PFER_thr = Inf,
-  FDP_thr = Inf,
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
@@ -27,9 +24,11 @@ Clustering(
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
-\item{Lambda}{matrix of parameters controlling the number of clusters in the
-underlying algorithm specified in \code{implementation}. If \code{Lambda}
-is not provided, it is set to \code{seq(1, nrow(xdata))}.}
+\item{Lambda}{vector of penalty parameters.}
+
+\item{nc}{matrix of parameters controlling the number of clusters in the
+underlying algorithm specified in \code{implementation}. If \code{nc} is
+not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
 \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
@@ -46,9 +45,11 @@ Possible values are 2 or 3.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),
-\code{\link{KMeansClustering}} (k-means), \code{\link{GMMClustering}}
-(Gaussian Mixture Models), \code{\link{PAMClustering}} (Partioning Around
-Medoids), \code{\link{CLARAClustering}} (Clustering Large Applications) and
+\code{\link{SparseHierarchicalClustering}} (sparse hierarchical
+clustering), \code{\link{KMeansClustering}} (k-means),
+\code{\link{GMMClustering}} (Gaussian Mixture Models),
+\code{\link{PAMClustering}} (Partioning Around Medoids),
+\code{\link{CLARAClustering}} (Clustering Large Applications) and
 \code{\link{DBSCANClustering}} (Density-Based Spatial Clustering of
 Applications with Noise). Alternatively, a user-defined function taking
 \code{xdata} and \code{Lambda} as arguments and returning a binary and
@@ -56,30 +57,6 @@ symmetric matrix for which diagonal elements are equal to zero can be used.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
-
-\item{resampling}{resampling approach. Possible values are:
-\code{"subsampling"} for sampling without replacement of a proportion
-\code{tau} of the observations, or \code{"bootstrap"} for sampling with
-replacement generating a resampled dataset with as many observations as in
-the full sample. Alternatively, this argument can be a function to use for
-resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
-
-\item{PFER_method}{method used to compute the upper-bound of the expected
-number of False Positives (or Per Family Error Rate, PFER). With
-\code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
-(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
-and Samworth (2013) under the assumption of unimodality is used.}
-
-\item{PFER_thr}{threshold in PFER for constrained calibration by error
-control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
-calibration is used.}
-
-\item{FDP_thr}{threshold in the expected proportion of falsely selected
-features (or False Discovery Proportion, FDP) for constrained calibration
-by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used.}
 
 \item{n_cores}{number of cores to use for parallel computing. Only available
 on Unix systems.}
@@ -128,12 +105,16 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   \code{Lambda}.
 }
 \description{
-Runs (sparse) consensus clustering models with different combinations of parameters
-controlling the number of clusters in the underlying algorithm and thresholds
-in co-membership proportions. These two parameters are jointly calibrated by
-maximising the stability score of the model (possibly under a constraint on
-the expected number of falsely stably selected features). This function can
-be used to identify stable clusters of observations sharing similar profiles.
+Runs (sparse) consensus clustering models with different combinations of
+parameters controlling the number of clusters in the underlying algorithm
+(\code{nc}), penalty for the selection of variables contributing to the
+clustering (\code{Lambda}) and thresholds co-membership proportions. These
+three parameters are jointly calibrated by maximising the stability score of
+the model. The threshold in selection proportions to identify the variables
+driving the clustering is also chosen by maximising the stability score in
+the calibrated clustering model. This function can be used to identify stable
+clusters of observations sharing similar profiles, as well as variables
+driving the clustering if a sparse clustering algorithm is used.
 }
 \details{
 To ensure reproducibility of the results, the state of the random
@@ -148,64 +129,70 @@ set.seed(1)
 simul <- SimulateClustering(n = c(5, 5, 5), pk = 10)
 stab <- Clustering(
   xdata = simul$data,
-  Lambda = 1:3, K = 5,
+  nc = c(2, 3),
+  Lambda = c(1.1, 1.2),
+  K = 5,
   verbose = FALSE
 )
 mymembership <- Clusters(stab)
 }
 \dontrun{
-# Simulation of 15 observations belonging to 3 groups
+# Simulation of 30 observations belonging to 3 groups
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100,
-  v_within = c(-1, -0.5), continuous = TRUE
+  n = c(10, 10, 10), pk = 10, mu = c(0, 10, 20)
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
+  mat = simul$data,
+  colours = c("navy", "white", "red")
+)
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = as.matrix(dist(simul$data)),
+  colours = c("navy", "white", "red")
 )
 
-# Consensus clustering based on hierarchical clustering
-stab <- Clustering(xdata = simul$data)
-CalibrationPlot(stab, xlab = expression(italic(k)))
+# Sparse consensus clustering
+stab <- Clustering(
+  xdata = simul$data,
+  Lambda = cbind(c(1.1, 1.5, 2)),
+)
+
+# Stable clusters
+plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
+
+# Stably contributing variables
 SelectionProportions(stab)
-plot(Graph(Adjacency(stab),
-  satellites = TRUE,
-  node_colour = simul$theta
-))
-table(simul$theta, Clusters(stab))
+SelectedVariables(stab)
+
+# Consensus clustering based on hierarchical clustering
+stab <- Clustering(
+  xdata = simul$data,
+  implementation = HierarchicalClustering
+)
+CalibrationPlot(stab, xlab = expression(italic(k)))
+plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
 # Consensus clustering based on k-means clustering
 stab <- Clustering(
   xdata = simul$data,
   implementation = KMeansClustering
 )
-table(simul$theta, Clusters(stab))
-
-# Consensus clustering based on Gaussian Mixture Models
-stab <- Clustering(
-  xdata = simul$data,
-  implementation = GMMClustering
-)
-table(simul$theta, Clusters(stab))
+CalibrationPlot(stab, xlab = expression(italic(k)))
+plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
 # Consensus clustering based on PAM clustering
 stab <- Clustering(
   xdata = simul$data,
   implementation = PAMClustering
 )
-table(simul$theta, Clusters(stab))
-
-# Consensus clustering based on CLARA algorithm
-stab <- Clustering(
-  xdata = simul$data,
-  implementation = CLARAClustering,
-  Lambda = 2:5,
-  sampsize = 10
-)
-table(simul$theta, Clusters(stab))
+CalibrationPlot(stab, xlab = expression(italic(k)))
+plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
 # Consensus clustering based on DBSCAN algorithm
 stab <- Clustering(
@@ -213,8 +200,9 @@ stab <- Clustering(
   implementation = DBSCANClustering,
   Lambda = seq(6, 10, by = 0.1)
 )
-CalibrationPlot(stab, xlab = "eps")
-table(simul$theta, Clusters(stab))
+CalibrationPlot(stab, xlab = expression(epsilon))
+plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 }
 }
 \references{

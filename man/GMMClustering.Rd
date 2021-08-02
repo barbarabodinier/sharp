@@ -10,8 +10,8 @@ GMMClustering(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...)
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{nc}{matrix of parameters controlling the number of clusters in the
-underlying algorithm specified in \code{implementation}. If \code{nc}
-is not provided, it is set to \code{seq(1, nrow(xdata))}.}
+underlying algorithm specified in \code{implementation}. If \code{nc} is
+not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
@@ -35,7 +35,7 @@ set.seed(1)
 simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
 # Clustering using Gaussian Mixture Models
-mygmm <- GMMClustering(xdata = simul$data, nc = 1:20)
+mygmm <- GMMClustering(xdata = simul$data, nc = 1:30)
 }
 \seealso{
 Other clustering algorithms: 

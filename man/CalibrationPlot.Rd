@@ -8,7 +8,7 @@ CalibrationPlot(
   stability,
   metric = "both",
   block_id = NULL,
-  lines = TRUE,
+  lines = FALSE,
   colours = c("ivory", "navajowhite", "tomato", "darkred"),
   legend = TRUE,
   legend_length = 15,

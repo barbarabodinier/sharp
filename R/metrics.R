@@ -168,7 +168,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
           stab_iter_block <- stab_iter_block[cumsum(group)]
         }
 
-        q_block <- round(sum(stab_iter_block, na.rm=TRUE)) # average number of edges selected by the original procedure in the block
+        q_block <- round(sum(stab_iter_block, na.rm = TRUE)) # average number of edges selected by the original procedure in the block
         Q[k, block_id] <- q_block
         N_block <- length(stab_iter_block) # maximum number of edges in the block
         tmp_loglik <- tmp_PFERs <- tmp_FDPs <- rep(NA, length(pi_list))
@@ -200,7 +200,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
           tmp_loglik[which(tmp_loglik == 0)] <- NA
           best_loglik[k, block_id] <- tmp_loglik[myid]
           P[k, block_id] <- pi_list[myid]
-          Q_s[k, block_id] <- sum(stab_iter_block >= pi_list[myid], na.rm=TRUE)
+          Q_s[k, block_id] <- sum(stab_iter_block >= pi_list[myid], na.rm = TRUE)
           best_PFER[k, block_id] <- tmp_PFERs[myid]
           best_FDP[k, block_id] <- tmp_FDPs[myid]
         }

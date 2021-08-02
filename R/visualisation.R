@@ -77,7 +77,7 @@
 #'
 #' @export
 CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
-                            lines = TRUE, colours = c("ivory", "navajowhite", "tomato", "darkred"),
+                            lines = FALSE, colours = c("ivory", "navajowhite", "tomato", "darkred"),
                             legend = TRUE, legend_length = 15, legend_range = NULL,
                             xlab = expression(lambda), ylab = expression(pi), zlab = expression(italic(q)),
                             filename = NULL, fileformat = "pdf", res = 500,
@@ -131,10 +131,18 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       }
       mat <- mat[, , drop = FALSE]
       colnames(mat) <- stability$params$pi_list
-      if (grepl("penalised", tolower(stability$methods$implementation))) {
-        rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
+      if (stability$methods$type == "clustering") {
+        if (length(unique(stability$Lambda[, b])) > 1) {
+          rownames(mat) <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ids]
+        } else {
+          rownames(mat) <- (stability$nc[, b])[ids]
+        }
       } else {
-        rownames(mat) <- (stability$Lambda[, b])[ids]
+        if (grepl("penalised", tolower(stability$methods$implementation))) {
+          rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
+        } else {
+          rownames(mat) <- (stability$Lambda[, b])[ids]
+        }
       }
 
       # Extracting corresponding numbers of selected variables (q)
@@ -149,8 +157,13 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
 
       # Identifying best pair of parameters
       withr::local_par(list(xpd = FALSE))
+      if (stability$methods$type == "clustering") {
+        tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability)[1, 1]]
+        graphics::abline(v = nrow(mat) - which(rownames(mat) == tmp) + 0.5, lty = 3)
+      } else {
+        graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
+      }
       graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
-      graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
 
       # Including axes
       graphics::axis(

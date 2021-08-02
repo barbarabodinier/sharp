@@ -245,7 +245,7 @@ ClusteringAlgo <- function(xdata,
   # Applying user-defined function for variable selection
   out <- do.call(implementation, args = list(xdata = xdata, nc = nc, Lambda = Lambda, ...))
 
-  if ("weight"%in%names(out)) {
+  if ("weight" %in% names(out)) {
     beta_full <- out$weight
 
     # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
@@ -259,9 +259,9 @@ ClusteringAlgo <- function(xdata,
       }
     }
   } else {
-    beta_full <- matrix(1, nrow=length(nc), ncol=ncol(xdata))
-    rownames(beta_full)=paste0("s", seq(0, nrow(beta_full)-1))
-    colnames(beta_full)=colnames(xdata)
+    beta_full <- matrix(1, nrow = length(nc), ncol = ncol(xdata))
+    rownames(beta_full) <- paste0("s", seq(0, nrow(beta_full) - 1))
+    colnames(beta_full) <- colnames(xdata)
   }
 
   return(list(comembership = out$comembership, weight = beta_full))

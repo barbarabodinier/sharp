@@ -23,9 +23,11 @@ is not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),
-\code{\link{KMeansClustering}} (k-means), \code{\link{GMMClustering}}
-(Gaussian Mixture Models), \code{\link{PAMClustering}} (Partioning Around
-Medoids), \code{\link{CLARAClustering}} (Clustering Large Applications) and
+\code{\link{SparseHierarchicalClustering}} (sparse hierarchical
+clustering), \code{\link{KMeansClustering}} (k-means),
+\code{\link{GMMClustering}} (Gaussian Mixture Models),
+\code{\link{PAMClustering}} (Partioning Around Medoids),
+\code{\link{CLARAClustering}} (Clustering Large Applications) and
 \code{\link{DBSCANClustering}} (Density-Based Spatial Clustering of
 Applications with Noise). Alternatively, a user-defined function taking
 \code{xdata} and \code{Lambda} as arguments and returning a binary and

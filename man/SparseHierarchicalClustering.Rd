@@ -17,8 +17,8 @@ SparseHierarchicalClustering(
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{nc}{matrix of parameters controlling the number of clusters in the
-underlying algorithm specified in \code{implementation}. If \code{nc}
-is not provided, it is set to \code{seq(1, nrow(xdata))}.}
+underlying algorithm specified in \code{implementation}. If \code{nc} is
+not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{Lambda}{vector of penalty parameters. Provided values must be striclty
 greater than 1, see argument \code{wbound} from

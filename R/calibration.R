@@ -165,7 +165,11 @@ Argmax <- function(stability) {
 #'
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
-  A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
+  if (stability$methods$type == "graphical_model") {
+    A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
+  } else {
+    A <- matrix(0, ncol = ncol(stability$coprop), nrow = nrow(stability$coprop))
+  }
   bigblocks <- BlockMatrix(stability$params$pk)
   if (is.null(argmax_id)) {
     argmax_id <- ArgmaxId(stability)
@@ -180,7 +184,11 @@ Adjacency <- function(stability, argmax_id = NULL) {
     }
   }
   for (block_id in 1:ncol(stability$Lambda)) {
-    A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
+    if (stability$methods$type == "graphical_model") {
+      A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
+    } else {
+      A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
+    }
     A_block[lower.tri(A_block)] <- 0
     A_block <- A_block + t(A_block) # for symmetry
     if (length(stability$params$pk) > 1) {
@@ -227,10 +235,29 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' }
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability)
+  if (stability$methods$type == "clustering") {
+    selprop <- SelectionProportions(stability, argmax_id = argmax_id)
+    if (any(selprop != 1)) {
+      score <- StabilityScore(
+        selprop = selprop,
+        K = stability$params$K,
+        pi_list = stability$params$pi_list,
+        n_cat = stability$params$n_cat
+      )
+      stability_selected <- ifelse(selprop >= stability$params$pi_list[which.max(score)],
+        yes = 1, no = 0
+      )
+    } else {
+      stability_selected <- selprop
+    }
+  } else {
+    if (is.null(argmax_id)) {
+      argmax_id <- ArgmaxId(stability)
+    }
+    stability_selected <- ifelse(stability$selprop[argmax_id[1], ] >= stability$params$pi_list[argmax_id[2]],
+      yes = 1, no = 0
+    )
   }
-  stability_selected <- ifelse(stability$selprop[argmax_id[1], ] >= stability$params$pi_list[argmax_id[2]], 1, 0)
   return(stability_selected)
 }
 
@@ -330,10 +357,16 @@ Clusters <- function(stability, argmax_id = NULL) {
 #'
 #' @export
 SelectionProportions <- function(stability, argmax_id = NULL) {
-  if (stability$methods$type %in% c("clustering", "graphical_model")) {
+  out <- NULL
+
+  if (stability$methods$type == "graphical_model") {
     out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
   }
   if (stability$methods$type == "variable_selection") {
+    out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
+  }
+  if (stability$methods$type == "clustering") {
+    argmax_id <- ArgmaxId(stability)
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
   if (stability$methods$type == "bi_selection") {
@@ -397,10 +430,8 @@ SelectionProportionsGraphical <- function(stability, argmax_id = NULL) {
 SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
   if (is.null(argmax_id)) {
     argmax_id <- ArgmaxId(stability)
-    argmax <- Argmax(stability)
   }
   m <- stability$selprop[argmax_id[1], ]
-  calibrated_pi <- stability$params$pi_list[argmax_id[2]]
   return(m)
 }
 

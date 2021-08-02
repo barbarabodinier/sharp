@@ -37,7 +37,7 @@ StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat
   N <- sum(!is.na(selprop))
 
   # Computing the average number of selected features
-  q <- round(sum(selprop, na.rm=TRUE))
+  q <- round(sum(selprop, na.rm = TRUE))
 
   # Loop over the values of pi
   score <- rep(NA, length(pi_list))
