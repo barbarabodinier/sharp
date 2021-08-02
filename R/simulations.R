@@ -246,20 +246,23 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
 #' Simulation of data with underlying clusters
 #'
-#' Simulates multivariate Normal data with clusters of participants with similar
-#' profiles. This simulator is based on a graph structure encoding conditional
-#' correlations between the observations.
+#' Simulates mixture multivariate Normal data with clusters of observations
+#' (rows) sharing similar profiles along (a subset of) variables (columns). The
+#' conditional independence structure between the variables is the same across
+#' all clusters, i.e. the same covariance is used across clusters.
 #'
 #' @inheritParams SimulateGraphical
 #' @param n vector of the number of observations per cluster in the simulated
 #'   data. The number of observations in the simulated data is \code{sum(n)}.
 #' @param pk vector of the number of variables in the simulated data.
 #' @param adjacency optional binary and symmetric adjacency matrix encoding the
-#'   conditional graph structure between observations. The clusters encoded in
-#'   this argument must be in line with those indicated in \code{n}. To generate
-#'   a block structure, the within-cluster observations must be more likely to
-#'   be correlated than between clusters. For between-cluster relationships to
-#'   be apparent, \code{v_between} must be nonzero.
+#'   conditional graph structure between variables.
+#' @param theta_xc optional binary vector encoding which variables (columns)
+#'   contribute to the clustering structure between observations (rows).
+#' @param nu_xc expected proportion of variables contributing to the clustering
+#'   over the total number of variables. This argument is only used if
+#'   \code{theta_xc} is not provided.
+#' @param mu vector of cluster-specific means.
 #'
 #' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 #' @family simulation functions
@@ -291,105 +294,55 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' @examples
 #' \dontrun{
 #'
-#' # Simulation of 15 observations belonging to 3 groups
-#' set.seed(1)
-#' simul <- SimulateClustering(n = c(10, 10, 10), pk = 50)
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(t(simul$data)),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
-#'
-#' # Simulation with weaker within-cluster correlations
+#' # Simulation of 30 observations belonging to 3 groups
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(10, 10, 10), pk = 50,
-#'   v_within = c(-1, -0.8), continuous = TRUE
-#' )
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(t(simul$data)),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
+#'   n = c(10, 10, 10),
+#'   pk = 10, mu = c(0, 10, 20)
 #' )
 #'
-#' # Simulation with different cluster sizes
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(10, 5, 5), pk = 50,
-#'   v_within = c(-1, -0.8), continuous = TRUE
-#' )
+#' # Visualisation of the data
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
-#'   mat = cor(t(simul$data)),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
+#'   mat = simul$data,
+#'   colours = c("navy", "white", "red")
 #' )
 #'
-#' # Introducing between-cluster correlations
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(10, 10, 10), pk = 50,
-#'   nu_within = 1, nu_between = 0.05,
-#'   v_within = -1
-#' )
+#' # Visualisation of pairwise distances
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
-#'   mat = cor(t(simul$data)),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
-#'
-#' # User-defined structure: between-cluster pair obs1-obs8
-#' adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), seq(3, 7)))
-#' adjacency <- matrix(0, 15, 15)
-#' adjacency[1, 1:5] <- adjacency[1:5, 1] <- 1
-#' diag(adjacency) <- 0
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(5, 5, 5), pk = 50, adjacency = adjacency, v_between = -1
-#' )
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(t(simul$data)),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
+#'   mat = as.matrix(dist(simul$data)),
+#'   colours = c("navy", "white", "red")
 #' )
 #' }
 #' @export
 SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
-                               nu_within = 1, nu_between = 0,
+                               theta_xc = NULL, nu_xc = 0.1, mu = NULL,
+                               implementation = SimulateAdjacency, topology = "random",
+                               nu_within = 0.1, nu_between = NULL,
                                v_within = c(-1, -0.9), v_between = -0.1, continuous = TRUE,
-                               pd_strategy = "min_eigenvalue",
+                               pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
   # Using multi-block simulator with unconnected blocks
   out <- SimulateGraphical(
-    n = pk, pk = n, theta = adjacency,
-    implementation = SimulateAdjacency,
-    topology = "random",
-    nu_within = nu_within, # fully connected components by default
+    n = sum(n), pk = pk, theta = adjacency,
+    implementation = implementation,
+    topology = topology,
+    nu_within = nu_within,
     nu_between = nu_between,
     output_matrices = output_matrices,
     v_within = v_within,
-    v_between = v_between, # unconnected blocks if set to zero
+    v_between = v_between,
     continuous = continuous,
     pd_strategy = pd_strategy,
     u = u, niter_max_u_grid = niter_max_u_grid,
     tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
 
-  # Transposing the matrix for clusters of individuals
-  out$data <- t(out$data)
-  rownames(out$data) <- paste0("obs", 1:nrow(out$data))
-  colnames(out$data) <- paste0("var", 1:ncol(out$data))
-
-  # Updating row and column names of output matrices
-  if ("omega" %in% names(out)) {
-    rownames(out$omega) <- colnames(out$omega) <- rownames(out$data)
-    rownames(out$phi) <- colnames(out$phi) <- rownames(out$data)
-    rownames(out$C) <- colnames(out$C) <- rownames(out$data)
+  # Defining variables contributing to the clustering
+  if (is.null(theta_xc)) {
+    theta_xc <- SamplePredictors(pk = sum(pk), q = 1, nu = nu_xc, orthogonal = FALSE)[, 1]
   }
 
   # Re-naming the outputs
@@ -402,6 +355,23 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
   }
   names(theta) <- rownames(out$data)
   out$theta <- theta
+
+  # Building binary cluster membership for each feature
+  V <- stats::model.matrix(~ as.factor(theta) - 1)
+
+  # Simulating the cluster-specific means
+  if (is.null(mu)) {
+    mu <- seq(0, length(n))
+  }
+
+  # Using cluster-specific mean for contributing variables
+  for (k in 2:length(n)) {
+    out$data[which(V[, k] == 1), which(theta_xc == 1)] <- out$data[which(V[, k] == 1), which(theta_xc == 1)] + mu[k]
+  }
+
+  # Definition of contributing variables
+  names(theta_xc) <- colnames(out$data)
+  out$theta_xc <- theta_xc
 
   return(out)
 }
@@ -507,6 +477,14 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
   # Eigendecomposition of the covariance
   eig <- eigen(out$C)
 
+  # Definition of membership
+  membership <- NULL
+  for (i in 1:length(pk)) {
+    membership <- c(membership, rep(i, each = pk[i]))
+  }
+  names(membership) <- colnames(out$data)
+  out$membership <- membership
+
   # Re-naming the outputs
   out$adjacency <- out$theta
 
@@ -522,9 +500,9 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
   out$ev <- ev
 
   # Re-arranging the output
-  out <- out[c("data", "loadings", "theta", "ev", "omega", "phi", "C", "u")]
+  out <- out[c("data", "loadings", "theta", "ev", "membership", "omega", "phi", "C", "u")]
   if (!output_matrices) {
-    out <- out[c("data", "loadings", "theta", "ev")]
+    out <- out[c("data", "loadings", "theta", "ev", "membership")]
   }
 
   return(out)
@@ -576,9 +554,9 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
 #' @param theta_xz optional binary matrix encoding the predictor variables from
 #'   \code{xdata} (columns) contributing to the definition of the orthogonal
 #'   latent outcomes from \code{zdata} (rows).
-#' @param nu_xz proportion of relevant predictors over the total number of
-#'   predictors to be used for the simulation of the orthogonal latent outcomes.
-#'   This argument is only used if \code{theta_xz} is not provided.
+#' @param nu_xz expected proportion of relevant predictors over the total number
+#'   of predictors to be used for the simulation of the orthogonal latent
+#'   outcomes. This argument is only used if \code{theta_xz} is not provided.
 #' @param theta_zy optional binary matrix encoding the latent variables from
 #'   \code{zdata} (columns) contributing to the definition of the observed
 #'   outcomes from \code{ydata} (rows). This argument must be a square matrix of
@@ -1292,7 +1270,7 @@ SimulatePrecision <- function(pk = NULL, theta,
 #' @return A binary matrix encoding the contribution status of each predictor
 #'   variable (columns) to each outcome variable (rows).
 #'
-#' @keywords internal
+#' @export
 SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
   # Definition of the number of outcome variables
   if (is.null(q)) {

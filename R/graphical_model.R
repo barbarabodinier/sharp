@@ -190,6 +190,30 @@
 #'   )
 #'   stable_adjacency <- Adjacency(stab)
 #' }
+#'
+#' # Example for the detection of block structure 
+#' set.seed(1)
+#' pk <- sample(1:5, size = 5, replace = TRUE)
+#' simul <- SimulateComponents(
+#'   n = 100, pk = pk,
+#'   v_within = c(-0.8, -0.7), continuous = TRUE
+#' )
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = cor(simul$data),
+#'   colours = c("navy", "white", "red"),
+#'   legend_range = c(-1, 1)
+#' )
+#' stab <- GraphicalModel(
+#'   xdata = simul$data, Lambda = seq(2, ncol(simul$data)),
+#'   implementation = HierarchicalClustering
+#' )
+#' CalibrationPlot(stab, xlab = "k")
+#' Clusters(stab)
+#' ClusteringPerformance(
+#'   theta = Clusters(stab),
+#'   theta_star = simul$membership
+#' )
 #' }
 #' @export
 GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,

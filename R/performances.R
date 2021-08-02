@@ -363,6 +363,10 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #'
 #' @export
 ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
+  # Initialising unused parameters
+  cor = NULL
+  thr = 0.5
+  
   # Computing co-membership matrices
   theta <- CoMembership(theta)
   theta_star <- CoMembership(theta_star)
@@ -372,7 +376,7 @@ ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
 
   # Extracting block-specific performances
   if (is.null(pk)) {
-    tmp <- SelectionPerformanceSingle(Asum, cor = NULL, thr = 0.5)
+    tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
     rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
     tmp <- cbind(tmp, rand = rand)
     return(tmp)

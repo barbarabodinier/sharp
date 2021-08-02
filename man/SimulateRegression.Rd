@@ -63,9 +63,9 @@ argument is only used if \code{adjancency_x} is not provided.}
 \code{xdata} (columns) contributing to the definition of the orthogonal
 latent outcomes from \code{zdata} (rows).}
 
-\item{nu_xz}{proportion of relevant predictors over the total number of
-predictors to be used for the simulation of the orthogonal latent outcomes.
-This argument is only used if \code{theta_xz} is not provided.}
+\item{nu_xz}{expected proportion of relevant predictors over the total number
+of predictors to be used for the simulation of the orthogonal latent
+outcomes. This argument is only used if \code{theta_xz} is not provided.}
 
 \item{theta_zy}{optional binary matrix encoding the latent variables from
 \code{zdata} (columns) contributing to the definition of the observed

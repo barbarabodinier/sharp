@@ -30,4 +30,3 @@ from different blocks to outcome variables. For each outcome, the set of true
 predictors is sampled from one block of potential predictors. If the blocks
 of variables are independent, the outcomes will be independent too.
 }
-\keyword{internal}

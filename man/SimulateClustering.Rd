@@ -8,12 +8,17 @@ SimulateClustering(
   n = c(10, 10),
   pk = 20,
   adjacency = NULL,
-  nu_within = 1,
-  nu_between = 0,
+  theta_xc = NULL,
+  nu_xc = 0.1,
+  mu = NULL,
+  implementation = SimulateAdjacency,
+  topology = "random",
+  nu_within = 0.1,
+  nu_between = NULL,
   v_within = c(-1, -0.9),
   v_between = -0.1,
   continuous = TRUE,
-  pd_strategy = "min_eigenvalue",
+  pd_strategy = "diagonally_dominant",
   u = NULL,
   niter_max_u_grid = 5,
   tolerance_u_grid = 10,
@@ -28,11 +33,29 @@ data. The number of observations in the simulated data is \code{sum(n)}.}
 \item{pk}{vector of the number of variables in the simulated data.}
 
 \item{adjacency}{optional binary and symmetric adjacency matrix encoding the
-conditional graph structure between observations. The clusters encoded in
-this argument must be in line with those indicated in \code{n}. To generate
-a block structure, the within-cluster observations must be more likely to
-be correlated than between clusters. For between-cluster relationships to
-be apparent, \code{v_between} must be nonzero.}
+conditional graph structure between variables.}
+
+\item{theta_xc}{optional binary vector encoding which variables (columns)
+contribute to the clustering structure between observations (rows).}
+
+\item{nu_xc}{expected proportion of variables contributing to the clustering
+over the total number of variables. This argument is only used if
+\code{theta_xc} is not provided.}
+
+\item{mu}{vector of cluster-specific means.}
+
+\item{implementation}{function for simulation of the graph. By default,
+algorithms implemented in \code{\link[huge]{huge.generator}} are used.
+Alternatively, a user-defined function can be used. It must take \code{pk},
+\code{topology} and \code{nu} as arguments and return a
+\code{(sum(pk)*(sum(pk)))} binary and symmetric matrix for which diagonal
+entries are all equal to zero. This function is only applied if
+\code{theta} is not provided.}
+
+\item{topology}{topology of the simulated graph. If using
+\code{implementation=SimulateAdjacency}, possible values are listed for the
+argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
+"random", "hub", "cluster", "band" and "scale-free".}
 
 \item{nu_within}{expected density (number of edges over the number of node
 pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
@@ -108,9 +131,10 @@ A list with: \item{data}{simulated data with \code{n} observation and
   \code{output_matrices=TRUE}.}
 }
 \description{
-Simulates multivariate Normal data with clusters of participants with similar
-profiles. This simulator is based on a graph structure encoding conditional
-correlations between the observations.
+Simulates mixture multivariate Normal data with clusters of observations
+(rows) sharing similar profiles along (a subset of) variables (columns). The
+conditional independence structure between the variables is the same across
+all clusters, i.e. the same covariance is used across clusters.
 }
 \details{
 By default, with \code{nu=1}, a graph with \code{length(n)} fully
@@ -128,70 +152,25 @@ By default, with \code{nu=1}, a graph with \code{length(n)} fully
 \examples{
 \dontrun{
 
-# Simulation of 15 observations belonging to 3 groups
-set.seed(1)
-simul <- SimulateClustering(n = c(10, 10, 10), pk = 50)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
-
-# Simulation with weaker within-cluster correlations
+# Simulation of 30 observations belonging to 3 groups
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(10, 10, 10), pk = 50,
-  v_within = c(-1, -0.8), continuous = TRUE
-)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
+  n = c(10, 10, 10),
+  pk = 10, mu = c(0, 10, 20)
 )
 
-# Simulation with different cluster sizes
-set.seed(1)
-simul <- SimulateClustering(
-  n = c(10, 5, 5), pk = 50,
-  v_within = c(-1, -0.8), continuous = TRUE
-)
+# Visualisation of the data
 par(mar = c(5, 5, 5, 5))
 Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
+  mat = simul$data,
+  colours = c("navy", "white", "red")
 )
 
-# Introducing between-cluster correlations
-set.seed(1)
-simul <- SimulateClustering(
-  n = c(10, 10, 10), pk = 50,
-  nu_within = 1, nu_between = 0.05,
-  v_within = -1
-)
+# Visualisation of pairwise distances
 par(mar = c(5, 5, 5, 5))
 Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
-
-# User-defined structure: between-cluster pair obs1-obs8
-adjacency <- CoMembership(c(rep(1, 5), rep(2, 5), seq(3, 7)))
-adjacency <- matrix(0, 15, 15)
-adjacency[1, 1:5] <- adjacency[1:5, 1] <- 1
-diag(adjacency) <- 0
-set.seed(1)
-simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 50, adjacency = adjacency, v_between = -1
-)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
+  mat = as.matrix(dist(simul$data)),
+  colours = c("navy", "white", "red")
 )
 }
 }
