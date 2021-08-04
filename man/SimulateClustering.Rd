@@ -6,19 +6,19 @@
 \usage{
 SimulateClustering(
   n = c(10, 10),
-  pk = 20,
+  pk = 10,
   adjacency = NULL,
   theta_xc = NULL,
   nu_xc = 0.1,
-  mu = NULL,
+  ev = NULL,
   implementation = SimulateAdjacency,
   topology = "random",
-  nu_within = 0.1,
+  nu_within = 0,
   nu_between = NULL,
   v_within = c(-1, -0.9),
   v_between = -0.1,
   continuous = TRUE,
-  pd_strategy = "diagonally_dominant",
+  pd_strategy = "min_eigenvalue",
   u = NULL,
   niter_max_u_grid = 5,
   tolerance_u_grid = 10,
@@ -33,7 +33,7 @@ data. The number of observations in the simulated data is \code{sum(n)}.}
 \item{pk}{vector of the number of variables in the simulated data.}
 
 \item{adjacency}{optional binary and symmetric adjacency matrix encoding the
-conditional graph structure between variables.}
+conditional independence structure between variables.}
 
 \item{theta_xc}{optional binary vector encoding which variables (columns)
 contribute to the clustering structure between observations (rows).}
@@ -42,7 +42,9 @@ contribute to the clustering structure between observations (rows).}
 over the total number of variables. This argument is only used if
 \code{theta_xc} is not provided.}
 
-\item{mu}{vector of cluster-specific means.}
+\item{ev}{vector of marginal expected proportion of explained for each
+variable contributing to the clustering. This parameter is only used for
+variables with a nonzero entry in \code{theta_xc}.}
 
 \item{implementation}{function for simulation of the graph. By default,
 algorithms implemented in \code{\link[huge]{huge.generator}} are used.
@@ -118,45 +120,47 @@ iteration. This parameter is only used with \code{u=NULL}.}
 correlation matrices should be included in the output.}
 }
 \value{
-A list with: \item{data}{simulated data with \code{n} observation and
-  \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
-  graph} \item{omega}{simulated (true) precision matrix. Only returned if
-  \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
-  correlation matrix. Only returned if \code{output_matrices=TRUE}.}
-  \item{C}{ simulated (true) correlation matrix. Only returned if
-  \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
-  \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
-  if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
-  obtained for the values of u listed in u_grid. Only returned if
-  \code{output_matrices=TRUE}.}
+A list with: \item{data}{simulated data with \code{sum(n)}
+  observation and \code{sum(pk)} variables} \item{theta}{simulated (true)
+  cluster membership.} \item{theta}{adjacency matrix of the graph encoding
+  the conditional independence structure between variables.}
+  \item{theta_xc}{binary vector encoding variables contributing to the
+  clustering structure.} \item{ev}{vector of marginal expected proportions of
+  explained variance for each variable.}
 }
 \description{
 Simulates mixture multivariate Normal data with clusters of observations
 (rows) sharing similar profiles along (a subset of) variables (columns). The
-conditional independence structure between the variables is the same across
-all clusters, i.e. the same covariance is used across clusters.
-}
-\details{
-By default, with \code{nu=1}, a graph with \code{length(n)} fully
-  connected components is used to infer the covariance matrix (between
-  observations). The data is simulated from the multivariate Normal
-  distribution with the generated covariance. This is based on similar
-  computations to \code{\link{SimulateGraphical}} but applied on the
-  transpose of the data matrix (i.e. encoding relationships between
-  observations instead of variables). Using a smaller value for \code{nu} or
-  a larger range for \code{v_within} will generate more heterogeneous blocks
-  of correlated observations. Note that as \code{v_within} is controlling
-  entries in the precision matrix, all values must be negative to generate
-  positive correlations.
+conditional independence structure between the variables can be simulated or
+provided in argument \code{adjacency}. The same covariance is used across all
+clusters. Independent variables are simulated by default
+(\code{nu_within=0}).
 }
 \examples{
 \dontrun{
+## Example with 3 clusters
 
-# Simulation of 30 observations belonging to 3 groups
+# Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(10, 10, 10),
-  pk = 10, mu = c(0, 10, 20)
+  n = c(10, 30, 15)
+)
+
+# Visualisation of Euclidian distances
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = as.matrix(dist(simul$data)),
+  colours = c("navy", "white", "red")
+)
+
+
+## Example with 2 variables contributing to clustering
+
+# Data simulation
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(200, 100, 150), pk = 10,
+  theta_xc = c(1, 1, rep(0, 8))
 )
 
 # Visualisation of the data
@@ -165,13 +169,50 @@ Heatmap(
   mat = simul$data,
   colours = c("navy", "white", "red")
 )
+simul$ev # marginal proportions of explained variance
 
-# Visualisation of pairwise distances
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = as.matrix(dist(simul$data)),
-  colours = c("navy", "white", "red")
+# Visualisation along contributing variables
+plot(simul$data[, 1:2], col = simul$theta)
+
+
+## Example with more distinct clusters
+
+# Data simulation
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(200, 100, 150), pk = 10,
+  theta_xc = c(1, 1, rep(0, 8)),
+  ev = c(0.9, 0.8, rep(0, 8))
 )
+
+# Visualisation along contributing variables
+plot(simul$data[, 1:2], col = simul$theta)
+
+
+## Example with correlated contributors
+
+# Data simulation
+pk <- 10
+adjacency <- matrix(0, pk, pk)
+adjacency[1, 2] <- adjacency[2, 1] <- 1
+set.seed(1)
+simul <- SimulateClustering(
+  n = c(200, 100, 150), pk = pk,
+  theta_xc = c(1, 1, rep(0, 8)),
+  ev = c(0.9, 0.8, rep(0, 8)),
+  adjacency = adjacency,
+  pd_strategy = "min_eigenvalue",
+  v_within = -0.6
+)
+
+# Visualisation along contributing variables
+plot(simul$data[, 1:2], col = simul$theta)
+
+# Checking marginal proportions of explained variance
+mymodel <- lm(simul$data[, 1] ~ as.factor(simul$theta))
+summary(mymodel)$r.squared
+mymodel <- lm(simul$data[, 2] ~ as.factor(simul$theta))
+summary(mymodel)$r.squared
 }
 }
 \seealso{

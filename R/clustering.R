@@ -72,7 +72,7 @@
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{Resample}}, \code{\link{StabilityScore}},
-#'   \code{\link{HierarchicalClustering}}, \code{\link{KMeansClustering}},
+#'   \code{\link{SparseHierarchicalClustering}}, \code{\link{KMeansClustering}},
 #'   \code{\link{GMMClustering}}, \code{\link{PAMClustering}}
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
@@ -95,29 +95,32 @@
 #' mymembership <- Clusters(stab)
 #' }
 #' \dontrun{
-#' # Simulation of 30 observations belonging to 3 groups
+#' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(10, 10, 10), pk = 10, mu = c(0, 10, 20)
-#' )
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = simul$data,
-#'   colours = c("navy", "white", "red")
+#'   n = c(50, 50, 50), pk = 15,
+#'   theta_xc = c(1, 1, 1, 1, 1, rep(0, 10)),
+#'   ev = c(0.9, 0.8, 0.7, 0.7, 0.7, rep(0, 10)),
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = as.matrix(dist(simul$data)),
 #'   colours = c("navy", "white", "red")
 #' )
+#' r2 <- NULL
+#' for (k in 1:ncol(simul$data)) {
+#'   mymodel <- lm(simul$data[, k] ~ as.factor(simul$theta))
+#'   r2 <- c(r2, summary(mymodel)$r.squared)
+#' }
 #'
 #' # Sparse consensus clustering
 #' stab <- Clustering(
 #'   xdata = simul$data,
-#'   Lambda = cbind(c(1.1, 1.5, 2)),
+#'   Lambda = cbind(seq(1.1, 3, by = 0.05))
 #' )
 #'
 #' # Stable clusters
+#' CalibrationPlot(stab)
 #' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 #' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 #'
@@ -149,16 +152,6 @@
 #'   implementation = PAMClustering
 #' )
 #' CalibrationPlot(stab, xlab = expression(italic(k)))
-#' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
-#' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
-#'
-#' # Consensus clustering based on DBSCAN algorithm
-#' stab <- Clustering(
-#'   xdata = simul$data,
-#'   implementation = DBSCANClustering,
-#'   Lambda = seq(6, 10, by = 0.1)
-#' )
-#' CalibrationPlot(stab, xlab = expression(epsilon))
 #' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 #' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 #' }
@@ -315,20 +308,17 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
   # Storing extra arguments
   extra_args <- list(...)
 
-  print(nc)
-  print(Lambda)
-
   # Defining resampling method (only subsampling is available as bootstrap would give distance of zero)
   resampling <- "subsampling"
   PFER_method <- "MB"
   PFER_thr <- Inf
   FDP_thr <- Inf
 
-  # Defining K if using complementary pairs (SS)
-  if (PFER_method == "SS") {
-    K <- ceiling(K / 2) * 2
-    tau <- 0.5
-  }
+  # # Defining K if using complementary pairs (SS)
+  # if (PFER_method == "SS") {
+  #   K <- ceiling(K / 2) * 2
+  #   tau <- 0.5
+  # }
 
   # Initialising objects to be filled
   N <- N_block <- ncol(xdata)
@@ -401,70 +391,70 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
     bigstab_obs[is.nan(bigstab_obs)] <- NA
   }
 
-  if (PFER_method == "SS") {
-    for (k in 1:ceiling(K / 2)) {
-      # Subsampling observations
-      s <- Resample(
-        data = xdata, family = NULL, tau = tau, resampling = resampling, ...
-      )
-      Xsub <- xdata[s, ]
-
-      # Applying clustering algorithm
-      mybeta1 <- ClusteringAlgo(
-        xdata = Xsub,
-        Lambda = Lambda, nc = nc,
-        implementation = implementation, ...
-      )
-
-      # Complementary subset
-      ns <- seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s]
-      Xsub <- xdata[ns, ]
-      mybeta2 <- ClusteringAlgo(
-        xdata = Xsub,
-        Lambda = Lambda, nc = nc,
-        implementation = implementation, ...
-      )
-
-      # Storing weights, used to define set of selected variables from first set
-      Beta[rownames(mybeta1$weight), colnames(mybeta1$weight), k] <- mybeta1$weight
-
-      # Storing weights, used to define set of selected variables from complementary set
-      Beta[rownames(mybeta2$weight), colnames(mybeta2$weight), ceiling(K / 2) + k] <- mybeta2$weight
-
-      # Storing co-membership status
-      for (i in 1:dim(mybeta$comembership)[3]) {
-        bigstab_obs[s, s, i] <- bigstab_obs[s, s, i] + mybeta1$comembership[, , i]
-        bigstab_obs[ns, ns, i] <- bigstab_obs[ns, ns, i] + mybeta2$comembership[, , i]
-      }
-
-      # Storing sampled pairs
-      sampled_pairs[s, s] <- sampled_pairs[s, s] + 1
-      sampled_pairs[ns, ns] <- sampled_pairs[ns, ns] + 1
-
-      if (verbose) {
-        utils::setTxtProgressBar(pb, 2 * k / K)
-      }
-    }
-
-    # Computing the simultaneous selection proportions
-    bigstab_var <- matrix(0, nrow = nrow(Beta), ncol = ncol(Beta))
-    colnames(bigstab_var) <- colnames(Beta)
-    rownames(bigstab_var) <- rownames(Beta)
-    for (k in 1:ceiling(K / 2)) {
-      A1 <- ifelse(Beta[, , k] != 0, yes = 1, no = 0)
-      A2 <- ifelse(Beta[, , ceiling(K / 2) + k] != 0, yes = 1, no = 0)
-      A <- A1 + A2
-      A <- ifelse(A == 2, yes = 1, no = 0)
-      bigstab_var <- bigstab_var + A
-    }
-    bigstab_var <- bigstab_var / ceiling(K / 2)
-
-    # Computing the co-membership proportions (cannot do simultaneous as different observations)
-    for (i in 1:dim(bigstab_obs)[3]) {
-      bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
-    }
-    bigstab_obs[is.nan(bigstab_obs)] <- NA
-  }
+  # if (PFER_method == "SS") {
+  #   for (k in 1:ceiling(K / 2)) {
+  #     # Subsampling observations
+  #     s <- Resample(
+  #       data = xdata, family = NULL, tau = tau, resampling = resampling, ...
+  #     )
+  #     Xsub <- xdata[s, ]
+  #
+  #     # Applying clustering algorithm
+  #     mybeta1 <- ClusteringAlgo(
+  #       xdata = Xsub,
+  #       Lambda = Lambda, nc = nc,
+  #       implementation = implementation, ...
+  #     )
+  #
+  #     # Complementary subset
+  #     ns <- seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s]
+  #     Xsub <- xdata[ns, ]
+  #     mybeta2 <- ClusteringAlgo(
+  #       xdata = Xsub,
+  #       Lambda = Lambda, nc = nc,
+  #       implementation = implementation, ...
+  #     )
+  #
+  #     # Storing weights, used to define set of selected variables from first set
+  #     Beta[rownames(mybeta1$weight), colnames(mybeta1$weight), k] <- mybeta1$weight
+  #
+  #     # Storing weights, used to define set of selected variables from complementary set
+  #     Beta[rownames(mybeta2$weight), colnames(mybeta2$weight), ceiling(K / 2) + k] <- mybeta2$weight
+  #
+  #     # Storing co-membership status
+  #     for (i in 1:dim(mybeta$comembership)[3]) {
+  #       bigstab_obs[s, s, i] <- bigstab_obs[s, s, i] + mybeta1$comembership[, , i]
+  #       bigstab_obs[ns, ns, i] <- bigstab_obs[ns, ns, i] + mybeta2$comembership[, , i]
+  #     }
+  #
+  #     # Storing sampled pairs
+  #     sampled_pairs[s, s] <- sampled_pairs[s, s] + 1
+  #     sampled_pairs[ns, ns] <- sampled_pairs[ns, ns] + 1
+  #
+  #     if (verbose) {
+  #       utils::setTxtProgressBar(pb, 2 * k / K)
+  #     }
+  #   }
+  #
+  #   # Computing the simultaneous selection proportions
+  #   bigstab_var <- matrix(0, nrow = nrow(Beta), ncol = ncol(Beta))
+  #   colnames(bigstab_var) <- colnames(Beta)
+  #   rownames(bigstab_var) <- rownames(Beta)
+  #   for (k in 1:ceiling(K / 2)) {
+  #     A1 <- ifelse(Beta[, , k] != 0, yes = 1, no = 0)
+  #     A2 <- ifelse(Beta[, , ceiling(K / 2) + k] != 0, yes = 1, no = 0)
+  #     A <- A1 + A2
+  #     A <- ifelse(A == 2, yes = 1, no = 0)
+  #     bigstab_var <- bigstab_var + A
+  #   }
+  #   bigstab_var <- bigstab_var / ceiling(K / 2)
+  #
+  #   # Computing the co-membership proportions (cannot do simultaneous as different observations)
+  #   for (i in 1:dim(bigstab_obs)[3]) {
+  #     bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
+  #   }
+  #   bigstab_obs[is.nan(bigstab_obs)] <- NA
+  # }
 
   if (verbose) {
     cat("\n")
@@ -490,8 +480,8 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
   }
   out <- list(
     S = metrics$S,
-    Lambda = cbind(rep(Lambda[, 1], nrow(nc))),
-    nc = cbind(rep(nc, each = nrow(Lambda))),
+    Lambda = cbind(rep(Lambda[, 1], each = nrow(nc))),
+    nc = cbind(rep(nc, nrow(Lambda))),
     Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
     PFER = metrics$PFER, FDP = metrics$FDP,
     S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,

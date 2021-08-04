@@ -137,29 +137,32 @@ stab <- Clustering(
 mymembership <- Clusters(stab)
 }
 \dontrun{
-# Simulation of 30 observations belonging to 3 groups
+# Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(10, 10, 10), pk = 10, mu = c(0, 10, 20)
-)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = simul$data,
-  colours = c("navy", "white", "red")
+  n = c(50, 50, 50), pk = 15,
+  theta_xc = c(1, 1, 1, 1, 1, rep(0, 10)),
+  ev = c(0.9, 0.8, 0.7, 0.7, 0.7, rep(0, 10)),
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = as.matrix(dist(simul$data)),
   colours = c("navy", "white", "red")
 )
+r2 <- NULL
+for (k in 1:ncol(simul$data)) {
+  mymodel <- lm(simul$data[, k] ~ as.factor(simul$theta))
+  r2 <- c(r2, summary(mymodel)$r.squared)
+}
 
 # Sparse consensus clustering
 stab <- Clustering(
   xdata = simul$data,
-  Lambda = cbind(c(1.1, 1.5, 2)),
+  Lambda = cbind(seq(1.1, 3, by = 0.05))
 )
 
 # Stable clusters
+CalibrationPlot(stab)
 plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
@@ -193,16 +196,6 @@ stab <- Clustering(
 CalibrationPlot(stab, xlab = expression(italic(k)))
 plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
-
-# Consensus clustering based on DBSCAN algorithm
-stab <- Clustering(
-  xdata = simul$data,
-  implementation = DBSCANClustering,
-  Lambda = seq(6, 10, by = 0.1)
-)
-CalibrationPlot(stab, xlab = expression(epsilon))
-plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
-ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 }
 }
 \references{
@@ -214,7 +207,7 @@ ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 }
 \seealso{
 \code{\link{Resample}}, \code{\link{StabilityScore}},
-  \code{\link{HierarchicalClustering}}, \code{\link{KMeansClustering}},
+  \code{\link{SparseHierarchicalClustering}}, \code{\link{KMeansClustering}},
   \code{\link{GMMClustering}}, \code{\link{PAMClustering}}
 
 Other stability selection functions: 

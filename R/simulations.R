@@ -248,57 +248,62 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'
 #' Simulates mixture multivariate Normal data with clusters of observations
 #' (rows) sharing similar profiles along (a subset of) variables (columns). The
-#' conditional independence structure between the variables is the same across
-#' all clusters, i.e. the same covariance is used across clusters.
+#' conditional independence structure between the variables can be simulated or
+#' provided in argument \code{adjacency}. The same covariance is used across all
+#' clusters. Independent variables are simulated by default
+#' (\code{nu_within=0}).
 #'
 #' @inheritParams SimulateGraphical
 #' @param n vector of the number of observations per cluster in the simulated
 #'   data. The number of observations in the simulated data is \code{sum(n)}.
 #' @param pk vector of the number of variables in the simulated data.
 #' @param adjacency optional binary and symmetric adjacency matrix encoding the
-#'   conditional graph structure between variables.
+#'   conditional independence structure between variables.
 #' @param theta_xc optional binary vector encoding which variables (columns)
 #'   contribute to the clustering structure between observations (rows).
 #' @param nu_xc expected proportion of variables contributing to the clustering
 #'   over the total number of variables. This argument is only used if
 #'   \code{theta_xc} is not provided.
-#' @param mu vector of cluster-specific means.
+#' @param ev vector of marginal expected proportion of explained for each
+#'   variable contributing to the clustering. This parameter is only used for
+#'   variables with a nonzero entry in \code{theta_xc}.
 #'
 #' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 #' @family simulation functions
 #'
-#' @return A list with: \item{data}{simulated data with \code{n} observation and
-#'   \code{sum(pk)} variables} \item{theta}{adjacency matrix of the simulated
-#'   graph} \item{omega}{simulated (true) precision matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
-#'   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
-#'   \item{C}{ simulated (true) correlation matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
-#'   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
-#'   obtained for the values of u listed in u_grid. Only returned if
-#'   \code{output_matrices=TRUE}.}
-#'
-#' @details By default, with \code{nu=1}, a graph with \code{length(n)} fully
-#'   connected components is used to infer the covariance matrix (between
-#'   observations). The data is simulated from the multivariate Normal
-#'   distribution with the generated covariance. This is based on similar
-#'   computations to \code{\link{SimulateGraphical}} but applied on the
-#'   transpose of the data matrix (i.e. encoding relationships between
-#'   observations instead of variables). Using a smaller value for \code{nu} or
-#'   a larger range for \code{v_within} will generate more heterogeneous blocks
-#'   of correlated observations. Note that as \code{v_within} is controlling
-#'   entries in the precision matrix, all values must be negative to generate
-#'   positive correlations.
+#' @return A list with: \item{data}{simulated data with \code{sum(n)}
+#'   observation and \code{sum(pk)} variables} \item{theta}{simulated (true)
+#'   cluster membership.} \item{theta}{adjacency matrix of the graph encoding
+#'   the conditional independence structure between variables.}
+#'   \item{theta_xc}{binary vector encoding variables contributing to the
+#'   clustering structure.} \item{ev}{vector of marginal expected proportions of
+#'   explained variance for each variable.}
 #'
 #' @examples
 #' \dontrun{
+#' ## Example with 3 clusters
 #'
-#' # Simulation of 30 observations belonging to 3 groups
+#' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(10, 10, 10),
-#'   pk = 10, mu = c(0, 10, 20)
+#'   n = c(10, 30, 15)
+#' )
+#'
+#' # Visualisation of Euclidian distances
+#' par(mar = c(5, 5, 5, 5))
+#' Heatmap(
+#'   mat = as.matrix(dist(simul$data)),
+#'   colours = c("navy", "white", "red")
+#' )
+#'
+#'
+#' ## Example with 2 variables contributing to clustering
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(200, 100, 150), pk = 10,
+#'   theta_xc = c(1, 1, rep(0, 8))
 #' )
 #'
 #' # Visualisation of the data
@@ -307,21 +312,58 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   mat = simul$data,
 #'   colours = c("navy", "white", "red")
 #' )
+#' simul$ev # marginal proportions of explained variance
 #'
-#' # Visualisation of pairwise distances
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = as.matrix(dist(simul$data)),
-#'   colours = c("navy", "white", "red")
+#' # Visualisation along contributing variables
+#' plot(simul$data[, 1:2], col = simul$theta)
+#'
+#'
+#' ## Example with more distinct clusters
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(200, 100, 150), pk = 10,
+#'   theta_xc = c(1, 1, rep(0, 8)),
+#'   ev = c(0.9, 0.8, rep(0, 8))
 #' )
+#'
+#' # Visualisation along contributing variables
+#' plot(simul$data[, 1:2], col = simul$theta)
+#'
+#'
+#' ## Example with correlated contributors
+#'
+#' # Data simulation
+#' pk <- 10
+#' adjacency <- matrix(0, pk, pk)
+#' adjacency[1, 2] <- adjacency[2, 1] <- 1
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(200, 100, 150), pk = pk,
+#'   theta_xc = c(1, 1, rep(0, 8)),
+#'   ev = c(0.9, 0.8, rep(0, 8)),
+#'   adjacency = adjacency,
+#'   pd_strategy = "min_eigenvalue",
+#'   v_within = -0.6
+#' )
+#'
+#' # Visualisation along contributing variables
+#' plot(simul$data[, 1:2], col = simul$theta)
+#'
+#' # Checking marginal proportions of explained variance
+#' mymodel <- lm(simul$data[, 1] ~ as.factor(simul$theta))
+#' summary(mymodel)$r.squared
+#' mymodel <- lm(simul$data[, 2] ~ as.factor(simul$theta))
+#' summary(mymodel)$r.squared
 #' }
 #' @export
-SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
-                               theta_xc = NULL, nu_xc = 0.1, mu = NULL,
+SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
+                               theta_xc = NULL, nu_xc = 0.1, ev = NULL,
                                implementation = SimulateAdjacency, topology = "random",
-                               nu_within = 0.1, nu_between = NULL,
+                               nu_within = 0, nu_between = NULL,
                                v_within = c(-1, -0.9), v_between = -0.1, continuous = TRUE,
-                               pd_strategy = "diagonally_dominant",
+                               pd_strategy = "min_eigenvalue",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
   # Using multi-block simulator with unconnected blocks
@@ -340,9 +382,21 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
     tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
 
+  # Defining number of clusters
+  nc <- length(n)
+
   # Defining variables contributing to the clustering
   if (is.null(theta_xc)) {
-    theta_xc <- SamplePredictors(pk = sum(pk), q = 1, nu = nu_xc, orthogonal = FALSE)[, 1]
+    theta_xc <- SamplePredictors(pk = sum(pk), q = 1, nu = nu_xc, orthogonal = TRUE)[, 1]
+  }
+
+  # Simulating marginal proportions of explained variance
+  if (is.null(ev)) {
+    ev <- stats::runif(n = sum(pk))
+  } else {
+    if (length(ev) == 1) {
+      ev <- rep(ev, sum(pk))
+    }
   }
 
   # Re-naming the outputs
@@ -360,18 +414,33 @@ SimulateClustering <- function(n = c(10, 10), pk = 20, adjacency = NULL,
   V <- stats::model.matrix(~ as.factor(theta) - 1)
 
   # Simulating the cluster-specific means
-  if (is.null(mu)) {
-    mu <- seq(0, length(n))
+  mu_mat <- matrix(NA, nrow = sum(n), ncol = sum(pk))
+  for (k in 1:ncol(mu_mat)) {
+    # Defining variance to reach expected proportion of e.v.
+    var_mu <- ev[k] * 1 / (1 - ev[k])
+
+    # Sampling initial values for cluster-specific means
+    mu <- stats::rnorm(n = nc, mean = 0, sd = 1)
+    for (i in 1:nrow(mu_mat)) {
+      mu_mat[i, k] <- mu[theta[i]]
+    }
+
+    # Scaling to ensure mean of zero and defined variance
+    mu_mat[, k] <- scale(mu_mat[, k])
+    mu_mat[, k] <- mu_mat[, k] * sqrt(var_mu)
   }
 
   # Using cluster-specific mean for contributing variables
-  for (k in 2:length(n)) {
-    out$data[which(V[, k] == 1), which(theta_xc == 1)] <- out$data[which(V[, k] == 1), which(theta_xc == 1)] + mu[k]
+  for (k in 1:ncol(mu_mat)) {
+    if (theta_xc[k] == 1) {
+      out$data[, k] <- out$data[, k] + mu_mat[, k]
+    }
   }
 
   # Definition of contributing variables
   names(theta_xc) <- colnames(out$data)
   out$theta_xc <- theta_xc
+  out$ev <- ev * theta_xc
 
   return(out)
 }
