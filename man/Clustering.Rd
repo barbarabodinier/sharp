@@ -138,44 +138,44 @@ mymembership <- Clusters(stab)
 }
 \dontrun{
 # Data simulation
-set.seed(1)
+set.seed(2)
 simul <- SimulateClustering(
-  n = c(50, 50, 50), pk = 15,
-  theta_xc = c(1, 1, 1, 1, 1, rep(0, 10)),
-  ev = c(0.9, 0.8, 0.7, 0.7, 0.7, rep(0, 10)),
+  n = c(30, 30, 30), pk = 15,
+  theta_xc = c(rep(1, 5), rep(0, 10)),
+  ev = c(rep(0.95, 5), rep(0, 10)),
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = as.matrix(dist(simul$data)),
   colours = c("navy", "white", "red")
 )
-r2 <- NULL
-for (k in 1:ncol(simul$data)) {
-  mymodel <- lm(simul$data[, k] ~ as.factor(simul$theta))
-  r2 <- c(r2, summary(mymodel)$r.squared)
-}
 
 # Sparse consensus clustering
 stab <- Clustering(
   xdata = simul$data,
-  Lambda = cbind(seq(1.1, 3, by = 0.05))
+  Lambda = cbind(seq(1.1, 2, by = 0.1))
 )
 
-# Stable clusters
-CalibrationPlot(stab)
-plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
-ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
-
 # Stably contributing variables
+CalibrationPlot(stab)
+Argmax(stab, clustering = FALSE)
+ArgmaxId(stab, clustering = FALSE)
 SelectionProportions(stab)
 SelectedVariables(stab)
+
+# Stable clusters
+CalibrationPlot(stab, clustering = TRUE)
+Argmax(stab, clustering = TRUE)
+ArgmaxId(stab, clustering = TRUE)
+plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
 # Consensus clustering based on hierarchical clustering
 stab <- Clustering(
   xdata = simul$data,
   implementation = HierarchicalClustering
 )
-CalibrationPlot(stab, xlab = expression(italic(k)))
+CalibrationPlot(stab, xlab = expression(italic(k)), clustering = TRUE)
 plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
@@ -184,7 +184,7 @@ stab <- Clustering(
   xdata = simul$data,
   implementation = KMeansClustering
 )
-CalibrationPlot(stab, xlab = expression(italic(k)))
+CalibrationPlot(stab, xlab = expression(italic(k)), clustering = TRUE)
 plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 
@@ -193,7 +193,7 @@ stab <- Clustering(
   xdata = simul$data,
   implementation = PAMClustering
 )
-CalibrationPlot(stab, xlab = expression(italic(k)))
+CalibrationPlot(stab, xlab = expression(italic(k)), clustering = TRUE)
 plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 }

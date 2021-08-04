@@ -1,12 +1,15 @@
 #' Variable selection for predictors and outcomes
 #'
 #' Runs stability selection regression models with different combinations of
-#' parameters controlling the sparsity in PLS/PCA models and thresholds in selection
-#' proportions. These parameters are jointly calibrated by maximising the
-#' stability score of the model (possibly under a constraint on the expected
+#' parameters controlling the sparsity in PLS/PCA models and thresholds in
+#' selection proportions. These parameters are jointly calibrated by maximising
+#' the stability score of the model (possibly under a constraint on the expected
 #' number of falsely stably selected features).
 #'
 #' @inheritParams VariableSelection
+#' @param family type of PLS model. This parameter must be set to
+#'   \code{family="gaussian"} for continuous outcomes, or to
+#'   \code{family="binomial"} for categorical outcomes.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
 #'   Only used with \code{implementation=SparseGroupPLS}.
@@ -64,17 +67,17 @@
 #'
 #' @references \insertRef{sparsegroupPLS}{focus}
 #'
-#' \insertRef{sparsePLS}{focus}
+#'   \insertRef{sparsePLS}{focus}
 #'
-#' \insertRef{sparsePCA}{focus}
+#'   \insertRef{sparsePCA}{focus}
 #'
-#' \insertRef{sparsePCASVD}{focus}
+#'   \insertRef{sparsePCASVD}{focus}
 #'
-#' \insertRef{stabilityselectionMB}{focus}
+#'   \insertRef{stabilityselectionMB}{focus}
 #'
-#' \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{focus}
 #'
-#' \insertRef{ourstabilityselection}{focus}
+#'   \insertRef{ourstabilityselection}{focus}
 #'
 #' @examples
 #' \dontshow{

@@ -96,44 +96,44 @@
 #' }
 #' \dontrun{
 #' # Data simulation
-#' set.seed(1)
+#' set.seed(2)
 #' simul <- SimulateClustering(
-#'   n = c(50, 50, 50), pk = 15,
-#'   theta_xc = c(1, 1, 1, 1, 1, rep(0, 10)),
-#'   ev = c(0.9, 0.8, 0.7, 0.7, 0.7, rep(0, 10)),
+#'   n = c(30, 30, 30), pk = 15,
+#'   theta_xc = c(rep(1, 5), rep(0, 10)),
+#'   ev = c(rep(0.95, 5), rep(0, 10)),
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = as.matrix(dist(simul$data)),
 #'   colours = c("navy", "white", "red")
 #' )
-#' r2 <- NULL
-#' for (k in 1:ncol(simul$data)) {
-#'   mymodel <- lm(simul$data[, k] ~ as.factor(simul$theta))
-#'   r2 <- c(r2, summary(mymodel)$r.squared)
-#' }
 #'
 #' # Sparse consensus clustering
 #' stab <- Clustering(
 #'   xdata = simul$data,
-#'   Lambda = cbind(seq(1.1, 3, by = 0.05))
+#'   Lambda = cbind(seq(1.1, 2, by = 0.1))
 #' )
 #'
-#' # Stable clusters
-#' CalibrationPlot(stab)
-#' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
-#' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
-#'
 #' # Stably contributing variables
+#' CalibrationPlot(stab)
+#' Argmax(stab, clustering = FALSE)
+#' ArgmaxId(stab, clustering = FALSE)
 #' SelectionProportions(stab)
 #' SelectedVariables(stab)
+#'
+#' # Stable clusters
+#' CalibrationPlot(stab, clustering = TRUE)
+#' Argmax(stab, clustering = TRUE)
+#' ArgmaxId(stab, clustering = TRUE)
+#' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
+#' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 #'
 #' # Consensus clustering based on hierarchical clustering
 #' stab <- Clustering(
 #'   xdata = simul$data,
 #'   implementation = HierarchicalClustering
 #' )
-#' CalibrationPlot(stab, xlab = expression(italic(k)))
+#' CalibrationPlot(stab, xlab = expression(italic(k)), clustering = TRUE)
 #' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 #' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 #'
@@ -142,7 +142,7 @@
 #'   xdata = simul$data,
 #'   implementation = KMeansClustering
 #' )
-#' CalibrationPlot(stab, xlab = expression(italic(k)))
+#' CalibrationPlot(stab, xlab = expression(italic(k)), clustering = TRUE)
 #' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 #' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 #'
@@ -151,7 +151,7 @@
 #'   xdata = simul$data,
 #'   implementation = PAMClustering
 #' )
-#' CalibrationPlot(stab, xlab = expression(italic(k)))
+#' CalibrationPlot(stab, xlab = expression(italic(k)), clustering = TRUE)
 #' plot(Graph(Adjacency(stab), node_colour = simul$theta, satellites = TRUE))
 #' ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
 #' }
@@ -460,12 +460,26 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
     cat("\n")
   }
 
-  # Computation of the stability score over Lambda and pi_list
-  metrics <- StabilityMetrics(
+  # Step 1: calibration for contributing variables
+  metrics1 <- StabilityMetrics(
+    selprop = bigstab_var, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+    Sequential_template = NULL, graph = FALSE,
+    PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
+  )
+
+  # Step 2: calibration for co-membership
+  metrics2 <- StabilityMetrics(
     selprop = bigstab_obs, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
     Sequential_template = NULL, graph = TRUE,
     PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
   )
+
+  # # Computation of the stability score over Lambda and pi_list
+  # metrics <- StabilityMetrics(
+  #   selprop = bigstab_obs, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
+  #   Sequential_template = NULL, graph = TRUE,
+  #   PFER_method = PFER_method, PFER_thr_blocks = PFER_thr, FDP_thr_blocks = FDP_thr
+  # )
   if (verbose) {
     utils::setTxtProgressBar(pb, 1)
     cat("\n")
@@ -479,15 +493,17 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
     myresampling <- resampling
   }
   out <- list(
-    S = metrics$S,
+    S = metrics1$S,
     Lambda = cbind(rep(Lambda[, 1], each = nrow(nc))),
-    nc = cbind(rep(nc, nrow(Lambda))),
-    Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
-    PFER = metrics$PFER, FDP = metrics$FDP,
-    S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
-    coprop = bigstab_obs,
+    Q = metrics1$Q, Q_s = metrics1$Q_s, P = metrics1$P,
+    PFER = metrics1$PFER, FDP = metrics1$FDP,
+    S_2d = metrics1$S_2d, PFER_2d = metrics1$PFER_2d, FDP_2d = metrics1$FDP_2d,
     selprop = bigstab_var,
     Beta = Beta,
+    Sc = metrics2$S,
+    nc = cbind(rep(nc, nrow(Lambda))),
+    Sc_2d = metrics2$S_2d,
+    coprop = bigstab_obs,
     methods = list(
       type = "clustering", implementation = myimplementation,
       resampling = myresampling, PFER_method = PFER_method

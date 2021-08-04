@@ -9,6 +9,10 @@
 #' @param metric parameter to visualise. Possible values are "lambda" (parameter
 #'   controlling the level of sparsity in underlying algorithm), "pi" (threshold
 #'   in selection proportion) or "both".
+#' @param clustering logical indicating whether calibration for clustering
+#'   (\code{clustering=TRUE}) or variable selection (\code{clustering=FALSE})
+#'   should be represented. This argument is only used if \code{stability} is the
+#'   output from \code{\link{Clustering}}.
 #' @param block_id ID of the block to visualise. Only used for multi-block
 #'   stability selection graphical models. With block_id=NULL, all blocks are
 #'   represented in separate panels.
@@ -76,7 +80,7 @@
 #' }
 #'
 #' @export
-CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
+CalibrationPlot <- function(stability, clustering = FALSE, metric = "both", block_id = NULL,
                             lines = FALSE, colours = c("ivory", "navajowhite", "tomato", "darkred"),
                             legend = TRUE, legend_length = 15, legend_range = NULL,
                             xlab = expression(lambda), ylab = expression(pi), zlab = expression(italic(q)),
@@ -108,26 +112,30 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
   if (metric == "both") {
     for (b in block_id) {
       # Extracting the stability scores
-      if (length(stability$params$pk) == 1) {
-        #   mat=matrix(NA, nrow=length(unique(stability$summary_full[,2])),
-        #              ncol=length(unique(stability$summary_full[,3])))
-        #   rownames(mat)=sort(unique(stability$summary_full[,2]))
-        #   colnames(mat)=sort(unique(stability$summary_full[,3]))
-        #   for (i in 1:nrow(stability$summary_full)){
-        #     mat[as.character(stability$summary_full[i,2]),
-        #         as.character(stability$summary_full[i,3])]=as.character(stability$summary_full$S[i])
-        #   }
-        mat <- stability$S_2d
-        ids <- which(apply(mat, 1, FUN = function(x) {
-          any(!is.na(x))
-        }))
-        mat <- mat[ids, , drop = FALSE]
+      if (clustering) {
+        mat <- stability$Sc_2d
+        if (length(unique(stability$Lambda)) > 1) {
+          # Identifying best number of contributing variables
+          lambda_hat <- stability$Lambda[which.max(stability$S), 1]
+          ids <- which(as.character(stability$Lambda) == lambda_hat)
+        } else {
+          ids <- 1:nrow(stability$Sc)
+        }
+        mat <- mat[ids, ]
       } else {
-        mat <- stability$S_2d[, , b]
-        ids <- which(apply(mat, 1, FUN = function(x) {
-          any(!is.na(x))
-        }))
-        mat <- mat[ids, , drop = FALSE]
+        if (length(stability$params$pk) == 1) {
+          mat <- stability$S_2d
+          ids <- which(apply(mat, 1, FUN = function(x) {
+            any(!is.na(x))
+          }))
+          mat <- mat[ids, , drop = FALSE]
+        } else {
+          mat <- stability$S_2d[, , b]
+          ids <- which(apply(mat, 1, FUN = function(x) {
+            any(!is.na(x))
+          }))
+          mat <- mat[ids, , drop = FALSE]
+        }
       }
       mat <- mat[, , drop = FALSE]
       colnames(mat) <- stability$params$pi_list
@@ -158,12 +166,16 @@ CalibrationPlot <- function(stability, metric = "both", block_id = NULL,
       # Identifying best pair of parameters
       withr::local_par(list(xpd = FALSE))
       if (stability$methods$type == "clustering") {
-        tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability)[1, 1]]
-        graphics::abline(v = nrow(mat) - which(rownames(mat) == tmp) + 0.5, lty = 3)
+        if (clustering){
+          graphics::abline(v = nrow(mat) - which(stability$nc[ids, b] == Argmax(stability, clustering = clustering)[b, 1]) + 0.5, lty = 3)
+        } else {
+          tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability, clustering=clustering)[1, 1]]
+          graphics::abline(v = nrow(mat) - which(rownames(mat) == tmp) + 0.5, lty = 3)
+        }
       } else {
-        graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
+        graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability, clustering = clustering)[b, 1]) + 0.5, lty = 3)
       }
-      graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
+      graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability, clustering = clustering)[b, 2])) - 0.5, lty = 3)
 
       # Including axes
       graphics::axis(

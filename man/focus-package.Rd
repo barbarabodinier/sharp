@@ -5,11 +5,12 @@
 \alias{focus-package}
 \title{focus: Feature selectiOn and Clustering Using Stability}
 \description{
-Implementation of stability-enhanced models for variable selection in
-regression, graphical modelling and clustering. These methods are based on
-resampling approaches to compute selection proportions. Calibration of the
-models is done via maximisation of a stability score measuring the likelihood
-of selecting informative (not uniformly chosen) features.
+Implementation of stability-enhanced models for variable
+selection in multivariate regression, graphical and clustering models. These
+methods rely on resampling approaches to estimate selection (or
+co-membership) probability. Calibration of the models is done via
+maximisation of a stability score measuring the likelihood of informative
+(non-uniform) selection procedure.
 }
 \details{
 \tabular{ll}{ Package: \tab focus\cr Type: \tab Package\cr Version: \tab

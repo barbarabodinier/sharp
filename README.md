@@ -7,10 +7,11 @@
 <!-- badges: end -->
 
 Implementation of stability-enhanced models for variable selection in
-regression, graphical modelling and clustering. These methods are based
-on resampling approaches to compute selection proportions. Calibration
-of the models is done via maximisation of a stability score measuring
-how unlikely it is that the selection procedure is uniform.
+multivariate regression, graphical and clustering models. These methods
+rely on resampling approaches to estimate selection (or co-membership)
+probability. Calibration of the models is done via maximisation of a
+stability score measuring the likelihood of informative (non-uniform)
+selection procedure.
 
 ## Installation
 
@@ -156,9 +157,9 @@ association with the outcome:
 ``` r
 selprop_ranked <- sort(selprop, decreasing = TRUE)
 plot(selprop_ranked,
-  type = "h", lwd = 3, las = 1, cex.lab = 1.3, bty = "n", ylim = c(0, 1),
-  col = ifelse(selprop_ranked >= Argmax(stab)[2], yes = "red", no = "grey"),
-  xaxt = "n", xlab = "", ylab = "Selection proportions"
+     type = "h", lwd = 3, las = 1, cex.lab = 1.3, bty = "n", ylim = c(0, 1),
+     col = ifelse(selprop_ranked >= Argmax(stab)[2], yes = "red", no = "grey"),
+     xaxt = "n", xlab = "", ylab = "Selection proportions"
 )
 abline(h = Argmax(stab)[2], lty = 2, col = "darkred")
 axis(side = 1, at = 1:length(selprop_ranked), labels = names(selprop_ranked), las = 2)
@@ -250,73 +251,111 @@ plot(mygraph)
 ### Data simulation
 
 A dataset with k=3 clusters of participants sharing similar profiles
-based on levels of p=50 variables is simulated:
+along 5 out of 15 variables is simulated:
 
 ``` r
 # Data simulation
 set.seed(1)
-simul <- SimulateClustering(n = c(3, 5, 4), pk = 50, v_within = c(-1, -0.7))
+simul <- SimulateClustering(
+  n = c(10, 10, 10, 10), pk = 15,
+  theta_xc = c(rep(1, 5), rep(0, 10)),
+  ev = c(rep(0.99, 5), rep(0, 10)),
+)
 X <- simul$data
 
-# Visualisation of correlations between participants
+# Visualisation of distances between participants
 par(mar = c(5, 5, 5, 5))
 Heatmap(
-  mat = cor(t(X)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
+  mat = as.matrix(dist(simul$data)),
+  colours = c("navy", "white", "red")
 )
 ```
 
 <img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" />
 
+``` r
+# Visualisation along two variables
+plot(simul$data[,1:2], col=simul$theta)
+```
+
+<img src="man/figures/README-unnamed-chunk-14-2.png" width="60%" style="display: block; margin: auto;" />
+
 ### Consensus clustering
 
 Consensus clustering is implemented in `Clustering()`. By default,
-hierarchical clustering is used and applied on datasets with subsamples
-of the variables. The function takes the data as input:
+sparse hierarchical clustering is used and applied on datasets with
+subsamples of the participants. The function takes the data as input:
 
 ``` r
-stab <- Clustering(xdata = X)
+stab <- Clustering(
+  xdata = simul$data,
+  Lambda = cbind(seq(1.1, 2, by = 0.1))
+)
+#> Loading required namespace: sparcl
 ```
 
 ### Calibration
 
-As in stability selection, consensus clustering is controlled by a
-threshold in proportion and the hyper-parameters of the underlying
-algorithm. For consensus clustering applied on hierarchical clustering,
-the model is controlled by the threshold π and number of clusters k.
-These parameters are jointly calibrated by maximising the stability
-score:
+The calibration of sparse consensus clustering is conducted in two
+steps: (i) calibration of parameters controlling the variable selection,
+and (ii) calibration of parameters controlling the clusters,
+conditionally on the choice of hyper-parameter for the variable
+selection.
+
+#### Variable selection
+
+In sparse hierarchical clustering, the number of variables used for the
+clustering is controlled by a penalty parameter. The penalty and
+threshold in selection proportions for the variables are jointly
+calibrated by maximising the stability score:
 
 ``` r
 par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab, xlab = "k")
+CalibrationPlot(stab)
 ```
 
 <img src="man/figures/README-unnamed-chunk-16-1.png" width="80%" style="display: block; margin: auto;" />
 
-### Outputs
+#### Identification of stable clusters
 
-The consensus matrix of the calibrated stability selection graphical
-model is obtained with:
+In addition, the consensus clustering model is defined by the number of
+clusters and a threshold in co-membership proportion. These two
+parameters are calibrated by maximising the stability score across
+models with the chosen penalty parameter:
 
 ``` r
+par(mar = c(7, 5, 7, 6))
+CalibrationPlot(stab, clustering=TRUE)
+```
+
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;" />
+
+### Outputs
+
+#### Variable selection
+
+The variables contributing to the clustering structure can be identified
+using:
+
+``` r
+# Selection proportions
 mat <- SelectionProportions(stab)
 print(mat)
-#>       obs1 obs2 obs3 obs4 obs5 obs6 obs7 obs8 obs9 obs10 obs11 obs12
-#> obs1  0.00 0.97 0.98 0.02 0.03 0.02 0.02 0.02 0.00  0.00  0.00  0.04
-#> obs2  0.97 0.00 0.95 0.03 0.04 0.03 0.03 0.03 0.02  0.02  0.02  0.06
-#> obs3  0.98 0.95 0.00 0.00 0.01 0.00 0.00 0.00 0.00  0.00  0.00  0.04
-#> obs4  0.02 0.03 0.00 0.00 0.99 1.00 1.00 1.00 0.00  0.03  0.00  0.01
-#> obs5  0.03 0.04 0.01 0.99 0.00 0.99 0.99 0.99 0.00  0.03  0.00  0.01
-#> obs6  0.02 0.03 0.00 1.00 0.99 0.00 1.00 1.00 0.00  0.03  0.00  0.01
-#> obs7  0.02 0.03 0.00 1.00 0.99 1.00 0.00 1.00 0.00  0.03  0.00  0.01
-#> obs8  0.02 0.03 0.00 1.00 0.99 1.00 1.00 0.00 0.00  0.03  0.00  0.01
-#> obs9  0.00 0.02 0.00 0.00 0.00 0.00 0.00 0.00 0.00  0.97  1.00  0.95
-#> obs10 0.00 0.02 0.00 0.03 0.03 0.03 0.03 0.03 0.97  0.00  0.97  0.92
-#> obs11 0.00 0.02 0.00 0.00 0.00 0.00 0.00 0.00 1.00  0.97  0.00  0.95
-#> obs12 0.04 0.06 0.04 0.01 0.01 0.01 0.01 0.01 0.95  0.92  0.95  0.00
+#>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
+#>  0.01  0.86  0.86  0.13  0.83  0.00  0.12  0.14  0.11  0.04  0.03  0.01  0.07 
+#> var14 var15 
+#>  0.05  0.10
+
+# Stable selection status
+mat <- SelectedVariables(stab)
+print(mat)
+#>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
+#>     0     1     1     0     1     0     0     0     0     0     0     0     0 
+#> var14 var15 
+#>     0     0
 ```
+
+#### Identification of stable clusters
 
 In this example, observations that are grouped in the same cluster in
 more than 90% (calibrated threshold) of the subsamples are considered as
@@ -324,32 +363,18 @@ stable co-members. The stable co-membership status can be obtained from:
 
 ``` r
 myadjacency <- Adjacency(stab)
-print(myadjacency)
-#>       obs1 obs2 obs3 obs4 obs5 obs6 obs7 obs8 obs9 obs10 obs11 obs12
-#> obs1     0    1    1    0    0    0    0    0    0     0     0     0
-#> obs2     1    0    1    0    0    0    0    0    0     0     0     0
-#> obs3     1    1    0    0    0    0    0    0    0     0     0     0
-#> obs4     0    0    0    0    1    1    1    1    0     0     0     0
-#> obs5     0    0    0    1    0    1    1    1    0     0     0     0
-#> obs6     0    0    0    1    1    0    1    1    0     0     0     0
-#> obs7     0    0    0    1    1    1    0    1    0     0     0     0
-#> obs8     0    0    0    1    1    1    1    0    0     0     0     0
-#> obs9     0    0    0    0    0    0    0    0    0     1     1     1
-#> obs10    0    0    0    0    0    0    0    0    1     0     1     1
-#> obs11    0    0    0    0    0    0    0    0    1     1     0     1
-#> obs12    0    0    0    0    0    0    0    0    1     1     1     0
 ```
 
-This matrix can be interpreted like an adjacency matrix and visualised
-as a graph:
+It can be interpreted like an adjacency matrix and visualised as a
+graph:
 
 ``` r
-mygraph <- Graph(myadjacency)
+mygraph <- Graph(myadjacency, node_colour = simul$theta)
 set.seed(1)
 plot(mygraph)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" style="display: block; margin: auto;" />
 
 The stable clusters are defined as the connected components of this
 graph. Stable cluster membership can be obtained using:
@@ -357,8 +382,14 @@ graph. Stable cluster membership can be obtained using:
 ``` r
 membership <- Clusters(stab)
 print(membership)
-#>  obs1  obs2  obs3  obs4  obs5  obs6  obs7  obs8  obs9 obs10 obs11 obs12 
-#>     1     1     1     2     2     2     2     2     3     3     3     3
+#>  obs1  obs2  obs3  obs4  obs5  obs6  obs7  obs8  obs9 obs10 obs11 obs12 obs13 
+#>     1     1     1     1     1     1     1     1     1     1     2     2     2 
+#> obs14 obs15 obs16 obs17 obs18 obs19 obs20 obs21 obs22 obs23 obs24 obs25 obs26 
+#>     2     2     2     2     2     2     2     3     3     3     3     3     3 
+#> obs27 obs28 obs29 obs30 obs31 obs32 obs33 obs34 obs35 obs36 obs37 obs38 obs39 
+#>     3     3     3     3     4     4     4     4     4     4     4     4     4 
+#> obs40 
+#>     4
 ```
 
 ## Dimensionality reduction
@@ -384,7 +415,7 @@ Heatmap(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="60%" style="display: block; margin: auto;" />
 
 ### Stability selection
 
@@ -424,10 +455,10 @@ obtained from:
 
 ``` r
 print(stab$selpropX)
-#>      var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
-#> [1,] 0.00 0.00 0.00 1.00 0.99 1.00 1.00 1.00 0.00  0.01  0.00  0.00
-#> [2,] 0.95 0.94 0.95 0.03 0.04 0.02 0.03 0.08 0.99  0.99  0.99  0.99
-#> [3,] 0.99 0.99 0.99 0.00 0.00 0.00 0.00 0.00 0.01  0.01  0.01  0.00
+#>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
+#> comp1 0.00 0.00 0.00 1.00 0.99 1.00 1.00 1.00 0.00  0.01  0.00  0.00
+#> comp2 0.95 0.94 0.95 0.03 0.04 0.02 0.03 0.08 0.99  0.99  0.99  0.99
+#> comp3 0.99 0.99 0.99 0.00 0.00 0.00 0.00 0.00 0.01  0.01  0.01  0.00
 ```
 
 The sets of stably selected variables for each of the PCs are encoded
@@ -435,8 +466,8 @@ in:
 
 ``` r
 print(stab$selectedX)
-#>      var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
-#> [1,]    0    0    0    1    1    1    1    1    0     0     0     0
-#> [2,]    1    1    1    0    0    0    0    0    1     1     1     1
-#> [3,]    1    1    1    0    0    0    0    0    0     0     0     0
+#>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
+#> comp1    0    0    0    1    1    1    1    1    0     0     0     0
+#> comp2    1    1    1    0    0    0    0    0    1     1     1     1
+#> comp3    1    1    1    0    0    0    0    0    0     0     0     0
 ```

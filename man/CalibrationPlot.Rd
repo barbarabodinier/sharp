@@ -6,6 +6,7 @@
 \usage{
 CalibrationPlot(
   stability,
+  clustering = FALSE,
   metric = "both",
   block_id = NULL,
   lines = FALSE,
@@ -28,6 +29,11 @@ CalibrationPlot(
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}},
 \code{\link{GraphicalModel}} or \code{\link{Clustering}}.}
+
+\item{clustering}{logical indicating whether calibration for clustering
+(\code{clustering=TRUE}) or variable selection (\code{clustering=FALSE})
+should be represented. This argument is only used if \code{stability} is the
+output from \code{\link{Clustering}}.}
 
 \item{metric}{parameter to visualise. Possible values are "lambda" (parameter
 controlling the level of sparsity in underlying algorithm), "pi" (threshold

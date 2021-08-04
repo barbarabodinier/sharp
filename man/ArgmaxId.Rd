@@ -4,7 +4,7 @@
 \alias{ArgmaxId}
 \title{Calibrated parameter indices}
 \usage{
-ArgmaxId(stability = NULL, S = NULL)
+ArgmaxId(stability = NULL, S = NULL, clustering = FALSE)
 }
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}} or
@@ -16,15 +16,20 @@ parameters where rows correspond to different values of the parameter
 controlling the level of sparsity in the underlying feature selection
 algorithm and columns correspond to different values of the threshold in
 selection proportions. If \code{S=NULL}, argument \code{stability} must be
-provided.}
+provided. This argument cannot be used with \code{clustering=TRUE}.}
+
+\item{clustering}{logical indicating whether indices of calibrated clustering
+parameters (\code{clustering=TRUE}) or variable selection
+(\code{clustering=FALSE}) should be extracted. This argument is only used
+if \code{stability} is the output from \code{\link{Clustering}}.}
 }
 \value{
-A matrix of parameter indices. In multi-block graphical modelling, rows
-  correspond to different blocks.
+A matrix of parameter indices. In multi-block graphical modelling,
+  rows correspond to different blocks.
 }
 \description{
-Extracts the indices of calibrated parameters with respect to the grids provided
-in \code{Lambda} and \code{pi_list} in \code{stability}.
+Extracts the indices of calibrated parameters with respect to the grids
+provided in \code{Lambda} and \code{pi_list} in \code{stability}.
 }
 \examples{
 \dontrun{

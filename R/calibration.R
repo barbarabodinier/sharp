@@ -1,7 +1,7 @@
 #' Calibrated parameter indices
 #'
-#' Extracts the indices of calibrated parameters with respect to the grids provided
-#' in \code{Lambda} and \code{pi_list} in \code{stability}.
+#' Extracts the indices of calibrated parameters with respect to the grids
+#' provided in \code{Lambda} and \code{pi_list} in \code{stability}.
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
 #'   \code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
@@ -11,10 +11,14 @@
 #'   controlling the level of sparsity in the underlying feature selection
 #'   algorithm and columns correspond to different values of the threshold in
 #'   selection proportions. If \code{S=NULL}, argument \code{stability} must be
-#'   provided.
+#'   provided. This argument cannot be used with \code{clustering=TRUE}.
+#' @param clustering logical indicating whether indices of calibrated clustering
+#'   parameters (\code{clustering=TRUE}) or variable selection
+#'   (\code{clustering=FALSE}) should be extracted. This argument is only used
+#'   if \code{stability} is the output from \code{\link{Clustering}}.
 #'
-#' @return A matrix of parameter indices. In multi-block graphical modelling, rows
-#'   correspond to different blocks.
+#' @return A matrix of parameter indices. In multi-block graphical modelling,
+#'   rows correspond to different blocks.
 #'
 #' @family calibration functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
@@ -39,30 +43,54 @@
 #' }
 #'
 #' @export
-ArgmaxId <- function(stability = NULL, S = NULL) {
+ArgmaxId <- function(stability = NULL, S = NULL, clustering = FALSE) {
   if ((is.null(stability)) & (is.null(S))) {
     stop("Invalid input. One of the two arguments has to be specified: 'stability' or 'S'.")
   }
+  if (clustering) {
+    if (!is.null(S)) {
+      stop("Invalid input. Argument 'stability' needs to be supplied with clustering = TRUE.")
+    }
+  }
   if (is.null(S)) {
-    argmax_id <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
-    if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
-      id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
-      argmax_id[, 1] <- rep(id, nrow(argmax_id))
-      for (block_id in 1:ncol(stability$Lambda)) {
-        if (!is.na(stability$P[id, block_id])) {
-          argmax_id[block_id, 2] <- which(stability$params$pi_list == stability$P[id, block_id])
-        }
+    if (clustering) {
+      if (length(unique(stability$Lambda)) > 1) {
+        # Identifying best number of contributing variables
+        lambda_hat <- stability$Lambda[which.max(stability$S), 1]
+        ids <- which(as.character(stability$Lambda) == lambda_hat)
+      } else {
+        ids <- 1:nrow(stability$Sc)
       }
+      Sc <- stability$Sc[ids, 1]
+      Sc_2d <- stability$Sc_2d[ids, , drop = FALSE]
+
+      # Identifying best number of clusters
+      argmax_id <- matrix(NA, nrow = 1, ncol = 2)
+      id <- which.max(Sc)
+      argmax_id[, 1] <- ids[id]
+      tmpSc <- Sc_2d[id, ]
+      argmax_id[, 2] <- which.max(tmpSc)
     } else {
-      for (block_id in 1:ncol(stability$Lambda)) {
-        if (ncol(stability$Lambda) == 1) {
-          myS <- stability$S
-        } else {
-          myS <- stability$S[, block_id, drop = FALSE]
+      argmax_id <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
+      if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
+        id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
+        argmax_id[, 1] <- rep(id, nrow(argmax_id))
+        for (block_id in 1:ncol(stability$Lambda)) {
+          if (!is.na(stability$P[id, block_id])) {
+            argmax_id[block_id, 2] <- which(stability$params$pi_list == stability$P[id, block_id])
+          }
         }
-        myS[is.na(myS)] <- 0
-        myid <- which.max(myS[, 1])
-        argmax_id[block_id, ] <- c(myid, which(stability$params$pi_list == stability$P[myid, block_id]))
+      } else {
+        for (block_id in 1:ncol(stability$Lambda)) {
+          if (ncol(stability$Lambda) == 1) {
+            myS <- stability$S
+          } else {
+            myS <- stability$S[, block_id, drop = FALSE]
+          }
+          myS[is.na(myS)] <- 0
+          myid <- which.max(myS[, 1])
+          argmax_id[block_id, ] <- c(myid, which(stability$params$pi_list == stability$P[myid, block_id]))
+        }
       }
     }
   } else {
@@ -83,8 +111,12 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
 #'   \code{\link{GraphicalModel}}.
+#' @inheritParams ArgmaxId
 #'
-#' @return A matrix of parameter values. In multi-block graphical modelling,
+#' @return A matrix of parameter values. The first column (\code{lambda}])
+#'   denotes the calibrated hyper-parameter of the underlying algorithm. The
+#'   second column (\code{pi}) is the calibrated threshold in
+#'   selection/co-membership proportions. In multi-block graphical modelling,
 #'   rows correspond to different blocks.
 #'
 #' @family calibration functions
@@ -92,6 +124,8 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' @examples
 #' \dontrun{
+#'
+#' ## Graphical modelling
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -102,25 +136,49 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' # Extracting calibrated parameters
 #' args <- Argmax(stab)
+#'
+#'
+#' ## Clustering
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(10, 30, 15)
+#' )
+#'
+#' # Consensus clustering
+#' stab <- Clustering(xdata = simul$data, Lambda = c(1.1, 1.5, 2))
+#'
+#' # Extracting calibrated parameters for variable selection
+#' Argmax(stab, clustering = FALSE)
+#'
+#' # Extracting calibrated parameters for co-membership
+#' Argmax(stab, clustering = TRUE)
 #' }
 #'
 #' @export
-Argmax <- function(stability) {
+Argmax <- function(stability, clustering = FALSE) {
   argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
-  if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
-    id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
-    argmax[, 1] <- stability$Lambda[id, ]
-    argmax[, 2] <- stability$P[id, ]
+  if (clustering) {
+    id <- ArgmaxId(stability = stability, clustering = clustering)
+    argmax[, 1] <- stability$nc[id[1], 1]
+    argmax[, 2] <- stability$params$pi_list[id[2]]
   } else {
-    for (block_id in 1:ncol(stability$Lambda)) {
-      if (ncol(stability$Lambda) == 1) {
-        myS <- stability$S
-      } else {
-        myS <- stability$S[, block_id, drop = FALSE]
+    if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
+      id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
+      argmax[, 1] <- stability$Lambda[id, ]
+      argmax[, 2] <- stability$P[id, ]
+    } else {
+      for (block_id in 1:ncol(stability$Lambda)) {
+        if (ncol(stability$Lambda) == 1) {
+          myS <- stability$S
+        } else {
+          myS <- stability$S[, block_id, drop = FALSE]
+        }
+        myS[is.na(myS)] <- 0
+        myid <- which.max(myS[, 1])
+        argmax[block_id, ] <- c(stability$Lambda[myid, block_id], stability$P[myid, block_id])
       }
-      myS[is.na(myS)] <- 0
-      myid <- which.max(myS[, 1])
-      argmax[block_id, ] <- c(stability$Lambda[myid, block_id], stability$P[myid, block_id])
     }
   }
   colnames(argmax) <- c("lambda", "pi")
@@ -172,8 +230,13 @@ Adjacency <- function(stability, argmax_id = NULL) {
   }
   bigblocks <- BlockMatrix(stability$params$pk)
   if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability)
-    argmax <- Argmax(stability)
+    if (stability$methods$type == "graphical_model") {
+      argmax_id <- ArgmaxId(stability)
+      argmax <- Argmax(stability)
+    } else {
+      argmax_id <- ArgmaxId(stability, clustering = TRUE)
+      argmax <- Argmax(stability, clustering = TRUE)
+    }
   } else {
     argmax <- NULL
     for (block_id in 1:ncol(stability$Lambda)) {

@@ -77,12 +77,9 @@ groups (sparse group PLS) in X. Only used with
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
 
-\item{family}{type of regression model. If
-\code{implementation=PenalisedRegression}, this argument is defined as in
-\code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
-(linear regression), \code{"binomial"} (logistic regression),
-\code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
-analysis).}
+\item{family}{type of PLS model. This parameter must be set to
+\code{family="gaussian"} for continuous outcomes, or to
+\code{family="binomial"} for categorical outcomes.}
 
 \item{implementation}{function to use for variable selection. By default,
 \code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
@@ -165,9 +162,9 @@ A list with: \item{summary}{a matrix of the best stability scores and
 }
 \description{
 Runs stability selection regression models with different combinations of
-parameters controlling the sparsity in PLS/PCA models and thresholds in selection
-proportions. These parameters are jointly calibrated by maximising the
-stability score of the model (possibly under a constraint on the expected
+parameters controlling the sparsity in PLS/PCA models and thresholds in
+selection proportions. These parameters are jointly calibrated by maximising
+the stability score of the model (possibly under a constraint on the expected
 number of falsely stably selected features).
 }
 \examples{
@@ -310,17 +307,17 @@ stab <- BiSelection(
 \references{
 \insertRef{sparsegroupPLS}{focus}
 
-\insertRef{sparsePLS}{focus}
+  \insertRef{sparsePLS}{focus}
 
-\insertRef{sparsePCA}{focus}
+  \insertRef{sparsePCA}{focus}
 
-\insertRef{sparsePCASVD}{focus}
+  \insertRef{sparsePCASVD}{focus}
 
-\insertRef{stabilityselectionMB}{focus}
+  \insertRef{stabilityselectionMB}{focus}
 
-\insertRef{stabilityselectionSS}{focus}
+  \insertRef{stabilityselectionSS}{focus}
 
-\insertRef{ourstabilityselection}{focus}
+  \insertRef{ourstabilityselection}{focus}
 }
 \seealso{
 \code{\link{SparsePLS}}, \code{\link{GroupPLS}},
