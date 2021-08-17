@@ -237,8 +237,8 @@ apply(simul$ydata, 2, sum)
 \code{\link{VariableSelection}}
 
 Other simulation functions: 
+\code{\link{HugeAdjacency}()},
 \code{\link{SimulateAdjacency}()},
-\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()}

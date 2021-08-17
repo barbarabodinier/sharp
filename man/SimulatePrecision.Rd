@@ -88,7 +88,7 @@ matrix indicate pairwise conditional independence.
 \dontrun{
 
 # Simulation of an adjacency matrix
-theta <- SimulateBlockAdjacency(pk = c(5, 5))
+theta <- SimulateAdjacency(pk = c(5, 5))
 print(theta)
 
 # Simulation of a precision matrix

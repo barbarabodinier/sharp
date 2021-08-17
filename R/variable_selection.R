@@ -301,9 +301,6 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     verbose = verbose
   )
 
-  # Storing extra arguments
-  extra_args <- list(...)
-
   # Checking that group_x is provided for group penalisation
   if (group_penalisation) {
     if (is.null(group_x)) {
@@ -420,9 +417,6 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
                              resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                              group_x = NULL, group_penalisation = FALSE,
                              output_data = FALSE, verbose = TRUE, ...) {
-  # Storing extra arguments
-  extra_args <- list(...)
-
   # Defining K if using complementary pairs (SS)
   if (PFER_method == "SS") {
     K <- ceiling(K / 2) * 2

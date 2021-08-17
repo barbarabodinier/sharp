@@ -39,7 +39,7 @@ be set to zero.}
 \item{nu_within}{expected density (number of edges over the number of node
 pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
 the expected density of the graph. If
-\code{implementation=SimulateAdjacency}, this argument is only used for
+\code{implementation=HugeAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument
 \code{prob} in \code{\link[huge]{huge.generator}}).}
 
@@ -156,8 +156,8 @@ plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
+\code{\link{HugeAdjacency}()},
 \code{\link{SimulateAdjacency}()},
-\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}

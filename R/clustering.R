@@ -305,8 +305,6 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              implementation = SparseHierarchicalClustering,
                              output_data = FALSE, verbose = TRUE, ...) {
-  # Storing extra arguments
-  extra_args <- list(...)
 
   # Defining resampling method (only subsampling is available as bootstrap would give distance of zero)
   resampling <- "subsampling"

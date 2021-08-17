@@ -11,7 +11,7 @@ SimulateClustering(
   theta_xc = NULL,
   nu_xc = 0.1,
   ev = NULL,
-  implementation = SimulateAdjacency,
+  implementation = HugeAdjacency,
   topology = "random",
   nu_within = 0,
   nu_between = NULL,
@@ -55,14 +55,14 @@ entries are all equal to zero. This function is only applied if
 \code{theta} is not provided.}
 
 \item{topology}{topology of the simulated graph. If using
-\code{implementation=SimulateAdjacency}, possible values are listed for the
+\code{implementation=HugeAdjacency}, possible values are listed for the
 argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 "random", "hub", "cluster", "band" and "scale-free".}
 
 \item{nu_within}{expected density (number of edges over the number of node
 pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
 the expected density of the graph. If
-\code{implementation=SimulateAdjacency}, this argument is only used for
+\code{implementation=HugeAdjacency}, this argument is only used for
 \code{topology="random"} or \code{topology="cluster"} (see argument
 \code{prob} in \code{\link[huge]{huge.generator}}).}
 
@@ -219,8 +219,8 @@ summary(mymodel)$r.squared
 \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
+\code{\link{HugeAdjacency}()},
 \code{\link{SimulateAdjacency}()},
-\code{\link{SimulateBlockAdjacency}()},
 \code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}

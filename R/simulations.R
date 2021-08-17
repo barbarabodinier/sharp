@@ -24,13 +24,13 @@
 #'   entries are all equal to zero. This function is only applied if
 #'   \code{theta} is not provided.
 #' @param topology topology of the simulated graph. If using
-#'   \code{implementation=SimulateAdjacency}, possible values are listed for the
+#'   \code{implementation=HugeAdjacency}, possible values are listed for the
 #'   argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 #'   "random", "hub", "cluster", "band" and "scale-free".
 #' @param nu_within expected density (number of edges over the number of node
 #'   pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
 #'   the expected density of the graph. If
-#'   \code{implementation=SimulateAdjacency}, this argument is only used for
+#'   \code{implementation=HugeAdjacency}, this argument is only used for
 #'   \code{topology="random"} or \code{topology="cluster"} (see argument
 #'   \code{prob} in \code{\link[huge]{huge.generator}}).
 #' @param nu_between expected density (number of edges over the number of node
@@ -143,7 +143,7 @@
 #' }
 #'
 #' # User-defined function for graph simulation
-#' CentralNode <- function(pk, topology = NULL, nu = NULL, hub = 1) {
+#' CentralNode <- function(pk, hub = 1) {
 #'   theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
 #'   theta[hub, ] <- 1
 #'   theta[, hub] <- 1
@@ -174,7 +174,7 @@
 #' }
 #' @export
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
-                              implementation = SimulateAdjacency, topology = "random",
+                              implementation = HugeAdjacency, topology = "random",
                               nu_within = 0.1, nu_between = NULL,
                               v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
                               pd_strategy = "diagonally_dominant",
@@ -195,7 +195,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 
   # Building adjacency matrix
   if (is.null(theta)) {
-    theta <- SimulateBlockAdjacency(
+    theta <- SimulateAdjacency(
       pk = pk,
       implementation = implementation, topology = topology,
       nu_within = nu_within, nu_between = nu_between, ...
@@ -360,7 +360,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' @export
 SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
                                theta_xc = NULL, nu_xc = 0.1, ev = NULL,
-                               implementation = SimulateAdjacency, topology = "random",
+                               implementation = HugeAdjacency, topology = "random",
                                nu_within = 0, nu_between = NULL,
                                v_within = c(-1, -0.9), v_between = -0.1, continuous = TRUE,
                                pd_strategy = "min_eigenvalue",
@@ -530,7 +530,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
   # Using multi-block simulator with unconnected blocks
   out <- SimulateGraphical(
     n = n, pk = pk, theta = adjacency,
-    implementation = SimulateAdjacency,
+    implementation = HugeAdjacency,
     topology = "random",
     nu_within = nu_within, # fully connected components by default
     nu_between = 0, # need unconnected blocks
@@ -766,9 +766,9 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 
   # Simulation of the conditional independence structure with independent blocks
   if (is.null(adjacency_x)) {
-    adjacency_x <- SimulateBlockAdjacency(
+    adjacency_x <- SimulateAdjacency(
       pk = pk, nu_between = 0, nu_within = nu_within,
-      implementation = SimulateAdjacency,
+      implementation = HugeAdjacency,
       topology = "random"
     )
   }
@@ -962,11 +962,11 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 #' \dontrun{
 #'
 #' # Simulation of a scale-free graph with 20 nodes
-#' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
+#' adjacency <- HugeAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
 #' }
 #' @export
-SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
+HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -1006,10 +1006,49 @@ SimulateAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #'
 #' @family simulation functions
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # Simulation of a scale-free graph with 20 nodes
+#' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
+#' plot(Graph(adjacency))
+#'
+#' # Simulation of a random graph with block structure
+#' adjacency <- SimulateAdjacency(
+#'   pk = rep(10, 3),
+#'   nu_within = 0.7, nu_between = 0.03
+#' )
+#' plot(Graph(adjacency))
+#'
+#' # User-defined function for graph simulation
+#' CentralNode <- function(pk, hub = 1) {
+#'   theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
+#'   theta[hub, ] <- 1
+#'   theta[, hub] <- 1
+#'   diag(theta) <- 0
+#'   return(theta)
+#' }
+#' simul <- SimulateAdjacency(pk = 10, implementation = CentralNode)
+#' plot(Graph(simul)) # star
+#' simul <- SimulateAdjacency(pk = 10, implementation = CentralNode, hub = 2)
+#' plot(Graph(simul)) # variable 2 is the central node
+#' }
+#'
 #' @export
-SimulateBlockAdjacency <- function(pk = 10,
-                                   implementation = SimulateAdjacency, topology = "random",
-                                   nu_within = 0.1, nu_between = NULL, ...) {
+SimulateAdjacency <- function(pk = 10,
+                              implementation = HugeAdjacency, topology = "random",
+                              nu_within = 0.1, nu_between = 0, ...) {
+  # Storing all arguments
+  args <- c(mget(ls()), list(...))
+
+  # Checking the inputs
+  if (topology != "random") {
+    if (length(pk) > 1) {
+      pk <- sum(pk)
+      warning(paste0("Multi-block simulations are only allowed with topology='random'. Argument 'pk' has been set to ", pk, "."))
+    }
+  }
+
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
@@ -1018,30 +1057,40 @@ SimulateBlockAdjacency <- function(pk = 10,
   bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
   block_ids <- unique(as.vector(bigblocks))
 
+  # Identifying relevant arguments
+  if (!"..." %in% names(formals(implementation))) {
+    ids <- which(names(args) %in% names(formals(implementation)))
+    args <- args[ids]
+  }
+
   # Simulation of the adjacency matrix
-  if (length(pk) > 1) {
-    # Initialising theta
-    theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
-    theta_vect <- theta[upper.tri(theta)]
+  if ("nu" %in% names(formals(implementation))) {
+    if (length(pk) > 1) {
+      # Initialising theta
+      theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
+      theta_vect <- theta[upper.tri(theta)]
 
-    # Allowing for different densities in within and between blocks
-    theta_w <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
-    theta_w_vect <- theta_w[upper.tri(theta_w)]
-    theta_b <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_between, ...))
-    theta_b_vect <- theta_b[upper.tri(theta_b)]
+      # Allowing for different densities in within and between blocks
+      theta_w <- do.call(implementation, args = c(args, list(nu = nu_within)))
+      theta_w_vect <- theta_w[upper.tri(theta_w)]
+      theta_b <- do.call(implementation, args = c(args, list(nu = nu_between)))
+      theta_b_vect <- theta_b[upper.tri(theta_b)]
 
-    # Filling within and between blocks
-    for (k in block_ids) {
-      if (k %in% unique(diag(bigblocks))) {
-        theta_vect[bigblocks_vect == k] <- theta_w_vect[bigblocks_vect == k]
-      } else {
-        theta_vect[bigblocks_vect == k] <- theta_b_vect[bigblocks_vect == k]
+      # Filling within and between blocks
+      for (k in block_ids) {
+        if (k %in% unique(diag(bigblocks))) {
+          theta_vect[bigblocks_vect == k] <- theta_w_vect[bigblocks_vect == k]
+        } else {
+          theta_vect[bigblocks_vect == k] <- theta_b_vect[bigblocks_vect == k]
+        }
       }
+      theta[upper.tri(theta)] <- theta_vect
+      theta <- theta + t(theta)
+    } else {
+      theta <- do.call(implementation, args = c(args, list(nu = nu_within)))
     }
-    theta[upper.tri(theta)] <- theta_vect
-    theta <- theta + t(theta)
   } else {
-    theta <- do.call(implementation, args = list(pk = pk, topology = topology, nu = nu_within, ...))
+    theta <- do.call(implementation, args = c(args))
   }
 
   # Ensuring the adjacency matrix is symmetric (undirected graph) with no self-loops
@@ -1143,7 +1192,7 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
 #' \dontrun{
 #'
 #' # Simulation of an adjacency matrix
-#' theta <- SimulateBlockAdjacency(pk = c(5, 5))
+#' theta <- SimulateAdjacency(pk = c(5, 5))
 #' print(theta)
 #'
 #' # Simulation of a precision matrix

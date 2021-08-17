@@ -16,6 +16,10 @@
 #'   in the same order (the order is used to assign shapes to nodes). Possible
 #'   values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
 #'   \code{"star"}.
+#' @param edge_colour optional character string for edge colour. Integers,
+#'   named colours or RGB values can be used.
+#' @param label_colour optional character string for label colour. Integers,
+#'   named colours or RGB values can be used.
 #' @param mode character string indicating how the adjacency matrix should be
 #'   interpreted. Possible values include \code{"undirected"} or
 #'   \code{"directed"}. See \code{\link[igraph]{graph_from_adjacency_matrix}}
@@ -59,6 +63,7 @@
 #'
 #' @export
 Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape = NULL,
+                  edge_colour = "grey60", label_colour = "grey20",
                   mode = "undirected", weighted = FALSE, satellites = FALSE) {
   # Checking input values (weighted)
   if (!is.null(weighted)) {
@@ -196,10 +201,10 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
   igraph::V(mygraph)$frame.color <- igraph::V(mygraph)$color
   igraph::V(mygraph)$label.family <- "sans"
   igraph::V(mygraph)$label.cex <- as.numeric(as.character(cut(mydegrees, breaks = 4, labels = c(0.4, 0.45, 0.5, 0.55))))
-  igraph::V(mygraph)$label.color <- "grey20"
+  igraph::V(mygraph)$label.color <- label_colour
 
   # Formatting edges
-  igraph::E(mygraph)$color <- "grey60"
+  igraph::E(mygraph)$color <- edge_colour
   if (is.null(weighted)) {
     igraph::E(mygraph)$width <- 0.5
   } else {

@@ -9,6 +9,8 @@ Graph(
   node_label = NULL,
   node_colour = NULL,
   node_shape = NULL,
+  edge_colour = "grey60",
+  label_colour = "grey20",
   mode = "undirected",
   weighted = FALSE,
   satellites = FALSE
@@ -31,6 +33,12 @@ many entries as there are rows/columns in the adjacency matrix and must be
 in the same order (the order is used to assign shapes to nodes). Possible
 values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
 \code{"star"}.}
+
+\item{edge_colour}{optional character string for edge colour. Integers,
+named colours or RGB values can be used.}
+
+\item{label_colour}{optional character string for label colour. Integers,
+named colours or RGB values can be used.}
 
 \item{mode}{character string indicating how the adjacency matrix should be
 interpreted. Possible values include \code{"undirected"} or

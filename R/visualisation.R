@@ -166,10 +166,10 @@ CalibrationPlot <- function(stability, clustering = FALSE, metric = "both", bloc
       # Identifying best pair of parameters
       withr::local_par(list(xpd = FALSE))
       if (stability$methods$type == "clustering") {
-        if (clustering){
+        if (clustering) {
           graphics::abline(v = nrow(mat) - which(stability$nc[ids, b] == Argmax(stability, clustering = clustering)[b, 1]) + 0.5, lty = 3)
         } else {
-          tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability, clustering=clustering)[1, 1]]
+          tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability, clustering = clustering)[1, 1]]
           graphics::abline(v = nrow(mat) - which(rownames(mat) == tmp) + 0.5, lty = 3)
         }
       } else {

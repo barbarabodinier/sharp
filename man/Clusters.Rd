@@ -27,7 +27,7 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 50, n = 10)
 
 # Consensus clustering
-stab <- Clustering(xdata = simul$data, Lambda = 1:nrow(simul$data))
+stab <- Clustering(xdata = simul$data, implementation = HierarchicalClustering)
 
 # Stable cluster membership
 mymembership <- Clusters(stab)
