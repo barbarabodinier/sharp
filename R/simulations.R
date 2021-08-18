@@ -29,10 +29,10 @@
 #'   "random", "hub", "cluster", "band" and "scale-free".
 #' @param nu_within expected density (number of edges over the number of node
 #'   pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
-#'   the expected density of the graph. If
-#'   \code{implementation=HugeAdjacency}, this argument is only used for
-#'   \code{topology="random"} or \code{topology="cluster"} (see argument
-#'   \code{prob} in \code{\link[huge]{huge.generator}}).
+#'   the expected density of the graph. If \code{implementation=HugeAdjacency},
+#'   this argument is only used for \code{topology="random"} or
+#'   \code{topology="cluster"} (see argument \code{prob} in
+#'   \code{\link[huge]{huge.generator}}).
 #' @param nu_between expected density (number of edges over the number of node
 #'   pairs) of between-group blocks in the graph. Similar to \code{nu_within}.
 #'   By default, the same density is used for within and between blocks
@@ -62,20 +62,24 @@
 #'   values on the corresponding row and a constant u. With
 #'   \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
 #'   the absolute value of the smallest eigenvalue and a constant u.
-#' @param u optional vector of values for constant u used to ensure positive
-#'   definiteness of the simulated precision matrix. The value that maximises
-#'   the contrast of the simulated correlation matrix over the grid \code{u} is
+#' @param u optional vector of values for constant u > 0 used to ensure positive
+#'   definiteness of the simulated precision matrix. If
+#'   \code{pd_strategy="diagonally_dominant"}, the value that maximises the
+#'   contrast of the simulated correlation matrix over the grid \code{u} is
 #'   used. If \code{u=NULL}, a grid of values is automatically generated and
 #'   iteratively shifted to ensure that the chosen value is not an extreme
-#'   value.
+#'   value. If \code{pd_strategy="min_eigenvalue"}, a single value for \code{u}
+#'   is used (default is \code{u=1e-5}).
 #' @param niter_max_u_grid maximum number of iterations where the grid of u
-#'   values is shifted. This parameter is only used with \code{u=NULL}.
+#'   values is shifted. This parameter is only used with
+#'   \code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.
 #' @param tolerance_u_grid number of values between the chosen value for u and
 #'   the end of the grid (first or last value). This parameter is only used with
-#'   \code{u=NULL}.
+#'   \code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.
 #' @param u_delta difference in log10-scale between the smallest (or largest) u
 #'   values in the grid used in the current iteration and the one built for next
-#'   iteration. This parameter is only used with \code{u=NULL}.
+#'   iteration. This parameter is only used with
+#'   \code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.
 #' @param ... additional arguments passed to the graph simulation function
 #'   provided in \code{implementation}.
 #'
@@ -89,11 +93,13 @@
 #'   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
 #'   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
 #'   \item{C}{ simulated (true) correlation matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{u}{chosen value of u. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{u_grid}{grid of u values. Only returned
-#'   if \code{output_matrices=TRUE}.} \item{contrast_path}{contrast values
-#'   obtained for the values of u listed in u_grid. Only returned if
-#'   \code{output_matrices=TRUE}.}
+#'   \code{output_matrices=TRUE}.} \item{u}{value of the constant u used for the
+#'   simulation of \code{omega} (only returned if \code{output_matrices=TRUE}).}
+#'   \item{u_grid}{grid of u values (only returned if
+#'   \code{pd_strategy="diagonally_dominant"} and \code{output_matrices=TRUE}).}
+#'   \item{contrast_path}{contrast values obtained for the values of u listed in
+#'   \code{u_grid} (only returned if \code{pd_strategy="diagonally_dominant"}
+#'   and \code{output_matrices=TRUE}).}
 #'
 #' @examples
 #' \dontrun{
@@ -176,7 +182,7 @@
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               implementation = HugeAdjacency, topology = "random",
                               nu_within = 0.1, nu_between = NULL,
-                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
+                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = TRUE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                               output_matrices = FALSE, ...) {
@@ -741,7 +747,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
                                theta_xz = NULL, nu_xz = 0.2,
                                theta_zy = NULL, nu_zy = 0.5,
                                eta = NULL, eta_set = c(-1, 1),
-                               v_within = c(-1, 1), continuous = FALSE,
+                               v_within = c(-1, 1), continuous = TRUE,
                                pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking the inputs
@@ -1184,9 +1190,11 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
 #'   independence structure.
 #'
 #' @return A list with: \item{omega}{true simulated precision matrix.}
-#'   \item{u}{chosen value of u.} \item{u_grid}{grid of u values.}
-#'   \item{contrast_path}{contrast values obtained for the values of u listed in
-#'   u_grid.}
+#'   \item{u}{value of the constant u used for the simulation of \code{omega}.}
+#'   \item{u_grid}{grid of u values (only returned if
+#'   \code{pd_strategy="diagonally_dominant"}).} \item{contrast_path}{contrast
+#'   values obtained for the values of u listed in \code{u_grid} (only returned
+#'   if \code{pd_strategy="diagonally_dominant"}).}
 #'
 #' @examples
 #' \dontrun{
@@ -1198,10 +1206,17 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
 #' # Simulation of a precision matrix
 #' simul <- SimulatePrecision(theta = theta)
 #' print(simul$omega)
+#'
+#' # Simulation of a precision matrix
+#' simul <- SimulatePrecision(
+#'   theta = theta,
+#'   pd_strategy = "min_eigenvalue"
+#' )
+#' print(simul$omega)
 #' }
 #' @export
 SimulatePrecision <- function(pk = NULL, theta,
-                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE,
+                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = TRUE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking inputs and defining pk

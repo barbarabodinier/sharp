@@ -61,10 +61,10 @@ argument \code{graph} of \code{\link[huge]{huge.generator}}. These are:
 
 \item{nu_within}{expected density (number of edges over the number of node
 pairs) of within-group blocks in the graph. If \code{length(pk)=1}, this is
-the expected density of the graph. If
-\code{implementation=HugeAdjacency}, this argument is only used for
-\code{topology="random"} or \code{topology="cluster"} (see argument
-\code{prob} in \code{\link[huge]{huge.generator}}).}
+the expected density of the graph. If \code{implementation=HugeAdjacency},
+this argument is only used for \code{topology="random"} or
+\code{topology="cluster"} (see argument \code{prob} in
+\code{\link[huge]{huge.generator}}).}
 
 \item{nu_between}{expected density (number of edges over the number of node
 pairs) of between-group blocks in the graph. Similar to \code{nu_within}.
@@ -98,23 +98,27 @@ values on the corresponding row and a constant u. With
 \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
 the absolute value of the smallest eigenvalue and a constant u.}
 
-\item{u}{optional vector of values for constant u used to ensure positive
-definiteness of the simulated precision matrix. The value that maximises
-the contrast of the simulated correlation matrix over the grid \code{u} is
+\item{u}{optional vector of values for constant u > 0 used to ensure positive
+definiteness of the simulated precision matrix. If
+\code{pd_strategy="diagonally_dominant"}, the value that maximises the
+contrast of the simulated correlation matrix over the grid \code{u} is
 used. If \code{u=NULL}, a grid of values is automatically generated and
 iteratively shifted to ensure that the chosen value is not an extreme
-value.}
+value. If \code{pd_strategy="min_eigenvalue"}, a single value for \code{u}
+is used (default is \code{u=1e-5}).}
 
 \item{niter_max_u_grid}{maximum number of iterations where the grid of u
-values is shifted. This parameter is only used with \code{u=NULL}.}
+values is shifted. This parameter is only used with
+\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
 
 \item{tolerance_u_grid}{number of values between the chosen value for u and
 the end of the grid (first or last value). This parameter is only used with
-\code{u=NULL}.}
+\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
 
 \item{u_delta}{difference in log10-scale between the smallest (or largest) u
 values in the grid used in the current iteration and the one built for next
-iteration. This parameter is only used with \code{u=NULL}.}
+iteration. This parameter is only used with
+\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
