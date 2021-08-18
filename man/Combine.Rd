@@ -64,8 +64,7 @@ print(stab$params$K)
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100,
-  v_within = c(-1, -0.5), continuous = TRUE
+  n = c(5, 5, 5), pk = 100
 )
 
 # Two runs

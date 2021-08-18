@@ -280,7 +280,7 @@ set.seed(1)
 pk <- sample(1:5, size = 5, replace = TRUE)
 simul <- SimulateComponents(
   n = 100, pk = pk,
-  v_within = c(-0.8, -0.7), continuous = TRUE
+  v_within = c(0.7, 0.8), v_sign=-1
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

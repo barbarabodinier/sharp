@@ -9,7 +9,8 @@ SimulateComponents(
   pk = c(10, 10),
   adjacency = NULL,
   nu_within = 1,
-  v_within = c(-1, -0.9),
+  v_within = c(0.5, 1),
+  v_sign = c(-1, 1),
   continuous = TRUE,
   pd_strategy = "min_eigenvalue",
   u = NULL,
@@ -49,6 +50,11 @@ and 1 if \code{pd_strategy="min_eigenvalue"}. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
 \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
+
+\item{v_sign}{vector of possible signs for precision matrix entries. Possible
+inputs are: \code{-1} for positive partial correlations, \code{1} for
+negative partial correlations, or \code{c(-1, 1)} for both positive and
+negative partial correlations.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in
@@ -145,7 +151,7 @@ print(simul$ev)
 # Simulation of multiple components with moderate e.v.
 simul <- SimulateComponents(
   pk = sample(3:10, size = 5, replace = TRUE),
-  nu_within = 0.3, v_within = c(-0.8, -0.5)
+  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign=-1
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

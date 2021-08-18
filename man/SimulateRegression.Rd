@@ -18,7 +18,8 @@ SimulateRegression(
   nu_zy = 0.5,
   eta = NULL,
   eta_set = c(-1, 1),
-  v_within = c(-1, 1),
+  v_within = c(0.5, 1),
+  v_sign = c(-1, 1),
   continuous = TRUE,
   pd_strategy = "diagonally_dominant",
   u = NULL,
@@ -94,6 +95,11 @@ and 1 if \code{pd_strategy="min_eigenvalue"}. If \code{continuous=FALSE},
 \code{v_within} is the set of possible precision values. If
 \code{continuous=TRUE}, \code{v_within} is the range of possible precision
 values.}
+
+\item{v_sign}{vector of possible signs for precision matrix entries. Possible
+inputs are: \code{-1} for positive partial correlations, \code{1} for
+negative partial correlations, or \code{c(-1, 1)} for both positive and
+negative partial correlations.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in
@@ -209,7 +215,7 @@ plot(Graph(simul$adjacency,
 set.seed(1)
 simul <- SimulateRegression(
   pk = c(5, 5), nu_within = 0.5,
-  v_within = c(-1, -0.5), continuous = TRUE, pd_strategy = "min_eigenvalue"
+  v_within = c(0.5, 1), v_sign = -1, continuous = TRUE, pd_strategy = "min_eigenvalue"
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

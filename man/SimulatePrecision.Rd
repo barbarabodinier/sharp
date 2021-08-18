@@ -7,8 +7,9 @@
 SimulatePrecision(
   pk = NULL,
   theta,
-  v_within = c(-1, 1),
-  v_between = c(-0.1, 0.1),
+  v_within = c(0.5, 1),
+  v_between = c(0, 0.1),
+  v_sign = c(-1, 1),
   continuous = TRUE,
   pd_strategy = "diagonally_dominant",
   u = NULL,
@@ -39,6 +40,11 @@ values.}
 off-diagonal blocks of the precision matrix. This argument is the same as
 \code{v_within} but for off-diagonal blocks. It is only used if
 \code{length(pk)>1}.}
+
+\item{v_sign}{vector of possible signs for precision matrix entries. Possible
+inputs are: \code{-1} for positive partial correlations, \code{1} for
+negative partial correlations, or \code{c(-1, 1)} for both positive and
+negative partial correlations.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in

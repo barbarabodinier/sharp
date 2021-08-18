@@ -11,6 +11,7 @@ test_that("single-block GraphicalModel()", {
     pi_list <- seq(0.6, 0.7, length.out = 15)
 
     # Data simulation
+    set.seed(1)
     simul <- SimulateGraphical(n = n, pk = pk)
 
     stab <- GraphicalModel(
@@ -73,6 +74,7 @@ test_that("multi-block GraphicalModel()", {
   pi_list <- seq(0.6, 0.7, length.out = 15)
 
   # Data simulation
+  set.seed(1)
   simul <- SimulateGraphical(n = n, pk = pk)
 
   stab <- GraphicalModel(
@@ -137,7 +139,10 @@ test_that("parallel multi-block GraphicalModel()", {
   pi_list <- seq(0.6, 0.7, length.out = 15)
 
   # Data simulation
+  set.seed(1)
   simul <- SimulateGraphical(n = n, pk = pk)
+  print(simul$theta)
+  print(simul$data)
 
   stab <- GraphicalModel(
     xdata = simul$data, pk = pk,
@@ -187,3 +192,4 @@ test_that("parallel multi-block GraphicalModel()", {
   expect_equal(diag(stab$Lambda[ArgmaxId(stab)[, 1], ]), Argmax(stab)[, 1])
   expect_equal(pi_list[ArgmaxId(stab)[, 2]], Argmax(stab)[, 2])
 })
+

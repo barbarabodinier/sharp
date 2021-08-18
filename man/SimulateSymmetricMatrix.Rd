@@ -6,8 +6,9 @@
 \usage{
 SimulateSymmetricMatrix(
   pk = 10,
-  v_within = c(-1, 1),
-  v_between = c(-0.1, 0.1),
+  v_within = c(0.5, 1),
+  v_between = c(0, 0.1),
+  v_sign = c(-1, 1),
   continuous = FALSE
 )
 }
@@ -25,6 +26,11 @@ off-diagonal blocks. If \code{continuous=FALSE}, \code{v_between} is the
 set of possible precision values. If \code{continuous=FALSE},
 \code{v_between} is the range of possible precision values. This argument
 is only used if \code{length(pk)>1}.}
+
+\item{v_sign}{vector of possible signs for matrix entries. Possible
+inputs are: \code{-1} for negative entries only, \code{1} for
+positive entries only, or \code{c(-1, 1)} for both positive and
+negative entries.}
 
 \item{continuous}{logical indicating whether to sample precision values from
 a uniform distribution between the minimum and maximum values in

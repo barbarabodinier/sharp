@@ -49,6 +49,10 @@
 #'   off-diagonal blocks of the precision matrix. This argument is the same as
 #'   \code{v_within} but for off-diagonal blocks. It is only used if
 #'   \code{length(pk)>1}.
+#' @param v_sign vector of possible signs for precision matrix entries. Possible
+#'   inputs are: \code{-1} for positive partial correlations, \code{1} for
+#'   negative partial correlations, or \code{c(-1, 1)} for both positive and
+#'   negative partial correlations.
 #' @param continuous logical indicating whether to sample precision values from
 #'   a uniform distribution between the minimum and maximum values in
 #'   \code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
@@ -182,7 +186,8 @@
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               implementation = HugeAdjacency, topology = "random",
                               nu_within = 0.1, nu_between = NULL,
-                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = TRUE,
+                              v_within = c(0.5, 1), v_between = c(0, 0.1), 
+                              v_sign = c(-1,1), continuous = TRUE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                               output_matrices = FALSE, ...) {
@@ -351,7 +356,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   ev = c(0.9, 0.8, rep(0, 8)),
 #'   adjacency = adjacency,
 #'   pd_strategy = "min_eigenvalue",
-#'   v_within = -0.6
+#'   v_within = 0.6, v_sign = -1
 #' )
 #'
 #' # Visualisation along contributing variables
@@ -368,7 +373,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
                                theta_xc = NULL, nu_xc = 0.1, ev = NULL,
                                implementation = HugeAdjacency, topology = "random",
                                nu_within = 0, nu_between = NULL,
-                               v_within = c(-1, -0.9), v_between = -0.1, continuous = TRUE,
+                               v_within = c(0.5, 1), v_between = c(0, 0.1), 
+                               v_sign = c(-1,1), continuous = TRUE,
                                pd_strategy = "min_eigenvalue",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
@@ -517,7 +523,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' # Simulation of multiple components with moderate e.v.
 #' simul <- SimulateComponents(
 #'   pk = sample(3:10, size = 5, replace = TRUE),
-#'   nu_within = 0.3, v_within = c(-0.8, -0.5)
+#'   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign=-1
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -529,7 +535,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' }
 #' @export
 SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
-                               nu_within = 1, v_within = c(-1, -0.9), continuous = TRUE,
+                               nu_within = 1, 
+                               v_within = c(0.5, 1), v_sign = c(-1,1), continuous = TRUE,
                                pd_strategy = "min_eigenvalue",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
@@ -713,7 +720,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
 #' set.seed(1)
 #' simul <- SimulateRegression(
 #'   pk = c(5, 5), nu_within = 0.5,
-#'   v_within = c(-1, -0.5), continuous = TRUE, pd_strategy = "min_eigenvalue"
+#'   v_within = c(0.5, 1), v_sign = -1, continuous = TRUE, pd_strategy = "min_eigenvalue"
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -747,7 +754,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
                                theta_xz = NULL, nu_xz = 0.2,
                                theta_zy = NULL, nu_zy = 0.5,
                                eta = NULL, eta_set = c(-1, 1),
-                               v_within = c(-1, 1), continuous = TRUE,
+                               v_within = c(0.5, 1), v_sign = c(-1,1), continuous = TRUE,
                                pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking the inputs
@@ -1130,6 +1137,10 @@ SimulateAdjacency <- function(pk = 10,
 #'   set of possible precision values. If \code{continuous=FALSE},
 #'   \code{v_between} is the range of possible precision values. This argument
 #'   is only used if \code{length(pk)>1}.
+#' @param v_sign vector of possible signs for matrix entries. Possible
+#'   inputs are: \code{-1} for negative entries only, \code{1} for
+#'   positive entries only, or \code{c(-1, 1)} for both positive and
+#'   negative entries.
 #' @param continuous logical indicating whether to sample precision values from
 #'   a uniform distribution between the minimum and maximum values in
 #'   \code{v_within} (diagonal blocks) or \code{v_between} (off-diagonal blocks)
@@ -1141,7 +1152,9 @@ SimulateAdjacency <- function(pk = 10,
 #'   different distributions for diagonal and off-diagonal blocks.
 #'
 #' @export
-SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = FALSE) {
+SimulateSymmetricMatrix <- function(pk = 10, 
+                                    v_within = c(0.5, 1), v_between = c(0, 0.1), 
+                                    v_sign = c(-1,1), continuous = FALSE) {
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
@@ -1150,7 +1163,7 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
   bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
   block_ids <- unique(as.vector(bigblocks))
 
-  # Building v matrix
+  # Building absolute v matrix
   v <- bigblocks
   v_vect <- v[upper.tri(v)]
   for (k in block_ids) {
@@ -1170,6 +1183,11 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
       }
     }
   }
+  
+  # Sampling the sign of precision entries
+  v_vect=v_vect*base::sample(sort(unique(v_sign)), size = length(v_vect), replace = TRUE)
+  
+  # Building v matrix
   diag(v) <- 0
   v[upper.tri(v)] <- v_vect
   v[lower.tri(v)] <- 0
@@ -1216,7 +1234,8 @@ SimulateSymmetricMatrix <- function(pk = 10, v_within = c(-1, 1), v_between = c(
 #' }
 #' @export
 SimulatePrecision <- function(pk = NULL, theta,
-                              v_within = c(-1, 1), v_between = c(-0.1, 0.1), continuous = TRUE,
+                              v_within = c(0.5, 1), v_between = c(0, 0.1), 
+                              v_sign = c(-1,1), continuous = TRUE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking inputs and defining pk
@@ -1232,6 +1251,17 @@ SimulatePrecision <- function(pk = NULL, theta,
   if (!pd_strategy %in% c("diagonally_dominant", "min_eigenvalue")) {
     stop("Invalid input for argument 'pd_strategy'. Possible values are: 'diagonally_dominant' or 'min_eigenvalue'.")
   }
+  
+  # Checking other input values
+  if (any((v_within<0)|(v_within>1))){
+    stop("Invalid input for argument 'v_within'. Values must be between 0 and 1.")
+  }
+  if (any((v_between<0)|(v_between>1))){
+    stop("Invalid input for argument 'v_between'. Values must be between 0 and 1.")
+  }
+  if (any(!v_sign%in%c(-1,1))){
+    stop("Invalid input for argument 'v_sign'. Possible values are -1 and 1.")
+  }
 
   # Ensuring that v values are lower than or equal to 1
   if (any(abs(v_within) > 1)) {
@@ -1243,7 +1273,8 @@ SimulatePrecision <- function(pk = NULL, theta,
   diag(theta) <- 0
 
   # Building v matrix
-  v <- SimulateSymmetricMatrix(pk = pk, v_within = v_within, v_between = v_between, continuous = continuous)
+  v <- SimulateSymmetricMatrix(pk = pk, v_within = v_within, v_between = v_between, 
+                               v_sign=v_sign, continuous = continuous)
 
   # Preparing realistic diagonally dominant precision matrix
   if (pd_strategy == "diagonally_dominant") {
