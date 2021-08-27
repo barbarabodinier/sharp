@@ -401,8 +401,16 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
     }
   }
   if (axes) {
-    graphics::axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = 2)
-    graphics::axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = 2)
+    if (!is.null(rownames(mat))) {
+      graphics::axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = 2)
+    } else {
+      graphics::axis(side = 1, at = c(1, nrow(mat)) - 0.5, labels = NA, las = 2)
+    }
+    if (!is.null(colnames(mat))) {
+      graphics::axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = 2)
+    } else {
+      graphics::axis(side = 2, at = c(1, ncol(mat)) - 0.5, labels = NA, las = 2)
+    }
   }
 
 

@@ -186,8 +186,8 @@
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               implementation = HugeAdjacency, topology = "random",
                               nu_within = 0.1, nu_between = NULL,
-                              v_within = c(0.5, 1), v_between = c(0, 0.1), 
-                              v_sign = c(-1,1), continuous = TRUE,
+                              v_within = c(0.5, 1), v_between = c(0, 0.1),
+                              v_sign = c(-1, 1), continuous = TRUE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                               output_matrices = FALSE, ...) {
@@ -216,7 +216,8 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
   # Simulation of a precision matrix
   out <- SimulatePrecision(
     pk = pk, theta = theta,
-    v_within = v_within, v_between = v_between, continuous = continuous,
+    v_within = v_within, v_between = v_between,
+    v_sign = v_sign, continuous = continuous,
     pd_strategy = pd_strategy, u = u,
     niter_max_u_grid = niter_max_u_grid, tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
@@ -231,6 +232,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
   }
 
   # Simulating data from multivariate normal distribution
+  print(C)
   x <- MASS::mvrnorm(n, rep(0, p), C)
   colnames(x) <- paste0("var", 1:ncol(x))
   rownames(x) <- paste0("obs", 1:nrow(x))
@@ -373,8 +375,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
                                theta_xc = NULL, nu_xc = 0.1, ev = NULL,
                                implementation = HugeAdjacency, topology = "random",
                                nu_within = 0, nu_between = NULL,
-                               v_within = c(0.5, 1), v_between = c(0, 0.1), 
-                               v_sign = c(-1,1), continuous = TRUE,
+                               v_within = c(0.5, 1), v_between = c(0, 0.1),
+                               v_sign = c(-1, 1), continuous = TRUE,
                                pd_strategy = "min_eigenvalue",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
@@ -523,7 +525,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' # Simulation of multiple components with moderate e.v.
 #' simul <- SimulateComponents(
 #'   pk = sample(3:10, size = 5, replace = TRUE),
-#'   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign=-1
+#'   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
@@ -535,8 +537,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' }
 #' @export
 SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
-                               nu_within = 1, 
-                               v_within = c(0.5, 1), v_sign = c(-1,1), continuous = TRUE,
+                               nu_within = 1,
+                               v_within = c(0.5, 1), v_sign = -1, continuous = TRUE,
                                pd_strategy = "min_eigenvalue",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5,
                                output_matrices = FALSE) {
@@ -549,6 +551,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
     nu_between = 0, # need unconnected blocks
     v_within = v_within,
     v_between = 0,
+    v_sign = v_sign,
     continuous = continuous,
     pd_strategy = pd_strategy,
     u = u, niter_max_u_grid = niter_max_u_grid,
@@ -754,7 +757,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
                                theta_xz = NULL, nu_xz = 0.2,
                                theta_zy = NULL, nu_zy = 0.5,
                                eta = NULL, eta_set = c(-1, 1),
-                               v_within = c(0.5, 1), v_sign = c(-1,1), continuous = TRUE,
+                               v_within = c(0.5, 1), v_sign = c(-1, 1), continuous = TRUE,
                                pd_strategy = "diagonally_dominant",
                                u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking the inputs
@@ -801,7 +804,8 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   rownames(big_theta) <- colnames(big_theta)
   out <- SimulatePrecision(
     theta = big_theta, v_within = v_within,
-    continuous = continuous, pd_strategy = pd_strategy,
+    v_sign = v_sign, continuous = continuous,
+    pd_strategy = pd_strategy,
     u = u, niter_max_u_grid = niter_max_u_grid,
     tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
@@ -1152,9 +1156,9 @@ SimulateAdjacency <- function(pk = 10,
 #'   different distributions for diagonal and off-diagonal blocks.
 #'
 #' @export
-SimulateSymmetricMatrix <- function(pk = 10, 
-                                    v_within = c(0.5, 1), v_between = c(0, 0.1), 
-                                    v_sign = c(-1,1), continuous = FALSE) {
+SimulateSymmetricMatrix <- function(pk = 10,
+                                    v_within = c(0.5, 1), v_between = c(0, 0.1),
+                                    v_sign = c(-1, 1), continuous = FALSE) {
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
@@ -1183,10 +1187,10 @@ SimulateSymmetricMatrix <- function(pk = 10,
       }
     }
   }
-  
+
   # Sampling the sign of precision entries
-  v_vect=v_vect*base::sample(sort(unique(v_sign)), size = length(v_vect), replace = TRUE)
-  
+  v_vect <- v_vect * base::sample(sort(unique(v_sign)), size = length(v_vect), replace = TRUE)
+
   # Building v matrix
   diag(v) <- 0
   v[upper.tri(v)] <- v_vect
@@ -1234,8 +1238,8 @@ SimulateSymmetricMatrix <- function(pk = 10,
 #' }
 #' @export
 SimulatePrecision <- function(pk = NULL, theta,
-                              v_within = c(0.5, 1), v_between = c(0, 0.1), 
-                              v_sign = c(-1,1), continuous = TRUE,
+                              v_within = c(0.5, 1), v_between = c(0, 0.1),
+                              v_sign = c(-1, 1), continuous = TRUE,
                               pd_strategy = "diagonally_dominant",
                               u = NULL, niter_max_u_grid = 5, tolerance_u_grid = 10, u_delta = 5) {
   # Checking inputs and defining pk
@@ -1251,15 +1255,15 @@ SimulatePrecision <- function(pk = NULL, theta,
   if (!pd_strategy %in% c("diagonally_dominant", "min_eigenvalue")) {
     stop("Invalid input for argument 'pd_strategy'. Possible values are: 'diagonally_dominant' or 'min_eigenvalue'.")
   }
-  
+
   # Checking other input values
-  if (any((v_within<0)|(v_within>1))){
+  if (any((v_within < 0) | (v_within > 1))) {
     stop("Invalid input for argument 'v_within'. Values must be between 0 and 1.")
   }
-  if (any((v_between<0)|(v_between>1))){
+  if (any((v_between < 0) | (v_between > 1))) {
     stop("Invalid input for argument 'v_between'. Values must be between 0 and 1.")
   }
-  if (any(!v_sign%in%c(-1,1))){
+  if (any(!v_sign %in% c(-1, 1))) {
     stop("Invalid input for argument 'v_sign'. Possible values are -1 and 1.")
   }
 
@@ -1273,8 +1277,10 @@ SimulatePrecision <- function(pk = NULL, theta,
   diag(theta) <- 0
 
   # Building v matrix
-  v <- SimulateSymmetricMatrix(pk = pk, v_within = v_within, v_between = v_between, 
-                               v_sign=v_sign, continuous = continuous)
+  v <- SimulateSymmetricMatrix(
+    pk = pk, v_within = v_within, v_between = v_between,
+    v_sign = v_sign, continuous = continuous
+  )
 
   # Preparing realistic diagonally dominant precision matrix
   if (pd_strategy == "diagonally_dominant") {
@@ -1363,17 +1369,17 @@ SimulatePrecision <- function(pk = NULL, theta,
       # Filling off-diagonal entries of the precision matrix (for corresponding diagonal block)
       omega_block <- matrix((theta * v)[which(bigblocks == i)], ncol = sum(diag(bigblocks) == i))
 
-      # Computing the signed adjacency
-      signed_theta <- sign(omega_block)
+      # # Computing the signed adjacency
+      # signed_theta <- sign(omega_block)
 
-      # Defining a positive definite precision with entries in 0, 1, -1
-      omega_tmp <- MakePositiveDefinite(omega = signed_theta, u_value = u, pd_strategy = pd_strategy)
+      # Defining a positive definite precision matrix
+      omega_tmp <- MakePositiveDefinite(omega = omega_block, u_value = u, pd_strategy = pd_strategy)
 
-      # Using sampled entries (need to be lower than or equal to 1 in absolute value)
-      diag(omega_block) <- diag(omega_tmp)
+      # # Using sampled entries (need to be lower than or equal to 1 in absolute value)
+      # diag(omega_block) <- diag(omega_tmp)
 
       # Filling full precision matrix
-      omega[which(bigblocks == i)] <- omega_block
+      omega[which(bigblocks == i)] <- omega_tmp
     }
 
     # Accounting for off-diagonal blocks (sum of p.d. is p.d.)
@@ -1382,17 +1388,17 @@ SimulatePrecision <- function(pk = NULL, theta,
       omega_block <- theta * v
       omega_block[which(bigblocks %in% unique(diag(bigblocks)))] <- 0
 
-      # Computing the signed adjacency
-      signed_theta <- sign(omega_block)
+      # # Computing the signed adjacency
+      # signed_theta <- sign(omega_block)
 
-      # Defining a positive definite precision with entries in 0, 1, -1
-      omega_tmp <- MakePositiveDefinite(omega = signed_theta, u_value = u, pd_strategy = pd_strategy)
+      # Defining a positive definite precision matrix
+      omega_tmp <- MakePositiveDefinite(omega = omega_block, u_value = u, pd_strategy = pd_strategy)
 
-      # Using sampled entries (need to be lower than or equal to 1 in absolute value)
-      diag(omega_block) <- diag(omega_tmp)
+      # # Using sampled entries (need to be lower than or equal to 1 in absolute value)
+      # diag(omega_block) <- diag(omega_tmp)
 
       # Computing sum of the p.d. matrices
-      omega <- omega + omega_block
+      omega <- omega + omega_tmp
     }
 
     # Setting row and column names

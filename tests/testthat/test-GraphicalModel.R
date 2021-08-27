@@ -192,4 +192,3 @@ test_that("parallel multi-block GraphicalModel()", {
   expect_equal(diag(stab$Lambda[ArgmaxId(stab)[, 1], ]), Argmax(stab)[, 1])
   expect_equal(pi_list[ArgmaxId(stab)[, 2]], Argmax(stab)[, 2])
 })
-

@@ -10,7 +10,7 @@ SimulateComponents(
   adjacency = NULL,
   nu_within = 1,
   v_within = c(0.5, 1),
-  v_sign = c(-1, 1),
+  v_sign = -1,
   continuous = TRUE,
   pd_strategy = "min_eigenvalue",
   u = NULL,
@@ -151,7 +151,7 @@ print(simul$ev)
 # Simulation of multiple components with moderate e.v.
 simul <- SimulateComponents(
   pk = sample(3:10, size = 5, replace = TRUE),
-  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign=-1
+  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(
