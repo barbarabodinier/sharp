@@ -129,14 +129,15 @@ A list with: \item{data}{simulated data with \code{n} observation and
   graph} \item{omega}{simulated (true) precision matrix. Only returned if
   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
-  \item{C}{ simulated (true) correlation matrix. Only returned if
-  \code{output_matrices=TRUE}.} \item{u}{value of the constant u used for the
-  simulation of \code{omega} (only returned if \code{output_matrices=TRUE}).}
-  \item{u_grid}{grid of u values (only returned if
+  \item{sigma}{ simulated (true) covariance matrix. Only returned if
+  \code{output_matrices=TRUE}.} \item{C}{ simulated (true) correlation
+  matrix. Only returned if \code{output_matrices=TRUE}.} \item{u}{value of
+  the constant u used for the simulation of \code{omega} (only returned if
+  \code{output_matrices=TRUE}).} \item{u_grid}{grid of u values (only
+  returned if \code{pd_strategy="diagonally_dominant"} and
+  \code{output_matrices=TRUE}).} \item{contrast_path}{contrast values
+  obtained for the values of u listed in \code{u_grid} (only returned if
   \code{pd_strategy="diagonally_dominant"} and \code{output_matrices=TRUE}).}
-  \item{contrast_path}{contrast values obtained for the values of u listed in
-  \code{u_grid} (only returned if \code{pd_strategy="diagonally_dominant"}
-  and \code{output_matrices=TRUE}).}
 }
 \description{
 Simulates (i) a graph, and (ii) multivariate Normal data for which the graph

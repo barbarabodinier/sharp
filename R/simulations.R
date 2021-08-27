@@ -96,14 +96,15 @@
 #'   graph} \item{omega}{simulated (true) precision matrix. Only returned if
 #'   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
 #'   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
-#'   \item{C}{ simulated (true) correlation matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{u}{value of the constant u used for the
-#'   simulation of \code{omega} (only returned if \code{output_matrices=TRUE}).}
-#'   \item{u_grid}{grid of u values (only returned if
+#'   \item{sigma}{ simulated (true) covariance matrix. Only returned if
+#'   \code{output_matrices=TRUE}.} \item{C}{ simulated (true) correlation
+#'   matrix. Only returned if \code{output_matrices=TRUE}.} \item{u}{value of
+#'   the constant u used for the simulation of \code{omega} (only returned if
+#'   \code{output_matrices=TRUE}).} \item{u_grid}{grid of u values (only
+#'   returned if \code{pd_strategy="diagonally_dominant"} and
+#'   \code{output_matrices=TRUE}).} \item{contrast_path}{contrast values
+#'   obtained for the values of u listed in \code{u_grid} (only returned if
 #'   \code{pd_strategy="diagonally_dominant"} and \code{output_matrices=TRUE}).}
-#'   \item{contrast_path}{contrast values obtained for the values of u listed in
-#'   \code{u_grid} (only returned if \code{pd_strategy="diagonally_dominant"}
-#'   and \code{output_matrices=TRUE}).}
 #'
 #' @examples
 #' \dontrun{
@@ -198,12 +199,12 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
       p <- pk <- ncol(theta)
     }
   }
-
+  
   # Defining the between-block density
   if (is.null(nu_between)) {
     nu_between <- nu_within
   }
-
+  
   # Building adjacency matrix
   if (is.null(theta)) {
     theta <- SimulateAdjacency(
@@ -212,7 +213,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
       nu_within = nu_within, nu_between = nu_between, ...
     )
   }
-
+  
   # Simulation of a precision matrix
   out <- SimulatePrecision(
     pk = pk, theta = theta,
@@ -222,32 +223,35 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
     niter_max_u_grid = niter_max_u_grid, tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
   omega <- out$omega
-
-  # Computing the correlation matrix
-  C <- stats::cov2cor(solve(omega)) # true correlation matrix
-
-  # Computing the partial correlation matrix
+  
+  # Computing the covariance matrix
+  sigma <- solve(omega)
+  
+  # Computing other matrices
   if (output_matrices) {
+    # Computing the correlation matrix
+    C <- stats::cov2cor(sigma)
+    
+    # Computing the partial correlation matrix
     phi <- -stats::cov2cor(omega) + 2 * diag(ncol(omega))
   }
-
+  
   # Simulating data from multivariate normal distribution
-  print(C)
-  x <- MASS::mvrnorm(n, rep(0, p), C)
+  x <- MASS::mvrnorm(n, rep(0, p), sigma)
   colnames(x) <- paste0("var", 1:ncol(x))
   rownames(x) <- paste0("obs", 1:nrow(x))
-
+  
   if (output_matrices) {
     if (pd_strategy == "diagonally_dominant") {
       return(list(
         data = x, theta = theta,
-        omega = omega, phi = phi, C = C,
+        omega = omega, phi = phi, sigma = sigma, C = C,
         u = out$u, u_grid = out$u_grid, contrast_path = out$contrast_path
       ))
     } else {
       return(list(
         data = x, theta = theta,
-        omega = omega, phi = phi, C = C,
+        omega = omega, phi = phi, sigma = sigma, C = C,
         u = out$u
       ))
     }
@@ -395,15 +399,15 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
     u = u, niter_max_u_grid = niter_max_u_grid,
     tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
-
+  
   # Defining number of clusters
   nc <- length(n)
-
+  
   # Defining variables contributing to the clustering
   if (is.null(theta_xc)) {
     theta_xc <- SamplePredictors(pk = sum(pk), q = 1, nu = nu_xc, orthogonal = TRUE)[, 1]
   }
-
+  
   # Simulating marginal proportions of explained variance
   if (is.null(ev)) {
     ev <- stats::runif(n = sum(pk))
@@ -412,10 +416,10 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
       ev <- rep(ev, sum(pk))
     }
   }
-
+  
   # Re-naming the outputs
   out$adjacency <- out$theta
-
+  
   # Definition of membership
   theta <- NULL
   for (i in 1:length(n)) {
@@ -423,39 +427,40 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
   }
   names(theta) <- rownames(out$data)
   out$theta <- theta
-
+  
   # Building binary cluster membership for each feature
   V <- stats::model.matrix(~ as.factor(theta) - 1)
-
+  
   # Simulating the cluster-specific means
   mu_mat <- matrix(NA, nrow = sum(n), ncol = sum(pk))
   for (k in 1:ncol(mu_mat)) {
     # Defining variance to reach expected proportion of e.v.
     var_mu <- ev[k] * 1 / (1 - ev[k])
-
+    
     # Sampling initial values for cluster-specific means
     mu <- stats::rnorm(n = nc, mean = 0, sd = 1)
     for (i in 1:nrow(mu_mat)) {
       mu_mat[i, k] <- mu[theta[i]]
     }
-
+    
     # Scaling to ensure mean of zero and defined variance
     mu_mat[, k] <- scale(mu_mat[, k])
     mu_mat[, k] <- mu_mat[, k] * sqrt(var_mu)
   }
-
+  
   # Using cluster-specific mean for contributing variables
+  # TODO: check impact of using non-scaled data here?
   for (k in 1:ncol(mu_mat)) {
     if (theta_xc[k] == 1) {
       out$data[, k] <- out$data[, k] + mu_mat[, k]
     }
   }
-
+  
   # Definition of contributing variables
   names(theta_xc) <- colnames(out$data)
   out$theta_xc <- theta_xc
   out$ev <- ev * theta_xc
-
+  
   return(out)
 }
 
@@ -558,10 +563,10 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
     tolerance_u_grid = tolerance_u_grid, u_delta = u_delta,
     output_matrices = TRUE
   )
-
-  # Eigendecomposition of the covariance
+  
+  # Eigendecomposition of the correlation
   eig <- eigen(out$C)
-
+  
   # Definition of membership
   membership <- NULL
   for (i in 1:length(pk)) {
@@ -569,27 +574,27 @@ SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
   }
   names(membership) <- colnames(out$data)
   out$membership <- membership
-
+  
   # Re-naming the outputs
   out$adjacency <- out$theta
-
+  
   # Definition of sparse principal components
   out$loadings <- round(eig$vectors, digits = 10)
   out$theta <- ifelse(out$loadings != 0, yes = 1, no = 0)
   rownames(out$theta) <- rownames(out$loadings) <- colnames(out$adjacency)
   colnames(out$theta) <- colnames(out$loadings) <- paste0("PC", 1:ncol(out$theta))
-
+  
   # Definition of proportion of explained variance
   ev <- eig$values / sum(eig$values)
   names(ev) <- colnames(out$theta)
   out$ev <- ev
-
+  
   # Re-arranging the output
   out <- out[c("data", "loadings", "theta", "ev", "membership", "omega", "phi", "C", "u")]
   if (!output_matrices) {
     out <- out[c("data", "loadings", "theta", "ev", "membership")]
   }
-
+  
   return(out)
 }
 
@@ -764,7 +769,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   if ((length(pk) > 1) & (family == "multinomial")) {
     stop("The simulation of multiple categorical outcomes is not possible with the current implementation.")
   }
-
+  
   # Definition of the number of latent outcome variables
   q <- length(pk)
   p <- sum(pk)
@@ -774,12 +779,12 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   if (length(ev) != q) {
     ev <- rep(ev[1], q)
   }
-
+  
   # Checking the values of ev
   if (any(ev <= 0) | any(ev >= 1)) {
     stop("Invalid input for argument 'ev'. Please provide values strictly between 0 and 1.")
   }
-
+  
   # Simulation of the conditional independence structure with independent blocks
   if (is.null(adjacency_x)) {
     adjacency_x <- SimulateAdjacency(
@@ -788,14 +793,14 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
       topology = "random"
     )
   }
-
+  
   # Simulation of the binary contribution status of predictors for latent outcome variables
   if (is.null(theta_xz)) {
     theta_xz <- SamplePredictors(pk = pk, q = q, nu = nu_xz, orthogonal = TRUE)
   }
   colnames(theta_xz) <- paste0("latent", 1:ncol(theta_xz))
   rownames(theta_xz) <- paste0("var", 1:nrow(theta_xz))
-
+  
   # Simulation of precision matrix for both predictors and latent outcomes
   big_theta <- cbind(
     rbind(matrix(0, nrow = q, ncol = q), theta_xz),
@@ -810,7 +815,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
     tolerance_u_grid = tolerance_u_grid, u_delta = u_delta
   )
   omega <- out$omega
-
+  
   # Setting diagonal precision for latent outcomes to reach expected proportion of explained variance
   xi <- NULL
   for (j in 1:q) {
@@ -819,43 +824,43 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
     xi <- cbind(xi, 1 / omega[j, j] * omega[j, pred_ids])
   }
   colnames(xi) <- colnames(theta_xz)
-
-  # Computing the correlation matrix
-  C <- stats::cov2cor(solve(omega)) # true correlation matrix
-
+  
+  # Computing the covariance matrix
+  sigma <- solve(omega)
+  
   # Simulation of data from multivariate normal distribution
-  x <- MASS::mvrnorm(n, rep(0, p + q), C)
+  x <- MASS::mvrnorm(n, rep(0, p + q), sigma)
   rownames(x) <- paste0("obs", 1:nrow(x))
-
+  
   # Separating predictors from latent outcome variables
   xdata <- x[, grep("var", colnames(x)), drop = FALSE]
   zdata <- x[, grep("latent", colnames(x)), drop = FALSE]
-
+  
   if (family == "multinomial") {
     if (is.null(theta_zy)) {
       theta_zy <- SamplePredictors(pk = q, q = q, nu = nu_zy, orthogonal = FALSE)
     }
-
+    
     proba <- matrix(NA, nrow = n, ncol = N)
     for (j in 1:N) {
       eta <- matrix(stats::runif(q * q, min = min(eta_set), max = max(eta_set)),
-        ncol = q, nrow = q
+                    ncol = q, nrow = q
       )
       eta <- eta * theta_zy
-
+      
       rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
       colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
       ydata <- zdata %*% eta
-
+      
       if (j == 1) {
         beta <- xi %*% eta
         theta <- ifelse(beta != 0, yes = 1, no = 0)
       }
-
+      
       proba[, j] <- 1 / (1 + exp(-ydata[, 1])) # inverse logit
     }
     proba <- t(apply(proba, 1, cumsum)) / N
-
+    
     ydata_cat <- matrix(0, nrow = n, ncol = N)
     for (i in 1:n) {
       r <- stats::runif(n = 1)
@@ -863,7 +868,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
         ydata_cat[i, min(which(r < proba[i, ]))] <- 1
       }
     }
-
+    
     # Setting row and column names
     rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
     colnames(ydata_cat) <- colnames(proba) <- paste0("cat", 1:N)
@@ -874,7 +879,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
         theta_zy <- SamplePredictors(pk = q, q = q, nu = nu_zy, orthogonal = FALSE)
       }
       eta <- matrix(stats::runif(q * q, min = min(eta_set), max = max(eta_set)),
-        ncol = q, nrow = q
+                    ncol = q, nrow = q
       )
       eta <- eta * theta_zy
     } else {
@@ -883,38 +888,38 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
     rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
     colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
     ydata <- zdata %*% eta
-
+    
     # Computing the xy coefficients and binary contribution status
     beta <- xi %*% eta
     theta <- ifelse(beta != 0, yes = 1, no = 0)
-
+    
     # Compute binary outcome for logistic regression
     if (family == "binomial") {
       proba <- matrix(NA, nrow = n, ncol = q)
       for (j in 1:q) {
         proba[, j] <- 1 / (1 + exp(-ydata[, j])) # inverse logit
       }
-
+      
       ydata_cat <- matrix(0, nrow = n, ncol = q)
       for (j in 1:q) {
         for (i in 1:n) {
           ydata_cat[i, j] <- stats::rbinom(n = 1, size = 1, prob = proba[i, j])
         }
       }
-
+      
       # Setting row and column names
       rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
       colnames(ydata_cat) <- colnames(proba) <- colnames(ydata)
     }
   }
-
+  
   # Extracting the conditional independence structure between x, z and y
   adjacency <- rbind(
     cbind(matrix(0, nrow = q, ncol = q), t(theta_zy), matrix(0, nrow = q, ncol = p)),
     cbind(rbind(theta_zy, matrix(0, nrow = p, ncol = q)), big_theta)
   )
   rownames(adjacency) <- colnames(adjacency) <- c(colnames(theta_zy), rownames(big_theta))
-
+  
   # Return the simulated X and Y
   if (family %in% c("binomial", "multinomial")) {
     if (family == "binomial") {
@@ -951,7 +956,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
       adjacency = adjacency
     )
   }
-
+  
   return(out)
 }
 
@@ -986,11 +991,11 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   # Storing extra arguments
   extra_args <- list(...)
-
+  
   # Extracting relevant extra arguments
   ids <- which(names(extra_args) %in% names(formals(huge::huge.generator)))
   ids <- ids[!ids %in% c("n", "d", "prob", "graph", "verbose")]
-
+  
   # Running simulation model
   mymodel <- do.call(huge::huge.generator, args = c(
     list(
@@ -1000,11 +1005,11 @@ HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
     extra_args[ids]
   ))
   theta <- as.matrix(mymodel$theta)
-
+  
   # Re-organising the variables to avoid having centrality related to variable ID (e.g. for scale-free models)
   ids <- sample(ncol(theta))
   theta <- theta[ids, ids]
-
+  
   return(theta)
 }
 
@@ -1057,7 +1062,7 @@ SimulateAdjacency <- function(pk = 10,
                               nu_within = 0.1, nu_between = 0, ...) {
   # Storing all arguments
   args <- c(mget(ls()), list(...))
-
+  
   # Checking the inputs
   if (topology != "random") {
     if (length(pk) > 1) {
@@ -1065,34 +1070,34 @@ SimulateAdjacency <- function(pk = 10,
       warning(paste0("Multi-block simulations are only allowed with topology='random'. Argument 'pk' has been set to ", pk, "."))
     }
   }
-
+  
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-
+  
   # Making as factor to allow for groups with 1 variable (for clustering)
   bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
   block_ids <- unique(as.vector(bigblocks))
-
+  
   # Identifying relevant arguments
   if (!"..." %in% names(formals(implementation))) {
     ids <- which(names(args) %in% names(formals(implementation)))
     args <- args[ids]
   }
-
+  
   # Simulation of the adjacency matrix
   if ("nu" %in% names(formals(implementation))) {
     if (length(pk) > 1) {
       # Initialising theta
       theta <- matrix(0, nrow = sum(pk), ncol = sum(pk))
       theta_vect <- theta[upper.tri(theta)]
-
+      
       # Allowing for different densities in within and between blocks
       theta_w <- do.call(implementation, args = c(args, list(nu = nu_within)))
       theta_w_vect <- theta_w[upper.tri(theta_w)]
       theta_b <- do.call(implementation, args = c(args, list(nu = nu_between)))
       theta_b_vect <- theta_b[upper.tri(theta_b)]
-
+      
       # Filling within and between blocks
       for (k in block_ids) {
         if (k %in% unique(diag(bigblocks))) {
@@ -1109,14 +1114,14 @@ SimulateAdjacency <- function(pk = 10,
   } else {
     theta <- do.call(implementation, args = c(args))
   }
-
+  
   # Ensuring the adjacency matrix is symmetric (undirected graph) with no self-loops
   theta <- ifelse(theta + t(theta) != 0, yes = 1, no = 0)
   diag(theta) <- 0
-
+  
   # Setting variable names
   colnames(theta) <- rownames(theta) <- paste0("var", 1:ncol(theta))
-
+  
   return(theta)
 }
 
@@ -1162,11 +1167,11 @@ SimulateSymmetricMatrix <- function(pk = 10,
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
   bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-
+  
   # Making as factor to allow for groups with 1 variable (for clustering)
   bigblocks_vect <- factor(bigblocks_vect, levels = seq(1, max(bigblocks)))
   block_ids <- unique(as.vector(bigblocks))
-
+  
   # Building absolute v matrix
   v <- bigblocks
   v_vect <- v[upper.tri(v)]
@@ -1187,16 +1192,16 @@ SimulateSymmetricMatrix <- function(pk = 10,
       }
     }
   }
-
+  
   # Sampling the sign of precision entries
   v_vect <- v_vect * base::sample(sort(unique(v_sign)), size = length(v_vect), replace = TRUE)
-
+  
   # Building v matrix
   diag(v) <- 0
   v[upper.tri(v)] <- v_vect
   v[lower.tri(v)] <- 0
   v <- v + t(v)
-
+  
   return(v)
 }
 
@@ -1250,12 +1255,12 @@ SimulatePrecision <- function(pk = NULL, theta,
       stop("Arguments 'pk' and 'theta' are not consistent. The sum of 'pk' entries must be equal to the number of rows and columns in 'theta'.")
     }
   }
-
+  
   # Checking the choice of pd_strategy
   if (!pd_strategy %in% c("diagonally_dominant", "min_eigenvalue")) {
     stop("Invalid input for argument 'pd_strategy'. Possible values are: 'diagonally_dominant' or 'min_eigenvalue'.")
   }
-
+  
   # Checking other input values
   if (any((v_within < 0) | (v_within > 1))) {
     stop("Invalid input for argument 'v_within'. Values must be between 0 and 1.")
@@ -1266,22 +1271,22 @@ SimulatePrecision <- function(pk = NULL, theta,
   if (any(!v_sign %in% c(-1, 1))) {
     stop("Invalid input for argument 'v_sign'. Possible values are -1 and 1.")
   }
-
+  
   # Ensuring that v values are lower than or equal to 1
   if (any(abs(v_within) > 1)) {
     v_within <- v_within / max(abs(v_within))
     message("The values provided in 'v_within' have been re-scaled to be lower than or equal to 1 in absolute value.")
   }
-
+  
   # Ensuring that diagonal entries of theta are zero
   diag(theta) <- 0
-
+  
   # Building v matrix
   v <- SimulateSymmetricMatrix(
     pk = pk, v_within = v_within, v_between = v_between,
     v_sign = v_sign, continuous = continuous
   )
-
+  
   # Preparing realistic diagonally dominant precision matrix
   if (pd_strategy == "diagonally_dominant") {
     # Defining grid of u values if not provided
@@ -1293,10 +1298,10 @@ SimulatePrecision <- function(pk = NULL, theta,
     } else {
       refining_u_grid <- FALSE
     }
-
+    
     # Filling off-diagonal entries of the precision matrix
     omega <- theta * v
-
+    
     # Calibrate u based on contrasts of the correlation matrix
     contrast <- NULL
     for (u_value in u) {
@@ -1304,7 +1309,7 @@ SimulatePrecision <- function(pk = NULL, theta,
       C <- stats::cov2cor(solve(omega_tmp))
       contrast <- c(contrast, Contrast(C))
     }
-
+    
     # Avoiding extreme values in u grid if not provided by the user
     if (refining_u_grid) {
       stop <- 0
@@ -1322,15 +1327,15 @@ SimulatePrecision <- function(pk = NULL, theta,
           if (any(which(contrast == max(contrast)) %in% seq(1, tolerance_u_grid) == TRUE)) {
             u <- c(u, 10^-seq(min(-log10(u)) - u_delta, min(-log10(u)), by = 0.1))
           }
-
+          
           # Adding larger values of u
           if (any(which(contrast == max(contrast)) %in% seq(length(u) - tolerance_u_grid, length(u)) == TRUE)) {
             u <- c(u, 10^-seq(max(-log10(u)), max(-log10(u) + u_delta), by = 0.1))
           }
-
+          
           # Sorting values in u
           u <- sort(u, decreasing = TRUE)
-
+          
           # Computing the contrast for all visited values of u
           contrast <- NULL
           for (u_value in u) {
@@ -1341,7 +1346,7 @@ SimulatePrecision <- function(pk = NULL, theta,
         }
       }
     }
-
+    
     # Computing calibrated precision matrix
     if (length(u) > 1) {
       u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
@@ -1350,61 +1355,61 @@ SimulatePrecision <- function(pk = NULL, theta,
       omega <- omega_tmp
     }
   }
-
+  
   # Allowing for higher correlations using smallest eigenvalue
   if (pd_strategy == "min_eigenvalue") {
     # Defining a small constant
     if (is.null(u)) {
       u <- 1e-5
     }
-
+    
     # Initialisation of full precision matrix
     omega <- matrix(0, ncol = sum(pk), nrow = sum(pk))
-
+    
     # Creating matrix with block indices
     bigblocks <- BlockMatrix(pk)
-
+    
     # Making positive definite diagonal blocks (Schur complement shows it is p.d.)
     for (i in unique(diag(bigblocks))) {
       # Filling off-diagonal entries of the precision matrix (for corresponding diagonal block)
       omega_block <- matrix((theta * v)[which(bigblocks == i)], ncol = sum(diag(bigblocks) == i))
-
+      
       # # Computing the signed adjacency
       # signed_theta <- sign(omega_block)
-
+      
       # Defining a positive definite precision matrix
       omega_tmp <- MakePositiveDefinite(omega = omega_block, u_value = u, pd_strategy = pd_strategy)
-
+      
       # # Using sampled entries (need to be lower than or equal to 1 in absolute value)
       # diag(omega_block) <- diag(omega_tmp)
-
+      
       # Filling full precision matrix
       omega[which(bigblocks == i)] <- omega_tmp
     }
-
+    
     # Accounting for off-diagonal blocks (sum of p.d. is p.d.)
     if (length(pk) > 1) {
       # Filling off-diagonal entries of the precision matrix (for off-diagonal blocks)
       omega_block <- theta * v
       omega_block[which(bigblocks %in% unique(diag(bigblocks)))] <- 0
-
+      
       # # Computing the signed adjacency
       # signed_theta <- sign(omega_block)
-
+      
       # Defining a positive definite precision matrix
       omega_tmp <- MakePositiveDefinite(omega = omega_block, u_value = u, pd_strategy = pd_strategy)
-
+      
       # # Using sampled entries (need to be lower than or equal to 1 in absolute value)
       # diag(omega_block) <- diag(omega_tmp)
-
+      
       # Computing sum of the p.d. matrices
       omega <- omega + omega_tmp
     }
-
+    
     # Setting row and column names
     rownames(omega) <- colnames(omega) <- colnames(theta)
   }
-
+  
   # Returning the output
   if (pd_strategy == "diagonally_dominant") {
     return(list(
@@ -1412,7 +1417,7 @@ SimulatePrecision <- function(pk = NULL, theta,
       u = u_value, u_grid = u, contrast_path = contrast
     ))
   }
-
+  
   if (pd_strategy == "min_eigenvalue") {
     return(list(
       omega = omega, u = u
@@ -1449,7 +1454,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
   if (length(nu) != q) {
     nu <- rep(nu[1], q)
   }
-
+  
   # Simulation of the binary status for true predictors
   theta <- matrix(0, nrow = q, ncol = sum(pk))
   for (k in 1:q) {
@@ -1460,7 +1465,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
         ids <- seq(1, cumsum(pk)[k])
       }
       theta[k, ids] <- stats::rbinom(pk[k], size = 1, prob = nu[k])
-
+      
       # Introducing at least one true predictor
       if (sum(theta[k, ids]) == 0) {
         theta[k, sample(ids, size = 1)] <- 1
@@ -1470,7 +1475,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
       theta[k, k] <- 1
     }
   }
-
+  
   return(t(theta))
 }
 
@@ -1511,12 +1516,12 @@ MakePositiveDefinite <- function(omega, u_value = 1e-5, pd_strategy = "diagonall
   if (pd_strategy == "diagonally_dominant") {
     diag(omega) <- apply(abs(omega), 1, sum) + u_value
   }
-
+  
   # Ensuring positive eigenvalues
   if (pd_strategy == "min_eigenvalue") {
     diag(omega) <- abs(min(eigen(omega)$values)) + u_value # used in huge
   }
-
+  
   return(omega)
 }
 
