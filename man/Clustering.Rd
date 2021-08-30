@@ -142,7 +142,7 @@ set.seed(2)
 simul <- SimulateClustering(
   n = c(30, 30, 30), pk = 15,
   theta_xc = c(rep(1, 5), rep(0, 10)),
-  ev = c(rep(0.95, 5), rep(0, 10)),
+  ev_xc = c(rep(0.95, 5), rep(0, 10)),
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

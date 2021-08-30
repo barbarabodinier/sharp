@@ -6,14 +6,15 @@
 \usage{
 MakePositiveDefinite(
   omega,
-  u_value = 1e-05,
-  pd_strategy = "diagonally_dominant"
+  pd_strategy = "diagonally_dominant",
+  ev = NULL,
+  scale = FALSE,
+  u_list = c(1e-10, 1),
+  tol = .Machine$double.eps^0.25
 )
 }
 \arguments{
 \item{omega}{input matrix.}
-
-\item{u_value}{numeric value for constant u.}
 
 \item{pd_strategy}{method to ensure that the generated precision matrix is
 positive definite (and hence can be a covariance matrix). With
@@ -21,17 +22,42 @@ positive definite (and hence can be a covariance matrix). With
 diagonally dominant by setting the diagonal entries to the sum of absolute
 values on the corresponding row and a constant u. With
 \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
-the absolute value of the smallest eigenvalue and a constant u.}
+the absolute value of the smallest eigenvalue of the precision matrix with
+zeros on the diagonal and a constant u.}
+
+\item{ev}{expected proportion of explained variance by the first Principal
+Component (PC1) of a Principal Component Analysis. This is the largest
+eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
+\code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+\code{ev=NULL} (the default), the constant u is chosen by maximising the
+contrast of the correlation matrix.}
+
+\item{scale}{logical indicating if the proportion of explained variance by
+PC1 should be computed from the correlation (\code{scale=TRUE}) or
+covariance (\code{scale=FALSE}) matrix.}
+
+\item{u_list}{vector with two numeric values defining the range of values to
+explore for constant u.}
+
+\item{tol}{accuracy for the search of parameter u as defined in
+\code{\link[stats]{optimise}}.}
 }
 \value{
-A positive definite matrix.
+A list with: \item{omega}{positive definite matrix.} \item{u}{value
+  of the constant u.}
 }
 \description{
 Determines the diagonal entries of a symmetric matrix to ensure it is
-positive definite. For this, diagonal entries of the matrix are (i) defined
-to be higher than the sum of entries on the corresponding rows, which ensure
-it is diagonally dominant, or (ii) set to the absolute value of the smallest
-eigenvalue.
+positive definite. For this, diagonal entries of the matrix are defined to be
+higher than (i) the sum of entries on the corresponding rows, which ensure it
+is diagonally dominant, or (ii) the absolute value of the smallest eigenvalue
+of the same matrix with a diagonal of zeros. The magnitude of (standardised)
+values in the inverse matrix is tuned by adding a constant u to the diagonal
+entries. Considering the matrix to make positive definite is a precision
+matrix, the constant u is chosen to (i) maximise the contrast of the
+corresponding correlation matrix, or (ii) tune the proportion of explained
+variance by the first Principal Component (i.e. largest eigenvalue of the
+covariance/correlation matrix divided by the sum of eigenvalues).
 }
 \examples{
 \dontrun{
@@ -39,14 +65,52 @@ eigenvalue.
 # Simulation of a symmetric matrix
 p <- 5
 set.seed(1)
-sigma <- matrix(rnorm(p * p), ncol = p)
-sigma <- sigma + t(sigma)
+omega <- matrix(rnorm(p * p), ncol = p)
+omega <- omega + t(omega)
+diag(omega) <- 0
 
-# Diagonal dominance
-sigma_pd <- MakePositiveDefinite(sigma, pd = "diagonally_dominant")
+# Diagonal dominance maximising contrast
+omega_pd <- MakePositiveDefinite(omega,
+  pd_strategy = "diagonally_dominant"
+)
+eigen(omega_pd$omega)$values # positive eigenvalues
 
-# Non-negative eigenvalues
-sigma_pd <- MakePositiveDefinite(sigma, pd = "min_eigenvalue")
-eigen(sigma_pd)$values
+# Diagonal dominance with specific proportion of explained variance by PC1
+omega_pd <- MakePositiveDefinite(omega,
+  pd_strategy = "diagonally_dominant",
+  ev = 0.55
+)
+lambda_inv <- 1 / eigen(omega_pd$omega)$values
+max(lambda_inv) / sum(lambda_inv) # expected ev
+
+# Diagonal dominance with specific proportion of explained variance by PC1 (scaled)
+omega_pd <- MakePositiveDefinite(omega,
+  pd_strategy = "diagonally_dominant",
+  ev = 0.55, scale = TRUE
+)
+lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
+max(lambda_inv) / sum(lambda_inv) # expected ev
+
+# Non-negative eigenvalues maximising contrast
+omega_pd <- MakePositiveDefinite(omega,
+  pd_strategy = "min_eigenvalue"
+)
+eigen(omega_pd$omega)$values # positive eigenvalues
+
+# Non-negative eigenvalues with specific proportion of explained variance by PC1
+omega_pd <- MakePositiveDefinite(omega,
+  pd_strategy = "min_eigenvalue",
+  ev = 0.7
+)
+lambda_inv <- 1 / eigen(omega_pd$omega)$values
+max(lambda_inv) / sum(lambda_inv)
+
+# Non-negative eigenvalues with specific proportion of explained variance by PC1 (scaled)
+omega_pd <- MakePositiveDefinite(omega,
+  pd_strategy = "min_eigenvalue",
+  ev = 0.7, scale = TRUE
+)
+lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
+max(lambda_inv) / sum(lambda_inv)
 }
 }

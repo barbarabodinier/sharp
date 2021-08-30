@@ -13,10 +13,10 @@ SimulateComponents(
   v_sign = -1,
   continuous = TRUE,
   pd_strategy = "min_eigenvalue",
-  u = NULL,
-  niter_max_u_grid = 5,
-  tolerance_u_grid = 10,
-  u_delta = 5,
+  ev = 0.1,
+  scale = TRUE,
+  u_list = c(1e-10, 1),
+  tol = .Machine$double.eps^0.25,
   output_matrices = FALSE
 )
 }
@@ -69,29 +69,27 @@ positive definite (and hence can be a covariance matrix). With
 diagonally dominant by setting the diagonal entries to the sum of absolute
 values on the corresponding row and a constant u. With
 \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
-the absolute value of the smallest eigenvalue and a constant u.}
+the absolute value of the smallest eigenvalue of the precision matrix with
+zeros on the diagonal and a constant u.}
 
-\item{u}{optional vector of values for constant u > 0 used to ensure positive
-definiteness of the simulated precision matrix. If
-\code{pd_strategy="diagonally_dominant"}, the value that maximises the
-contrast of the simulated correlation matrix over the grid \code{u} is
-used. If \code{u=NULL}, a grid of values is automatically generated and
-iteratively shifted to ensure that the chosen value is not an extreme
-value. If \code{pd_strategy="min_eigenvalue"}, a single value for \code{u}
-is used (default is \code{u=1e-5}).}
+\item{ev}{expected proportion of explained variance by the first Principal
+Component (PC1) of a Principal Component Analysis. This is the largest
+eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
+\code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+\code{ev=NULL} (the default), the constant u is chosen by maximising the
+contrast of the correlation matrix.}
 
-\item{niter_max_u_grid}{maximum number of iterations where the grid of u
-values is shifted. This parameter is only used with
-\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
+\item{scale}{logical indicating if the proportion of explained variance by
+PC1 should be computed from the correlation (\code{scale=TRUE}) or
+covariance (\code{scale=FALSE}) matrix. If \code{scale=TRUE}, the
+correlation matrix is used as parameter of the multivariate normal
+distribution.}
 
-\item{tolerance_u_grid}{number of values between the chosen value for u and
-the end of the grid (first or last value). This parameter is only used with
-\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
+\item{u_list}{vector with two numeric values defining the range of values to
+explore for constant u.}
 
-\item{u_delta}{difference in log10-scale between the smallest (or largest) u
-values in the grid used in the current iteration and the one built for next
-iteration. This parameter is only used with
-\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
+\item{tol}{accuracy for the search of parameter u as defined in
+\code{\link[stats]{optimise}}.}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
@@ -138,7 +136,7 @@ The data is simulated from a centered multivariate Normal
 \dontrun{
 # Simulation of 3 components with high e.v.
 set.seed(1)
-simul <- SimulateComponents(pk = c(5, 3, 4))
+simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.4)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$data),
@@ -148,10 +146,23 @@ Heatmap(
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 print(simul$ev)
 
-# Simulation of multiple components with moderate e.v.
+# Simulation of 3 components with moderate e.v.
+set.seed(1)
+simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.25)
+par(mar = c(5, 5, 5, 5))
+Heatmap(
+  mat = cor(simul$data),
+  colours = c("navy", "white", "red"),
+  legend_range = c(-1, 1)
+)
+plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
+print(simul$ev)
+
+# Simulation of multiple components with low e.v.
+pk <- sample(3:10, size = 5, replace = TRUE)
 simul <- SimulateComponents(
-  pk = sample(3:10, size = 5, replace = TRUE),
-  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1
+  pk = pk,
+  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev = 0.1
 )
 par(mar = c(5, 5, 5, 5))
 Heatmap(

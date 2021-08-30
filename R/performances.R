@@ -347,7 +347,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #' set.seed(1)
 #' simul <- SimulateClustering(
 #'   n = rep(10, 5), pk = 100,
-#'   v_within = c(-1, -0.5), continuous = TRUE
+#'   continuous = TRUE
 #' )
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(

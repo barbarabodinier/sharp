@@ -17,10 +17,10 @@ SimulateGraphical(
   v_sign = c(-1, 1),
   continuous = TRUE,
   pd_strategy = "diagonally_dominant",
-  u = NULL,
-  niter_max_u_grid = 5,
-  tolerance_u_grid = 10,
-  u_delta = 5,
+  ev = NULL,
+  scale = TRUE,
+  u_list = c(1e-10, 1),
+  tol = .Machine$double.eps^0.25,
   output_matrices = FALSE,
   ...
 )
@@ -93,29 +93,27 @@ positive definite (and hence can be a covariance matrix). With
 diagonally dominant by setting the diagonal entries to the sum of absolute
 values on the corresponding row and a constant u. With
 \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
-the absolute value of the smallest eigenvalue and a constant u.}
+the absolute value of the smallest eigenvalue of the precision matrix with
+zeros on the diagonal and a constant u.}
 
-\item{u}{optional vector of values for constant u > 0 used to ensure positive
-definiteness of the simulated precision matrix. If
-\code{pd_strategy="diagonally_dominant"}, the value that maximises the
-contrast of the simulated correlation matrix over the grid \code{u} is
-used. If \code{u=NULL}, a grid of values is automatically generated and
-iteratively shifted to ensure that the chosen value is not an extreme
-value. If \code{pd_strategy="min_eigenvalue"}, a single value for \code{u}
-is used (default is \code{u=1e-5}).}
+\item{ev}{expected proportion of explained variance by the first Principal
+Component (PC1) of a Principal Component Analysis. This is the largest
+eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
+\code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+\code{ev=NULL} (the default), the constant u is chosen by maximising the
+contrast of the correlation matrix.}
 
-\item{niter_max_u_grid}{maximum number of iterations where the grid of u
-values is shifted. This parameter is only used with
-\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
+\item{scale}{logical indicating if the proportion of explained variance by
+PC1 should be computed from the correlation (\code{scale=TRUE}) or
+covariance (\code{scale=FALSE}) matrix. If \code{scale=TRUE}, the
+correlation matrix is used as parameter of the multivariate normal
+distribution.}
 
-\item{tolerance_u_grid}{number of values between the chosen value for u and
-the end of the grid (first or last value). This parameter is only used with
-\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
+\item{u_list}{vector with two numeric values defining the range of values to
+explore for constant u.}
 
-\item{u_delta}{difference in log10-scale between the smallest (or largest) u
-values in the grid used in the current iteration and the one built for next
-iteration. This parameter is only used with
-\code{pd_strategy="diagonally_dominant"} and \code{u=NULL}.}
+\item{tol}{accuracy for the search of parameter u as defined in
+\code{\link[stats]{optimise}}.}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}
@@ -130,14 +128,9 @@ A list with: \item{data}{simulated data with \code{n} observation and
   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
   \item{sigma}{ simulated (true) covariance matrix. Only returned if
-  \code{output_matrices=TRUE}.} \item{C}{ simulated (true) correlation
-  matrix. Only returned if \code{output_matrices=TRUE}.} \item{u}{value of
-  the constant u used for the simulation of \code{omega} (only returned if
-  \code{output_matrices=TRUE}).} \item{u_grid}{grid of u values (only
-  returned if \code{pd_strategy="diagonally_dominant"} and
-  \code{output_matrices=TRUE}).} \item{contrast_path}{contrast values
-  obtained for the values of u listed in \code{u_grid} (only returned if
-  \code{pd_strategy="diagonally_dominant"} and \code{output_matrices=TRUE}).}
+  \code{output_matrices=TRUE}.} \item{u}{value of
+  the constant u used for the simulation of \code{omega}. Only returned if
+  \code{output_matrices=TRUE}.}
 }
 \description{
 Simulates (i) a graph, and (ii) multivariate Normal data for which the graph
@@ -173,11 +166,16 @@ str(simul)
 # Simulation of multi-block data
 set.seed(1)
 pk <- c(20, 30)
-simul <- SimulateGraphical(n = 100, pk = pk, nu_within = 0.05)
+simul <- SimulateGraphical(
+  n = 100, pk = pk,
+  nu_within = 0.05, nu_between = 0.05,
+  pd_strategy = "min_eigenvalue"
+)
 mycor <- cor(simul$data)
 Heatmap(mycor,
   colours = c("darkblue", "white", "firebrick3"),
-  legend_range = c(-1, 1), legend_length = 50, legend = FALSE
+  legend_range = c(-1, 1), legend_length = 50,
+  legend = FALSE, axes = FALSE
 )
 for (i in 1:2) {
   axis(side = i, at = c(0.5, pk[1] - 0.5), labels = NA)
@@ -215,6 +213,7 @@ mytheta <- matrix(c(
   0, 0, 1, 0
 ), ncol = 4, byrow = TRUE)
 simul <- SimulateGraphical(n = 100, theta = mytheta)
+plot(Graph(simul$theta))
 
 # User-defined adjacency and block structure
 simul <- SimulateGraphical(n = 100, theta = mytheta, pk = c(2, 2))
