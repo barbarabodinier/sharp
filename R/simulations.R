@@ -550,8 +550,8 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 #' }
 #' @export
-SimulateComponents <- function(n = 100, pk = c(10, 10), adjacency = NULL,
-                               nu_within = 1,
+SimulateComponents <- function(n = 100, pk = c(10, 10),
+                               adjacency = NULL, nu_within = 1,
                                v_within = c(0.5, 1), v_sign = -1, continuous = TRUE,
                                pd_strategy = "min_eigenvalue", ev = 0.1, scale = TRUE,
                                u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25,
