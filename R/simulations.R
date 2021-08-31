@@ -1595,11 +1595,15 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
 
   if (is.null(ev)) {
     # Finding u that maximises the contrast
-    argmax_u <- stats::optimise(MaxContrast,
-      omega = omega, maximum = TRUE, tol = 1,
-      lower = min(u_list), upper = max(u_list)
-    )
-    u <- argmax_u$maximum
+    if (min(u_list) != max(u_list)) {
+      argmax_u <- stats::optimise(MaxContrast,
+        omega = omega, maximum = TRUE, tol = 1,
+        lower = min(u_list), upper = max(u_list)
+      )
+      u <- argmax_u$maximum
+    } else {
+      u <- min(u_list)
+    }
   } else {
     # Finding extreme values
     if (scale) {
@@ -1626,18 +1630,26 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
     } else {
       if (scale) {
         # Minimising the difference between requested and possible ev
-        argmin_u <- stats::optimise(TuneExplainedVarianceCor,
-          omega = omega, ev = ev,
-          lower = min(u_list), upper = max(u_list), tol = tol
-        )
-        u <- argmin_u$minimum
+        if (min(u_list) != max(u_list)) {
+          argmin_u <- stats::optimise(TuneExplainedVarianceCor,
+            omega = omega, ev = ev,
+            lower = min(u_list), upper = max(u_list), tol = tol
+          )
+          u <- argmin_u$minimum
+        } else {
+          u <- min(u_list)
+        }
       } else {
         # Minimising the difference between requested and possible ev
-        argmin_u <- stats::optimise(TuneExplainedVarianceCov,
-          lambda = lambda, ev = ev,
-          lower = min(u_list), upper = max(u_list), tol = tol
-        )
-        u <- argmin_u$minimum
+        if (min(u_list) != max(u_list)) {
+          argmin_u <- stats::optimise(TuneExplainedVarianceCov,
+            lambda = lambda, ev = ev,
+            lower = min(u_list), upper = max(u_list), tol = tol
+          )
+          u <- argmin_u$minimum
+        } else {
+          u <- min(u_list)
+        }
       }
     }
   }
