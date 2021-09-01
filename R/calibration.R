@@ -332,6 +332,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #'
 #' @inheritParams Adjacency
 #' @param stability output of \code{\link{Clustering}}.
+#' @param adjacency adjacency matrix from which the clusters are defined.
 #'
 #' @return A vector encoding the cluster membership.
 #'
@@ -352,9 +353,14 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' mymembership <- Clusters(stab)
 #' }
 #' @export
-Clusters <- function(stability, argmax_id = NULL) {
-  # Computing stable co-membership matrix
-  adjacency <- Adjacency(stability = stability, argmax_id = argmax_id)
+Clusters <- function(stability = NULL, adjacency = NULL, argmax_id = NULL) {
+  if (is.null(stability) & is.null(adjacency)) {
+    stop("Argument 'stability' or 'adjacency' must be provided.")
+  }
+  if (is.null(adjacency)) {
+    # Computing stable co-membership matrix
+    adjacency <- Adjacency(stability = stability, argmax_id = argmax_id)
+  }
 
   # Extracting stable connected components
   mymembership <- igraph::components(Graph(adjacency, satellites = TRUE))$membership
