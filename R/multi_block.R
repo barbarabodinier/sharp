@@ -49,6 +49,26 @@ BlockMatrix <- function(pk) {
 }
 
 
+#' Block diagonal matrix
+#'
+#' Generates a binary block diagonal matrix.
+#'
+#' @param pk vector encoding the grouping structure.
+#'
+#' @return A binary block diagonal matrix.
+#'
+#' @examples
+#' # Small example
+#' mat <- BlockDiagonal(pk = c(2, 3))
+#' @export
+BlockDiagonal <- function(pk) {
+  bigblocks <- BlockMatrix(pk)
+  bigblocks[!bigblocks %in% diag(bigblocks)] <- 0
+  bigblocks[bigblocks %in% diag(bigblocks)] <- 1
+  return(bigblocks)
+}
+
+
 #' Block structure
 #'
 #' Generates a symmetric matrix encoding the block structure from the numbers of

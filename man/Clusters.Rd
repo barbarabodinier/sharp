@@ -4,12 +4,11 @@
 \alias{Clusters}
 \title{Stable cluster membership}
 \usage{
-Clusters(stability = NULL, adjacency = NULL, argmax_id = NULL)
+Clusters(adjacency = NULL, argmax_id = NULL)
 }
 \arguments{
-\item{stability}{output of \code{\link{Clustering}}.}
-
-\item{adjacency}{adjacency matrix from which the clusters are defined.}
+\item{adjacency}{adjacency matrix or output of \code{\link{GraphicalModel}}
+or \code{\link{Clustering}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
 the calibrated adjacency matrix is returned.}
