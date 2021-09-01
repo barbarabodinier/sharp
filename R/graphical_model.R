@@ -295,6 +295,9 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
     out$methods$resampling <- myresampling
   }
 
+  # Defining the class
+  class(out) <- "graphical_model"
+
   return(out)
 }
 

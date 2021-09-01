@@ -577,5 +577,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     out$params <- c(out$params, list(xdata = xdata, ydata = ydata))
   }
 
+  # Defining the class
+  class(out) <- "bi_selection"
+
   return(out)
 }

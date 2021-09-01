@@ -269,13 +269,14 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' Builds the (calibrated) set of stably selected variables.
 #'
 #' @inheritParams Adjacency
-#' @param stability output of \code{\link{VariableSelection}}.
+#' @param stability output of \code{\link{VariableSelection}},
+#'   or \code{\link{BiSelection}}.
 #'
 #' @return A binary vector encoding the selection status of the variables
 #'   (\code{1} if selected, \code{0} otherwise).
 #'
 #' @family calibration functions
-#' @seealso \code{\link{VariableSelection}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -298,7 +299,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' }
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
-  if (stability$methods$type == "clustering") {
+  if (class(stability) == "clustering") {
     selprop <- SelectionProportions(stability, argmax_id = argmax_id)
     if (any(selprop != 1)) {
       score <- StabilityScore(
@@ -313,7 +314,9 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
     } else {
       stability_selected <- selprop
     }
-  } else {
+  }
+
+  if (class(stability) %in% c("graphical_model", "variable_selection")) {
     if (is.null(argmax_id)) {
       argmax_id <- ArgmaxId(stability)
     }
@@ -321,6 +324,11 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
       yes = 1, no = 0
     )
   }
+
+  if (class(stability) == "bi_selection") {
+    stability_selected <- stability$selectedX
+  }
+
   return(stability_selected)
 }
 
@@ -373,9 +381,8 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 #' model.
 #'
 #' @inheritParams Adjacency
-#' @param stability output of \code{\link{VariableSelection}} or
-#'   \code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
-#'   provided.
+#' @param stability output of \code{\link{VariableSelection}},
+#'   \code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.
 #'
 #' @return A symmetric matrix (graphical model) or vector (variable selection)
 #'   of selection proportions.

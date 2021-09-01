@@ -358,6 +358,9 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     out$methods$resampling <- myresampling
   }
 
+  # Defining the class
+  class(out) <- "variable_selection"
+
   return(out)
 }
 

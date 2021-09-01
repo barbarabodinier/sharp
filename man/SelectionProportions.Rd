@@ -7,9 +7,8 @@
 SelectionProportions(stability, argmax_id = NULL)
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
-provided.}
+\item{stability}{output of \code{\link{VariableSelection}},
+\code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
 the calibrated adjacency matrix is returned.}

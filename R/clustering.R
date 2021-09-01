@@ -248,6 +248,9 @@ Clustering <- function(xdata, Lambda = NULL, nc = NULL,
     out$methods$type <- "clustering"
   }
 
+  # Defining the class
+  class(out) <- "clustering"
+
   return(out)
 }
 
