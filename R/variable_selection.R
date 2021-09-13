@@ -145,6 +145,7 @@
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
+#' summary(stab)
 #' print(SelectedVariables(stab))
 #'
 #' # Regression with multivariate outcomes

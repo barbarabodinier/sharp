@@ -229,13 +229,14 @@ SelectionProportions(stab)
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, nu_within = 0.1)
 stab <- GraphicalModel(xdata = simul$data)
+summary(stab)
 plot(Graph(stab))
 
 # Multi-block stability selection
 set.seed(1)
 simul <- SimulateGraphical(pk = c(10, 10))
 stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
-stab$Lambda # sets of penalty parameters used jointly
+summary(stab)
 
 # Multi-parameter stability selection (not recommended)
 Lambda <- matrix(c(0.8, 0.6, 0.3, 0.5, 0.4, 0.3, 0.7, 0.5, 0.1), ncol = 3)

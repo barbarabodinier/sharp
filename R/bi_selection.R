@@ -123,6 +123,7 @@
 #'   LambdaX = 1:(ncol(simul$data) - 1),
 #'   implementation = SparsePCA
 #' )
+#' summary(stab)
 #'
 #'
 #' ## Sparse/Group Partial Least Squares
@@ -140,6 +141,7 @@
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   implementation = SparsePLS
 #' )
+#' summary(stab)
 #'
 #' # sPLS: sparsity on both X and Y
 #' stab <- BiSelection(
@@ -147,8 +149,10 @@
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   LambdaY = 1:(ncol(y) - 1),
-#'   implementation = SparsePLS
+#'   implementation = SparsePLS,
+#'   n_cat = 2
 #' )
+#' summary(stab)
 #'
 #' # sgPLS: sparsity on X
 #' stab <- BiSelection(
@@ -158,6 +162,7 @@
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
 #' )
+#' summary(stab)
 #'
 #' # sgPLS: sparsity on both X and Y
 #' stab <- BiSelection(
@@ -166,8 +171,10 @@
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
-#'   implementation = SparseGroupPLS
+#'   implementation = SparseGroupPLS,
+#'   n_cat = 2
 #' )
+#' summary(stab)
 #'
 #' # gPLS: sparsity on X
 #' stab <- BiSelection(
@@ -177,6 +184,7 @@
 #'   LambdaX = 1:2,
 #'   implementation = GroupPLS
 #' )
+#' summary(stab)
 #'
 #' # gPLS: sparsity on both X and Y
 #' stab <- BiSelection(
@@ -186,6 +194,7 @@
 #'   LambdaX = 1:2, LambdaY = 1:2,
 #'   implementation = GroupPLS
 #' )
+#' summary(stab)
 #'
 #'
 #' ## Sparse/Group PLS-DA (Discriminant Analysis)
@@ -203,6 +212,7 @@
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   implementation = SparsePLS
 #' )
+#' summary(stab)
 #'
 #' # sgPLS-DA: sparsity on X
 #' stab <- BiSelection(
@@ -212,6 +222,7 @@
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
 #' )
+#' summary(stab)
 #'
 #' # gPLS-DA: sparsity on Y
 #' stab <- BiSelection(
@@ -221,6 +232,7 @@
 #'   LambdaX = 1:2,
 #'   implementation = GroupPLS
 #' )
+#' summary(stab)
 #' }
 #' @export
 BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
