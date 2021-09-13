@@ -110,6 +110,7 @@
 #' }
 #'
 #' \dontrun{
+#' ## Sparse Principal Component Analysis
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -122,6 +123,9 @@
 #'   LambdaX = 1:(ncol(simul$data) - 1),
 #'   implementation = SparsePCA
 #' )
+#'
+#'
+#' ## Sparse/Group Partial Least Squares
 #'
 #' # Data simulation (continuous outcomes)
 #' set.seed(1)
@@ -183,6 +187,9 @@
 #'   implementation = GroupPLS
 #' )
 #'
+#'
+#' ## Sparse/Group PLS-DA (Discriminant Analysis)
+#'
 #' # Data simulation (categorical outcomes)
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "binomial")
@@ -235,10 +242,10 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   }
 
   # Reformatting inputs
-  if (family == "binomial") {
-    if (is.vector(ydata)) {
-      ydata <- cbind(ydata)
-    } else {
+  if (is.vector(ydata)) {
+    ydata <- cbind(ydata)
+  } else {
+    if (family == "binomial") {
       ydata <- apply(ydata, 1, sum)
     }
   }
@@ -431,6 +438,9 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
             if (!is.null(ydata)) {
               tmpcoef <- mycoefs[i, , ]
+              if (is.null(dim(tmpcoef))) {
+                tmpcoef <- matrix(tmpcoef, nrow = dim(mycoefs)[2], ncol = dim(mycoefs)[3])
+              }
               mytmp <- rep(NA, ifelse(length(dim(tmpcoef)) == 2, yes = nrow(tmpcoef), no = 1))
               for (l in 1:nrow(tmpcoef)) {
                 mytmp[l] <- sum(tmpcoef[l, ] != 0) / length(tmpcoef[l, ])

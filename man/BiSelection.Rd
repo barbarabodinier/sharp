@@ -198,6 +198,7 @@ stab <- BiSelection(
 }
 
 \dontrun{
+## Sparse Principal Component Analysis
 
 # Data simulation
 set.seed(1)
@@ -210,6 +211,9 @@ stab <- BiSelection(
   LambdaX = 1:(ncol(simul$data) - 1),
   implementation = SparsePCA
 )
+
+
+## Sparse/Group Partial Least Squares
 
 # Data simulation (continuous outcomes)
 set.seed(1)
@@ -270,6 +274,9 @@ stab <- BiSelection(
   LambdaX = 1:2, LambdaY = 1:2,
   implementation = GroupPLS
 )
+
+
+## Sparse/Group PLS-DA (Discriminant Analysis)
 
 # Data simulation (categorical outcomes)
 set.seed(1)
