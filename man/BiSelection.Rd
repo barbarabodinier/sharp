@@ -2,7 +2,7 @@
 % Please edit documentation in R/bi_selection.R
 \name{BiSelection}
 \alias{BiSelection}
-\title{Variable selection for predictors and outcomes}
+\title{Stability selection of both predictors and outcomes}
 \usage{
 BiSelection(
   xdata,

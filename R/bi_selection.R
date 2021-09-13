@@ -1,4 +1,4 @@
-#' Variable selection for predictors and outcomes
+#' Stability selection of both predictors and outcomes
 #'
 #' Runs stability selection regression models with different combinations of
 #' parameters controlling the sparsity in PLS/PCA models and thresholds in
