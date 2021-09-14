@@ -8,7 +8,7 @@ MakePositiveDefinite(
   omega,
   pd_strategy = "diagonally_dominant",
   ev = NULL,
-  scale = FALSE,
+  scale = TRUE,
   u_list = c(1e-10, 1),
   tol = .Machine$double.eps^0.25
 )
@@ -80,15 +80,15 @@ omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "diagonally_dominant",
   ev = 0.55
 )
-lambda_inv <- 1 / eigen(omega_pd$omega)$values
+lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 max(lambda_inv) / sum(lambda_inv) # expected ev
 
-# Diagonal dominance with specific proportion of explained variance by PC1 (scaled)
+# Version not scaled (using eigenvalues from the covariance)
 omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "diagonally_dominant",
-  ev = 0.55, scale = TRUE
+  ev = 0.55, scale = FALSE
 )
-lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
+lambda_inv <- 1 / eigen(omega_pd$omega)$values
 max(lambda_inv) / sum(lambda_inv) # expected ev
 
 # Non-negative eigenvalues maximising contrast
@@ -102,15 +102,15 @@ omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "min_eigenvalue",
   ev = 0.7
 )
-lambda_inv <- 1 / eigen(omega_pd$omega)$values
+lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 max(lambda_inv) / sum(lambda_inv)
 
-# Non-negative eigenvalues with specific proportion of explained variance by PC1 (scaled)
+# Version not scaled (using eigenvalues from the covariance)
 omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "min_eigenvalue",
-  ev = 0.7, scale = TRUE
+  ev = 0.7, scale = FALSE
 )
-lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
+lambda_inv <- 1 / eigen(omega_pd$omega)$values
 max(lambda_inv) / sum(lambda_inv)
 }
 }

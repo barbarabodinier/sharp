@@ -51,3 +51,4 @@ entries in off-diagonal blocks) if \code{continuous=FALSE}, or (ii) a
 continuous uniform distribution taking values in the range given by
 \code{v_within} or \code{v_between} if \code{continuous=TRUE}.
 }
+\keyword{internal}

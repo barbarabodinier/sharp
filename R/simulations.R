@@ -862,7 +862,9 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 
       rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
       colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
-      ydata <- zdata %*% eta
+      beta <- omega[grep("var", colnames(omega)), grep("var", colnames(omega))] %*% sigma[grep("var", colnames(sigma)), grep("latent", colnames(sigma))]
+      ydata <- xdata %*% beta
+      # ydata <- zdata %*% eta
 
       if (j == 1) {
         beta <- xi %*% eta
@@ -1172,7 +1174,7 @@ SimulateAdjacency <- function(pk = 10,
 #' @return A symmetric matrix with uniformly distributed entries sampled from
 #'   different distributions for diagonal and off-diagonal blocks.
 #'
-#' @export
+#' @keywords internal
 SimulateSymmetricMatrix <- function(pk = 10,
                                     v_within = c(0.5, 1), v_between = c(0, 0.1),
                                     v_sign = c(-1, 1), continuous = FALSE) {
@@ -1459,7 +1461,7 @@ SimulatePrecision <- function(pk = NULL, theta,
 #' @return A binary matrix encoding the contribution status of each predictor
 #'   variable (columns) to each outcome variable (rows).
 #'
-#' @export
+#' @keywords internal
 SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
   # Definition of the number of outcome variables
   if (is.null(q)) {
@@ -1538,15 +1540,15 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #'   pd_strategy = "diagonally_dominant",
 #'   ev = 0.55
 #' )
-#' lambda_inv <- 1 / eigen(omega_pd$omega)$values
+#' lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 #' max(lambda_inv) / sum(lambda_inv) # expected ev
 #'
-#' # Diagonal dominance with specific proportion of explained variance by PC1 (scaled)
+#' # Version not scaled (using eigenvalues from the covariance)
 #' omega_pd <- MakePositiveDefinite(omega,
 #'   pd_strategy = "diagonally_dominant",
-#'   ev = 0.55, scale = TRUE
+#'   ev = 0.55, scale = FALSE
 #' )
-#' lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
+#' lambda_inv <- 1 / eigen(omega_pd$omega)$values
 #' max(lambda_inv) / sum(lambda_inv) # expected ev
 #'
 #' # Non-negative eigenvalues maximising contrast
@@ -1560,20 +1562,20 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #'   pd_strategy = "min_eigenvalue",
 #'   ev = 0.7
 #' )
-#' lambda_inv <- 1 / eigen(omega_pd$omega)$values
+#' lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 #' max(lambda_inv) / sum(lambda_inv)
 #'
-#' # Non-negative eigenvalues with specific proportion of explained variance by PC1 (scaled)
+#' # Version not scaled (using eigenvalues from the covariance)
 #' omega_pd <- MakePositiveDefinite(omega,
 #'   pd_strategy = "min_eigenvalue",
-#'   ev = 0.7, scale = TRUE
+#'   ev = 0.7, scale = FALSE
 #' )
-#' lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
+#' lambda_inv <- 1 / eigen(omega_pd$omega)$values
 #' max(lambda_inv) / sum(lambda_inv)
 #' }
 #' @export
 MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
-                                 ev = NULL, scale = FALSE, u_list = c(1e-10, 1),
+                                 ev = NULL, scale = TRUE, u_list = c(1e-10, 1),
                                  tol = .Machine$double.eps^0.25) {
 
   # Making positive definite using diagonally dominance
