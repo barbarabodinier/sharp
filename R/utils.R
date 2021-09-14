@@ -44,3 +44,23 @@ CoMembership <- function(groups) {
 
   return(comembership)
 }
+
+
+#' Adjacency from bipartite
+#'
+#' Generates a symmetric adjacency matrix encoding a bipartite graph.
+#'
+#' @param x matrix encoding the edges between two types of nodes (rows and
+#'   columns).
+#'
+#' @return A symmetric adjacency matrix encoding a bipartite graph.
+#'
+#' @export
+Square <- function(x) {
+  adjacency <- rbind(
+    cbind(matrix(0, nrow = nrow(x), ncol = nrow(x)), x),
+    cbind(t(x), matrix(0, nrow = ncol(x), ncol = ncol(x)))
+  )
+  rownames(adjacency) <- colnames(adjacency) <- c(rownames(x), colnames(x))
+  return(adjacency)
+}

@@ -124,6 +124,7 @@
 #'   implementation = SparsePCA
 #' )
 #' summary(stab)
+#' plot(stab)
 #'
 #'
 #' ## Sparse/Group Partial Least Squares
@@ -142,6 +143,7 @@
 #'   implementation = SparsePLS
 #' )
 #' summary(stab)
+#' plot(stab)
 #'
 #' # sPLS: sparsity on both X and Y
 #' stab <- BiSelection(
@@ -153,10 +155,11 @@
 #'   n_cat = 2
 #' )
 #' summary(stab)
+#' plot(stab)
 #'
 #' # sgPLS: sparsity on X
 #' stab <- BiSelection(
-#'   xdata = x, ydata = y,
+#'   xdata = x, ydata = y, K = 10,
 #'   group_x = c(2, 8, 5),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
@@ -166,7 +169,7 @@
 #'
 #' # sgPLS: sparsity on both X and Y
 #' stab <- BiSelection(
-#'   xdata = x, ydata = y,
+#'   xdata = x, ydata = y, K = 10,
 #'   group_x = c(2, 8, 5), group_y = c(1, 2),
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
@@ -216,7 +219,7 @@
 #'
 #' # sgPLS-DA: sparsity on X
 #' stab <- BiSelection(
-#'   xdata = x, ydata = cbind(y),
+#'   xdata = x, ydata = cbind(y), K = 10,
 #'   group_x = c(2, 8, 5),
 #'   family = "binomial", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
@@ -253,12 +256,39 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     }
   }
 
-  # Reformatting inputs
-  if (is.vector(ydata)) {
-    ydata <- cbind(ydata)
+  # Preparing xdata
+  xdata <- as.matrix(xdata)
+  if (is.null(colnames(xdata))) {
+    colnames(xdata) <- paste0("var", 1:ncol(xdata))
+  }
+
+  # Preparing ydata
+  if (!is.null(ydata)) {
+    if (is.vector(ydata) | is.factor(ydata)) {
+      ydata <- matrix(ydata, ncol = 1)
+    } else {
+      if (family == "binomial") {
+        ydata <- cbind(apply(ydata, 1, sum))
+      }
+    }
+  }
+
+  # Naming rows of xdata and ydata
+  if (is.null(ydata)) {
+    if (is.null(rownames(xdata))) {
+      rownames(xdata) <- paste0("obs", 1:nrow(xdata))
+    }
   } else {
-    if (family == "binomial") {
-      ydata <- apply(ydata, 1, sum)
+    if (is.null(rownames(xdata)) & is.null(rownames(ydata))) {
+      rownames(xdata) <- paste0("obs", 1:nrow(xdata))
+      rownames(ydata) <- rownames(xdata)
+    } else {
+      if ((is.null(rownames(xdata))) & (!is.null(rownames(ydata)))) {
+        rownames(xdata) <- rownames(ydata)
+      }
+      if ((!is.null(rownames(xdata))) & (is.null(rownames(ydata)))) {
+        rownames(ydata) <- rownames(xdata)
+      }
     }
   }
 

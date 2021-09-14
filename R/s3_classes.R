@@ -208,3 +208,35 @@ summary.bi_selection <- function(object, ...) {
     }
   }
 }
+
+
+#' @export
+plot.variable_selection <- function(x, ...) {
+  selprop <- SelectionProportions(x)
+  selprop <- sort(selprop, decreasing = TRUE)
+  plot(selprop,
+    type = "h",
+    xlab = "", ylab = "Selection proportion",
+    las = 1, ylim = c(0, 1), xaxt = "n",
+    col = ifelse(SelectedVariables(x)[names(selprop)],
+      yes = "navy", no = "grey"
+    )
+  )
+  graphics::axis(
+    side = 1, at = 1:length(selprop),
+    labels = names(selprop), las = 2
+  )
+  graphics::abline(h = Argmax(x)[1, 2], lty = 2, col = "darkred")
+}
+
+
+#' @export
+plot.graphical_model <- function(x, ...) {
+  igraph::plot.igraph(Graph(x), ...)
+}
+
+
+#' @export
+plot.bi_selection <- function(x, ...) {
+  igraph::plot.igraph(Graph(x), ...)
+}

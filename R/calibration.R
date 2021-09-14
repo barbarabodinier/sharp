@@ -223,41 +223,49 @@ Argmax <- function(stability, clustering = FALSE) {
 #'
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
-  if (stability$methods$type == "graphical_model") {
-    A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
-  } else {
-    A <- matrix(0, ncol = ncol(stability$coprop), nrow = nrow(stability$coprop))
-  }
-  bigblocks <- BlockMatrix(stability$params$pk)
-  if (is.null(argmax_id)) {
-    if (stability$methods$type == "graphical_model") {
-      argmax_id <- ArgmaxId(stability)
-      argmax <- Argmax(stability)
+  if (class(stability) == "bi_selection") {
+    if ("selectedY" %in% names(stability)) {
+      A <- Square(cbind(stability$selectedX, stability$selectedY))
     } else {
-      argmax_id <- ArgmaxId(stability, clustering = TRUE)
-      argmax <- Argmax(stability, clustering = TRUE)
+      A <- Square(stability$selectedX)
     }
   } else {
-    argmax <- NULL
+    if (stability$methods$type == "graphical_model") {
+      A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
+    } else {
+      A <- matrix(0, ncol = ncol(stability$coprop), nrow = nrow(stability$coprop))
+    }
+    bigblocks <- BlockMatrix(stability$params$pk)
+    if (is.null(argmax_id)) {
+      if (stability$methods$type == "graphical_model") {
+        argmax_id <- ArgmaxId(stability)
+        argmax <- Argmax(stability)
+      } else {
+        argmax_id <- ArgmaxId(stability, clustering = TRUE)
+        argmax <- Argmax(stability, clustering = TRUE)
+      }
+    } else {
+      argmax <- NULL
+      for (block_id in 1:ncol(stability$Lambda)) {
+        argmax <- rbind(argmax, c(
+          stability$Lambda[argmax_id[block_id, 1], block_id],
+          stability$params$pi_list[argmax_id[block_id, 2]]
+        ))
+      }
+    }
     for (block_id in 1:ncol(stability$Lambda)) {
-      argmax <- rbind(argmax, c(
-        stability$Lambda[argmax_id[block_id, 1], block_id],
-        stability$params$pi_list[argmax_id[block_id, 2]]
-      ))
+      if (stability$methods$type == "graphical_model") {
+        A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
+      } else {
+        A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
+      }
+      A_block[lower.tri(A_block)] <- 0
+      A_block <- A_block + t(A_block) # for symmetry
+      if (length(stability$params$pk) > 1) {
+        A_block[bigblocks != block_id] <- 0
+      }
+      A <- A + A_block
     }
-  }
-  for (block_id in 1:ncol(stability$Lambda)) {
-    if (stability$methods$type == "graphical_model") {
-      A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
-    } else {
-      A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
-    }
-    A_block[lower.tri(A_block)] <- 0
-    A_block <- A_block + t(A_block) # for symmetry
-    if (length(stability$params$pk) > 1) {
-      A_block[bigblocks != block_id] <- 0
-    }
-    A <- A + A_block
   }
   A[is.na(A)] <- 0
   return(A)

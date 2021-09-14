@@ -72,8 +72,9 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
     }
   }
 
-  # Extracting the adjacency matrix from the output of CalibrateNetwork()
+  # Extracting the adjacency matrix from the output of GraphicalModel()
   if (!is.matrix(adjacency)) {
+    stability <- adjacency
     adjacency <- Adjacency(stability = adjacency)
   }
 
@@ -151,6 +152,14 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
   # Default node colours
   if (is.null(node_colour)) {
     node_colour <- rep("skyblue", ncol(adjacency))
+    if (exists("stability")) {
+      if (class(stability) == "bi_selection") {
+        node_colour <- ifelse(grepl("comp", colnames(adjacency)),
+          yes = "darkmagenta", no = "skyblue"
+        )
+        node_colour[colnames(adjacency) %in% colnames(stability$selectedY)] <- "tomato"
+      }
+    }
   }
 
   # Default node shapes

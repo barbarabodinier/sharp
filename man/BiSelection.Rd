@@ -212,6 +212,7 @@ stab <- BiSelection(
   implementation = SparsePCA
 )
 summary(stab)
+plot(stab)
 
 
 ## Sparse/Group Partial Least Squares
@@ -230,6 +231,7 @@ stab <- BiSelection(
   implementation = SparsePLS
 )
 summary(stab)
+plot(stab)
 
 # sPLS: sparsity on both X and Y
 stab <- BiSelection(
@@ -241,10 +243,11 @@ stab <- BiSelection(
   n_cat = 2
 )
 summary(stab)
+plot(stab)
 
 # sgPLS: sparsity on X
 stab <- BiSelection(
-  xdata = x, ydata = y,
+  xdata = x, ydata = y, K = 10,
   group_x = c(2, 8, 5),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
@@ -254,7 +257,7 @@ summary(stab)
 
 # sgPLS: sparsity on both X and Y
 stab <- BiSelection(
-  xdata = x, ydata = y,
+  xdata = x, ydata = y, K = 10,
   group_x = c(2, 8, 5), group_y = c(1, 2),
   family = "gaussian", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
@@ -304,7 +307,7 @@ summary(stab)
 
 # sgPLS-DA: sparsity on X
 stab <- BiSelection(
-  xdata = x, ydata = cbind(y),
+  xdata = x, ydata = cbind(y), K = 10,
   group_x = c(2, 8, 5),
   family = "binomial", ncomp = 3,
   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),

@@ -22,8 +22,8 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
   )
 
   # Checking the inputs (xdata and ydata)
+  xdata <- as.matrix(xdata)
   if (!is.null(ydata)) {
-    xdata <- as.matrix(xdata)
     if (sum(is.na(xdata)) > 0) {
       stop("Invalid input for argument 'xdata'. Missing values are not allowed in 'xdata'.")
     }
