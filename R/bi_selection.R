@@ -271,6 +271,9 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
         ydata <- cbind(apply(ydata, 1, sum))
       }
     }
+    if (is.null(colnames(ydata))) {
+      colnames(ydata) <- paste0("outcome", 1:ncol(ydata))
+    }
   }
 
   # Naming rows of xdata and ydata
@@ -437,7 +440,6 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
           }
           if (as.character(substitute(implementation)) == "GroupPLS") {
             if (family == "gaussian") {
-              print(group_x)
               stab <- VariableSelection(
                 xdata = xdata, ydata = ydata,
                 Lambda = LambdaX, pi_list = pi_list,
@@ -563,7 +565,9 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
   rownames(selected_x_comp) <- rownames(selprop_x_comp) <- paste0("comp", 1:ncomp)
   if (!is.null(ydata)) {
-    colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
+    if (family == "gaussian") {
+      colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
+    }
     rownames(selected_y_comp) <- rownames(selprop_y_comp) <- paste0("comp", 1:ncomp)
   }
 
