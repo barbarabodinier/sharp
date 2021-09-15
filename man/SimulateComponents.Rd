@@ -137,26 +137,16 @@ The data is simulated from a centered multivariate Normal
 # Simulation of 3 components with high e.v.
 set.seed(1)
 simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.4)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(simul$data),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
+print(simul)
+plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
-print(simul$ev)
 
 # Simulation of 3 components with moderate e.v.
 set.seed(1)
 simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.25)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(simul$data),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
+print(simul)
+plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
-print(simul$ev)
 
 # Simulation of multiple components with low e.v.
 pk <- sample(3:10, size = 5, replace = TRUE)
@@ -164,12 +154,7 @@ simul <- SimulateComponents(
   pk = pk,
   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev = 0.1
 )
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(simul$data),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
+plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 }
 }

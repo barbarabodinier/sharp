@@ -418,14 +418,7 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
   if (legend) {
     withr::local_par(list(xpd = TRUE))
     legend_width_factor <- 1.05
-    mylegend_values <- seq(myrange[1], myrange[2], length.out = 100)
-    mylegend_values <- unique(round(mylegend_values, digits = -max(nchar(round(myrange))) + 2))
-    if (is.null(legend_range)) {
-      mylegend_values <- mylegend_values[mylegend_values >= min(myrange)]
-    }
-    if (length(mylegend_values) > legend_length) {
-      mylegend_values <- unique(round(mylegend_values, digits = -max(nchar(round(myrange))) + 1))
-    }
+    mylegend_values <- axisTicks(c(myrange[1], myrange[2]), log = FALSE)
     mylegend_ids <- as.numeric(as.character(cut(mylegend_values,
       breaks = seq(myrange[1], myrange[2], length.out = resolution + 1),
       labels = 1:resolution, include.lowest = TRUE

@@ -146,14 +146,13 @@ edges of a conditional independence graph.
 # Simulation of random graph with 50 nodes
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
-dim(simul$data) # dimension of simulated dataset
-sum(simul$theta) / 2 # number of edges
-plot(Graph(simul$theta))
+print(simul)
+plot(simul)
 
 # Simulation of scale-free graph with 20 nodes
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free")
-plot(Graph(simul$theta))
+plot(simul)
 
 # Extracting true precision/correlation matrices
 set.seed(1)
@@ -201,9 +200,9 @@ CentralNode <- function(pk, hub = 1) {
   return(theta)
 }
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode)
-plot(Graph(simul$theta)) # star
+plot(simul) # star
 simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode, hub = 2)
-plot(Graph(simul$theta)) # variable 2 is the central node
+plot(simul) # variable 2 is the central node
 
 # User-defined adjacency matrix
 mytheta <- matrix(c(
@@ -213,7 +212,7 @@ mytheta <- matrix(c(
   0, 0, 1, 0
 ), ncol = 4, byrow = TRUE)
 simul <- SimulateGraphical(n = 100, theta = mytheta)
-plot(Graph(simul$theta))
+plot(simul)
 
 # User-defined adjacency and block structure
 simul <- SimulateGraphical(n = 100, theta = mytheta, pk = c(2, 2))

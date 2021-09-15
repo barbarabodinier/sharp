@@ -186,28 +186,20 @@ in \code{ydata}.
 # Univariate outcome
 set.seed(1)
 simul <- SimulateRegression(pk = c(5, 7, 3))
-plot(Graph(simul$adjacency,
-  satellites = TRUE,
-  node_colour = c(rep("red", 3), rep("orange", 3), rep("skyblue", 15))
-))
-print(simul$theta)
+print(simul)
+plot(simul)
 
 # Multivariate outcome
 set.seed(1)
 simul <- SimulateRegression(pk = c(5, 7, 3))
-plot(Graph(simul$adjacency,
-  satellites = TRUE,
-  node_colour = c(rep("red", 3), rep("orange", 3), rep("skyblue", 15))
-))
-print(simul$theta)
+print(simul)
+plot(simul)
 
 # Independent predictors
 set.seed(1)
 simul <- SimulateRegression(pk = c(5, 3), nu_within = 0)
-plot(Graph(simul$adjacency,
-  satellites = TRUE,
-  node_colour = c(rep("red", 2), rep("orange", 2), rep("skyblue", 8))
-))
+print(simul)
+plot(simul)
 
 # Blocks of strongly inter-connected predictors
 set.seed(1)
@@ -215,17 +207,14 @@ simul <- SimulateRegression(
   pk = c(5, 5), nu_within = 0.5,
   v_within = c(0.5, 1), v_sign = -1, continuous = TRUE, pd_strategy = "min_eigenvalue"
 )
+print(simul)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$xdata),
   colours = c("navy", "white", "red"),
   legend_range = c(-1, 1)
 )
-par(mar = rep(0, 4))
-plot(Graph(simul$adjacency,
-  satellites = TRUE,
-  node_colour = c(rep("red", 2), rep("orange", 2), rep("skyblue", 10))
-))
+plot(simul)
 
 
 ## Categorical outcomes
@@ -233,11 +222,13 @@ plot(Graph(simul$adjacency,
 # Binary outcome
 set.seed(1)
 simul <- SimulateRegression(pk = 20, family = "binomial")
+print(simul)
 table(simul$ydata[, 1])
 
 # Categorical outcome
 set.seed(1)
 simul <- SimulateRegression(pk = 20, family = "multinomial")
+print(simul)
 apply(simul$ydata, 2, sum)
 }
 }

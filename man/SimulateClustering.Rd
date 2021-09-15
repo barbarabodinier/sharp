@@ -151,15 +151,10 @@ clusters. Independent variables are simulated by default
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(10, 30, 15)
+  n = c(10, 30, 15), ev_xc = 0.95
 )
-
-# Visualisation of Euclidian distances
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = as.matrix(dist(simul$data)),
-  colours = c("navy", "white", "red")
-)
+print(simul)
+plot(simul)
 
 
 ## Example with 2 variables contributing to clustering
@@ -170,6 +165,7 @@ simul <- SimulateClustering(
   n = c(200, 100, 150), pk = 10,
   theta_xc = c(1, 1, rep(0, 8))
 )
+print(simul)
 
 # Visualisation of the data
 par(mar = c(5, 5, 5, 5))

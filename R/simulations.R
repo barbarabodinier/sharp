@@ -105,14 +105,13 @@
 #' # Simulation of random graph with 50 nodes
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
-#' dim(simul$data) # dimension of simulated dataset
-#' sum(simul$theta) / 2 # number of edges
-#' plot(Graph(simul$theta))
+#' print(simul)
+#' plot(simul)
 #'
 #' # Simulation of scale-free graph with 20 nodes
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 20, topology = "scale-free")
-#' plot(Graph(simul$theta))
+#' plot(simul)
 #'
 #' # Extracting true precision/correlation matrices
 #' set.seed(1)
@@ -160,9 +159,9 @@
 #'   return(theta)
 #' }
 #' simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode)
-#' plot(Graph(simul$theta)) # star
+#' plot(simul) # star
 #' simul <- SimulateGraphical(n = 100, pk = 10, implementation = CentralNode, hub = 2)
-#' plot(Graph(simul$theta)) # variable 2 is the central node
+#' plot(simul) # variable 2 is the central node
 #'
 #' # User-defined adjacency matrix
 #' mytheta <- matrix(c(
@@ -172,7 +171,7 @@
 #'   0, 0, 1, 0
 #' ), ncol = 4, byrow = TRUE)
 #' simul <- SimulateGraphical(n = 100, theta = mytheta)
-#' plot(Graph(simul$theta))
+#' plot(simul)
 #'
 #' # User-defined adjacency and block structure
 #' simul <- SimulateGraphical(n = 100, theta = mytheta, pk = c(2, 2))
@@ -241,14 +240,19 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
   rownames(x) <- paste0("obs", 1:nrow(x))
 
   if (output_matrices) {
-    return(list(
+    out <- list(
       data = x, theta = theta,
       omega = omega, phi = phi, sigma = sigma,
       u = out$u
-    ))
+    )
   } else {
-    return(list(data = x, theta = theta))
+    out <- list(data = x, theta = theta)
   }
+
+  # Defining the class
+  class(out) <- "simulation_graphical_model"
+
+  return(out)
 }
 
 
@@ -300,15 +304,10 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(10, 30, 15)
+#'   n = c(10, 30, 15), ev_xc = 0.95
 #' )
-#'
-#' # Visualisation of Euclidian distances
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = as.matrix(dist(simul$data)),
-#'   colours = c("navy", "white", "red")
-#' )
+#' print(simul)
+#' plot(simul)
 #'
 #'
 #' ## Example with 2 variables contributing to clustering
@@ -319,6 +318,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   n = c(200, 100, 150), pk = 10,
 #'   theta_xc = c(1, 1, rep(0, 8))
 #' )
+#' print(simul)
 #'
 #' # Visualisation of the data
 #' par(mar = c(5, 5, 5, 5))
@@ -457,6 +457,9 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
   out$theta_xc <- theta_xc
   out$ev <- ev_xc * theta_xc
 
+  # Defining the class
+  class(out) <- "simulation_clustering"
+
   return(out)
 }
 
@@ -514,26 +517,16 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' # Simulation of 3 components with high e.v.
 #' set.seed(1)
 #' simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.4)
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(simul$data),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
+#' print(simul)
+#' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
-#' print(simul$ev)
 #'
 #' # Simulation of 3 components with moderate e.v.
 #' set.seed(1)
 #' simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.25)
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(simul$data),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
+#' print(simul)
+#' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
-#' print(simul$ev)
 #'
 #' # Simulation of multiple components with low e.v.
 #' pk <- sample(3:10, size = 5, replace = TRUE)
@@ -541,12 +534,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #'   pk = pk,
 #'   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev = 0.1
 #' )
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(simul$data),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
+#' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 #' }
 #' @export
@@ -602,6 +590,9 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
   if (!output_matrices) {
     out <- out[c("data", "loadings", "theta", "ev", "membership")]
   }
+
+  # Defining the class
+  class(out) <- "simulation_components"
 
   return(out)
 }
@@ -715,28 +706,20 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' # Univariate outcome
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = c(5, 7, 3))
-#' plot(Graph(simul$adjacency,
-#'   satellites = TRUE,
-#'   node_colour = c(rep("red", 3), rep("orange", 3), rep("skyblue", 15))
-#' ))
-#' print(simul$theta)
+#' print(simul)
+#' plot(simul)
 #'
 #' # Multivariate outcome
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = c(5, 7, 3))
-#' plot(Graph(simul$adjacency,
-#'   satellites = TRUE,
-#'   node_colour = c(rep("red", 3), rep("orange", 3), rep("skyblue", 15))
-#' ))
-#' print(simul$theta)
+#' print(simul)
+#' plot(simul)
 #'
 #' # Independent predictors
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = c(5, 3), nu_within = 0)
-#' plot(Graph(simul$adjacency,
-#'   satellites = TRUE,
-#'   node_colour = c(rep("red", 2), rep("orange", 2), rep("skyblue", 8))
-#' ))
+#' print(simul)
+#' plot(simul)
 #'
 #' # Blocks of strongly inter-connected predictors
 #' set.seed(1)
@@ -744,17 +727,14 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #'   pk = c(5, 5), nu_within = 0.5,
 #'   v_within = c(0.5, 1), v_sign = -1, continuous = TRUE, pd_strategy = "min_eigenvalue"
 #' )
+#' print(simul)
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$xdata),
 #'   colours = c("navy", "white", "red"),
 #'   legend_range = c(-1, 1)
 #' )
-#' par(mar = rep(0, 4))
-#' plot(Graph(simul$adjacency,
-#'   satellites = TRUE,
-#'   node_colour = c(rep("red", 2), rep("orange", 2), rep("skyblue", 10))
-#' ))
+#' plot(simul)
 #'
 #'
 #' ## Categorical outcomes
@@ -762,11 +742,13 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' # Binary outcome
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 20, family = "binomial")
+#' print(simul)
 #' table(simul$ydata[, 1])
 #'
 #' # Categorical outcome
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 20, family = "multinomial")
+#' print(simul)
 #' apply(simul$ydata, 2, sum)
 #' }
 #' @export
@@ -833,12 +815,14 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   for (j in 1:q) {
     pred_ids <- seq(q + 1, q + p)
     omega[j, j] <- omega[j, pred_ids, drop = FALSE] %*% solve(omega[pred_ids, pred_ids]) %*% t(omega[j, pred_ids, drop = FALSE]) * 1 / ev_xz[j]
-    xi <- cbind(xi, 1 / omega[j, j] * omega[j, pred_ids])
   }
-  colnames(xi) <- colnames(theta_xz)
 
   # Computing the covariance matrix
   sigma <- solve(omega)
+
+  # Computing the regression coefficients from X to Z
+  xi <- solve(sigma[grep("var", colnames(omega)), grep("var", colnames(omega))]) %*% sigma[grep("var", colnames(sigma)), grep("latent", colnames(sigma))]
+  colnames(xi) <- colnames(theta_xz)
 
   # Simulation of data from multivariate normal distribution
   x <- MASS::mvrnorm(n, rep(0, p + q), sigma)
@@ -862,14 +846,13 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 
       rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
       colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
-      beta <- omega[grep("var", colnames(omega)), grep("var", colnames(omega))] %*% sigma[grep("var", colnames(sigma)), grep("latent", colnames(sigma))]
-      ydata <- xdata %*% beta
-      # ydata <- zdata %*% eta
 
       if (j == 1) {
         beta <- xi %*% eta
+        beta=base::zapsmall(beta)
         theta <- ifelse(beta != 0, yes = 1, no = 0)
       }
+      ydata <- xdata %*% beta
 
       proba[, j] <- 1 / (1 + exp(-ydata[, 1])) # inverse logit
     }
@@ -905,6 +888,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 
     # Computing the xy coefficients and binary contribution status
     beta <- xi %*% eta
+    beta=base::zapsmall(beta)
     theta <- ifelse(beta != 0, yes = 1, no = 0)
 
     # Compute binary outcome for logistic regression
@@ -953,7 +937,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
         xdata = xdata, ydata = ydata_cat,
         proba = proba, logit_proba = ydata,
         zdata = zdata,
-        theta = theta,
+        beta = beta, theta = theta,
         theta_zy = theta_zy,
         xi = xi, theta_xz = theta_xz,
         omega_xz = omega,
@@ -970,6 +954,9 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
       adjacency = adjacency
     )
   }
+
+  # Defining the class
+  class(out) <- "simulation_regression"
 
   return(out)
 }

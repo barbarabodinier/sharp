@@ -240,3 +240,113 @@ plot.graphical_model <- function(x, ...) {
 plot.bi_selection <- function(x, ...) {
   igraph::plot.igraph(Graph(x), ...)
 }
+
+
+#' @export
+print.simulation_graphical_model <- function(x, ...) {
+  cat(paste0("Multivariate Normal data with underlying structure of a graphical model."))
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of observations: ", nrow(x$data)))
+  cat("\n")
+  cat(paste0("Number of variables (nodes): ", ncol(x$data)))
+  cat("\n")
+  cat(paste0("Number of edges: ", sum(x$theta == 1) / 2))
+}
+
+
+#' @export
+print.simulation_clustering <- function(x, ...) {
+  cat(paste0("Multivariate Normal data with underlying clusters of participants along (a subset of) variables."))
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of observations: ", nrow(x$data)))
+  cat("\n")
+  cat(paste0("Number of clusters: ", max(x$theta)))
+  for (k in 1:max(x$theta)) {
+    cat("\n")
+    cat(paste0("- Cluster ", k, " (N=", sum(x$theta == k), " observations)"))
+  }
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of variables: ", ncol(x$data)))
+  cat("\n")
+  cat(paste0("Number of variables contributing to the clustering: ", sum(x$theta_xc)))
+}
+
+
+#' @export
+print.simulation_components <- function(x, ...) {
+  cat(paste0("Multivariate Normal data with independent groups of variables (sparse Principal Components)."))
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of observations: ", nrow(x$data)))
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of variables: ", ncol(x$data)))
+  cat("\n")
+  cat(paste0("Number of independent groups of variables: ", max(x$membership)))
+  for (k in 1:max(x$membership)) {
+    cat("\n")
+    cat(paste0("- Group ", k, " (N=", sum(x$membership == k), " variables)"))
+  }
+}
+
+
+#' @export
+print.simulation_regression <- function(x, ...) {
+  cat(paste0("Multivariate Normal data with predictors and outcome(s)."))
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of observations: ", nrow(x$xdata)))
+  cat("\n")
+  cat(paste0("Number of outcome variable(s): ", ncol(x$ydata)))
+  cat("\n")
+  cat(paste0("Number of predictor variables: ", ncol(x$xdata)))
+  cat("\n")
+  cat(paste0(
+    "Number of predictor variables contributing to the outcome(s): ",
+    sum(apply(x$beta, 1, sum) != 0)
+  ))
+}
+
+
+#' @export
+plot.simulation_graphical_model <- function(x, ...) {
+  igraph::plot.igraph(Graph(x$theta), ...)
+}
+
+
+#' @export
+plot.simulation_clustering <- function(x, ...) {
+  # Visualisation of Euclidian distances along the contributing variable
+  Heatmap(
+    mat = as.matrix(dist(x$data[, which(x$theta_xc == 1), drop = FALSE])),
+    colours = c("navy", "white", "red")
+  )
+  title("Distances across variables contributing to clustering")
+}
+
+
+#' @export
+plot.simulation_components <- function(x, ...) {
+  Heatmap(
+    mat = cor(x$data),
+    colours = c("navy", "white", "red"),
+    legend_range = c(-1, 1)
+  )
+  title("Pearson's correlations")
+}
+
+
+#' @export
+plot.simulation_regression <- function(x, ...) {
+  plot(Graph(x$adjacency,
+    satellites = TRUE,
+    node_colour = c(
+      rep("red", ncol(x$ydata)),
+      rep("orange", ncol(x$zdata)),
+      rep("skyblue", ncol(x$xdata))
+    )
+  ))
+}
