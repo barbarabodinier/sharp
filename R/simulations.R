@@ -794,6 +794,15 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   if (is.null(theta_xz)) {
     theta_xz <- SamplePredictors(pk = pk, q = q, nu = nu_xz, orthogonal = TRUE)
   }
+
+  # Using the same support for all categories (multinomial only)
+  if (family == "multinomial") {
+    theta_xz <- matrix(rep(theta_xz, N), ncol = N)
+    q <- N
+    ev_xz <- rep(ev_xz, N)
+  }
+
+  # Setting row and column names
   colnames(theta_xz) <- paste0("latent", 1:ncol(theta_xz))
   rownames(theta_xz) <- paste0("var", 1:nrow(theta_xz))
 
@@ -811,10 +820,21 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   omega <- out$omega
 
   # Setting diagonal precision for latent outcomes to reach expected proportion of explained variance
-  xi <- NULL
   for (j in 1:q) {
     pred_ids <- seq(q + 1, q + p)
     omega[j, j] <- omega[j, pred_ids, drop = FALSE] %*% solve(omega[pred_ids, pred_ids]) %*% t(omega[j, pred_ids, drop = FALSE]) * 1 / ev_xz[j]
+  }
+
+  # Checking positive definiteness (mostly for multinomial?)
+  eig <- eigen(omega)$values
+  if (any(eig <= 0)) {
+    message("The requested proportion of explained variance could not be achieved.")
+    ev_xz <- stats::optimise(TuneExplainedVarianceReg, interval = c(0, min(ev_xz)), omega = omega, q = q, p = p)$minimum
+    ev_xz <- rep(ev_xz, q)
+    for (j in 1:q) {
+      pred_ids <- seq(q + 1, q + p)
+      omega[j, j] <- omega[j, pred_ids, drop = FALSE] %*% solve(omega[pred_ids, pred_ids]) %*% t(omega[j, pred_ids, drop = FALSE]) * 1 / ev_xz[j]
+    }
   }
 
   # Computing the covariance matrix
@@ -832,46 +852,12 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   xdata <- x[, grep("var", colnames(x)), drop = FALSE]
   zdata <- x[, grep("latent", colnames(x)), drop = FALSE]
 
-  if (family == "multinomial") {
-    if (is.null(theta_zy)) {
-      theta_zy <- SamplePredictors(pk = q, q = q, nu = nu_zy, orthogonal = FALSE)
-    }
-
-    proba <- matrix(NA, nrow = n, ncol = N)
-    for (j in 1:N) {
-      eta <- matrix(stats::runif(q * q, min = min(eta_set), max = max(eta_set)),
-        ncol = q, nrow = q
-      )
-      eta <- eta * theta_zy
-
-      rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
-      colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
-
-      if (j == 1) {
-        beta <- xi %*% eta
-        beta=base::zapsmall(beta)
-        theta <- ifelse(beta != 0, yes = 1, no = 0)
-      }
-      ydata <- xdata %*% beta
-
-      proba[, j] <- 1 / (1 + exp(-ydata[, 1])) # inverse logit
-    }
-    proba <- t(apply(proba, 1, cumsum)) / N
-
-    ydata_cat <- matrix(0, nrow = n, ncol = N)
-    for (i in 1:n) {
-      r <- stats::runif(n = 1)
-      if (any(r < proba[i, ])) {
-        ydata_cat[i, min(which(r < proba[i, ]))] <- 1
-      }
-    }
-
-    # Setting row and column names
-    rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
-    colnames(ydata_cat) <- colnames(proba) <- paste0("cat", 1:N)
-  } else {
-    # Simulation of eta coefficients to get observed outcomes from latent outcomes
-    if (is.null(eta)) {
+  # Simulation of eta coefficients to get observed outcomes from latent outcomes
+  if (is.null(eta)) {
+    if (family == "multinomial") {
+      # Variables in Z and Y are the same for multinomial as restricted to one categorical outcome
+      theta_zy <- eta <- diag(N)
+    } else {
       if (is.null(theta_zy)) {
         theta_zy <- SamplePredictors(pk = q, q = q, nu = nu_zy, orthogonal = FALSE)
       }
@@ -879,36 +865,60 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
         ncol = q, nrow = q
       )
       eta <- eta * theta_zy
-    } else {
-      theta_zy <- ifelse(eta != 0, yes = 1, no = 0)
     }
-    rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
-    colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
-    ydata <- zdata %*% eta
+  } else {
+    theta_zy <- ifelse(eta != 0, yes = 1, no = 0)
+  }
+  rownames(eta) <- rownames(theta_zy) <- paste0("latent", 1:q)
+  colnames(eta) <- colnames(theta_zy) <- paste0("outcome", 1:q)
+  ydata <- zdata %*% eta
 
-    # Computing the xy coefficients and binary contribution status
-    beta <- xi %*% eta
-    beta=base::zapsmall(beta)
-    theta <- ifelse(beta != 0, yes = 1, no = 0)
+  # Computing the xy coefficients and binary contribution status
+  beta <- xi %*% eta
+  beta <- base::zapsmall(beta)
+  theta <- ifelse(beta != 0, yes = 1, no = 0)
 
-    # Compute binary outcome for logistic regression
-    if (family == "binomial") {
-      proba <- matrix(NA, nrow = n, ncol = q)
-      for (j in 1:q) {
-        proba[, j] <- 1 / (1 + exp(-ydata[, j])) # inverse logit
-      }
+  # Compute binary outcome for logistic regression
+  if (family == "binomial") {
+    # Variability is coming from binomial distribution for logistic
+    ydata <- xdata %*% beta
 
-      ydata_cat <- matrix(0, nrow = n, ncol = q)
-      for (j in 1:q) {
-        for (i in 1:n) {
-          ydata_cat[i, j] <- stats::rbinom(n = 1, size = 1, prob = proba[i, j])
-        }
-      }
-
-      # Setting row and column names
-      rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
-      colnames(ydata_cat) <- colnames(proba) <- colnames(ydata)
+    # Sampling from (series of) binomial distributions
+    proba <- matrix(NA, nrow = n, ncol = q)
+    for (j in 1:q) {
+      proba[, j] <- 1 / (1 + exp(-ydata[, j])) # inverse logit
     }
+
+    ydata_cat <- matrix(0, nrow = n, ncol = q)
+    for (j in 1:q) {
+      for (i in 1:n) {
+        ydata_cat[i, j] <- stats::rbinom(n = 1, size = 1, prob = proba[i, j])
+      }
+    }
+
+    # Setting row and column names
+    rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
+    colnames(ydata_cat) <- colnames(proba) <- colnames(ydata)
+  }
+
+  if (family == "multinomial") {
+    # Variability is coming from multinomial distribution for logistic
+    ydata <- xdata %*% beta
+
+    proba <- matrix(NA, nrow = n, ncol = q)
+    for (j in 1:q) {
+      proba[, j] <- 1 / (1 + exp(-ydata[, j])) # inverse logit
+    }
+
+    # Sampling from multinomial distribution
+    ydata_cat <- matrix(0, nrow = n, ncol = q)
+    for (i in 1:n) {
+      ydata_cat[i, ] <- stats::rmultinom(n = 1, size = 1, prob = proba[i, ])[, 1]
+    }
+
+    # Setting row and column names
+    rownames(ydata_cat) <- rownames(proba) <- rownames(ydata)
+    colnames(ydata_cat) <- colnames(proba) <- colnames(ydata)
   }
 
   # Extracting the conditional independence structure between x, z and y
@@ -928,6 +938,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
         beta = beta, theta = theta,
         eta = eta, theta_zy = theta_zy,
         xi = xi, theta_xz = theta_xz,
+        ev_xz = ev_xz,
         omega_xz = omega,
         adjacency = adjacency
       )
@@ -940,6 +951,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
         beta = beta, theta = theta,
         theta_zy = theta_zy,
         xi = xi, theta_xz = theta_xz,
+        ev_xz = ev_xz,
         omega_xz = omega,
         adjacency = adjacency
       )
@@ -950,6 +962,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
       beta = beta, theta = theta,
       eta = eta, theta_zy = theta_zy,
       xi = xi, theta_xz = theta_xz,
+      ev_xz = ev_xz,
       omega_xz = omega,
       adjacency = adjacency
     )
@@ -1701,6 +1714,8 @@ Contrast <- function(mat, digits = 3) {
 #'
 #' @return The difference in proportion of explained variance in absolute values
 #'   or observed proportion of explained variance (if \code{ev=NULL}).
+#'
+#' @export
 TuneExplainedVarianceCov <- function(u, ev = NULL, lambda) {
   lambda <- lambda + u
   lambda_inv <- 1 / lambda
@@ -1729,6 +1744,8 @@ TuneExplainedVarianceCov <- function(u, ev = NULL, lambda) {
 #'
 #' @return The difference in proportion of explained variance in absolute values
 #'   or observed proportion of explained variance (if \code{ev=NULL}).
+#'
+#' @export
 TuneExplainedVarianceCor <- function(u, ev = NULL, omega) {
   diag(omega) <- diag(omega) + u
   mycor <- stats::cov2cor(solve(omega))
@@ -1739,4 +1756,31 @@ TuneExplainedVarianceCor <- function(u, ev = NULL, omega) {
     out <- abs(tmp_ev - ev)
   }
   return(out)
+}
+
+
+#' Tuning function (regression)
+#'
+#' Computes the absolute difference between the smallest eigenvalue and
+#' requested one (parameter \code{tol}) for a precision matrix with predictors
+#' and outcomes.
+#'
+#' @param ev_xz proportion of explained variance.
+#' @param omega precision matrix.
+#' @param tol requested smallest eigenvalue after transformation of the input
+#'   precision matrix.
+#' @param q number of outcome variables.
+#' @param p number of predictor variables.
+#'
+#' @return The absolute difference between the smallest eigenvalue of the
+#'   transformed precision matrix and requested value \code{tol}.
+#'
+#' @export
+TuneExplainedVarianceReg <- function(ev_xz, omega, tol = 0.1, q, p) {
+  ev_xz <- rep(ev_xz, q)
+  for (j in 1:q) {
+    pred_ids <- seq(q + 1, q + p)
+    omega[j, j] <- omega[j, pred_ids, drop = FALSE] %*% solve(omega[pred_ids, pred_ids]) %*% t(omega[j, pred_ids, drop = FALSE]) * 1 / ev_xz[j]
+  }
+  return(abs(min(eigen(omega)$values) - tol))
 }

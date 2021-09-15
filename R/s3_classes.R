@@ -321,21 +321,21 @@ plot.simulation_graphical_model <- function(x, ...) {
 plot.simulation_clustering <- function(x, ...) {
   # Visualisation of Euclidian distances along the contributing variable
   Heatmap(
-    mat = as.matrix(dist(x$data[, which(x$theta_xc == 1), drop = FALSE])),
+    mat = as.matrix(stats::dist(x$data[, which(x$theta_xc == 1), drop = FALSE])),
     colours = c("navy", "white", "red")
   )
-  title("Distances across variables contributing to clustering")
+  graphics::title("Distances across variables contributing to clustering")
 }
 
 
 #' @export
 plot.simulation_components <- function(x, ...) {
   Heatmap(
-    mat = cor(x$data),
+    mat = stats::cor(x$data),
     colours = c("navy", "white", "red"),
     legend_range = c(-1, 1)
   )
-  title("Pearson's correlations")
+  graphics::title("Pearson's correlations")
 }
 
 

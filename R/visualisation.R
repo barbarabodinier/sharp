@@ -418,7 +418,7 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
   if (legend) {
     withr::local_par(list(xpd = TRUE))
     legend_width_factor <- 1.05
-    mylegend_values <- axisTicks(c(myrange[1], myrange[2]), log = FALSE)
+    mylegend_values <- grDevices::axisTicks(c(myrange[1], myrange[2]), log = FALSE)
     mylegend_ids <- as.numeric(as.character(cut(mylegend_values,
       breaks = seq(myrange[1], myrange[2], length.out = resolution + 1),
       labels = 1:resolution, include.lowest = TRUE
