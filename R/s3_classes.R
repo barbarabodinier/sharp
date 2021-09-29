@@ -277,7 +277,7 @@ print.simulation_clustering <- function(x, ...) {
 
 #' @export
 print.simulation_components <- function(x, ...) {
-  cat(paste0("Multivariate Normal data with independent groups of variables (sparse Principal Components)."))
+  cat(paste0("Multivariate Normal data with independent groups of variables."))
   cat("\n")
   cat("\n")
   cat(paste0("Number of observations: ", nrow(x$data)))
