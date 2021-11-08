@@ -64,4 +64,3 @@ Square <- function(x) {
   rownames(adjacency) <- colnames(adjacency) <- c(rownames(x), colnames(x))
   return(adjacency)
 }
-

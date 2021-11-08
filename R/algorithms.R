@@ -51,6 +51,7 @@ SelectionAlgo <- function(xdata, ydata = NULL,
   for (j in 1:ncol(xdata)) {
     mysd[j] <- stats::sd(xdata[, j])
   }
+  names(mysd) <- colnames(xdata)
   if (any(mysd == 0)) {
     for (k in which(mysd == 0)) {
       xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)
@@ -63,13 +64,18 @@ SelectionAlgo <- function(xdata, ydata = NULL,
   beta_full <- mybeta$beta_full
 
   # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
-  if (any(mysd == 0)) {
-    selected[, which(mysd == 0)] <- 0
-    if (length(dim(beta_full)) == 2) {
-      beta_full[, which(mysd == 0)] <- 0
-    }
-    if (length(dim(beta_full)) == 3) {
-      beta_full[, which(mysd == 0), ] <- 0
+  if (!is.infinite(selected[1])) {
+    if (any(mysd == 0)) {
+      ids_no_sd <- intersect(names(mysd)[which(mysd == 0)], colnames(selected))
+      if (length(ids_no_sd) > 0) {
+        selected[, ids_no_sd] <- 0
+        if (length(dim(beta_full)) == 2) {
+          beta_full[, ids_no_sd] <- 0
+        }
+        if (length(dim(beta_full)) == 3) {
+          beta_full[, ids_no_sd, ] <- 0
+        }
+      }
     }
   }
 

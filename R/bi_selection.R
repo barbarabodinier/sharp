@@ -261,13 +261,13 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       LambdaX <- seq(1, ncol(xdata) - 1)
     }
   }
-  
+
   # Preparing xdata
   xdata <- as.matrix(xdata)
   if (is.null(colnames(xdata))) {
     colnames(xdata) <- paste0("var", 1:ncol(xdata))
   }
-  
+
   # Preparing ydata
   if (!is.null(ydata)) {
     if (is.vector(ydata) | is.factor(ydata)) {
@@ -281,7 +281,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       colnames(ydata) <- paste0("outcome", 1:ncol(ydata))
     }
   }
-  
+
   # Naming rows of xdata and ydata
   if (is.null(ydata)) {
     if (is.null(rownames(xdata))) {
@@ -300,23 +300,23 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       }
     }
   }
-  
+
   if (as.character(substitute(implementation)) %in% c("SparsePLS", "GroupPLS")) {
     AlphaX <- AlphaY <- NULL
   }
-  
+
   if (is.null(LambdaY)) {
     LambdaY <- NA
   }
-  
+
   if (is.null(AlphaX)) {
     AlphaX <- NA
   }
-  
+
   if (is.null(AlphaY)) {
     AlphaY <- NA
   }
-  
+
   # Preparing empty objects to be filled
   selprop_x <- selprop_x_comp <- NULL
   selected_x <- selected_x_comp <- NULL
@@ -325,7 +325,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   params <- NULL
   params_comp <- matrix(NA, nrow = ncomp, ncol = 8)
   colnames(params_comp) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
-  
+
   for (comp in 1:ncomp) {
     # Preparing empty objects to be filled at current iteration (comp)
     tmp_selected_x <- matrix(NA, ncol = ncol(xdata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
@@ -341,7 +341,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     }
     tmp_params <- matrix(NA, ncol = 7, nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
     colnames(tmp_params) <- c("nx", "alphax", "pix", "ny", "alphay", "piy", "S")
-    
+
     # Initialisation of the run
     id <- 1
     if (verbose) {
@@ -351,7 +351,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
         pb <- utils::txtProgressBar(style = 3)
       }
     }
-    
+
     # For loops over different grids of parameters (done internally in VariableSelection() for LambdaX)
     for (ny in LambdaY) {
       for (alphax in AlphaX) {
@@ -476,7 +476,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
               )
             }
           }
-          
+
           # Storing selections (X and Y)
           piy <- NULL
           if (!is.null(ydata)) {
@@ -485,7 +485,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
           for (i in 1:length(LambdaX)) {
             tmp_selprop_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- stab$selprop[i, ]
             tmp_selected_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(stab$selprop[i, ] >= stab$P[i, ], yes = 1, no = 0)
-            
+
             if (!is.null(ydata)) {
               tmpcoef <- mycoefs[i, , ]
               if (is.null(dim(tmpcoef))) {
@@ -500,8 +500,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 # Computing stability score for Y variables
                 if (as.character(substitute(implementation)) == "GroupPLS") {
                   hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp,
-                                                                         pi_list = stab$params$pi_list, K = K,
-                                                                         group = NAToNULL(group_y)
+                    pi_list = stab$params$pi_list, K = K,
+                    group = NAToNULL(group_y)
                   ))]
                 } else {
                   hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
@@ -514,13 +514,13 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
               piy <- c(piy, hat_pi)
             }
           }
-          
+
           # Storing parameter values
           if (is.null(ydata)) {
             piy <- rep(NA, length(stab$Lambda))
           }
           tmp_params[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX)), ] <- cbind(stab$Lambda, alphax, stab$P, ny, alphay, piy, stab$S)
-          
+
           # Incrementing loading bar and id
           if (verbose & (as.character(substitute(implementation)) == "SparseGroupPLS")) {
             utils::setTxtProgressBar(pb, id / (length(LambdaY) * length(AlphaX) * length(AlphaY)))
@@ -529,11 +529,11 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
         }
       }
     }
-    
+
     if (verbose & (as.character(substitute(implementation)) == "SparseGroupPLS")) {
       cat("\n")
     }
-    
+
     # Filling big outputs
     params <- rbind(params, cbind(rep(comp, nrow(tmp_params)), tmp_params))
     selected_x <- rbind(selected_x, tmp_selected_x)
@@ -542,7 +542,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selected_y <- rbind(selected_y, tmp_selected_y)
       selprop_y <- rbind(selprop_y, tmp_selprop_y)
     }
-    
+
     # Filling best parameters by component
     params_comp[comp, "comp"] <- comp
     params_comp[comp, "nx"] <- tmp_params[which.max(tmp_params[, "S"]), "nx"]
@@ -552,7 +552,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     params_comp[comp, "alphay"] <- tmp_params[which.max(tmp_params[, "S"]), "alphay"]
     params_comp[comp, "piy"] <- tmp_params[which.max(tmp_params[, "S"]), "piy"]
     params_comp[comp, "S"] <- tmp_params[which.max(tmp_params[, "S"]), "S"]
-    
+
     # Filling best selected/selection proportions by component
     selected_x_comp <- rbind(selected_x_comp, tmp_selected_x[which.max(tmp_params[, "S"]), ])
     selprop_x_comp <- rbind(selprop_x_comp, tmp_selprop_x[which.max(tmp_params[, "S"]), ])
@@ -561,35 +561,47 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selprop_y_comp <- rbind(selprop_y_comp, tmp_selprop_y[which.max(tmp_params[, "S"]), ])
     }
   }
-  
+
   # Extracting X loadings coefficients
-  coefs=stab$Beta[ArgmaxId(stab)[1],,,drop=FALSE]
-  coefs_X=array(NA, dim=c(ncomp, sum(grepl("X_.*PC1",colnames(coefs))), dim(coefs)[3]), 
-                dimnames = list(paste0("PC", 1:ncomp),
-                                gsub("_PC.*", "", gsub("X_", "", 
-                                                       colnames(coefs)[grep("X_.*PC1",colnames(coefs))])),
-                                paste0("iter", 1:dim(coefs)[3])))
-  for (i in 1:ncomp){
-    coefs_X[i,,]=coefs[1,grep(paste0("X_.*PC", i),colnames(coefs)),]
+  coefs <- stab$Beta[ArgmaxId(stab)[1], , , drop = FALSE]
+  coefs_X <- array(NA,
+    dim = c(ncomp, sum(grepl("X_.*PC1", colnames(coefs))), dim(coefs)[3]),
+    dimnames = list(
+      paste0("PC", 1:ncomp),
+      gsub("_PC.*", "", gsub(
+        "X_", "",
+        colnames(coefs)[grep("X_.*PC1", colnames(coefs))]
+      )),
+      paste0("iter", 1:dim(coefs)[3])
+    )
+  )
+  for (i in 1:ncomp) {
+    coefs_X[i, , ] <- coefs[1, grep(paste0("X_.*PC", i), colnames(coefs)), ]
   }
-  
+
   # Extracting Y loadings coefficients
   if (!is.null(ydata)) {
-    coefs_Y=array(NA, dim=c(ncomp, sum(grepl("Y_.*PC1",colnames(coefs))), dim(coefs)[3]), 
-                  dimnames = list(paste0("PC", 1:ncomp),
-                                  gsub("_PC.*", "", gsub("Y_", "", 
-                                                         colnames(coefs)[grep("Y_.*PC1",colnames(coefs))])),
-                                  paste0("iter", 1:dim(coefs)[3])))
-    for (i in 1:ncomp){
-      coefs_Y[i,,]=coefs[1,grep(paste0("Y_.*PC", i),colnames(coefs)),]
-    } 
+    coefs_Y <- array(NA,
+      dim = c(ncomp, sum(grepl("Y_.*PC1", colnames(coefs))), dim(coefs)[3]),
+      dimnames = list(
+        paste0("PC", 1:ncomp),
+        gsub("_PC.*", "", gsub(
+          "Y_", "",
+          colnames(coefs)[grep("Y_.*PC1", colnames(coefs))]
+        )),
+        paste0("iter", 1:dim(coefs)[3])
+      )
+    )
+    for (i in 1:ncomp) {
+      coefs_Y[i, , ] <- coefs[1, grep(paste0("Y_.*PC", i), colnames(coefs)), ]
+    }
   }
-  
+
   # Excluding irrelevant columns
   colnames(params) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
   params_comp <- params_comp[, which(!is.na(c(1, LambdaX[1], AlphaX[1], LambdaX[1], LambdaY[1], AlphaY[1], LambdaY[1], 1))), drop = FALSE]
   params <- params[, colnames(params_comp), drop = FALSE]
-  
+
   # Assigning row and column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
   rownames(selected_x_comp) <- rownames(selprop_x_comp) <- paste0("comp", 1:ncomp)
@@ -599,7 +611,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     }
     rownames(selected_y_comp) <- rownames(selprop_y_comp) <- paste0("comp", 1:ncomp)
   }
-  
+
   # Preparing outputs
   if (is.function(resampling)) {
     myresampling <- as.character(substitute(resampling))
@@ -618,8 +630,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selpropX_full = selprop_x,
       selectedY_full = selected_y,
       selpropY_full = selprop_y,
-      coefX=coefs_X,
-      coefY=coefs_Y,
+      coefX = coefs_X,
+      coefY = coefs_Y,
       methods = list(
         type = "bi_selection", implementation = as.character(substitute(implementation)), family = family,
         resampling = myresampling, PFER_method = PFER_method
@@ -644,7 +656,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selpropX = selprop_x_comp,
       selectedX_full = selected_x,
       selpropX_full = selprop_x,
-      coefX=coefs_X,
+      coefX = coefs_X,
       methods = list(
         type = "bi_selection", implementation = as.character(substitute(implementation)), family = family,
         resampling = myresampling, PFER_method = PFER_method
@@ -660,13 +672,13 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       )
     )
   }
-  
+
   if (output_data) {
     out$params <- c(out$params, list(xdata = xdata, ydata = ydata))
   }
-  
+
   # Defining the class
   class(out) <- "bi_selection"
-  
+
   return(out)
 }
