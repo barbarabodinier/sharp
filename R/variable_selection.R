@@ -24,7 +24,7 @@
 #'   \code{n_cat=2}, these values must be \code{>0} and \code{<1}.
 #' @param K number of resampling iterations.
 #' @param tau subsample size. Only used with \code{resampling="subsampling"}.
-#' @param seed value of the seed.
+#' @param seed value of the seed to ensure reproducibility of the results.
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
 #' @param family type of regression model. If
@@ -118,8 +118,9 @@
 #'   in the output \code{Lambda}.
 #'
 #' @family stability selection functions
-#' @seealso \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-#'   \code{\link{Combine}}, \code{\link{StabilityScore}}
+#' @seealso \code{\link{Recalibrate}}, \code{\link{Combine}},
+#'   \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
+#'   \code{\link{StabilityScore}}
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
 #'
@@ -146,6 +147,13 @@
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 #' summary(stab)
+#' print(SelectedVariables(stab))
+#'
+#' # Using additional arguments from glmnet (e.g. penalty.factor)
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata, family = "gaussian",
+#'   penalty.factor = c(rep(1, 45), rep(0, 5))
+#' )
 #' print(SelectedVariables(stab))
 #'
 #' # Regression with multivariate outcomes

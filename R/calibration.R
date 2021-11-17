@@ -585,3 +585,90 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
     return(stability$Beta[, side_id & comp_id, iterations, drop = FALSE])
   }
 }
+
+
+#' Average coefficients conditionally on selection
+#'
+#' Extracts the average coefficients of the (calibrated) models conditionally on
+#' selection across resampling iterations. This function can be applied to the
+#' output of \code{\link{VariableSelection}}.
+#'
+#' @param stability output of \code{\link{VariableSelection}}.
+#' @param side character string indicating if coefficients of the predictor
+#'   (\code{side="X"}) or outcome (\code{side="Y"}) coefficients should be
+#'   returned. Option \code{side="Y"} is only applicable to PLS models.
+#' @param comp component ID. Only applicable to PLS models.
+#' @param lambda_id parameter ID with respect to the grid \code{Lambda}. If
+#'   \code{NULL}, average coefficients across the models run with the calibrated
+#'   parameter are returned.
+#'
+#' @return A matrix of average coefficients across resampling iterations.
+#'
+#' @seealso \code{\link{VariableSelection}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Example with univariate outcome
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
+#' av_betas <- AverageEffect(stab)
+#' head(av_betas)
+#'
+#' # Regression with multivariate outcomes
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
+#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
+#' av_betas <- AverageEffect(stab)
+#' head(av_betas)
+#' }
+#' @export
+AverageEffect <- function(stability, lambda_id = NULL, side = "X", comp = 1) {
+  # Extracting correspoding betas over all iterations
+  if (ncol(stability$Beta) == stability$params$pk) {
+    if (is.null(lambda_id)) {
+      if (length(dim(stability$Beta)) == 3) {
+        betas <- stability$Beta[ArgmaxId(stability)[1], , ]
+      } else {
+        betas <- stability$Beta[ArgmaxId(stability)[1], , , ]
+      }
+    } else {
+      if (length(dim(stability$Beta)) == 3) {
+        betas <- stability$Beta[lambda_id, , ]
+      } else {
+        betas <- stability$Beta[lambda_id, , , ]
+      }
+    }
+  } else {
+    if (!side %in% c("X", "Y")) {
+      warning("Invalid input for argument 'side'. The default value ('X') was used.")
+      side <- "X"
+    }
+    side_id <- grepl(paste0(side, "_"), colnames(stability$Beta))
+    comp_id <- grepl(paste0("_PC", comp), colnames(stability$Beta))
+    if (is.null(lambda_id)) {
+      betas <- stability$Beta[ArgmaxId(stability)[1], side_id & comp_id, ]
+    } else {
+      betas <- stability$Beta[lambda_id, side_id & comp_id, ]
+    }
+  }
+
+  # Computing the average betas conditionally on selection
+  if (length(dim(stability$Beta)) == 3) {
+    # betas=stability$Beta[ArgmaxId(stability)[1], , ]
+    av_betas <- apply(betas, 1, FUN = function(x) {
+      mean(x[x != 0])
+    })
+    av_betas <- cbind(av_betas)
+  } else {
+    # betas=stability$Beta[ArgmaxId(stability)[1], , ,]
+    av_betas <- apply(betas, c(1, 3), FUN = function(x) {
+      mean(x[x != 0])
+    })
+  }
+  # av_betas=apply(betas, 1, FUN=function(x){mean(x[x!=0])})
+  av_betas[which(is.nan(av_betas))] <- NA
+
+  return(av_betas)
+}

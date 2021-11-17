@@ -52,7 +52,7 @@ penalty parameters. If \code{Lambda=NULL},
 
 \item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
-\item{seed}{value of the seed.}
+\item{seed}{value of the seed to ensure reproducibility of the results.}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
@@ -190,6 +190,13 @@ stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "ga
 summary(stab)
 print(SelectedVariables(stab))
 
+# Using additional arguments from glmnet (e.g. penalty.factor)
+stab <- VariableSelection(
+  xdata = simul$xdata, ydata = simul$ydata, family = "gaussian",
+  penalty.factor = c(rep(1, 45), rep(0, 5))
+)
+print(SelectedVariables(stab))
+
 # Regression with multivariate outcomes
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
@@ -325,8 +332,9 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-  \code{\link{Combine}}, \code{\link{StabilityScore}}
+\code{\link{Recalibrate}}, \code{\link{Combine}},
+  \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
+  \code{\link{StabilityScore}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},

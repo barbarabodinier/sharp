@@ -64,3 +64,29 @@ Square <- function(x) {
   rownames(adjacency) <- colnames(adjacency) <- c(rownames(x), colnames(x))
   return(adjacency)
 }
+
+
+#' Categorical from dummy variables
+#'
+#' Generates a single categorical variable from corresponding dummy variables.
+#'
+#' @param x matrix of dummy variables.
+#' @param verbose logical indicating if messages should be printed.
+#'
+#' @return A single categorical variable (numeric).
+#'
+#' @export
+DummyToCategories <- function(x, verbose = FALSE) {
+  x_original <- x
+  x <- matrix(0, nrow = nrow(x_original), ncol = ncol(x_original))
+  for (j in 1:ncol(x)) {
+    tmp <- as.factor(x_original[, j])
+    if (verbose) {
+      message(paste0("Reference category for column ", j, ": ", levels(tmp)[1]))
+      message(paste0("Other category for column ", j, ": ", levels(tmp)[2]))
+    }
+    x[, j] <- (as.numeric(tmp) - 1) * j
+  }
+  x <- apply(x, 1, sum)
+  return(x)
+}

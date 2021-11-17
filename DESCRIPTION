@@ -34,8 +34,10 @@ Suggests:
     dbscan,
     gglasso,
     mixOmics,
+    nnet,
     rmarkdown,
     sgPLS,
     sparcl,
+    survival (>= 3.2.13),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

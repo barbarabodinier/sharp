@@ -26,7 +26,7 @@ with character/numeric values, or a factor.}
 
 \item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
-\item{seed}{value of the seed.}
+\item{seed}{value of the seed to ensure reproducibility of the results.}
 
 \item{family}{type of regression model. If
 \code{implementation=PenalisedRegression}, this argument is defined as in

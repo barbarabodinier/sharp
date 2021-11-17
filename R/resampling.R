@@ -121,3 +121,60 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
   }
   return(s)
 }
+
+
+#' Splitting observations into folds
+#'
+#' Generates a list of \code{n_folds} non-overlapping sets of observation IDs
+#' (folds).
+#'
+#' @inheritParams Resample
+#' @param n_folds number of folds.
+#'
+#' @return A list of length \code{n_folds} with sets of non-overlapping
+#'   observation IDs.
+#'
+#' @details With categorical outcomes (i.e. "family" argument is set to
+#'   "binomial", "multinomial" or "cox"), the split is done such that the
+#'   proportion of observations from each of the categories in each of the folds
+#'   is representative of that of the full sample.
+#'
+#' @examples
+#'
+#' # Splitting into 5 folds
+#' simul <- SimulateRegression()
+#' ids <- Folds(data = simul$ydata)
+#' lapply(ids, length)
+#'
+#' # Balanced folds with respect to a binary variable
+#' simul <- SimulateRegression(family = "binomial")
+#' ids <- Folds(data = simul$ydata, family = "binomial")
+#' lapply(ids, FUN = function(x) {
+#'   table(simul$ydata[x, ])
+#' })
+#' @export
+Folds <- function(data, family = NULL, n_folds = 5) {
+  # Re-formatting the inputs
+  if (is.vector(data)) {
+    data <- cbind(data)
+  }
+  rownames(data) <- paste0("obs", 1:nrow(data))
+
+  # Storing total number of observations
+  n <- nrow(data)
+
+  # Creating balanced folds
+  folds_ids <- list()
+  for (k in 1:n_folds) {
+    ids <- rownames(data)[Resample(data = data, family = family, tau = 1 / n_folds * n / nrow(data))]
+    folds_ids <- c(folds_ids, list(ids))
+    data <- data[-which(rownames(data) %in% ids), , drop = FALSE]
+  }
+
+  # Returning row ids
+  folds_ids <- lapply(folds_ids, FUN = function(x) {
+    as.numeric(gsub("obs", "", x))
+  })
+
+  return(folds_ids)
+}

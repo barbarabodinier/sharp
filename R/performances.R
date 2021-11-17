@@ -67,6 +67,18 @@
 #'
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
+  # Re-formatting the inputs
+  if (is.matrix(theta)) {
+    if (ncol(theta) != nrow(theta)) {
+      theta <- as.vector(theta)
+    }
+  }
+  if (is.matrix(theta_star)) {
+    if (ncol(theta_star) != nrow(theta_star)) {
+      theta_star <- as.vector(theta_star)
+    }
+  }
+
   # Storing similarities/differences between estimated and true sets
   Asum <- theta + 2 * theta_star
 

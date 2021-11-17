@@ -55,7 +55,7 @@ Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 
 \item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
 
-\item{seed}{value of the seed.}
+\item{seed}{value of the seed to ensure reproducibility of the results.}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
