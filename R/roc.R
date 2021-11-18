@@ -295,13 +295,13 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 }
 
 
-#' Prediction performance for regression models
+#' Prediction performance in regression
 #'
 #' Computes the prediction performance for logistic or Cox regression models.
 #' This is done by (i) recalibrating the model on a training set including a
 #' proportion \code{tau} of the observations, and (ii) evaluating the
 #' performance on the remaining observations (test set). For more reliable
-#' results, the procedure is repeated \code{K} times (default \code{K=1}).
+#' results, the procedure can be repeated \code{K} times (default \code{K=1}).
 #'
 #' @inheritParams Recalibrate
 #' @param K number of subsampling iterations.
@@ -320,6 +320,21 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #'   reported. With \code{ij_method=FALSE} (the default), the concordance
 #'   indices computed for different recalibration/test splits are reported.
 #'
+#' @details For a fair evaluation of the prediction performance, the data is
+#'   split into a training set (including a proportion \code{tau} of the
+#'   observations) and test set (remaining observations). The regression model
+#'   is fitted on the training set and applied on the test set. Performance
+#'   metrics are computed in the test set by comparing predicted and observed
+#'   outcomes.
+#'
+#'   For logistic regression, a Receiver Operating Characteristic (ROC) analysis
+#'   is performed: the True and False Positive Rates (TPR and FPR) are computed
+#'   for different thresholds in predicted probabilities.
+#'
+#'   For Cox regression, the Concordance Index (as implemented in
+#'   \code{\link[survival]{concordance}}) looking at survival probabilities up
+#'   to a specific \code{time} is computed.
+#'
 #' @return A list with: \item{TPR}{True Positive Rate (for logistic regression
 #'   only).} \item{FPR}{False Positive Rate (for logistic regression only).}
 #'   \item{AUC}{Area Under the Curve (for logistic regression only).}
@@ -331,6 +346,8 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #'   using the infinitesimal jackknife (for Cox regression and with
 #'   \code{ij_method=TRUE}).}
 #'
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#'
 #' @family prediction performance functions
 #'
 #' @examples
@@ -339,7 +356,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")
+#' simul <- SimulateRegression(n = 1000, pk = 10, family = "binomial")
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
 #' ids_train <- Resample(data = simul$ydata, tau = 0.5)
@@ -412,9 +429,9 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #' @export
 ExplanatoryPerformance <- function(xdata, ydata,
                                    stability = NULL, family = NULL,
-                                   K = 1, tau = 0.7, seed = 1,
+                                   K = 1, tau = 0.8, seed = 1,
                                    n_thr = NULL,
-                                   ij_method = FALSE, time = 3653) {
+                                   ij_method = FALSE, time = 1000) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (class(stability) != "variable_selection") {
@@ -539,6 +556,196 @@ ExplanatoryPerformance <- function(xdata, ydata,
 }
 
 
+#' Incremental prediction performance in regression
+#'
+#' Computes the prediction performance for logistic or Cox regression models
+#' where predictors are sequentially added by order of decreasing selection
+#' proportion. This function can be used to evaluate the marginal contribution
+#' of each of the selected predictors over and above more stable predictors.
+#' Performances are evaluated as in \code{\link{ExplanatoryPerformance}}.
+#'
+#' @inheritParams ExplanatoryPerformance
+#' @param n_predictors number of predictors to consider.
+#'
+#' @return For logistic regression, a list with: \item{FPR}{A list with, for
+#'   each of the models (sequentially added predictors), the False Positive
+#'   Rates for different thresholds (columns) and different data splits (rows).}
+#'   \item{TPR}{A list with, for each of the models (sequentially added
+#'   predictors), the True Positive Rates for different thresholds (columns) and
+#'   different data splits (rows).} \item{AUC}{A list with, for each of the
+#'   models (sequentially added predictors), a vector of Area Under the Curve
+#'   (AUC) values obtained with different data splits.} \item{names}{Names of
+#'   the predictors by order of inclusion.}
+#'
+#'   For Cox models, a list with: \item{concordance}{If \code{ij_method=FALSE},
+#'   a list with, for each of the models (sequentially added predictors), a
+#'   vector of concordance indices obtained with different data splits. If
+#'   \code{ij_method=TRUE}, a vector of concordance indices for each of the
+#'   models (sequentially added predictors).} \item{lower}{A vector of the lower
+#'   bound of the confidence interval at level 0.05 for concordance indices for
+#'   each of the models (sequentially added predictors). Only returned if
+#'   \code{ij_method=TRUE}.} \item{upper}{A vector of the upper bound of the
+#'   confidence interval at level 0.05 for concordance indices for each of the
+#'   models (sequentially added predictors). Only returned if
+#'   \code{ij_method=TRUE}.} \item{names}{Names of the predictors by order of
+#'   inclusion.}
+#'
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#'
+#' @family prediction performance functions
+#'
+#' @examples
+#' \dontrun{
+#' ## Logistic regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- simul$ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- simul$ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
+#'
+#' # Evaluating marginal contribution of the predictors
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#' PlotIncremental(perf)
+#'
+#'
+#' ## Cox regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
+#' ydata <- cbind(
+#'   time = runif(nrow(simul$ydata), min = 100, max = 2000),
+#'   case = simul$ydata[, 1]
+#' ) # including dummy time to event
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
+#'
+#' # Marginal contribution
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#' PlotIncremental(perf)
+#'
+#' # Faster computations on a single data split
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
+#' PlotIncremental(perf)
+#' }
+#'
+#' @export
+Incremental <- function(xdata, ydata,
+                        stability = NULL, family = NULL,
+                        n_predictors = NULL,
+                        K = 100, tau = 0.8, seed = 1,
+                        n_thr = NULL,
+                        ij_method = FALSE, time = 1000) {
+  # Checking the inputs
+  if (!is.null(stability)) {
+    if (class(stability) != "variable_selection") {
+      stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
+    }
+    if (!stability$methods$family %in% c("cox", "binomial")) {
+      stop("This function can only be applied with the following families: 'binomial' or 'cox'.")
+    }
+    if (!is.null(family)) {
+      if (family != stability$methods$family) {
+        warning(paste0("Arguments 'stability' and 'family' are not consistent. The family specified in argument stability was used: ", stability$methods$family))
+      }
+    }
+    family <- stability$methods$family
+  } else {
+    if (is.null(family)) {
+      stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
+    }
+  }
+
+  # Defining the number of predictors
+  if (is.null(n_predictors)) {
+    n_predictors <- sum(SelectedVariables(stability))
+    if (n_predictors == 0) {
+      n_predictors <- 10
+    }
+  }
+  n_predictors <- min(n_predictors, ncol(xdata))
+
+  # Defining the order of inclusion in the model
+  if (is.null(stability)) {
+    myorder <- colnames(xdata) # order of the columns is used
+  } else {
+    myorder <- names(SelectionProportions(stability))[sort.list(SelectionProportions(stability), decreasing = TRUE)]
+  }
+
+  # Initialisation of the objects
+  if (family == "binomial") {
+    TPR <- FPR <- AUC <- list()
+  }
+  if (family == "cox") {
+    if (ij_method) {
+      concordance <- lower <- upper <- NULL
+    } else {
+      concordance <- list()
+    }
+  }
+
+  for (k in 1:n_predictors) {
+    perf <- ExplanatoryPerformance(
+      xdata = xdata[, myorder[1:k], drop = FALSE],
+      ydata = ydata,
+      stability = NULL,
+      family = family,
+      K = K, tau = tau, seed = seed,
+      n_thr = n_thr,
+      ij_method = ij_method, time = time
+    )
+    if (family == "binomial") {
+      FPR <- c(FPR, list(perf$FPR))
+      TPR <- c(TPR, list(perf$TPR))
+      AUC <- c(AUC, list(perf$AUC))
+    }
+    if (family == "cox") {
+      if (ij_method) {
+        concordance <- c(concordance, perf$concordance)
+        lower <- c(lower, perf$lower)
+        upper <- c(upper, perf$upper)
+      } else {
+        concordance <- c(concordance, list(perf$concordance))
+      }
+    }
+  }
+
+  # Preparing the output
+  if (family == "binomial") {
+    out <- list(FPR = FPR, TPR = TPR, AUC = AUC)
+  }
+  if (family == "cox") {
+    if (ij_method) {
+      out <- list(concordance = concordance, lower = lower, upper = upper)
+    } else {
+      out <- list(concordance = concordance)
+    }
+  }
+
+  # Adding variable names
+  out <- c(out, names = list(myorder[1:n_predictors]))
+
+  return(out)
+}
+
+
 #' Receiver Operating Characteristic (ROC) curve
 #'
 #' Plots the True Positive Rate (TPR) as a function of the False Positive Rate
@@ -604,6 +811,8 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' )
 #' PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
 #' }
+#'
+#' @export
 PlotROC <- function(roc,
                     col = "red", col_band = "red",
                     alpha = 0.5,
@@ -642,4 +851,195 @@ PlotROC <- function(roc,
   graphics::lines(apply(roc$FPR, 2, mean), apply(roc$TPR, 2, mean),
     type = "l", lwd = lwd, lty = lty, col = col
   )
+}
+
+
+#' Visualisation of incremental performance
+#'
+#' Represents prediction performances upon sequential inclusion of the
+#' predictors in a logistic or Cox regression model as produced by
+#' \code{\link{Incremental}}.
+#'
+#' @param perf output from \code{\link{Incremental}}.
+#' @param quantiles quantiles defining the lower and upper bounds.
+#' @param ylab label of the y-axis.
+#' @param pch type of point, as in \code{\link{points}}.
+#' @param cex size of point.
+#' @param cex.lab size of label on the y-axis.
+#' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
+#' @param xlas orientation of labels on the x-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param ylas orientation of labels on the y-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param ylim displayed range along the y-axis.
+#' @param bty character string indicating if the box around the plot should be
+#'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
+#'   \code{"n"} (no box).
+#' @param xgrid logical indicating if a vertical grid should be drawn.
+#' @param ygrid logical indicating if a horizontal grid should be drawn.
+#' @param col vector of point colours.
+#' @param col.axis optional vector of label colours. If \code{col.axis=NULL},
+#'   the colours provided in argument \code{col} are used.
+#' @param xcex.axis size of labels along the x-axis.
+#' @param ycex.axis size of labels along the y-axis.
+#'
+#' @return A plot.
+#'
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#'
+#' @family prediction performance functions
+#'
+#' @examples
+#' \dontrun{
+#' ## Logistic regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- simul$ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- simul$ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
+#'
+#' # Evaluating marginal contribution of the predictors
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#'
+#' # Basic visualisation
+#' PlotIncremental(perf)
+#'
+#' # Adding grids
+#' PlotIncremental(perf, xgrid = TRUE, ygrid = TRUE)
+#'
+#' # Changing colours
+#' PlotIncremental(perf,
+#'   bty = "n",
+#'   col = colorRampPalette(c("blue", "red"))(length(perf$names))
+#' )
+#'
+#'
+#' ## Cox regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
+#' ydata <- cbind(
+#'   time = runif(nrow(simul$ydata), min = 100, max = 2000),
+#'   case = simul$ydata[, 1]
+#' ) # including dummy time to event
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
+#'
+#' # Marginal contribution
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#' PlotIncremental(perf)
+#'
+#' # Faster computations on a single data split
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
+#' PlotIncremental(perf)
+#' }
+#'
+#' @export
+PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
+                            ylab = "Performance",
+                            pch = 18,
+                            col = "black", col.axis = NULL,
+                            cex = 1, cex.lab = 1.5,
+                            xcex.axis = 1, ycex.axis = 1,
+                            xlas = 2, ylas = 1,
+                            sfrac = 0.005,
+                            ylim = NULL, bty = "o",
+                            xgrid = FALSE, ygrid = FALSE) {
+  # Checking plotrix package is installed
+  CheckPackageInstalled("plotrix")
+
+  # Checking the inputs
+  quantiles <- sort(quantiles)
+
+  # Re-formatting the inputs
+  if (is.null(col.axis)) {
+    col.axis <- col
+  }
+
+  if ("concordance" %in% names(perf)) {
+    if ("lower" %in% names(perf)) {
+      x <- perf$concordance
+      xlower <- perf$lower
+      xupper <- perf$upper
+    } else {
+      x <- sapply(perf$concordance, mean)
+      xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1])
+      xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2])
+    }
+  } else {
+    x <- sapply(perf$AUC, mean)
+    xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1])
+    xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2])
+  }
+  xseq <- 1:length(x)
+
+  # Re-formatting label colours
+  if (length(col.axis) < length(x)) {
+    col.axis <- rep(col.axis, length(x))
+  }
+
+  # Defining the plot range
+  if (is.null(ylim)) {
+    ylim <- range(c(xlower, xupper, x))
+  }
+
+  # Defining horizontal grid
+  hseq <- NULL
+  if (ygrid) {
+    hseq <- grDevices::axisTicks(ylim, log = FALSE)
+  }
+
+  # Defining vertical grid
+  vseq <- NULL
+  if (xgrid) {
+    vseq <- xseq
+  }
+
+  # Creating the plot
+  plot(NULL,
+    cex.lab = cex.lab,
+    bty = bty,
+    xlim = range(xseq), ylim = ylim,
+    panel.first = c(
+      graphics::abline(h = hseq, col = "grey", lty = 3),
+      graphics::abline(v = vseq, col = "grey", lty = 3)
+    ),
+    xlab = "", xaxt = "n", yaxt = "n", ylab = ylab
+  )
+  graphics::axis(
+    side = 2, at = grDevices::axisTicks(ylim, log = FALSE),
+    las = ylas, cex.axis = ycex.axis
+  )
+  plotrix::plotCI(
+    x = xseq, y = x, li = xlower, ui = xupper,
+    pch = pch, cex = cex,
+    sfrac = sfrac,
+    col = col, add = TRUE
+  )
+  graphics::axis(side = 1, at = xseq, labels = NA)
+  for (k in 1:length(xseq)) {
+    graphics::axis(
+      side = 1, at = xseq[k], labels = perf$names[k],
+      col.axis = col.axis[k],
+      las = xlas, cex.axis = xcex.axis
+    )
+  }
 }

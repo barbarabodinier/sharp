@@ -55,6 +55,8 @@ PlotROC(roc)
 \seealso{
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},
+\code{\link{Incremental}()},
+\code{\link{PlotIncremental}()},
 \code{\link{PlotROC}()}
 }
 \concept{prediction performance functions}

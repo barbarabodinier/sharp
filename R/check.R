@@ -535,3 +535,17 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
     assign(myextra[i], get(myextra[i]), envir = parent.frame(n = 1))
   }
 }
+
+
+#' Checking that a package is installed
+#'
+#' Checks if a package is installed and returns an error message if not.
+#'
+#' @param package character string indicating the name of the package.
+#'
+#' @keywords internal
+CheckPackageInstalled <- function(package) {
+  if (!requireNamespace(package)) {
+    stop(paste0("This function requires the '", package, "' package."))
+  }
+}

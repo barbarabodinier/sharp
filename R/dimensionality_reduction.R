@@ -53,9 +53,7 @@
 #' @export
 SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keepX_previous = NULL, keepY = NULL, ...) {
   # Checking sgPLS package is installed
-  if (!requireNamespace("sgPLS")) {
-    stop("This function requires the 'sgPLS' package.")
-  }
+  CheckPackageInstalled("sgPLS")
 
   # Storing extra arguments
   extra_args <- list(...)

@@ -84,12 +84,15 @@ roc <- ExplanatoryPerformance(
 )
 PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
 }
+
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
 
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},
+\code{\link{Incremental}()},
+\code{\link{PlotIncremental}()},
 \code{\link{ROC}()}
 }
 \concept{prediction performance functions}
