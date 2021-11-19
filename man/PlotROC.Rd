@@ -7,7 +7,7 @@
 PlotROC(
   roc,
   col = "red",
-  col_band = "red",
+  col_band = NULL,
   alpha = 0.5,
   lwd = 1,
   lty = 1,
@@ -19,16 +19,16 @@ PlotROC(
 \item{roc}{output from \code{\link{ROC}} or
 \code{\link{ExplanatoryPerformance}}.}
 
-\item{col}{colour of the point-wise average curve.}
+\item{col}{colour of the point-wise median curve.}
 
 \item{col_band}{colour of the band defined by point-wise \code{quantiles}.}
 
 \item{alpha}{level of opacity for the band.}
 
-\item{lwd}{line width for the point-wise average curve, as in
+\item{lwd}{line width for the point-wise median curve, as in
 \code{\link{par}}.}
 
-\item{lty}{line type for the point-wise average curve, as in
+\item{lty}{line type for the point-wise median curve, as in
 \code{\link{par}}.}
 
 \item{quantiles}{point-wise quantiles of the performances defining the band.}
@@ -44,7 +44,7 @@ Plots the True Positive Rate (TPR) as a function of the False Positive Rate
 (FPR) for different thresholds in predicted probabilities. If the results
 from multiple ROC analyses are provided (e.g. output from
 \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
-average is represented and flanked by a transparent band defined by
+median is represented and flanked by a transparent band defined by
 point-wise \code{quantiles}.
 }
 \examples{

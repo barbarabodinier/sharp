@@ -65,6 +65,9 @@
 #' @export
 Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling", ...) {
   # Preparing the data
+  if (is.factor(data)) {
+    data <- as.character(factor(data, levels = levels(data), labels = seq(1, length(levels(data))) - 1))
+  }
   if (is.vector(data)) {
     data <- matrix(data, ncol = 1)
   }

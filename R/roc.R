@@ -264,7 +264,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
     names(selected)[which(selected == 1)],
     colnames(xdata)[!colnames(xdata) %in% names(selected)]
   )
-  myformula <- stats::as.formula(paste0("ydata ~ ", paste(ids, collapse = " + ")))
+  myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
 
   # Recalibration for linear regression
   if (family == "gaussian") {
@@ -675,7 +675,15 @@ Incremental <- function(xdata, ydata,
 
   # Defining the number of predictors
   if (is.null(n_predictors)) {
-    n_predictors <- sum(SelectedVariables(stability))
+    if (!is.null(stability)) {
+      # Stopping at the calibrated model
+      n_predictors <- sum(SelectedVariables(stability))
+
+      # Adding the variables that are forced in the model with penalty.factor
+      n_predictors <- n_predictors + sum(!colnames(xdata) %in% names(SelectedVariables(stability)))
+    } else {
+      n_predictors <- ncol(xdata)
+    }
     if (n_predictors == 0) {
       n_predictors <- 10
     }
@@ -686,7 +694,11 @@ Incremental <- function(xdata, ydata,
   if (is.null(stability)) {
     myorder <- colnames(xdata) # order of the columns is used
   } else {
+    # Including variables by order of decreasing selection proportions
     myorder <- names(SelectionProportions(stability))[sort.list(SelectionProportions(stability), decreasing = TRUE)]
+
+    # Including the variables that are forced in the model first by order of columns in the data
+    myorder <- c(colnames(xdata)[!colnames(xdata) %in% names(SelectedVariables(stability))], myorder)
   }
 
   # Initialisation of the objects
@@ -752,17 +764,17 @@ Incremental <- function(xdata, ydata,
 #' (FPR) for different thresholds in predicted probabilities. If the results
 #' from multiple ROC analyses are provided (e.g. output from
 #' \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
-#' average is represented and flanked by a transparent band defined by
+#' median is represented and flanked by a transparent band defined by
 #' point-wise \code{quantiles}.
 #'
 #' @param roc output from \code{\link{ROC}} or
 #'   \code{\link{ExplanatoryPerformance}}.
-#' @param col colour of the point-wise average curve.
+#' @param col colour of the point-wise median curve.
 #' @param col_band colour of the band defined by point-wise \code{quantiles}.
 #' @param alpha level of opacity for the band.
-#' @param lwd line width for the point-wise average curve, as in
+#' @param lwd line width for the point-wise median curve, as in
 #'   \code{\link{par}}.
-#' @param lty line type for the point-wise average curve, as in
+#' @param lty line type for the point-wise median curve, as in
 #'   \code{\link{par}}.
 #' @param quantiles point-wise quantiles of the performances defining the band.
 #' @param add logical indicating if the curve should be added to the current
@@ -814,13 +826,18 @@ Incremental <- function(xdata, ydata,
 #'
 #' @export
 PlotROC <- function(roc,
-                    col = "red", col_band = "red",
+                    col = "red", col_band = NULL,
                     alpha = 0.5,
                     lwd = 1, lty = 1,
                     quantiles = c(0.05, 0.95),
                     add = FALSE) {
   # Extracting the number of iterations
   niter <- length(roc$AUC)
+
+  # Defining the band colour
+  if (is.null(col_band)) {
+    col_band <- col
+  }
 
   # Initialising the plot
   if (!add) {
@@ -848,7 +865,7 @@ PlotROC <- function(roc,
   }
 
   # Adding the point-wise average
-  graphics::lines(apply(roc$FPR, 2, mean), apply(roc$TPR, 2, mean),
+  graphics::lines(apply(roc$FPR, 2, stats::median), apply(roc$TPR, 2, stats::median),
     type = "l", lwd = lwd, lty = lty, col = col
   )
 }
