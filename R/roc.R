@@ -1125,7 +1125,8 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
   graphics::axis(side = 1, at = xseq, labels = NA)
   for (k in 1:length(xseq)) {
     graphics::axis(
-      side = 1, at = xseq[k], labels = perf$names[k],
+      side = 1, at = xseq[k],
+      labels = ifelse(k == 1, yes = perf$names[k], no = paste0("+ ", perf$names[k])),
       col.axis = col.axis[k],
       las = xlas, cex.axis = xcex.axis
     )
