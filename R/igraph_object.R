@@ -155,9 +155,9 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
     if (exists("stability")) {
       if (class(stability) == "bi_selection") {
         node_colour <- ifelse(grepl("comp", colnames(adjacency)),
-          yes = "darkmagenta", no = "skyblue"
+          yes = "orange", no = "skyblue"
         )
-        node_colour[colnames(adjacency) %in% colnames(stability$selectedY)] <- "tomato"
+        node_colour[colnames(adjacency) %in% colnames(stability$selectedY)] <- "red"
       }
     }
   }

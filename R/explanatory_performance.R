@@ -480,6 +480,32 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #'   stability = stab, K = 10, time = 1000
 #' )
 #' boxplot(perf$concordance)
+#'
+#'
+#' ## Linear regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 10, family = "gaussian")
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "gaussian"
+#' )
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- simul$ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- simul$ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
+#'
+#' # Evaluation of the performances on recalibrated models (K=1)
+#' perf <- ExplanatoryPerformance(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab
+#' )
 #' }
 #'
 #' @export
@@ -493,8 +519,8 @@ ExplanatoryPerformance <- function(xdata, ydata,
     if (class(stability) != "variable_selection") {
       stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
     }
-    if (!stability$methods$family %in% c("cox", "binomial")) {
-      stop("This function can only be applied with the following families: 'binomial' or 'cox'.")
+    if (!stability$methods$family %in% c("cox", "binomial", "gaussian")) {
+      stop("This function can only be applied with the following families: 'binomial', 'cox' or 'gaussian'.")
     }
     if (!is.null(family)) {
       if (family != stability$methods$family) {
@@ -504,7 +530,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
     family <- stability$methods$family
   } else {
     if (is.null(family)) {
-      stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
+      stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox' or 'binomial'.")
     }
   }
 
@@ -517,8 +543,12 @@ ExplanatoryPerformance <- function(xdata, ydata,
   }
   if (family == "binomial") {
     metric <- "roc"
-  } else {
+  }
+  if (family == "cox") {
     metric <- "concordance"
+  }
+  if (family == "gaussian") {
+    metric <- "q2"
   }
   # if (is.null(n_folds) | (K==1)) {
   #   n_folds <- 1
@@ -593,9 +623,24 @@ ExplanatoryPerformance <- function(xdata, ydata,
           cindex[iter] <- cstat$concordance
         }
       }
+
+      # Performing Q-squared analyses
+      if (tolower(metric) == "q2") {
+        # Computing predicted values using the recalibrated model
+        predicted <- stats::predict.lm(recalibrated, newdata = as.data.frame(xtest))
+
+        # Initialisation of the object
+        if (iter == 1) {
+          Q_squared <- rep(NA, K * n_folds)
+        }
+
+        # Computing the Q-squared
+        Q_squared[iter] <- cor(predicted, ytest)^2
+      }
     }
   }
 
+  # Preparing the output
   if (tolower(metric) == "roc") {
     out <- list(FPR = FPR, TPR = TPR, AUC = AUC)
   }
@@ -606,6 +651,10 @@ ExplanatoryPerformance <- function(xdata, ydata,
     } else {
       out <- list(concordance = cindex)
     }
+  }
+
+  if (tolower(metric) == "q2") {
+    out <- list(Q_squared = Q_squared)
   }
 
   return(out)
@@ -706,6 +755,30 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' # Faster computations on a single data split
 #' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
 #' PlotIncremental(perf)
+#'
+#'
+#' ## Linear regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "gaussian"
+#' )
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- simul$ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- simul$ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
+#'
+#' # Evaluating marginal contribution of the predictors
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#' PlotIncremental(perf)
 #' }
 #'
 #' @export
@@ -720,18 +793,18 @@ Incremental <- function(xdata, ydata,
     if (class(stability) != "variable_selection") {
       stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
     }
-    if (!stability$methods$family %in% c("cox", "binomial")) {
-      stop("This function can only be applied with the following families: 'binomial' or 'cox'.")
-    }
     if (!is.null(family)) {
       if (family != stability$methods$family) {
         warning(paste0("Arguments 'stability' and 'family' are not consistent. The family specified in argument stability was used: ", stability$methods$family))
       }
     }
     family <- stability$methods$family
+    if (!family %in% c("cox", "binomial", "gaussian")) {
+      stop("This function can only be applied with the following families: 'binomial', 'cox' or 'gaussian'.")
+    }
   } else {
     if (is.null(family)) {
-      stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
+      stop("Argument 'family' must be provided. Possible values are: 'binomial', 'cox' or 'gaussian'.")
     }
   }
 
@@ -774,6 +847,9 @@ Incremental <- function(xdata, ydata,
       concordance <- list()
     }
   }
+  if (family == "gaussian") {
+    Q_squared <- list()
+  }
 
   for (k in 1:n_predictors) {
     perf <- ExplanatoryPerformance(
@@ -799,6 +875,9 @@ Incremental <- function(xdata, ydata,
         concordance <- c(concordance, list(perf$concordance))
       }
     }
+    if (family == "gaussian") {
+      Q_squared <- c(Q_squared, list(perf$Q_squared))
+    }
   }
 
   # Preparing the output
@@ -811,6 +890,9 @@ Incremental <- function(xdata, ydata,
     } else {
       out <- list(concordance = concordance)
     }
+  }
+  if (family == "gaussian") {
+    out <- list(Q_squared = Q_squared)
   }
 
   # Adding variable names
@@ -1038,6 +1120,38 @@ PlotROC <- function(roc,
 #' # Faster computations on a single data split
 #' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
 #' PlotIncremental(perf)
+#'
+#'
+#' ## Linear regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "gaussian"
+#' )
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- simul$ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- simul$ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
+#'
+#' # Evaluating marginal contribution of the predictors
+#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#' PlotIncremental(perf)
+#'
+#' # Evaluating marginal contribution of the predictors beyond stably selected
+#' perf <- Incremental(
+#'   xdata = xtest, ydata = ytest, stability = stab,
+#'   K = 10, n_predictors = 20
+#' )
+#' N <- sum(SelectedVariables(stab))
+#' PlotIncremental(perf, col = c(rep("red", N), rep("grey", 20 - N)))
 #' }
 #'
 #' @export
@@ -1072,10 +1186,18 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
       xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1])
       xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2])
     }
-  } else {
+  }
+
+  if ("AUC" %in% names(perf)) {
     x <- sapply(perf$AUC, mean)
     xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1])
     xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2])
+  }
+
+  if ("Q_squared" %in% names(perf)) {
+    x <- sapply(perf$Q_squared, mean)
+    xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1])
+    xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2])
   }
   xseq <- 1:length(x)
 
