@@ -38,18 +38,20 @@ ids_train <- Resample(
 )
 xtrain <- simul$xdata[ids_train, , drop = FALSE]
 ytrain <- simul$ydata[ids_train, , drop = FALSE]
+x2 <- simul$xdata[-ids_train, , drop = FALSE]
+y2 <- simul$ydata[-ids_train, , drop = FALSE]
 ids_recalib <- Resample(
-  data = simul$ydata[-ids_train, , drop = FALSE],
+  data = y2,
   tau = 0.5, family = "binomial"
 )
-xrecalib <- simul$xdata[ids_recalib, , drop = FALSE]
-yrecalib <- simul$ydata[ids_recalib, , drop = FALSE]
-xtest <- simul$xdata[-ids_recalib, ]
-ytest <- simul$ydata[-ids_recalib, ]
+xrecalib <- x2[ids_recalib, , drop = FALSE]
+yrecalib <- y2[ids_recalib, , drop = FALSE]
+xtest <- x2[-ids_recalib, ]
+ytest <- y2[-ids_recalib, ]
 
 # Stability selection and recalibration
-stab <- VariableSelection(xdata = xrecalib, ydata = yrecalib, family = "binomial")
-recalibrated <- Recalibrate(xdata = xtrain, ydata = ytrain, stability = stab)
+stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
+recalibrated <- Recalibrate(xdata = xrecalib, ydata = yrecalib, stability = stab)
 
 # ROC analysis
 predicted <- predict(recalibrated, newdata = as.data.frame(xtest))

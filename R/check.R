@@ -94,17 +94,6 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
   if ((family %in% c("binomial", "multinomial"))) {
     if (ncol(ydata) > 1) {
       ydata <- DummyToCategories(x = ydata, verbose = verbose)
-      # ydata_original <- ydata
-      # ydata <- matrix(0, nrow = nrow(ydata_original), ncol = ncol(ydata_original))
-      # for (j in 1:ncol(ydata)) {
-      #   tmp <- as.factor(ydata_original[, j])
-      #   if (verbose) {
-      #     message(paste0("Reference category for column ", j, ": ", levels(tmp)[1]))
-      #     message(paste0("Other category for column ", j, ": ", levels(tmp)[2]))
-      #   }
-      #   ydata[, j] <- (as.numeric(tmp) - 1) * j
-      # }
-      # ydata <- apply(ydata, 1, sum)
     } else {
       ydata <- as.factor(ydata)
       if (verbose) {

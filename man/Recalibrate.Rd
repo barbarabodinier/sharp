@@ -46,17 +46,27 @@ stability selection model will automatically be included as predictors.
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 
+# Data split
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "gaussian"
+)
+xtrain <- simul$xdata[ids_train, , drop = FALSE]
+ytrain <- simul$ydata[ids_train, , drop = FALSE]
+xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+
 # Stability selection
-stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
+stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
 print(SelectedVariables(stab))
 
 # Recalibrating the model
 recalibrated <- Recalibrate(
-  xdata = simul$xdata, ydata = simul$ydata,
+  xdata = xrecalib, ydata = yrecalib,
   stability = stab
 )
 recalibrated$coefficients # recalibrated coefficients
-head(recalibrated$fitted.values) # recalibrated predicted probabilities
+head(recalibrated$fitted.values) # recalibrated predicted values
 
 # Fitting the full model (including all possible predictors)
 recalibrated <- Recalibrate(
@@ -71,18 +81,28 @@ recalibrated$coefficients # recalibrated coefficients
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
-
-# Stability selection
 ydata <- cbind(
   time = runif(nrow(simul$ydata), min = 100, max = 2000),
   case = simul$ydata[, 1]
 ) # including dummy time to event
-stab <- VariableSelection(xdata = simul$xdata, ydata = ydata, family = "cox")
+
+# Data split
+ids_train <- Resample(
+  data = ydata,
+  tau = 0.5, family = "cox"
+)
+xtrain <- simul$xdata[ids_train, , drop = FALSE]
+ytrain <- ydata[ids_train, , drop = FALSE]
+xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+yrecalib <- ydata[-ids_train, , drop = FALSE]
+
+# Stability selection
+stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
 print(SelectedVariables(stab))
 
 # Recalibrating the model
 recalibrated <- Recalibrate(
-  xdata = simul$xdata, ydata = ydata,
+  xdata = xrecalib, ydata = yrecalib,
   stability = stab
 )
 recalibrated$coefficients # recalibrated coefficients
@@ -95,12 +115,22 @@ head(recalibrated$linear.predictors) # recalibrated scores
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 
+# Data split
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "binomial"
+)
+xtrain <- simul$xdata[ids_train, , drop = FALSE]
+ytrain <- simul$ydata[ids_train, , drop = FALSE]
+xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+
 # Stability selection
-stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "binomial")
+stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 
 # Recalibrating the model
 recalibrated <- Recalibrate(
-  xdata = simul$xdata, ydata = simul$ydata,
+  xdata = xrecalib, ydata = yrecalib,
   stability = stab
 )
 recalibrated$coefficients # recalibrated coefficients
@@ -109,17 +139,29 @@ head(recalibrated$fitted.values) # recalibrated predicted probabilities
 
 ## Multinomial regression
 
-# Stability selection
+# Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 15, family = "multinomial")
+
+# Data split
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "multinomial"
+)
+xtrain <- simul$xdata[ids_train, , drop = FALSE]
+ytrain <- simul$ydata[ids_train, , drop = FALSE]
+xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+
+# Stability selection
 stab <- VariableSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
+  xdata = xtrain, ydata = ytrain,
   family = "multinomial"
 )
 
 # Recalibrating the model
 recalibrated <- Recalibrate(
-  xdata = simul$xdata, ydata = simul$ydata,
+  xdata = xrecalib, ydata = yrecalib,
   stability = stab
 )
 summary(recalibrated) # recalibrated coefficients

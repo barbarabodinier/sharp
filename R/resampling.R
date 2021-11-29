@@ -71,7 +71,14 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
   if (is.vector(data)) {
     data <- matrix(data, ncol = 1)
   }
-
+  if (!is.null(family)){
+    if (family == "multinomial") {
+      if (is.matrix(data)) {
+        data <- DummyToCategories(x = data, verbose = FALSE)
+      }
+    }
+  }
+  
   # if (!resampling %in% c("subsampling", "bootstrap")) {
   if (is.function(resampling)) {
     # s <- do.call(get(resampling), args = list(data = data, tau = tau, ...))
@@ -82,12 +89,12 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
     } else {
       # Using or not replacement in resampling
       replacement <- ifelse(resampling == "subsampling", yes = FALSE, no = TRUE)
-
+      
       # Definition of the size of sub/bootstrap sample
       if (replacement) {
         tau <- 1
       }
-
+      
       # Resampling procedure
       if (!is.null(family)) {
         # Resampling for regression models
@@ -162,10 +169,10 @@ Folds <- function(data, family = NULL, n_folds = 5) {
     data <- cbind(data)
   }
   rownames(data) <- paste0("obs", 1:nrow(data))
-
+  
   # Storing total number of observations
   n <- nrow(data)
-
+  
   # Creating balanced folds
   folds_ids <- list()
   for (k in 1:n_folds) {
@@ -173,11 +180,11 @@ Folds <- function(data, family = NULL, n_folds = 5) {
     folds_ids <- c(folds_ids, list(ids))
     data <- data[-which(rownames(data) %in% ids), , drop = FALSE]
   }
-
+  
   # Returning row ids
   folds_ids <- lapply(folds_ids, FUN = function(x) {
     as.numeric(gsub("obs", "", x))
   })
-
+  
   return(folds_ids)
 }
