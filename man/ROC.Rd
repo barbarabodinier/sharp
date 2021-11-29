@@ -32,10 +32,16 @@ set.seed(1)
 simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")
 
 # Balanced training/test split
-ids_train <- Resample(data = simul$ydata, tau = 0.5)
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "binomial"
+)
 xtrain <- simul$xdata[ids_train, , drop = FALSE]
 ytrain <- simul$ydata[ids_train, , drop = FALSE]
-ids_recalib <- Resample(data = simul$ydata[-ids_train, , drop = FALSE], tau = 0.5)
+ids_recalib <- Resample(
+  data = simul$ydata[-ids_train, , drop = FALSE],
+  tau = 0.5, family = "binomial"
+)
 xrecalib <- simul$xdata[ids_recalib, , drop = FALSE]
 yrecalib <- simul$ydata[ids_recalib, , drop = FALSE]
 xtest <- simul$xdata[-ids_recalib, ]

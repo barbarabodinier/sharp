@@ -100,7 +100,10 @@ set.seed(1)
 simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
 
 # Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(data = simul$ydata, tau = 0.5)
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "binomial"
+)
 xtrain <- simul$xdata[ids_train, ]
 ytrain <- simul$ydata[ids_train, ]
 xtest <- simul$xdata[-ids_train, ]
@@ -125,7 +128,10 @@ ydata <- cbind(
 ) # including dummy time to event
 
 # Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(data = simul$ydata, tau = 0.5)
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "binomial"
+)
 xtrain <- simul$xdata[ids_train, ]
 ytrain <- ydata[ids_train, ]
 xtest <- simul$xdata[-ids_train, ]

@@ -54,10 +54,16 @@ Rates <- function(observed, predicted, thr) {
 #' simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")
 #'
 #' # Balanced training/test split
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' ids_recalib <- Resample(data = simul$ydata[-ids_train, , drop = FALSE], tau = 0.5)
+#' ids_recalib <- Resample(
+#'   data = simul$ydata[-ids_train, , drop = FALSE],
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xrecalib <- simul$xdata[ids_recalib, , drop = FALSE]
 #' yrecalib <- simul$ydata[ids_recalib, , drop = FALSE]
 #' xtest <- simul$xdata[-ids_recalib, ]
@@ -359,7 +365,10 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #' simul <- SimulateRegression(n = 1000, pk = 10, family = "binomial")
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- simul$ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
@@ -402,7 +411,10 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 #' ) # including dummy time to event
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
@@ -481,7 +493,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
       iter <- iter + 1
       if (n_folds == 1) {
         # Balanced training/test split
-        ids_test <- Resample(data = ydata, tau = 1 - tau)
+        ids_test <- Resample(data = ydata, tau = 1 - tau, family = family)
       } else {
         if (fold_id == 1) {
           ids_folds <- Folds(data = ydata, n_folds = n_folds)
@@ -603,7 +615,10 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- simul$ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
@@ -628,7 +643,10 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' ) # including dummy time to event
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
@@ -793,7 +811,10 @@ Incremental <- function(xdata, ydata,
 #' simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- simul$ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
@@ -915,7 +936,10 @@ PlotROC <- function(roc,
 #' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- simul$ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
@@ -951,7 +975,10 @@ PlotROC <- function(roc,
 #' ) # including dummy time to event
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(data = simul$ydata, tau = 0.5)
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
 #' xtrain <- simul$xdata[ids_train, ]
 #' ytrain <- ydata[ids_train, ]
 #' xtest <- simul$xdata[-ids_train, ]
