@@ -635,7 +635,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
         }
 
         # Computing the Q-squared
-        Q_squared[iter] <- cor(predicted, ytest)^2
+        Q_squared[iter] <- stats::cor(predicted, ytest)^2
       }
     }
   }
