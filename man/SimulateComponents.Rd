@@ -13,7 +13,7 @@ SimulateComponents(
   v_sign = -1,
   continuous = TRUE,
   pd_strategy = "min_eigenvalue",
-  ev = 0.1,
+  ev_xx = 0.1,
   scale = TRUE,
   u_list = c(1e-10, 1),
   tol = .Machine$double.eps^0.25,
@@ -72,11 +72,11 @@ values on the corresponding row and a constant u. With
 the absolute value of the smallest eigenvalue of the precision matrix with
 zeros on the diagonal and a constant u.}
 
-\item{ev}{expected proportion of explained variance by the first Principal
+\item{ev_xx}{expected proportion of explained variance by the first Principal
 Component (PC1) of a Principal Component Analysis. This is the largest
 eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
 \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
-\code{ev=NULL} (the default), the constant u is chosen by maximising the
+\code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 contrast of the correlation matrix.}
 
 \item{scale}{logical indicating if the proportion of explained variance by
@@ -136,14 +136,14 @@ The data is simulated from a centered multivariate Normal
 \dontrun{
 # Simulation of 3 components with high e.v.
 set.seed(1)
-simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.4)
+simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.4)
 print(simul)
 plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 
 # Simulation of 3 components with moderate e.v.
 set.seed(1)
-simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.25)
+simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.25)
 print(simul)
 plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
@@ -152,7 +152,7 @@ plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 pk <- sample(3:10, size = 5, replace = TRUE)
 simul <- SimulateComponents(
   pk = pk,
-  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev = 0.1
+  nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev_xx = 0.1
 )
 plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)

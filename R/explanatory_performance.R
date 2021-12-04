@@ -337,7 +337,13 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
 
   # Recalibration for multinomial regression
   if (family == "multinomial") {
-    ydata <- DummyToCategories(ydata)
+    if (!is.factor(ydata)) {
+      if (!is.vector(ydata)) {
+        if (ncol(ydata) == 1) {
+          ydata <- DummyToCategories(ydata)
+        }
+      }
+    }
     mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata))
   }
 

@@ -81,6 +81,10 @@
 #'
 #'   \insertRef{stabilityselectionSS}{focus}
 #'
+#'   \insertRef{SparseClustering}{focus}
+#'
+#'   \insertRef{ConsensusClustering}{focus}
+#'
 #' @examples
 #' \dontshow{
 #' set.seed(1)

@@ -4,19 +4,19 @@
 \alias{TuneExplainedVarianceCor}
 \title{Tuning function (correlation)}
 \usage{
-TuneExplainedVarianceCor(u, ev = NULL, omega)
+TuneExplainedVarianceCor(u, ev_xx = NULL, omega)
 }
 \arguments{
 \item{u}{constant u added to the diagonal of the precision matrix.}
 
-\item{ev}{desired proportion of explained variance. If \code{ev=NULL}, the
+\item{ev_xx}{desired proportion of explained variance. If \code{ev_xx=NULL}, the
 obtained proportion of explained variance is returned.}
 
 \item{omega}{positive semidefinite precision matrix.}
 }
 \value{
 The difference in proportion of explained variance in absolute values
-  or observed proportion of explained variance (if \code{ev=NULL}).
+  or observed proportion of explained variance (if \code{ev_xx=NULL}).
 }
 \description{
 Computes the difference in absolute value between the desired and observed

@@ -50,6 +50,9 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 # Hierarchical clustering
 myhclust <- SparseHierarchicalClustering(xdata = simul$data, nc = 1:20, Lambda = c(1.5, 2))
 }
+\references{
+\insertRef{SparseClustering}{focus}
+}
 \seealso{
 Other clustering algorithms: 
 \code{\link{CLARAClustering}()},

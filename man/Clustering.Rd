@@ -204,6 +204,10 @@ ClusteringPerformance(theta = Clusters(stab), theta_star = simul$theta)
   \insertRef{stabilityselectionMB}{focus}
 
   \insertRef{stabilityselectionSS}{focus}
+
+  \insertRef{SparseClustering}{focus}
+
+  \insertRef{ConsensusClustering}{focus}
 }
 \seealso{
 \code{\link{Resample}}, \code{\link{StabilityScore}},

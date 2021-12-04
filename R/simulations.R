@@ -67,11 +67,11 @@
 #'   \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
 #'   the absolute value of the smallest eigenvalue of the precision matrix with
 #'   zeros on the diagonal and a constant u.
-#' @param ev expected proportion of explained variance by the first Principal
+#' @param ev_xx expected proportion of explained variance by the first Principal
 #'   Component (PC1) of a Principal Component Analysis. This is the largest
 #'   eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
 #'   \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
-#'   \code{ev=NULL} (the default), the constant u is chosen by maximising the
+#'   \code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 #'   contrast of the correlation matrix.
 #' @param scale logical indicating if the proportion of explained variance by
 #'   PC1 should be computed from the correlation (\code{scale=TRUE}) or
@@ -126,7 +126,6 @@
 #' pk <- c(20, 30)
 #' simul <- SimulateGraphical(
 #'   n = 100, pk = pk,
-#'   nu_within = 0.05, nu_between = 0.05,
 #'   pd_strategy = "min_eigenvalue"
 #' )
 #' mycor <- cor(simul$data)
@@ -185,9 +184,9 @@
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               implementation = HugeAdjacency, topology = "random",
                               nu_within = 0.1, nu_between = NULL,
-                              v_within = c(0.5, 1), v_between = c(0, 0.1),
+                              v_within = c(0.5, 1), v_between = c(0.1, 0.2),
                               v_sign = c(-1, 1), continuous = TRUE,
-                              pd_strategy = "diagonally_dominant", ev = NULL, scale = TRUE,
+                              pd_strategy = "diagonally_dominant", ev_xx = NULL, scale = TRUE,
                               u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25,
                               output_matrices = FALSE, ...) {
   # Defining number of nodes
@@ -217,7 +216,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
     pk = pk, theta = theta,
     v_within = v_within, v_between = v_between,
     v_sign = v_sign, continuous = continuous,
-    pd_strategy = pd_strategy, ev = ev, scale = scale,
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale,
     u_list = u_list, tol = tol
   )
   omega <- out$omega
@@ -283,7 +282,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #'   Component (PC1) of a Principal Component Analysis applied on the
 #'   predictors. This is the largest eigenvalue of the correlation (if
 #'   \code{scale=TRUE}) or covariance (if \code{scale=FALSE}) matrix divided by
-#'   the sum of eigenvalues. If \code{ev=NULL} (the default), the constant u is
+#'   the sum of eigenvalues. If \code{ev_xx=NULL} (the default), the constant u is
 #'   chosen by maximising the contrast of the correlation matrix.
 #'
 #' @seealso \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
@@ -392,7 +391,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
     v_within = v_within,
     v_between = v_between,
     continuous = continuous,
-    pd_strategy = pd_strategy, ev = ev_xx, scale = scale,
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale,
     u_list = u_list, tol = tol
   )
 
@@ -516,14 +515,14 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' \dontrun{
 #' # Simulation of 3 components with high e.v.
 #' set.seed(1)
-#' simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.4)
+#' simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.4)
 #' print(simul)
 #' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 #'
 #' # Simulation of 3 components with moderate e.v.
 #' set.seed(1)
-#' simul <- SimulateComponents(pk = c(5, 3, 4), ev = 0.25)
+#' simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.25)
 #' print(simul)
 #' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
@@ -532,7 +531,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 #' pk <- sample(3:10, size = 5, replace = TRUE)
 #' simul <- SimulateComponents(
 #'   pk = pk,
-#'   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev = 0.1
+#'   nu_within = 0.3, v_within = c(0.8, 0.5), v_sign = -1, ev_xx = 0.1
 #' )
 #' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
@@ -541,7 +540,7 @@ SimulateClustering <- function(n = c(10, 10), pk = 10, adjacency = NULL,
 SimulateComponents <- function(n = 100, pk = c(10, 10),
                                adjacency = NULL, nu_within = 1,
                                v_within = c(0.5, 1), v_sign = -1, continuous = TRUE,
-                               pd_strategy = "min_eigenvalue", ev = 0.1, scale = TRUE,
+                               pd_strategy = "min_eigenvalue", ev_xx = 0.1, scale = TRUE,
                                u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25,
                                output_matrices = FALSE) {
   # Using multi-block simulator with unconnected blocks
@@ -555,7 +554,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
     v_between = 0,
     v_sign = v_sign,
     continuous = continuous,
-    pd_strategy = pd_strategy, ev = ev, scale = scale,
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale,
     u_list = u_list, tol = tol,
     output_matrices = TRUE
   )
@@ -667,7 +666,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #'   Component (PC1) of a Principal Component Analysis. This is the largest
 #'   eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
 #'   \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
-#'   \code{ev=NULL} (the default), the constant u is chosen by maximising the
+#'   \code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 #'   contrast of the correlation matrix.
 #'
 #' @return A list with: \item{xdata}{simulated predictor data.}
@@ -815,7 +814,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   out <- SimulatePrecision(
     theta = big_theta, v_within = v_within,
     v_sign = v_sign, continuous = continuous,
-    pd_strategy = pd_strategy, ev = ev_xx, scale = scale, u_list = u_list, tol = tol
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale, u_list = u_list, tol = tol
   )
   omega <- out$omega
 
@@ -1255,7 +1254,7 @@ SimulateSymmetricMatrix <- function(pk = 10,
 #' simul <- SimulatePrecision(
 #'   theta = theta,
 #'   pd_strategy = "min_eigenvalue",
-#'   ev = 0.3, scale = TRUE
+#'   ev_xx = 0.3, scale = TRUE
 #' )
 #' print(simul$omega)
 #' }
@@ -1263,7 +1262,7 @@ SimulateSymmetricMatrix <- function(pk = 10,
 SimulatePrecision <- function(pk = NULL, theta,
                               v_within = c(0.5, 1), v_between = c(0, 0.1),
                               v_sign = c(-1, 1), continuous = TRUE,
-                              pd_strategy = "diagonally_dominant", ev = NULL, scale = TRUE,
+                              pd_strategy = "diagonally_dominant", ev_xx = NULL, scale = TRUE,
                               u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25) {
   # Checking inputs and defining pk
   if (is.null(pk)) {
@@ -1311,7 +1310,7 @@ SimulatePrecision <- function(pk = NULL, theta,
   # Ensuring positive definiteness
   omega_pd <- MakePositiveDefinite(
     omega = omega_tilde, pd_strategy = pd_strategy,
-    ev = ev, scale = scale, u_list = u_list, tol = tol
+    ev_xx = ev_xx, scale = scale, u_list = u_list, tol = tol
   )
 
   # # Preparing realistic diagonally dominant precision matrix
@@ -1538,7 +1537,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #' # Diagonal dominance with specific proportion of explained variance by PC1
 #' omega_pd <- MakePositiveDefinite(omega,
 #'   pd_strategy = "diagonally_dominant",
-#'   ev = 0.55
+#'   ev_xx = 0.55
 #' )
 #' lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 #' max(lambda_inv) / sum(lambda_inv) # expected ev
@@ -1546,7 +1545,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #' # Version not scaled (using eigenvalues from the covariance)
 #' omega_pd <- MakePositiveDefinite(omega,
 #'   pd_strategy = "diagonally_dominant",
-#'   ev = 0.55, scale = FALSE
+#'   ev_xx = 0.55, scale = FALSE
 #' )
 #' lambda_inv <- 1 / eigen(omega_pd$omega)$values
 #' max(lambda_inv) / sum(lambda_inv) # expected ev
@@ -1560,7 +1559,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #' # Non-negative eigenvalues with specific proportion of explained variance by PC1
 #' omega_pd <- MakePositiveDefinite(omega,
 #'   pd_strategy = "min_eigenvalue",
-#'   ev = 0.7
+#'   ev_xx = 0.7
 #' )
 #' lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 #' max(lambda_inv) / sum(lambda_inv)
@@ -1568,14 +1567,14 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #' # Version not scaled (using eigenvalues from the covariance)
 #' omega_pd <- MakePositiveDefinite(omega,
 #'   pd_strategy = "min_eigenvalue",
-#'   ev = 0.7, scale = FALSE
+#'   ev_xx = 0.7, scale = FALSE
 #' )
 #' lambda_inv <- 1 / eigen(omega_pd$omega)$values
 #' max(lambda_inv) / sum(lambda_inv)
 #' }
 #' @export
 MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
-                                 ev = NULL, scale = TRUE, u_list = c(1e-10, 1),
+                                 ev_xx = NULL, scale = TRUE, u_list = c(1e-10, 1),
                                  tol = .Machine$double.eps^0.25) {
 
   # Making positive definite using diagonally dominance
@@ -1595,7 +1594,7 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
     diag(omega) <- lambda0
   }
 
-  if (is.null(ev)) {
+  if (is.null(ev_xx)) {
     # Finding u that maximises the contrast
     if (min(u_list) != max(u_list)) {
       argmax_u <- stats::optimise(MaxContrast,
@@ -1617,15 +1616,15 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
     }
 
     # Finding u corresponding to the required proportion of explained variance
-    if ((ev <= min_ev) | (ev >= max_ev)) {
-      if (ev <= min_ev) {
+    if ((ev_xx <= min_ev) | (ev_xx >= max_ev)) {
+      if (ev_xx <= min_ev) {
         u <- max(u_list)
-        if (ev < min_ev) {
+        if (ev_xx < min_ev) {
           message(paste0("The smallest proportion of explained variance by PC1 that can be obtained is ", round(min_ev, digits = 2), "."))
         }
       } else {
         u <- min(u_list)
-        if (ev > max_ev) {
+        if (ev_xx > max_ev) {
           message(paste0("The largest proportion of explained variance by PC1 that can be obtained is ", round(max_ev, digits = 2), "."))
         }
       }
@@ -1634,7 +1633,7 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
         # Minimising the difference between requested and possible ev
         if (min(u_list) != max(u_list)) {
           argmin_u <- stats::optimise(TuneExplainedVarianceCor,
-            omega = omega, ev = ev,
+            omega = omega, ev_xx = ev_xx,
             lower = min(u_list), upper = max(u_list), tol = tol
           )
           u <- argmin_u$minimum
@@ -1645,7 +1644,7 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
         # Minimising the difference between requested and possible ev
         if (min(u_list) != max(u_list)) {
           argmin_u <- stats::optimise(TuneExplainedVarianceCov,
-            lambda = lambda, ev = ev,
+            lambda = lambda, ev_xx = ev_xx,
             lower = min(u_list), upper = max(u_list), tol = tol
           )
           u <- argmin_u$minimum
@@ -1708,22 +1707,22 @@ Contrast <- function(mat, digits = 3) {
 #' variance.
 #'
 #' @inheritParams MaxContrast
-#' @param ev desired proportion of explained variance. If \code{ev=NULL}, the
+#' @param ev_xx desired proportion of explained variance. If \code{ev_xx=NULL}, the
 #'   obtained proportion of explained variance is returned.
 #' @param lambda eigenvalues of the positive semidefinite precision matrix.
 #'
 #' @return The difference in proportion of explained variance in absolute values
-#'   or observed proportion of explained variance (if \code{ev=NULL}).
+#'   or observed proportion of explained variance (if \code{ev_xx=NULL}).
 #'
 #' @export
-TuneExplainedVarianceCov <- function(u, ev = NULL, lambda) {
+TuneExplainedVarianceCov <- function(u, ev_xx = NULL, lambda) {
   lambda <- lambda + u
   lambda_inv <- 1 / lambda
   tmp_ev <- max(lambda_inv) / sum(lambda_inv)
-  if (is.null(ev)) {
+  if (is.null(ev_xx)) {
     out <- tmp_ev
   } else {
-    out <- abs(tmp_ev - ev)
+    out <- abs(tmp_ev - ev_xx)
   }
   return(out)
 }
@@ -1743,17 +1742,17 @@ TuneExplainedVarianceCov <- function(u, ev = NULL, lambda) {
 #' @param omega positive semidefinite precision matrix.
 #'
 #' @return The difference in proportion of explained variance in absolute values
-#'   or observed proportion of explained variance (if \code{ev=NULL}).
+#'   or observed proportion of explained variance (if \code{ev_xx=NULL}).
 #'
 #' @export
-TuneExplainedVarianceCor <- function(u, ev = NULL, omega) {
+TuneExplainedVarianceCor <- function(u, ev_xx = NULL, omega) {
   diag(omega) <- diag(omega) + u
   mycor <- stats::cov2cor(solve(omega))
   tmp_ev <- norm(mycor, type = "2") / ncol(mycor)
-  if (is.null(ev)) {
+  if (is.null(ev_xx)) {
     out <- tmp_ev
   } else {
-    out <- abs(tmp_ev - ev)
+    out <- abs(tmp_ev - ev_xx)
   }
   return(out)
 }

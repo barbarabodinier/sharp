@@ -7,7 +7,7 @@
 MakePositiveDefinite(
   omega,
   pd_strategy = "diagonally_dominant",
-  ev = NULL,
+  ev_xx = NULL,
   scale = TRUE,
   u_list = c(1e-10, 1),
   tol = .Machine$double.eps^0.25
@@ -25,11 +25,11 @@ values on the corresponding row and a constant u. With
 the absolute value of the smallest eigenvalue of the precision matrix with
 zeros on the diagonal and a constant u.}
 
-\item{ev}{expected proportion of explained variance by the first Principal
+\item{ev_xx}{expected proportion of explained variance by the first Principal
 Component (PC1) of a Principal Component Analysis. This is the largest
 eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
 \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
-\code{ev=NULL} (the default), the constant u is chosen by maximising the
+\code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 contrast of the correlation matrix.}
 
 \item{scale}{logical indicating if the proportion of explained variance by
@@ -78,7 +78,7 @@ eigen(omega_pd$omega)$values # positive eigenvalues
 # Diagonal dominance with specific proportion of explained variance by PC1
 omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "diagonally_dominant",
-  ev = 0.55
+  ev_xx = 0.55
 )
 lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 max(lambda_inv) / sum(lambda_inv) # expected ev
@@ -86,7 +86,7 @@ max(lambda_inv) / sum(lambda_inv) # expected ev
 # Version not scaled (using eigenvalues from the covariance)
 omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "diagonally_dominant",
-  ev = 0.55, scale = FALSE
+  ev_xx = 0.55, scale = FALSE
 )
 lambda_inv <- 1 / eigen(omega_pd$omega)$values
 max(lambda_inv) / sum(lambda_inv) # expected ev
@@ -100,7 +100,7 @@ eigen(omega_pd$omega)$values # positive eigenvalues
 # Non-negative eigenvalues with specific proportion of explained variance by PC1
 omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "min_eigenvalue",
-  ev = 0.7
+  ev_xx = 0.7
 )
 lambda_inv <- eigen(cov2cor(solve(omega_pd$omega)))$values
 max(lambda_inv) / sum(lambda_inv)
@@ -108,7 +108,7 @@ max(lambda_inv) / sum(lambda_inv)
 # Version not scaled (using eigenvalues from the covariance)
 omega_pd <- MakePositiveDefinite(omega,
   pd_strategy = "min_eigenvalue",
-  ev = 0.7, scale = FALSE
+  ev_xx = 0.7, scale = FALSE
 )
 lambda_inv <- 1 / eigen(omega_pd$omega)$values
 max(lambda_inv) / sum(lambda_inv)

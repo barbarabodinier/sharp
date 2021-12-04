@@ -92,6 +92,8 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
 #'
 #' @family clustering algorithms
 #'
+#' @references \insertRef{SparseClustering}{focus}
+#'
 #' @examples
 #'
 #' # Data simulation

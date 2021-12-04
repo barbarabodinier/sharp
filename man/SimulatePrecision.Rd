@@ -12,7 +12,7 @@ SimulatePrecision(
   v_sign = c(-1, 1),
   continuous = TRUE,
   pd_strategy = "diagonally_dominant",
-  ev = NULL,
+  ev_xx = NULL,
   scale = TRUE,
   u_list = c(1e-10, 1),
   tol = .Machine$double.eps^0.25
@@ -62,11 +62,11 @@ values on the corresponding row and a constant u. With
 the absolute value of the smallest eigenvalue of the precision matrix with
 zeros on the diagonal and a constant u.}
 
-\item{ev}{expected proportion of explained variance by the first Principal
+\item{ev_xx}{expected proportion of explained variance by the first Principal
 Component (PC1) of a Principal Component Analysis. This is the largest
 eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
 \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
-\code{ev=NULL} (the default), the constant u is chosen by maximising the
+\code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 contrast of the correlation matrix.}
 
 \item{scale}{logical indicating if the proportion of explained variance by
@@ -107,7 +107,7 @@ print(simul$omega)
 simul <- SimulatePrecision(
   theta = theta,
   pd_strategy = "min_eigenvalue",
-  ev = 0.3, scale = TRUE
+  ev_xx = 0.3, scale = TRUE
 )
 print(simul$omega)
 }

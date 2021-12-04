@@ -109,7 +109,7 @@ zeros on the diagonal and a constant u.}
 Component (PC1) of a Principal Component Analysis applied on the
 predictors. This is the largest eigenvalue of the correlation (if
 \code{scale=TRUE}) or covariance (if \code{scale=FALSE}) matrix divided by
-the sum of eigenvalues. If \code{ev=NULL} (the default), the constant u is
+the sum of eigenvalues. If \code{ev_xx=NULL} (the default), the constant u is
 chosen by maximising the contrast of the correlation matrix.}
 
 \item{scale}{logical indicating if the proportion of explained variance by
