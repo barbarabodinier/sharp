@@ -926,6 +926,8 @@ Incremental <- function(xdata, ydata,
 #'   \code{\link{par}}.
 #' @param lty line type for the point-wise median curve, as in
 #'   \code{\link{par}}.
+#' @param xlab label of the x-axis.
+#' @param ylab label of the y-axis.
 #' @param quantiles point-wise quantiles of the performances defining the band.
 #' @param add logical indicating if the curve should be added to the current
 #'   plot.
@@ -982,6 +984,8 @@ PlotROC <- function(roc,
                     col = "red", col_band = NULL,
                     alpha = 0.5,
                     lwd = 1, lty = 1,
+                    xlab = "False Positive Rate",
+                    ylab = "True Positive Rate",
                     quantiles = c(0.05, 0.95),
                     add = FALSE) {
   # Extracting the number of iterations
@@ -997,7 +1001,8 @@ PlotROC <- function(roc,
     plot(NULL,
       xlim = c(0, 1), ylim = c(0, 1),
       type = "l", lwd = 2,
-      xlab = "False Positive Rate", ylab = "True Positive Rate", las = 1, cex.lab = 1.3,
+      xlab = xlab, ylab = ylab,
+      las = 1, cex.lab = 1.3,
       panel.first = graphics::abline(0, 1, lty = 3)
     )
   }

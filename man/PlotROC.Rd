@@ -11,6 +11,8 @@ PlotROC(
   alpha = 0.5,
   lwd = 1,
   lty = 1,
+  xlab = "False Positive Rate",
+  ylab = "True Positive Rate",
   quantiles = c(0.05, 0.95),
   add = FALSE
 )
@@ -30,6 +32,10 @@ PlotROC(
 
 \item{lty}{line type for the point-wise median curve, as in
 \code{\link{par}}.}
+
+\item{xlab}{label of the x-axis.}
+
+\item{ylab}{label of the y-axis.}
 
 \item{quantiles}{point-wise quantiles of the performances defining the band.}
 

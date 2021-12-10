@@ -332,7 +332,9 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{Recalibrate}}, \code{\link{Combine}},
+\code{\link{Recalibrate}}, \code{\link{ExplanatoryPerformance}},
+  \code{\link{PlotROC}}, \code{\link{Incremental}},
+  \code{\link{PlotIncremental}}, \code{\link{Combine}},
   \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
   \code{\link{StabilityScore}}
 
