@@ -266,6 +266,34 @@ stab <- VariableSelection(
 CalibrationPlot(stab, xlab = "")
 summary(stab)
 
+# Example with more hyper-parameters: elastic net
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+TuneElasticNet <- function(xdata, ydata, family, alpha) {
+  stab <- VariableSelection(
+    xdata = xdata, ydata = ydata,
+    family = family, alpha = alpha, verbose = FALSE
+  )
+  return(max(stab$S, na.rm = TRUE))
+}
+myopt <- optimise(TuneElasticNet,
+  lower = 0.1, upper = 1, maximum = TRUE,
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian"
+)
+stab <- VariableSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian", alpha = myopt$maximum
+)
+summary(stab)
+enet <- SelectedVariables(stab)
+
+# Comparison with LASSO
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
+summary(stab)
+lasso <- SelectedVariables(stab)
+table(lasso, enet)
+
 # Example using an external function: group-LASSO with gglasso
 if (requireNamespace("gglasso", quietly = TRUE)) {
   set.seed(1)
