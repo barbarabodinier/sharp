@@ -9,7 +9,8 @@
 #' @inheritParams VariableSelection
 #' @param family type of PLS model. This parameter must be set to
 #'   \code{family="gaussian"} for continuous outcomes, or to
-#'   \code{family="binomial"} for categorical outcomes.
+#'   \code{family="binomial"} for categorical outcomes. Only used if
+#'   \code{ydata} is provided.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
 #'   Only used with \code{implementation=SparseGroupPLS}.
@@ -116,6 +117,9 @@
 #' }
 #'
 #' \dontrun{
+#' par(mar = c(12, 5, 1, 1))
+#'
+#'
 #' ## Sparse Principal Component Analysis
 #'
 #' # Data simulation
@@ -129,8 +133,15 @@
 #'   LambdaX = 1:(ncol(simul$data) - 1),
 #'   implementation = SparsePCA
 #' )
+#' print(stab)
+#'
+#' # Calibration plot
+#' CalibrationPlot(stab)
+#'
+#' # Visualisation of the results
 #' summary(stab)
 #' plot(stab)
+#' SelectedVariables(stab)
 #'
 #'
 #' ## Sparse/Group Partial Least Squares
@@ -148,6 +159,7 @@
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   implementation = SparsePLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #' plot(stab)
 #'
@@ -160,6 +172,7 @@
 #'   implementation = SparsePLS,
 #'   n_cat = 2
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #' plot(stab)
 #'
@@ -171,6 +184,7 @@
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #'
 #' # sgPLS: sparsity on both X and Y
@@ -178,10 +192,14 @@
 #'   xdata = x, ydata = y, K = 10,
 #'   group_x = c(2, 8, 5), group_y = c(1, 2),
 #'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-#'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.1),
+#'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.2),
+#'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.2),
 #'   implementation = SparseGroupPLS,
 #'   n_cat = 2
+#' )
+#' CalibrationPlot(stab)
+#' CalibrationPlot(stab,
+#'   params = c("nx", "alphax", "ny", "alphay")
 #' )
 #' summary(stab)
 #'
@@ -193,6 +211,7 @@
 #'   LambdaX = 1:2,
 #'   implementation = GroupPLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #'
 #' # gPLS: sparsity on both X and Y
@@ -203,6 +222,7 @@
 #'   LambdaX = 1:2, LambdaY = 1:2,
 #'   implementation = GroupPLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #'
 #'
@@ -221,6 +241,7 @@
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   implementation = SparsePLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #'
 #' # sgPLS-DA: sparsity on X
@@ -231,9 +252,10 @@
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #'
-#' # gPLS-DA: sparsity on Y
+#' # gPLS-DA: sparsity on X
 #' stab <- BiSelection(
 #'   xdata = x, ydata = cbind(y),
 #'   group_x = c(2, 8, 5),
@@ -241,6 +263,7 @@
 #'   LambdaX = 1:2,
 #'   implementation = GroupPLS
 #' )
+#' CalibrationPlot(stab)
 #' summary(stab)
 #' }
 #' @export

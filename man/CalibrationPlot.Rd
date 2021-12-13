@@ -6,55 +6,99 @@
 \usage{
 CalibrationPlot(
   stability,
-  clustering = FALSE,
-  metric = "both",
   block_id = NULL,
-  lines = FALSE,
-  colours = c("ivory", "navajowhite", "tomato", "darkred"),
+  heatmap = TRUE,
+  colours = NULL,
+  pch = 19,
+  cex = 0.7,
+  xlim = NULL,
+  ylim = NULL,
+  bty = "o",
+  lines = TRUE,
+  lty = 3,
+  lwd = 2,
+  show_argmax = TRUE,
+  show_pix = FALSE,
+  show_piy = FALSE,
+  offset = 0.3,
   legend = TRUE,
   legend_length = 15,
   legend_range = NULL,
-  xlab = expression(lambda),
-  ylab = expression(pi),
+  xlab = NULL,
+  ylab = NULL,
   zlab = expression(italic(q)),
-  filename = NULL,
-  fileformat = "pdf",
-  res = 500,
-  width = 7,
-  height = 7,
-  units = "in",
-  ...
+  xlas = 2,
+  ylas = 0,
+  cex.lab = 1.5,
+  cex.axis = 1,
+  xgrid = FALSE,
+  ygrid = FALSE,
+  params = c("ny", "alphay", "nx", "alphax")
 )
 }
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}},
-\code{\link{GraphicalModel}} or \code{\link{Clustering}}.}
-
-\item{clustering}{logical indicating whether calibration for clustering
-(\code{clustering=TRUE}) or variable selection (\code{clustering=FALSE})
-should be represented. This argument is only used if \code{stability} is the
-output from \code{\link{Clustering}}.}
-
-\item{metric}{parameter to visualise. Possible values are "lambda" (parameter
-controlling the level of sparsity in underlying algorithm), "pi" (threshold
-in selection proportion) or "both".}
+\code{\link{GraphicalModel}} or \code{\link{BiSelection}}.}
 
 \item{block_id}{ID of the block to visualise. Only used for multi-block
-stability selection graphical models. With block_id=NULL, all blocks are
-represented in separate panels.}
+stability selection graphical models. If \code{block_id=NULL}, all blocks
+are represented in separate panels.}
+
+\item{heatmap}{logical indicating if results should be visualised as a
+heatmap. If \code{heatmap=TRUE}, the stability score is colour-coded and
+represented as a function of the parameter controlling the level of
+sparsity (x-axis) and threshold in selection proportions (y-axis). If
+\code{heatmap=FALSE}, the stability score (y-axis) is represented as a
+function of the parameter controlling the level of sparsity (x-axis). Only
+used if \code{stability} is of class \code{graphical_model} or
+\code{variable_selection}.}
+
+\item{colours}{vector of colours.}
+
+\item{pch}{type of point, as in \code{\link{points}}.}
+
+\item{cex}{size of point.}
+
+\item{xlim}{displayed range along the x-axis.}
+
+\item{ylim}{displayed range along the y-axis.}
+
+\item{bty}{character string indicating if the box around the plot should be
+drawn. Possible values include: \code{"o"} (default, the box is drawn), or
+\code{"n"} (no box).}
 
 \item{lines}{logical indicating if the points should be linked by lines.}
 
-\item{colours}{vector of colours used for the heatmap. By default a gradient
-of colours ranging from ivory to dark red is used. Only used with
-metric="both".}
+\item{lty}{line type for the point-wise median curve, as in
+\code{\link{par}}.}
 
-\item{legend}{logical indicating if the colour bar should be included. Only
-used with metric="both".}
+\item{lwd}{line width for the point-wise median curve, as in
+\code{\link{par}}.}
 
-\item{legend_length}{length of the colour bar. Only used with metric="both".}
+\item{show_argmax}{logical indicating if the calibrated parameter(s) should
+be indicated by lines.}
 
-\item{legend_range}{range of the colour bar. Only used with metric="both".}
+\item{show_pix}{logical indicating if the calibrated threshold in selection
+proportion in \code{X} should be written for each point. Only used if
+\code{stability} is of class \code{bi_selection}.}
+
+\item{show_piy}{logical indicating if the calibrated threshold in selection
+proportion in \code{Y} should be written for each point. Only used if
+\code{stability} is of class \code{bi_selection} with sparsity on a
+multivariate outcome.}
+
+\item{offset}{distance between the point and the text, as in
+\code{\link[graphics]{text}}.}
+
+\item{legend}{logical indicating if the legend should be included. Only used
+if \code{heatmap=TRUE} or with multiple components if \code{stability} is
+of class \code{bi_selection}.}
+
+\item{legend_length}{length of the colour bar. Only used if
+\code{heatmap=TRUE}.}
+
+\item{legend_range}{range of the colour bar. Only used if
+\code{heatmap=TRUE}.}
 
 \item{xlab}{label of the x-axis.}
 
@@ -62,28 +106,23 @@ used with metric="both".}
 
 \item{zlab}{label of the z-axis.}
 
-\item{filename}{file path to saved figure. With filename=NULL, the plot is
-not saved.}
+\item{xlas}{orientation of labels on the x-axis, as \code{las} in
+\code{\link[graphics]{par}}.}
 
-\item{fileformat}{format of the saved figure. Possible values are "pdf" or
-"png". Only used if argument "filename" is not NULL.}
+\item{ylas}{orientation of labels on the y-axis, as \code{las} in
+\code{\link[graphics]{par}}.}
 
-\item{res}{resolution of the png figure (see \code{\link{png}} from the
-grDevices package). Only used if argument "filename" is not NULL and
-fileformat="png".}
+\item{cex.lab}{size of label on the y-axis.}
 
-\item{width}{width of the saved figure. Only used if argument "filename" is
-not NULL.}
+\item{cex.axis}{size of labels along the axes.}
 
-\item{height}{height of the saved figure. Only used if argument "filename" is
-not NULL.}
+\item{xgrid}{logical indicating if a vertical grid should be drawn.}
 
-\item{units}{units of width and height. Possible values are "px", "in", "cm"
-and "mm" (see \code{\link{png}} from the grDevices package). Only used if
-argument "filename" is not NULL and fileformat="png".}
+\item{ygrid}{logical indicating if a horizontal grid should be drawn.}
 
-\item{...}{additional arguments to be passed to \code{\link{Heatmap}} or
-\code{\link{axis}} from the graphics package.}
+\item{params}{vector of possible parameters if \code{stability} is of class
+\code{bi_selection}. The order of these parameters defines the order in
+which they are represented.}
 }
 \value{
 a calibration plot.
@@ -107,26 +146,27 @@ simul <- SimulateGraphical(pk = 20, nu_within = 0.1)
 # Stability selection
 stab <- GraphicalModel(xdata = simul$data)
 
-# Calibration plots
-par(mar = c(7, 5, 7, 6))
+# Calibration heatmap
+par(mar = c(7, 5, 6, 6))
 CalibrationPlot(stab)
-par(mar = c(7, 5, 7, 1))
-CalibrationPlot(stab, metric = "lambda")
-CalibrationPlot(stab, metric = "pi")
 
-# User-defined colours (heatmap)
+# Calibration curve
+par(mar = c(7, 5, 6, 1))
+CalibrationPlot(stab, heatmap = FALSE)
+
+# User-defined colours
 par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab, colours = c("lightgrey", "blue"))
-CalibrationPlot(stab, colours = c("lightgrey", "blue", "black"))
 CalibrationPlot(stab,
-  colours = c("lightgrey", "blue", "black"),
-  legend_length = 25, legend_range = c(0, 4000)
+  colours = c("ivory", "blue", "black"),
+  legend_length = 31,
+  legend_range = c(0, 2500)
 )
 }
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
+  \code{\link{BiSelection}}
 
 Other calibration functions: 
 \code{\link{Adjacency}()},

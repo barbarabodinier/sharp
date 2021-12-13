@@ -917,17 +917,12 @@ Incremental <- function(xdata, ydata,
 #' median is represented and flanked by a transparent band defined by
 #' point-wise \code{quantiles}.
 #'
+#' @inheritParams CalibrationPlot
 #' @param roc output from \code{\link{ROC}} or
 #'   \code{\link{ExplanatoryPerformance}}.
 #' @param col colour of the point-wise median curve.
 #' @param col_band colour of the band defined by point-wise \code{quantiles}.
 #' @param alpha level of opacity for the band.
-#' @param lwd line width for the point-wise median curve, as in
-#'   \code{\link{par}}.
-#' @param lty line type for the point-wise median curve, as in
-#'   \code{\link{par}}.
-#' @param xlab label of the x-axis.
-#' @param ylab label of the y-axis.
 #' @param quantiles point-wise quantiles of the performances defining the band.
 #' @param add logical indicating if the curve should be added to the current
 #'   plot.
@@ -981,11 +976,11 @@ Incremental <- function(xdata, ydata,
 #'
 #' @export
 PlotROC <- function(roc,
+                    xlab = "False Positive Rate",
+                    ylab = "True Positive Rate",
                     col = "red", col_band = NULL,
                     alpha = 0.5,
                     lwd = 1, lty = 1,
-                    xlab = "False Positive Rate",
-                    ylab = "True Positive Rate",
                     quantiles = c(0.05, 0.95),
                     add = FALSE) {
   # Extracting the number of iterations
@@ -1035,23 +1030,10 @@ PlotROC <- function(roc,
 #' predictors in a logistic or Cox regression model as produced by
 #' \code{\link{Incremental}}.
 #'
+#' @inheritParams CalibrationPlot
 #' @param perf output from \code{\link{Incremental}}.
 #' @param quantiles quantiles defining the lower and upper bounds.
-#' @param ylab label of the y-axis.
-#' @param pch type of point, as in \code{\link{points}}.
-#' @param cex size of point.
-#' @param cex.lab size of label on the y-axis.
 #' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
-#' @param xlas orientation of labels on the x-axis, as \code{las} in
-#'   \code{\link[graphics]{par}}.
-#' @param ylas orientation of labels on the y-axis, as \code{las} in
-#'   \code{\link[graphics]{par}}.
-#' @param ylim displayed range along the y-axis.
-#' @param bty character string indicating if the box around the plot should be
-#'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
-#'   \code{"n"} (no box).
-#' @param xgrid logical indicating if a vertical grid should be drawn.
-#' @param ygrid logical indicating if a horizontal grid should be drawn.
 #' @param col vector of point colours.
 #' @param col.axis optional vector of label colours. If \code{col.axis=NULL},
 #'   the colours provided in argument \code{col} are used.

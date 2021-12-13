@@ -108,7 +108,7 @@
 #'   objects correspond to different blocks.
 #'
 #' @family stability selection functions
-#' @seealso \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
+#' @seealso \code{\link{Graph}}, \code{\link{Adjacency}}, \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
 #'   \code{\link{GraphicalAlgo}}, \code{\link{Combine}},
 #'   \code{\link{StabilityScore}}
 #'
@@ -116,7 +116,7 @@
 #' \dontshow{
 #' # Single-block stability selection
 #' set.seed(1)
-#' simul <- SimulateGraphical(n = 50, pk = 10, nu_within = 0.1)
+#' simul <- SimulateGraphical(n = 50, pk = 30, nu_within = 0.05)
 #' stab <- GraphicalModel(xdata = simul$data, K = 5, verbose = FALSE)
 #' CalibrationPlot(stab)
 #' A <- Adjacency(stab)
@@ -141,18 +141,47 @@
 #' }
 #' \dontrun{
 #'
-#' # Single-block stability selection
+#' ## Single-block stability selection
+#'
+#' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 20, nu_within = 0.1)
-#' stab <- GraphicalModel(xdata = simul$data)
-#' summary(stab)
-#' plot(Graph(stab))
 #'
-#' # Multi-block stability selection
+#' # Stability selection
+#' stab <- GraphicalModel(xdata = simul$data)
+#' print(stab)
+#'
+#' # Calibration heatmap
+#' par(mar = rep(7, 4))
+#' CalibrationPlot(stab)
+#'
+#' # Visualisation of the results
+#' summary(stab)
+#' plot(stab)
+#'
+#' # Extraction of adjacency matrix or igraph object
+#' Adjacency(stab)
+#' Graph(stab)
+#'
+#'
+#' ## Multi-block stability selection
+#'
+#' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = c(10, 10))
+#'
+#' # Stability selection
 #' stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
+#' print(stab)
+#'
+#' # Calibration heatmap
+#' par(mar = rep(7, 4), mfrow = c(1, 3))
+#' CalibrationPlot(stab)
+#'
+#' # Visualisation of the results
 #' summary(stab)
+#' par(mfrow = c(1, 1))
+#' plot(stab)
 #'
 #' # Multi-parameter stability selection (not recommended)
 #' Lambda <- matrix(c(0.8, 0.6, 0.3, 0.5, 0.4, 0.3, 0.7, 0.5, 0.1), ncol = 3)
@@ -162,9 +191,13 @@
 #' )
 #' stab$Lambda
 #'
-#' # Example with user-defined function: shrinkage estimation and selection
+#'
+#' ## Example with user-defined function: shrinkage estimation and selection
+#'
+#' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 20, nu_within = 0.1)
+#'
 #' if (requireNamespace("corpcor", quietly = TRUE)) {
 #'   # Writing user-defined algorithm in a portable function
 #'   ShrinkageSelection <- function(xdata, Lambda, ...) {
@@ -192,25 +225,38 @@
 #'   stable_adjacency <- Adjacency(stab)
 #' }
 #'
-#' # Example for the detection of block structure
+#'
+#' ## Example for the detection of block structure
+#'
+#' # Data simulation
 #' set.seed(1)
 #' pk <- sample(1:5, size = 5, replace = TRUE)
 #' simul <- SimulateComponents(
 #'   n = 100, pk = pk,
 #'   v_within = c(0.7, 0.8), v_sign = -1
 #' )
+#'
+#' # Data visualisation
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$data),
 #'   colours = c("navy", "white", "red"),
 #'   legend_range = c(-1, 1)
 #' )
+#'
+#' # Stability-based clustering of variables
 #' stab <- GraphicalModel(
 #'   xdata = simul$data, Lambda = seq(2, ncol(simul$data)),
 #'   implementation = HierarchicalClustering
 #' )
+#'
+#' # Calibration heatmap
 #' CalibrationPlot(stab, xlab = "k")
+#'
+#' # Extraction of stable clusters
 #' Clusters(stab)
+#'
+#' # Clustering performance (for simulations only)
 #' ClusteringPerformance(
 #'   theta = Clusters(stab),
 #'   theta_star = simul$membership

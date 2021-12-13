@@ -8,7 +8,9 @@ Heatmap(
   mat,
   colours = c("ivory", "navajowhite", "tomato", "darkred"),
   resolution = 10000,
+  bty = "o",
   axes = TRUE,
+  cex.axis = 1,
   legend = TRUE,
   legend_length = NULL,
   legend_range = NULL
@@ -17,13 +19,18 @@ Heatmap(
 \arguments{
 \item{mat}{data matrix.}
 
-\item{colours}{vector of colours used for the heatmap. By default a gradient
-of colours ranging from ivory to dark red is used.}
+\item{colours}{vector of colours.}
 
 \item{resolution}{number of different colours to use.}
 
+\item{bty}{character string indicating if the box around the plot should be
+drawn. Possible values include: \code{"o"} (default, the box is drawn), or
+\code{"n"} (no box).}
+
 \item{axes}{logical indicating if the row and column names of \code{mat}
 should be displayed.}
+
+\item{cex.axis}{size of labels along the axes.}
 
 \item{legend}{logical indicating if the colour bar should be included.}
 
@@ -45,8 +52,13 @@ set.seed(1)
 mat <- matrix(rnorm(200), ncol = 20)
 
 # Generating heatmaps
+par(mar = c(1, 1, 1, 5))
 Heatmap(mat = mat)
-Heatmap(mat = mat, colours = c("lightgrey", "blue", "black"), legend = FALSE)
+Heatmap(
+  mat = mat,
+  colours = c("lightgrey", "blue", "black"),
+  legend = FALSE
+)
 }
 
 }
