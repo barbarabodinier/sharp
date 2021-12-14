@@ -27,3 +27,4 @@ matrix. This function is used to find the value of the constant u
 that generates a covariance matrix with desired proportion of explained
 variance.
 }
+\keyword{internal}

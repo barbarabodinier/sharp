@@ -27,3 +27,4 @@ Computes the absolute difference between the smallest eigenvalue and
 requested one (parameter \code{tol}) for a precision matrix with predictors
 and outcomes.
 }
+\keyword{internal}

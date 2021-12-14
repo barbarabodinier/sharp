@@ -27,3 +27,4 @@ A list of probabilities for each of the 2 or 3 categories of
 Computes the probabilities of observing each category of selection
 proportions under the assumption of a uniform selection procedure.
 }
+\keyword{internal}

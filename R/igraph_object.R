@@ -42,6 +42,7 @@
 #' \dontrun{
 #'
 #' ## From adjacency matrix
+#'
 #' # Un-weighted
 #' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
@@ -54,10 +55,24 @@
 #' # Node colours and shapes
 #' plot(Graph(adjacency, weighted = TRUE, node_shape = "star", node_colour = "red"))
 #'
-#' ## From stability selection output
+#'
+#' ## From stability selection outputs
+#'
+#' # Graphical model
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
 #' stab <- GraphicalModel(xdata = simul$data)
+#' plot(Graph(stab))
+#'
+#' # Sparse PLS
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' stab <- BiSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   implementation = SparsePLS
+#' )
 #' plot(Graph(stab))
 #' }
 #'

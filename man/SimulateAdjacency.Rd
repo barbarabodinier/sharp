@@ -90,7 +90,6 @@ plot(Graph(simul)) # variable 2 is the central node
 }
 \seealso{
 Other simulation functions: 
-\code{\link{HugeAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()},

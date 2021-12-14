@@ -223,7 +223,6 @@ summary(mymodel)$r.squared
 \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
-\code{\link{HugeAdjacency}()},
 \code{\link{SimulateAdjacency}()},
 \code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()},

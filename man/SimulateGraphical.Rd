@@ -227,7 +227,6 @@ Heatmap(mycor,
   \code{\link{Contrast}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
-\code{\link{HugeAdjacency}()},
 \code{\link{SimulateAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateComponents}()},

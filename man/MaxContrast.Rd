@@ -22,3 +22,4 @@ diagonal of the precision matrix. This function is used to find the value of
 u that maximises the contrast when constructing a diagonally dominant
 precision matrix.
 }
+\keyword{internal}

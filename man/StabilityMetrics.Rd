@@ -116,7 +116,9 @@ sparsity of the underlying algorithm and for different thresholds in
 selection proportions.
 }
 \examples{
+
 ## Sparse or sparse group penalisation
+
 # Simulating set of selection proportions
 set.seed(1)
 selprop <- matrix(round(runif(n = 20), digits = 2), nrow = 2)
@@ -127,7 +129,9 @@ metrics <- StabilityMetrics(
   K = 100, graph = FALSE
 )
 
+
 ## Group penalisation
+
 # Simulating set of selection proportions
 set.seed(1)
 selprop <- matrix(round(runif(n = 6), digits = 2), nrow = 2)
@@ -142,6 +146,7 @@ metrics <- StabilityMetrics(
   selprop = selprop, pi = c(0.6, 0.7, 0.8),
   K = 100, graph = FALSE, group = c(2, 2, 6)
 )
+
 }
 \references{
 \insertRef{ourstabilityselection}{focus}

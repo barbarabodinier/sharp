@@ -991,16 +991,15 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 #' @return A symmetric adjacency matrix encoding an unweighted, undirected graph
 #'   with no self-loops.
 #'
-#' @family simulation functions
-#'
 #' @examples
 #' \dontrun{
 #'
 #' # Simulation of a scale-free graph with 20 nodes
-#' adjacency <- HugeAdjacency(pk = 20, topology = "scale-free")
+#' adjacency <- focus:::HugeAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
 #' }
-#' @export
+#'
+#' @keywords internal
 HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   # Storing extra arguments
   extra_args <- list(...)
@@ -1674,6 +1673,8 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
 #' @param digits number of digits to use in the definition of the contrast.
 #'
 #' @return A single number, the contrast of the generated precision matrix.
+#' 
+#' @keywords internal
 MaxContrast <- function(u, omega, digits = 3) {
   diag(omega) <- diag(omega) + u
   return(Contrast(stats::cov2cor(omega), digits = digits))
@@ -1714,7 +1715,7 @@ Contrast <- function(mat, digits = 3) {
 #' @return The difference in proportion of explained variance in absolute values
 #'   or observed proportion of explained variance (if \code{ev_xx=NULL}).
 #'
-#' @export
+#' @keywords internal
 TuneExplainedVarianceCov <- function(u, ev_xx = NULL, lambda) {
   lambda <- lambda + u
   lambda_inv <- 1 / lambda
@@ -1744,7 +1745,7 @@ TuneExplainedVarianceCov <- function(u, ev_xx = NULL, lambda) {
 #' @return The difference in proportion of explained variance in absolute values
 #'   or observed proportion of explained variance (if \code{ev_xx=NULL}).
 #'
-#' @export
+#' @keywords internal
 TuneExplainedVarianceCor <- function(u, ev_xx = NULL, omega) {
   diag(omega) <- diag(omega) + u
   mycor <- stats::cov2cor(solve(omega))
@@ -1774,7 +1775,7 @@ TuneExplainedVarianceCor <- function(u, ev_xx = NULL, omega) {
 #' @return The absolute difference between the smallest eigenvalue of the
 #'   transformed precision matrix and requested value \code{tol}.
 #'
-#' @export
+#' @keywords internal
 TuneExplainedVarianceReg <- function(ev_xz, omega, tol = 0.1, q, p) {
   ev_xz <- rep(ev_xz, q)
   for (j in 1:q) {

@@ -34,16 +34,9 @@ no self-loops.
 \dontrun{
 
 # Simulation of a scale-free graph with 20 nodes
-adjacency <- HugeAdjacency(pk = 20, topology = "scale-free")
+adjacency <- focus:::HugeAdjacency(pk = 20, topology = "scale-free")
 plot(Graph(adjacency))
 }
+
 }
-\seealso{
-Other simulation functions: 
-\code{\link{SimulateAdjacency}()},
-\code{\link{SimulateClustering}()},
-\code{\link{SimulateComponents}()},
-\code{\link{SimulateGraphical}()},
-\code{\link{SimulateRegression}()}
-}
-\concept{simulation functions}
+\keyword{internal}

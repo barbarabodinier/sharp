@@ -307,6 +307,10 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' }
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
+  if (!class(stability) %in% c("clustering", "variable_selection", "bi_selection")) {
+    stop("Invalid input for argument 'stability'. This function only applies to outputs from VariableSelection() or BiSelection().")
+  }
+
   if (class(stability) == "clustering") {
     selprop <- SelectionProportions(stability, argmax_id = argmax_id)
     if (any(selprop != 1)) {
@@ -324,7 +328,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
     }
   }
 
-  if (class(stability) %in% c("graphical_model", "variable_selection")) {
+  if (class(stability) == "variable_selection") {
     if (is.null(argmax_id)) {
       argmax_id <- ArgmaxId(stability)
     }
@@ -363,10 +367,21 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' simul <- SimulateGraphical(pk = 50, n = 10)
 #'
 #' # Consensus clustering
-#' stab <- Clustering(xdata = simul$data, implementation = HierarchicalClustering)
+#' stab <- GraphicalModel(
+#'   xdata = simul$data,
+#'   Lambda = seq(2, ncol(simul$data)),
+#'   implementation = HierarchicalClustering
+#' )
 #'
 #' # Stable cluster membership
-#' mymembership <- Clusters(stab)
+#' groups <- Clusters(stab)
+#'
+#' # Network representation of stable co-membership
+#' set.seed(1)
+#' plot(Graph(CoMembership(groups),
+#'   satellites = TRUE,
+#'   node_colour = distinctColorPalette(length(unique(groups)))[groups]
+#' ))
 #' }
 #' @export
 Clusters <- function(adjacency = NULL, argmax_id = NULL) {
@@ -402,6 +417,7 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 #' \dontrun{
 #'
 #' ## Variable selection
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
@@ -418,7 +434,9 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' prop <- SelectionProportions(stab, argmax_id = myids)
 #'
+#'
 #' ## Graphical model
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
@@ -426,7 +444,7 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 #' # Stability selection
 #' stab <- GraphicalModel(xdata = simul$data)
 #'
-#' # Calibrated adjacency matrix
+#' # Calibrated matrix of selection proportions
 #' prop <- SelectionProportions(stab)
 #'
 #' # User-defined parameters
@@ -434,6 +452,24 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' prop <- SelectionProportions(stab, argmax_id = myids)
+#'
+#'
+#' ## Dimensionality reduction
+#'
+#' # Data simulation (continuous outcomes)
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#'
+#' # Sparse PLS
+#' stab <- BiSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   implementation = SparsePLS
+#' )
+#'
+#' # Calibrated selection proportions per component
+#' prop <- SelectionProportions(stab)
 #' }
 #'
 #' @export
@@ -546,11 +582,11 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 #'
 #' # Coefficients of visited models
-#' coefs <- Coefficients(stab)
+#' coefs <- focus:::Coefficients(stab)
 #' dim(coefs)
 #'
 #' # Coefficients of the first fitted model
-#' coefs <- Coefficients(stab, iterations = 1)
+#' coefs <- focus:::Coefficients(stab, iterations = 1)
 #' dim(coefs)
 #'
 #' # Stability selection
@@ -560,10 +596,11 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #' )
 #'
 #' # Coefficients of visited models
-#' coefs <- Coefficients(stab, side = "Y", )
+#' coefs <- focus:::Coefficients(stab, side = "Y", )
 #' dim(coefs)
 #' }
-#' @export
+#'
+#' @keywords internal
 Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
   if (is.null(iterations)) {
     iterations <- seq(1, dim(stability$Beta)[3])
@@ -617,7 +654,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
-#' median_betas <- AggregatedEffect(stab)
+#' median_betas <- AggregatedEffects(stab)
 #'
 #' # Comparison with recalibrated model
 #' recalibrated <- Recalibrate(xdata = simul$xdata, ydata = simul$ydata, stability = stab)
@@ -630,7 +667,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
-#' median_betas <- AggregatedEffect(stab)
+#' median_betas <- AggregatedEffects(stab)
 #' dim(median_betas)
 #'
 #' # Sparse PLS with multivariate outcome
@@ -642,13 +679,13 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'   LambdaX = 1:(ncol(x) - 1),
 #'   implementation = SparsePLS
 #' )
-#' median_betas <- AggregatedEffect(stab)
+#' median_betas <- AggregatedEffects(stab)
 #' dim(median_betas)
-#' median_betas <- AggregatedEffect(stab, side = "Y")
+#' median_betas <- AggregatedEffects(stab, side = "Y")
 #' dim(median_betas)
 #' }
 #' @export
-AggregatedEffect <- function(stability, lambda_id = NULL, side = "X", comp = 1,
+AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
                              FUN = stats::median, ...) {
   if (!class(stability) %in% c("variable_selection", "bi_selection")) {
     stop("Invalid input for argument 'stability'. This function only applies to the output of VariableSelection() or BiSelection().")

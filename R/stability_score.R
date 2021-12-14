@@ -107,7 +107,7 @@ StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat
 #' @return A list of probabilities for each of the 2 or 3 categories of
 #'   selection proportions.
 #'
-#' @export
+#' @keywords internal
 BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
   if (n_cat == 2) {
     # Definition of the threshold in selection counts

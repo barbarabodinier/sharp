@@ -28,10 +28,21 @@ set.seed(1)
 simul <- SimulateGraphical(pk = 50, n = 10)
 
 # Consensus clustering
-stab <- Clustering(xdata = simul$data, implementation = HierarchicalClustering)
+stab <- GraphicalModel(
+  xdata = simul$data,
+  Lambda = seq(2, ncol(simul$data)),
+  implementation = HierarchicalClustering
+)
 
 # Stable cluster membership
-mymembership <- Clusters(stab)
+groups <- Clusters(stab)
+
+# Network representation of stable co-membership
+set.seed(1)
+plot(Graph(CoMembership(groups),
+  satellites = TRUE,
+  node_colour = distinctColorPalette(length(unique(groups)))[groups]
+))
 }
 }
 \seealso{

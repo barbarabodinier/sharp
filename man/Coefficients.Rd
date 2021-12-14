@@ -36,11 +36,11 @@ simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 
 # Coefficients of visited models
-coefs <- Coefficients(stab)
+coefs <- focus:::Coefficients(stab)
 dim(coefs)
 
 # Coefficients of the first fitted model
-coefs <- Coefficients(stab, iterations = 1)
+coefs <- focus:::Coefficients(stab, iterations = 1)
 dim(coefs)
 
 # Stability selection
@@ -50,10 +50,12 @@ stab <- VariableSelection(
 )
 
 # Coefficients of visited models
-coefs <- Coefficients(stab, side = "Y", )
+coefs <- focus:::Coefficients(stab, side = "Y", )
 dim(coefs)
 }
+
 }
 \seealso{
 \code{\link{VariableSelection}}
 }
+\keyword{internal}

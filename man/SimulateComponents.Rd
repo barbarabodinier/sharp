@@ -162,7 +162,6 @@ plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}
 
 Other simulation functions: 
-\code{\link{HugeAdjacency}()},
 \code{\link{SimulateAdjacency}()},
 \code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()},

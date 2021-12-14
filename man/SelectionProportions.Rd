@@ -26,6 +26,7 @@ model.
 \dontrun{
 
 ## Variable selection
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(pk = 50)
@@ -42,7 +43,9 @@ stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 prop <- SelectionProportions(stab, argmax_id = myids)
 
+
 ## Graphical model
+
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
@@ -50,7 +53,7 @@ simul <- SimulateGraphical(pk = 20)
 # Stability selection
 stab <- GraphicalModel(xdata = simul$data)
 
-# Calibrated adjacency matrix
+# Calibrated matrix of selection proportions
 prop <- SelectionProportions(stab)
 
 # User-defined parameters
@@ -58,6 +61,24 @@ myids <- matrix(c(20, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 prop <- SelectionProportions(stab, argmax_id = myids)
+
+
+## Dimensionality reduction
+
+# Data simulation (continuous outcomes)
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+
+# Sparse PLS
+stab <- BiSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  implementation = SparsePLS
+)
+
+# Calibrated selection proportions per component
+prop <- SelectionProportions(stab)
 }
 
 }
