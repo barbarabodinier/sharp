@@ -4,7 +4,7 @@
 \alias{Recalibrate}
 \title{Regression model recalibration}
 \usage{
-Recalibrate(xdata, ydata, stability = NULL, family = NULL)
+Recalibrate(xdata, ydata, stability = NULL, family = NULL, ...)
 }
 \arguments{
 \item{xdata}{matrix of predictors with observations as rows and variables as
@@ -24,13 +24,19 @@ provided in this case.}
 regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis). This argument must be consistent with
 input \code{stability}, if provided.}
+
+\item{...}{additional arguments to be passed to \code{\link[stats]{lm}}
+(linear regression), \code{\link[survival]{coxph}} (Cox regression),
+\code{\link[stats]{glm}} (logistic regression), or
+\code{\link[nnet]{multinom}} (multinomial regression).}
 }
 \value{
 The output as obtained from: \item{\code{\link[stats]{lm}}}{for
   linear regression (\code{"gaussian"} family).}
-  \item{\code{\link[stats]{glm}}}{for logistic regression (\code{"binomial"}
-  family).} \item{\code{\link[nnet]{multinom}}}{for multinomial regression
-  (\code{"multinomial"} family).}
+  \item{\code{\link[survival]{coxph}}}{for Cox regression (\code{"cox"}
+  family).} \item{\code{\link[stats]{glm}}}{for logistic regression
+  (\code{"binomial"} family).} \item{\code{\link[nnet]{multinom}}}{for
+  multinomial regression (\code{"multinomial"} family).}
 }
 \description{
 Recalibrates the regression using an un-penalised model with stably selected
@@ -166,6 +172,34 @@ recalibrated <- Recalibrate(
 )
 summary(recalibrated) # recalibrated coefficients
 head(recalibrated$fitted.values) # recalibrated predicted probabilities
+
+
+## Partial Least Squares
+
+# Data simulation
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+
+# Data split
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "gaussian"
+)
+xtrain <- simul$xdata[ids_train, , drop = FALSE]
+ytrain <- simul$ydata[ids_train, , drop = FALSE]
+xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+
+# Stability selection
+stab <- BiSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
+print(SelectedVariables(stab))
+
+# Recalibrating the model
+recalibrated <- Recalibrate(
+  xdata = xrecalib, ydata = yrecalib,
+  stability = stab
+)
+recalibrated$loadings # recalibrated loadings coefficients
 }
 
 }

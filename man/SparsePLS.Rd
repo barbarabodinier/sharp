@@ -58,6 +58,7 @@ Runs a sparse Partial Least Squares model using implementation from
 }
 \examples{
 ## Sparse PLS
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
@@ -67,7 +68,9 @@ y <- simul$ydata
 # Running sPLS with 2 X-variables and 1 Y-variable
 mypls <- SparsePLS(xdata = x, ydata = y, Lambda = 2, family = "gaussian", keepY = 1)
 
+
 ## Sparse PLS-DA
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")

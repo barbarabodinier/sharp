@@ -136,12 +136,18 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   regression), \code{"multinomial"} (multinomial regression), and
 #'   \code{"cox"} (survival analysis). This argument must be consistent with
 #'   input \code{stability}, if provided.
+#' @param ... additional arguments to be passed to \code{\link[stats]{lm}}
+#'   (linear regression), \code{\link[survival]{coxph}} (Cox regression),
+#'   \code{\link[stats]{glm}} (logistic regression), or
+#'   \code{\link[nnet]{multinom}} (multinomial regression).
+#'
 #'
 #' @return The output as obtained from: \item{\code{\link[stats]{lm}}}{for
 #'   linear regression (\code{"gaussian"} family).}
-#'   \item{\code{\link[stats]{glm}}}{for logistic regression (\code{"binomial"}
-#'   family).} \item{\code{\link[nnet]{multinom}}}{for multinomial regression
-#'   (\code{"multinomial"} family).}
+#'   \item{\code{\link[survival]{coxph}}}{for Cox regression (\code{"cox"}
+#'   family).} \item{\code{\link[stats]{glm}}}{for logistic regression
+#'   (\code{"binomial"} family).} \item{\code{\link[nnet]{multinom}}}{for
+#'   multinomial regression (\code{"multinomial"} family).}
 #'
 #' @seealso \code{\link{VariableSelection}}
 #'
@@ -274,13 +280,50 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' summary(recalibrated) # recalibrated coefficients
 #' head(recalibrated$fitted.values) # recalibrated predicted probabilities
+#'
+#'
+#' ## Partial Least Squares
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#'
+#' # Data split
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "gaussian"
+#' )
+#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
+#' ytrain <- simul$ydata[ids_train, , drop = FALSE]
+#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#'
+#' # Stability selection
+#' stab <- BiSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
+#' print(SelectedVariables(stab))
+#'
+#' # Recalibrating the model
+#' recalibrated <- Recalibrate(
+#'   xdata = xrecalib, ydata = yrecalib,
+#'   stability = stab
+#' )
+#' recalibrated$loadings # recalibrated loadings coefficients
 #' }
 #'
 #' @export
-Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
+Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
+  # Defining the type of model (PLS vs regression)
+  use_pls <- FALSE
+
+  # Checking input
   if (!is.null(stability)) {
-    if (class(stability) != "variable_selection") {
+    if (!class(stability) %in% c("variable_selection")) {
       stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
+    }
+    if (class(stability) == "bi_selection") {
+      # Checking mixOmics package is installed
+      CheckPackageInstalled("mixOmics")
+      use_pls <- TRUE
     }
     if (!stability$methods$family %in% c("gaussian", "cox", "binomial", "multinomial")) {
       stop("This function can only be applied with the following families: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
@@ -297,10 +340,19 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
     }
   }
 
-  # Re-formatting the input
+  # Re-formatting the inputs
   if (is.vector(xdata)) {
     xdata <- cbind(xdata)
     colnames(xdata) <- "var"
+  }
+  if (family %in% c("binomial", "multinomial")) {
+    if (!is.factor(ydata)) {
+      if (!is.vector(ydata)) {
+        if (ncol(ydata) != 1) {
+          ydata <- DummyToCategories(ydata)
+        }
+      }
+    }
   }
 
   # Defining predictors for the model
@@ -314,37 +366,42 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL) {
     names(selected)[which(selected == 1)],
     colnames(xdata)[!colnames(xdata) %in% names(selected)]
   )
-  myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
 
-  # Recalibration for linear regression
-  if (family == "gaussian") {
-    mymodel <- stats::lm(myformula, data = as.data.frame(xdata))
-  }
-
-  # Recalibration for Cox regression
-  if (family == "cox") {
-    ydata <- survival::Surv(ydata[, "time"], ydata[, "case"])
-    mymodel <- survival::coxph(myformula, data = as.data.frame(xdata))
-  }
-
-  # Recalibration for logistic regression
-  if (family == "binomial") {
-    mymodel <- stats::glm(myformula,
-      data = as.data.frame(xdata),
-      family = stats::binomial(link = "logit")
-    )
-  }
-
-  # Recalibration for multinomial regression
-  if (family == "multinomial") {
-    if (!is.factor(ydata)) {
-      if (!is.vector(ydata)) {
-        if (ncol(ydata) == 1) {
-          ydata <- DummyToCategories(ydata)
-        }
-      }
+  if (use_pls) {
+    # Recalibration for PLS(DA)
+    print(ids)
+    if (family == "gaussian") {
+      mymodel <- mixOmics::pls(X = xdata[, ids], Y = ydata, ...)
+    } else {
+      mymodel <- mixOmics::plsda(X = xdata[, ids], Y = ydata, ...)
     }
-    mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata))
+  } else {
+    # Writing model formula
+    myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
+
+    # Recalibration for linear regression
+    if (family == "gaussian") {
+      mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
+    }
+
+    # Recalibration for Cox regression
+    if (family == "cox") {
+      ydata <- survival::Surv(ydata[, "time"], ydata[, "case"])
+      mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
+    }
+
+    # Recalibration for logistic regression
+    if (family == "binomial") {
+      mymodel <- stats::glm(myformula,
+        data = as.data.frame(xdata),
+        family = stats::binomial(link = "logit", ...)
+      )
+    }
+
+    # Recalibration for multinomial regression
+    if (family == "multinomial") {
+      mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), ...)
+    }
   }
 
   return(mymodel)

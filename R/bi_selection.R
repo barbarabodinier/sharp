@@ -43,26 +43,26 @@
 #'   stability scores for the visited combinations of parameters. Values are
 #'   reported for the calibrated threshold(s) in selection proportions.}
 #'   \item{selectedX}{a binary matrix encoding stably selected predictors.}
-#'   \item{selpropX}{a matrix with the selection proportions of predictors.}
-#'   \item{selectedY}{a binary matrix encoding stably selected outcomes.}
-#'   \item{selpropY}{a matrix with the selection proportions of outcomes.}
-#'   \item{selectedX_full}{a binary matrix encoding stably selected predictors.}
-#'   \item{selpropX_full}{a binary matrix encoding stably selected predictors.}
-#'   \item{selectedY_full}{a binary matrix encoding stably selected outcomes.}
-#'   \item{selpropY_full}{a binary matrix encoding stably selected outcomes.}
-#'   \item{coefX}{an array of loadings coefficients for the predictors (columns)
+#'   \item{selpropX}{a matrix with the calibrated selection proportions of
+#'   predictors.} \item{selectedY}{a binary matrix encoding stably selected
+#'   outcomes.} \item{selpropY}{a matrix with the calibrated selection
+#'   proportions of outcomes.} \item{selectedX_full}{a binary matrix encoding
+#'   stably selected predictors.} \item{selpropX_full}{a matrix with the
+#'   selection proportions of predictors.} \item{selectedY_full}{a binary matrix
+#'   encoding stably selected outcomes.} \item{selpropY_full}{a matrix with the
+#'   selection proportions of outcomes.} \item{coefX}{an array of loadings
+#'   coefficients for the predictors (columns) over the fitted components (rows)
+#'   and across the \code{K} resampling iterations (along the third dimension).}
+#'   \item{coefY}{an array of loadings coefficients for the outcomes (columns)
 #'   over the fitted components (rows) and across the \code{K} resampling
-#'   iterations (along the third dimension).} \item{coefY}{an array of loadings
-#'   coefficients for the outcomes (columns) over the fitted components (rows)
-#'   and across the \code{K} resampling iterations (along the third dimension).
-#'   Only returned for supervised approaches (PLS).} \item{method}{a list with
-#'   \code{type="bi_selection"}, \code{implementation}, \code{family},
-#'   \code{resampling} and \code{PFER_method} values used for the run.}
-#'   \item{params}{a list of input values used for the run. The datasets
-#'   \code{xdata} and \code{ydata} are also included if
-#'   \code{output_data=TRUE}.} The rows of \code{selectedX}, \code{selectedY},
-#'   \code{selpropX} and \code{selpropY} correspond to the different
-#'   combinations of parameters listed in \code{summary}. The rows of
+#'   iterations (along the third dimension). Only returned for supervised
+#'   approaches (PLS).} \item{method}{a list with \code{type="bi_selection"},
+#'   \code{implementation}, \code{family}, \code{resampling} and
+#'   \code{PFER_method} values used for the run.} \item{params}{a list of input
+#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
+#'   also included if \code{output_data=TRUE}.} The rows of \code{selectedX},
+#'   \code{selectedY}, \code{selpropX} and \code{selpropY} correspond to the
+#'   different combinations of parameters listed in \code{summary}. The rows of
 #'   \code{selectedX_full}, \code{selectedY_full}, \code{selpropX_full} and
 #'   \code{selpropY_full} correspond to the different combinations of parameters
 #'   listed in \code{summary_full}.
