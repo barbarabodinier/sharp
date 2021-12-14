@@ -7,6 +7,7 @@ print.variable_selection <- function(x, ...) {
   } else {
     cat(paste0("The model was run using ", x$params$K, " bootstrap samples."))
   }
+  cat("\n")
 }
 
 
@@ -19,6 +20,7 @@ print.graphical_model <- function(x, ...) {
   } else {
     cat(paste0("The model was run using ", x$params$K, " bootstrap samples."))
   }
+  cat("\n")
 }
 
 
@@ -31,6 +33,7 @@ print.bi_selection <- function(x, ...) {
   } else {
     cat(paste0("The model was run using ", x$params$K, " bootstrap samples."))
   }
+  cat("\n")
 }
 
 
@@ -54,6 +57,7 @@ summary.variable_selection <- function(object, ...) {
     "Number of selected variable(s): ",
     sum(SelectedVariables(object))
   ))
+  cat("\n")
 }
 
 
@@ -119,6 +123,7 @@ summary.graphical_model <- function(object, ...) {
       sum(Adjacency(object)) / 2
     ))
   }
+  cat("\n")
 }
 
 
@@ -207,6 +212,7 @@ summary.bi_selection <- function(object, ...) {
       cat("\n")
     }
   }
+  cat("\n")
 }
 
 
