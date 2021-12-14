@@ -601,10 +601,14 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' @param lambda_id parameter ID with respect to the grid \code{Lambda}. If
 #'   \code{NULL}, average coefficients across the models run with the calibrated
 #'   parameter are returned.
+#' @param FUN function to use to aggregate coefficients of visited models over
+#'   resampling iterations. Recommended functions include \code{\link[stats]{median}}
+#'   or \code{\link[base]{mean}}.
+#' @param ... additional arguments to be passed to \code{FUN}.
 #'
 #' @return A matrix of average coefficients across resampling iterations.
 #'
-#' @seealso \code{\link{VariableSelection}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
 #'
 #' @examples
 #' \dontrun{
@@ -613,18 +617,25 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
-#' av_betas <- AverageEffect(stab)
-#' head(av_betas)
+#' median_betas <- AggregatedEffect(stab)
+#'
+#' # Comparison with recalibrated model
+#' recalibrated <- Recalibrate(xdata = simul$xdata, ydata = simul$ydata, stability = stab)
+#' recalib_betas <- recalibrated$coefficients[-1]
+#' plot(median_betas[names(recalib_betas), ], recalib_betas,
+#'   panel.first = abline(0, 1, lty = 2)
+#' )
 #'
 #' # Regression with multivariate outcomes
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
-#' av_betas <- AverageEffect(stab)
-#' head(av_betas)
+#' median_betas <- AggregatedEffect(stab)
+#' head(median_betas)
 #' }
 #' @export
-AverageEffect <- function(stability, lambda_id = NULL, side = "X", comp = 1) {
+AggregatedEffect <- function(stability, lambda_id = NULL, side = "X", comp = 1,
+                             FUN = stats::median, ...) {
   # Extracting correspoding betas over all iterations
   if (ncol(stability$Beta) == stability$params$pk) {
     if (is.null(lambda_id)) {
@@ -654,20 +665,17 @@ AverageEffect <- function(stability, lambda_id = NULL, side = "X", comp = 1) {
     }
   }
 
-  # Computing the average betas conditionally on selection
+  # Aggregating the betas conditionally on selection
   if (length(dim(stability$Beta)) == 3) {
-    # betas=stability$Beta[ArgmaxId(stability)[1], , ]
     av_betas <- apply(betas, 1, FUN = function(x) {
-      mean(x[x != 0])
+      FUN(x[x != 0], ...)
     })
     av_betas <- cbind(av_betas)
   } else {
-    # betas=stability$Beta[ArgmaxId(stability)[1], , ,]
     av_betas <- apply(betas, c(1, 3), FUN = function(x) {
-      mean(x[x != 0])
+      FUN(x[x != 0], ...)
     })
   }
-  # av_betas=apply(betas, 1, FUN=function(x){mean(x[x!=0])})
   av_betas[which(is.nan(av_betas))] <- NA
 
   return(av_betas)
