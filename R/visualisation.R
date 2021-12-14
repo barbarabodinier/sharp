@@ -129,7 +129,6 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
     # Identifying parameters
     params <- params[params %in% colnames(x)]
-    print(params)
 
     # Defining default arguments
     if (is.null(ylab)) {

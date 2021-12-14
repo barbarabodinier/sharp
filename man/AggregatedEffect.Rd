@@ -61,7 +61,21 @@ set.seed(1)
 simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
 median_betas <- AggregatedEffect(stab)
-head(median_betas)
+dim(median_betas)
+
+# Sparse PLS with multivariate outcome
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  implementation = SparsePLS
+)
+median_betas <- AggregatedEffect(stab)
+dim(median_betas)
+median_betas <- AggregatedEffect(stab, side = "Y")
+dim(median_betas)
 }
 }
 \seealso{

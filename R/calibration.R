@@ -230,14 +230,14 @@ Adjacency <- function(stability, argmax_id = NULL) {
       A <- Square(stability$selectedX)
     }
   } else {
-    if (stability$methods$type == "graphical_model") {
+    if (class(stability) == "graphical_model") {
       A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
     } else {
       A <- matrix(0, ncol = ncol(stability$coprop), nrow = nrow(stability$coprop))
     }
     bigblocks <- BlockMatrix(stability$params$pk)
     if (is.null(argmax_id)) {
-      if (stability$methods$type == "graphical_model") {
+      if (class(stability) == "graphical_model") {
         argmax_id <- ArgmaxId(stability)
         argmax <- Argmax(stability)
       } else {
@@ -254,7 +254,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
       }
     }
     for (block_id in 1:ncol(stability$Lambda)) {
-      if (stability$methods$type == "graphical_model") {
+      if (class(stability) == "graphical_model") {
         A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
       } else {
         A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
@@ -440,17 +440,17 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 SelectionProportions <- function(stability, argmax_id = NULL) {
   out <- NULL
 
-  if (stability$methods$type == "graphical_model") {
+  if (class(stability) == "graphical_model") {
     out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
   }
-  if (stability$methods$type == "variable_selection") {
+  if (class(stability) == "variable_selection") {
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
-  if (stability$methods$type == "clustering") {
+  if (class(stability) == "clustering") {
     argmax_id <- ArgmaxId(stability)
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
-  if (stability$methods$type == "bi_selection") {
+  if (class(stability) == "bi_selection") {
     out <- stability$selpropX
   }
 
@@ -631,51 +631,82 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
 #' median_betas <- AggregatedEffect(stab)
-#' head(median_betas)
+#' dim(median_betas)
+#'
+#' # Sparse PLS with multivariate outcome
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   implementation = SparsePLS
+#' )
+#' median_betas <- AggregatedEffect(stab)
+#' dim(median_betas)
+#' median_betas <- AggregatedEffect(stab, side = "Y")
+#' dim(median_betas)
 #' }
 #' @export
 AggregatedEffect <- function(stability, lambda_id = NULL, side = "X", comp = 1,
                              FUN = stats::median, ...) {
-  # Extracting correspoding betas over all iterations
-  if (ncol(stability$Beta) == stability$params$pk) {
-    if (is.null(lambda_id)) {
-      if (length(dim(stability$Beta)) == 3) {
-        betas <- stability$Beta[ArgmaxId(stability)[1], , ]
-      } else {
-        betas <- stability$Beta[ArgmaxId(stability)[1], , , ]
-      }
-    } else {
-      if (length(dim(stability$Beta)) == 3) {
-        betas <- stability$Beta[lambda_id, , ]
-      } else {
-        betas <- stability$Beta[lambda_id, , , ]
-      }
-    }
-  } else {
-    if (!side %in% c("X", "Y")) {
-      warning("Invalid input for argument 'side'. The default value ('X') was used.")
-      side <- "X"
-    }
-    side_id <- grepl(paste0(side, "_"), colnames(stability$Beta))
-    comp_id <- grepl(paste0("_PC", comp), colnames(stability$Beta))
-    if (is.null(lambda_id)) {
-      betas <- stability$Beta[ArgmaxId(stability)[1], side_id & comp_id, ]
-    } else {
-      betas <- stability$Beta[lambda_id, side_id & comp_id, ]
-    }
+  if (!class(stability) %in% c("variable_selection", "bi_selection")) {
+    stop("Invalid input for argument 'stability'. This function only applies to the output of VariableSelection() or BiSelection().")
   }
 
-  # Aggregating the betas conditionally on selection
-  if (length(dim(stability$Beta)) == 3) {
-    av_betas <- apply(betas, 1, FUN = function(x) {
-      FUN(x[x != 0], ...)
-    })
-    av_betas <- cbind(av_betas)
+  if (class(stability) == "variable_selection") {
+    # Extracting corresponding betas over all iterations
+    if (ncol(stability$Beta) == stability$params$pk) {
+      if (is.null(lambda_id)) {
+        if (length(dim(stability$Beta)) == 3) {
+          betas <- stability$Beta[ArgmaxId(stability)[1], , ]
+        } else {
+          betas <- stability$Beta[ArgmaxId(stability)[1], , , ]
+        }
+      } else {
+        if (length(dim(stability$Beta)) == 3) {
+          betas <- stability$Beta[lambda_id, , ]
+        } else {
+          betas <- stability$Beta[lambda_id, , , ]
+        }
+      }
+    } else {
+      if (!side %in% c("X", "Y")) {
+        warning("Invalid input for argument 'side'. The default value ('X') was used.")
+        side <- "X"
+      }
+      side_id <- grepl(paste0(side, "_"), colnames(stability$Beta))
+      comp_id <- grepl(paste0("_PC", comp), colnames(stability$Beta))
+      if (is.null(lambda_id)) {
+        betas <- stability$Beta[ArgmaxId(stability)[1], side_id & comp_id, ]
+      } else {
+        betas <- stability$Beta[lambda_id, side_id & comp_id, ]
+      }
+    }
+
+    # Aggregating the betas conditionally on selection
+    if (length(dim(stability$Beta)) == 3) {
+      av_betas <- apply(betas, 1, FUN = function(x) {
+        FUN(x[x != 0], ...)
+      })
+      av_betas <- cbind(av_betas)
+    } else {
+      av_betas <- apply(betas, c(1, 3), FUN = function(x) {
+        FUN(x[x != 0], ...)
+      })
+    }
   } else {
-    av_betas <- apply(betas, c(1, 3), FUN = function(x) {
+    if (side == "X") {
+      betas <- stability$coefX
+    } else {
+      betas <- stability$coefY
+    }
+    av_betas <- apply(betas, c(1, 2), FUN = function(x) {
       FUN(x[x != 0], ...)
     })
   }
+
+  # Re-formatting the output
   av_betas[which(is.nan(av_betas))] <- NA
 
   return(av_betas)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/algorithms.R
 \name{GraphicalAlgo}
 \alias{GraphicalAlgo}
-\title{Graph estimation algorithm}
+\title{Graphical model algorithm}
 \usage{
 GraphicalAlgo(
   xdata,

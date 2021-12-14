@@ -83,7 +83,7 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 }
 
 
-#' Graph estimation algorithm
+#' Graphical model algorithm
 #'
 #' Runs the algorithm for estimation of an undirected graph with no self-loops
 #' specified in the argument \code{implementation} and returns the estimated
