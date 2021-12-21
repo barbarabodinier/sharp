@@ -362,10 +362,6 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
   } else {
     selected <- SelectedVariables(stability)
   }
-  ids <- c(
-    names(selected)[which(selected == 1)],
-    colnames(xdata)[!colnames(xdata) %in% names(selected)]
-  )
 
   if (use_pls) {
     # Recalibration for PLS(DA)
@@ -375,8 +371,35 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
     } else {
       mymodel <- mixOmics::plsda(X = xdata[, ids], Y = ydata, ...)
     }
+
+    # Extracting the number of components
+    ncomp <- nrow(stability$summary)
+
+    # Extracting the stably selected predictors
+    comp <- 1
+    ids <- names(selected[, comp])[which(selected[, comp] == 1)]
+    if (length(ids) > 1) {
+      xdata[, ids]
+    } else {
+      warning(paste0("No selected variables for component ", comp, ". All predictors were included."))
+      x <- xdata
+    }
+
+    # Initialisation
+    X_h <- scale(x)
+    Y_h <- scale(ydata)
+    pls_full <- mixOmics::pls(X = X_h, Y = Y_h, ncomp = ncomp)
+    pls_hminus1 <- mixOmics::pls(X = X_h, Y = Y_h, ncomp = ncomp)
   } else {
+    # Extracting the stably selected predictors
+    ids <- c(
+      names(selected)[which(selected == 1)],
+      colnames(xdata)[!colnames(xdata) %in% names(selected)]
+    )
+
     # Writing model formula
+    ids <- gsub("`", "", ids)
+    colnames(xdata) <- gsub("`", "", colnames(xdata))
     myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
 
     # Recalibration for linear regression
