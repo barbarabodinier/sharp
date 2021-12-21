@@ -177,7 +177,6 @@ simul <- SimulateRegression(n = 50, pk = 10, family = "gaussian")
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian", K = 5, verbose = FALSE)
 CalibrationPlot(stab)
 myselected <- SelectedVariables(stab)
-coefs <- Coefficients(stab)
 perf <- SelectionPerformance(theta = myselected, theta_star = simul$theta[, 1])
 SelectionProportions(stab)
 }
