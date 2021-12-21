@@ -686,7 +686,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' }
 #' @export
 AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
-                             FUN = stats::median, ...) {
+                              FUN = stats::median, ...) {
   if (!class(stability) %in% c("variable_selection", "bi_selection")) {
     stop("Invalid input for argument 'stability'. This function only applies to the output of VariableSelection() or BiSelection().")
   }

@@ -635,6 +635,20 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     rownames(selected_y_comp) <- rownames(selprop_y_comp) <- paste0("comp", 1:ncomp)
   }
 
+  # Transposing selection status and proportion to be aligned with
+  selected_x_comp <- t(selected_x_comp)
+  selprop_x_comp <- t(selprop_x_comp)
+  selected_x <- t(selected_x)
+  selprop_x <- t(selprop_x)
+  if (!is.null(ydata)) {
+    selected_y_comp <- t(selected_y_comp)
+    selprop_y_comp <- t(selprop_y_comp)
+    if (family == "gaussian") {
+      selected_y <- t(selected_y)
+      selprop_y <- t(selprop_y)
+    }
+  }
+
   # Preparing outputs
   if (is.function(resampling)) {
     myresampling <- as.character(substitute(resampling))

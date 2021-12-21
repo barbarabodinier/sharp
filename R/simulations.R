@@ -1673,7 +1673,7 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
 #' @param digits number of digits to use in the definition of the contrast.
 #'
 #' @return A single number, the contrast of the generated precision matrix.
-#' 
+#'
 #' @keywords internal
 MaxContrast <- function(u, omega, digits = 3) {
   diag(omega) <- diag(omega) + u
