@@ -146,7 +146,6 @@ metrics <- StabilityMetrics(
   selprop = selprop, pi = c(0.6, 0.7, 0.8),
   K = 100, graph = FALSE, group = c(2, 2, 6)
 )
-
 }
 \references{
 \insertRef{ourstabilityselection}{focus}
