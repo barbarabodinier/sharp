@@ -1116,7 +1116,8 @@ PlotROC <- function(roc,
 #'
 #' Represents prediction performances upon sequential inclusion of the
 #' predictors in a logistic or Cox regression model as produced by
-#' \code{\link{Incremental}}.
+#' \code{\link{Incremental}}. The median and \code{quantiles} of the performance
+#' metric are reported.
 #'
 #' @inheritParams CalibrationPlot
 #' @param perf output from \code{\link{Incremental}}.
@@ -1263,20 +1264,20 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
       xlower <- perf$lower
       xupper <- perf$upper
     } else {
-      x <- sapply(perf$concordance, mean)
+      x <- sapply(perf$concordance, stats::median)
       xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1])
       xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2])
     }
   }
   
   if ("AUC" %in% names(perf)) {
-    x <- sapply(perf$AUC, mean)
+    x <- sapply(perf$AUC, stats::median)
     xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1])
     xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2])
   }
   
   if ("Q_squared" %in% names(perf)) {
-    x <- sapply(perf$Q_squared, mean)
+    x <- sapply(perf$Q_squared, stats::median)
     xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1])
     xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2])
   }

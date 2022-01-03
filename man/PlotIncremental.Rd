@@ -70,7 +70,8 @@ A plot.
 \description{
 Represents prediction performances upon sequential inclusion of the
 predictors in a logistic or Cox regression model as produced by
-\code{\link{Incremental}}.
+\code{\link{Incremental}}. The median and \code{quantiles} of the performance
+metric are reported.
 }
 \examples{
 \dontrun{
