@@ -16,15 +16,15 @@ Rates <- function(observed, predicted, thr) {
     factor(predicted > thr, levels = c(FALSE, TRUE)),
     factor(observed, levels = c(0, 1))
   )
-
+  
   TP <- contingency[2, 2]
   P <- sum(contingency[, 2])
   TPR <- TP / P
-
+  
   FP <- contingency[2, 1]
   N <- sum(contingency[, 1])
   FPR <- FP / N
-
+  
   return(list(TPR = TPR, FPR = FPR))
 }
 
@@ -90,9 +90,12 @@ ROC <- function(predicted, observed, n_thr = NULL) {
   } else {
     observed <- factor(observed, levels = sort(unique(observed)), labels = c(0, 1))
   }
-
+  
   # Defining the thresholds
   breaks <- sort(unique(predicted), decreasing = FALSE)
+  if (length(breaks)==1){
+    stop("The predicted value is the same for all predictors.")
+  }
   breaks <- breaks[-1]
   if (!is.null(n_thr)) {
     if (length(breaks) > n_thr) {
@@ -101,7 +104,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
       breaks <- seq(min(breaks), max(breaks), length.out = n_thr)
     }
   }
-
+  
   # Computing
   TPR <- FPR <- rep(NA, length(breaks) + 2)
   for (k in 1:length(breaks)) {
@@ -111,11 +114,11 @@ ROC <- function(predicted, observed, n_thr = NULL) {
   }
   TPR[1] <- FPR[1] <- 1
   TPR[length(TPR)] <- FPR[length(FPR)] <- 0
-
+  
   # Computing the AUC
   tmp <- apply(rbind(TPR[-1], TPR[-length(TPR)]), 2, mean)
   AUC <- abs(sum(diff(FPR) * tmp))
-
+  
   return(list(FPR = rbind(FPR), TPR = rbind(TPR), AUC = AUC))
 }
 
@@ -314,7 +317,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
   # Defining the type of model (PLS vs regression)
   use_pls <- FALSE
-
+  
   # Checking input
   if (!is.null(stability)) {
     if (!class(stability) %in% c("variable_selection")) {
@@ -339,7 +342,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
       stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
     }
   }
-
+  
   # Re-formatting the inputs
   if (is.vector(xdata)) {
     xdata <- cbind(xdata)
@@ -354,7 +357,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
       }
     }
   }
-
+  
   # Defining predictors for the model
   if (is.null(stability)) {
     selected <- rep(1, ncol(xdata))
@@ -362,7 +365,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
   } else {
     selected <- SelectedVariables(stability)
   }
-
+  
   if (use_pls) {
     # Recalibration for PLS(DA)
     print(ids)
@@ -371,10 +374,10 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
     } else {
       mymodel <- mixOmics::plsda(X = xdata[, ids], Y = ydata, ...)
     }
-
+    
     # Extracting the number of components
     ncomp <- nrow(stability$summary)
-
+    
     # Extracting the stably selected predictors
     comp <- 1
     ids <- names(selected[, comp])[which(selected[, comp] == 1)]
@@ -384,7 +387,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
       warning(paste0("No selected variables for component ", comp, ". All predictors were included."))
       x <- xdata
     }
-
+    
     # Initialisation
     X_h <- scale(x)
     Y_h <- scale(ydata)
@@ -396,37 +399,42 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
       names(selected)[which(selected == 1)],
       colnames(xdata)[!colnames(xdata) %in% names(selected)]
     )
-
+    
     # Writing model formula
     ids <- gsub("`", "", ids)
     colnames(xdata) <- gsub("`", "", colnames(xdata))
-    myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
-
+    if (length(ids)==0){
+      message("No stably selected variables. Running a model with intercept only.")
+      myformula <- stats::as.formula("ydata ~ 1")
+    } else {
+      myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
+    }
+    
     # Recalibration for linear regression
     if (family == "gaussian") {
       mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
     }
-
+    
     # Recalibration for Cox regression
     if (family == "cox") {
       ydata <- survival::Surv(ydata[, "time"], ydata[, "case"])
       mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
     }
-
+    
     # Recalibration for logistic regression
     if (family == "binomial") {
       mymodel <- stats::glm(myformula,
-        data = as.data.frame(xdata),
-        family = stats::binomial(link = "logit", ...)
+                            data = as.data.frame(xdata),
+                            family = stats::binomial(link = "logit", ...)
       )
     }
-
+    
     # Recalibration for multinomial regression
     if (family == "multinomial") {
       mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), ...)
     }
   }
-
+  
   return(mymodel)
 }
 
@@ -619,7 +627,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
       stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox' or 'binomial'.")
     }
   }
-
+  
   # Re-formatting input data
   if (is.vector(ydata)) {
     ydata <- cbind(ydata)
@@ -642,10 +650,10 @@ ExplanatoryPerformance <- function(xdata, ydata,
   #   K <- ceiling(K / n_folds)
   # }
   n_folds <- 1
-
+  
   # Setting seed for reproducibility
   withr::local_seed(seed)
-
+  
   # Running the subsampling iterations
   iter <- 0
   for (k in 1:K) {
@@ -664,29 +672,29 @@ ExplanatoryPerformance <- function(xdata, ydata,
       ytrain <- ydata[-ids_test, , drop = FALSE]
       xtest <- xdata[ids_test, , drop = FALSE]
       ytest <- ydata[ids_test, , drop = FALSE]
-
+      
       # Recalibration from stability selection model
       recalibrated <- Recalibrate(xdata = xtrain, ydata = ytrain, stability = stability, family = family)
-
+      
       # Performing ROC analyses
       if (tolower(metric) == "roc") {
         # ROC analysis
         predicted <- stats::predict.glm(recalibrated, newdata = as.data.frame(xtest), type = "response")
         roc <- ROC(predicted = predicted, observed = ytest, n_thr = n_thr)
-
+        
         # Initialisation of the object
         if (iter == 1) {
           n_thr <- length(roc$FPR) - 2
           FPR <- TPR <- matrix(NA, nrow = K * n_folds, ncol = length(roc$TPR))
           AUC <- rep(NA, K * n_folds)
         }
-
+        
         # Storing the metrics
         FPR[iter, ] <- roc$FPR
         TPR[iter, ] <- roc$TPR
         AUC[iter] <- roc$AUC
       }
-
+      
       # Performing concordance analyses
       if (tolower(metric) == "concordance") {
         # Computing the concordance index for given times
@@ -695,7 +703,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
         S0 <- summary(survival::survfit(recalibrated), times = time, extend = TRUE)$surv
         S <- S0^exp(predicted)
         cstat <- survival::concordance(survobject ~ S)
-
+        
         if (ij_method) {
           # Storing the concordance index and confidence interval
           cindex <- cstat$concordance
@@ -709,28 +717,28 @@ ExplanatoryPerformance <- function(xdata, ydata,
           cindex[iter] <- cstat$concordance
         }
       }
-
+      
       # Performing Q-squared analyses
       if (tolower(metric) == "q2") {
         # Computing predicted values using the recalibrated model
         predicted <- stats::predict.lm(recalibrated, newdata = as.data.frame(xtest))
-
+        
         # Initialisation of the object
         if (iter == 1) {
           Q_squared <- rep(NA, K * n_folds)
         }
-
+        
         # Computing the Q-squared
         Q_squared[iter] <- stats::cor(predicted, ytest)^2
       }
     }
   }
-
+  
   # Preparing the output
   if (tolower(metric) == "roc") {
     out <- list(FPR = FPR, TPR = TPR, AUC = AUC)
   }
-
+  
   if (tolower(metric) == "concordance") {
     if (ij_method) {
       out <- list(concordance = cindex, lower = lower, upper = upper)
@@ -738,11 +746,11 @@ ExplanatoryPerformance <- function(xdata, ydata,
       out <- list(concordance = cindex)
     }
   }
-
+  
   if (tolower(metric) == "q2") {
     out <- list(Q_squared = Q_squared)
   }
-
+  
   return(out)
 }
 
@@ -893,13 +901,13 @@ Incremental <- function(xdata, ydata,
       stop("Argument 'family' must be provided. Possible values are: 'binomial', 'cox' or 'gaussian'.")
     }
   }
-
+  
   # Defining the number of predictors
   if (is.null(n_predictors)) {
     if (!is.null(stability)) {
       # Stopping at the calibrated model
       n_predictors <- sum(SelectedVariables(stability))
-
+      
       # Adding the variables that are forced in the model with penalty.factor
       n_predictors <- n_predictors + sum(!colnames(xdata) %in% names(SelectedVariables(stability)))
     } else {
@@ -910,18 +918,18 @@ Incremental <- function(xdata, ydata,
     }
   }
   n_predictors <- min(n_predictors, ncol(xdata))
-
+  
   # Defining the order of inclusion in the model
   if (is.null(stability)) {
     myorder <- colnames(xdata) # order of the columns is used
   } else {
     # Including variables by order of decreasing selection proportions
     myorder <- names(SelectionProportions(stability))[sort.list(SelectionProportions(stability), decreasing = TRUE)]
-
+    
     # Including the variables that are forced in the model first by order of columns in the data
     myorder <- c(colnames(xdata)[!colnames(xdata) %in% names(SelectedVariables(stability))], myorder)
   }
-
+  
   # Initialisation of the objects
   if (family == "binomial") {
     TPR <- FPR <- AUC <- list()
@@ -936,7 +944,7 @@ Incremental <- function(xdata, ydata,
   if (family == "gaussian") {
     Q_squared <- list()
   }
-
+  
   for (k in 1:n_predictors) {
     perf <- ExplanatoryPerformance(
       xdata = xdata[, myorder[1:k], drop = FALSE],
@@ -965,7 +973,7 @@ Incremental <- function(xdata, ydata,
       Q_squared <- c(Q_squared, list(perf$Q_squared))
     }
   }
-
+  
   # Preparing the output
   if (family == "binomial") {
     out <- list(FPR = FPR, TPR = TPR, AUC = AUC)
@@ -980,10 +988,10 @@ Incremental <- function(xdata, ydata,
   if (family == "gaussian") {
     out <- list(Q_squared = Q_squared)
   }
-
+  
   # Adding variable names
   out <- c(out, names = list(myorder[1:n_predictors]))
-
+  
   return(out)
 }
 
@@ -1065,23 +1073,23 @@ PlotROC <- function(roc,
                     add = FALSE) {
   # Extracting the number of iterations
   niter <- length(roc$AUC)
-
+  
   # Defining the band colour
   if (is.null(col_band)) {
     col_band <- col
   }
-
+  
   # Initialising the plot
   if (!add) {
     plot(NULL,
-      xlim = c(0, 1), ylim = c(0, 1),
-      type = "l", lwd = 2,
-      xlab = xlab, ylab = ylab,
-      las = 1, cex.lab = 1.3,
-      panel.first = graphics::abline(0, 1, lty = 3)
+         xlim = c(0, 1), ylim = c(0, 1),
+         type = "l", lwd = 2,
+         xlab = xlab, ylab = ylab,
+         las = 1, cex.lab = 1.3,
+         panel.first = graphics::abline(0, 1, lty = 3)
     )
   }
-
+  
   # Defining quantile bands
   if (nrow(roc$FPR) > 1) {
     xseq <- apply(roc$FPR, 2, FUN = function(x) {
@@ -1091,15 +1099,15 @@ PlotROC <- function(roc,
       sort(x)[quantiles * niter]
     })
     graphics::polygon(c(xseq[1, ], rev(xseq[2, ])),
-      c(yseq[1, ], rev(yseq[2, ])),
-      col = grDevices::adjustcolor(col_band, alpha.f = alpha),
-      border = NA
+                      c(yseq[1, ], rev(yseq[2, ])),
+                      col = grDevices::adjustcolor(col_band, alpha.f = alpha),
+                      border = NA
     )
   }
-
+  
   # Adding the point-wise average
   graphics::lines(apply(roc$FPR, 2, stats::median), apply(roc$TPR, 2, stats::median),
-    type = "l", lwd = lwd, lty = lty, col = col
+                  type = "l", lwd = lwd, lty = lty, col = col
   )
 }
 
@@ -1240,15 +1248,15 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
                             xgrid = FALSE, ygrid = FALSE) {
   # Checking plotrix package is installed
   CheckPackageInstalled("plotrix")
-
+  
   # Checking the inputs
   quantiles <- sort(quantiles)
-
+  
   # Re-formatting the inputs
   if (is.null(col.axis)) {
     col.axis <- col
   }
-
+  
   if ("concordance" %in% names(perf)) {
     if ("lower" %in% names(perf)) {
       x <- perf$concordance
@@ -1260,52 +1268,52 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
       xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2])
     }
   }
-
+  
   if ("AUC" %in% names(perf)) {
     x <- sapply(perf$AUC, mean)
     xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1])
     xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2])
   }
-
+  
   if ("Q_squared" %in% names(perf)) {
     x <- sapply(perf$Q_squared, mean)
     xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1])
     xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2])
   }
   xseq <- 1:length(x)
-
+  
   # Re-formatting label colours
   if (length(col.axis) < length(x)) {
     col.axis <- rep(col.axis, length(x))
   }
-
+  
   # Defining the plot range
   if (is.null(ylim)) {
     ylim <- range(c(xlower, xupper, x))
   }
-
+  
   # Defining horizontal grid
   hseq <- NULL
   if (ygrid) {
     hseq <- grDevices::axisTicks(ylim, log = FALSE)
   }
-
+  
   # Defining vertical grid
   vseq <- NULL
   if (xgrid) {
     vseq <- xseq
   }
-
+  
   # Creating the plot
   plot(NULL,
-    cex.lab = cex.lab,
-    bty = bty,
-    xlim = range(xseq), ylim = ylim,
-    panel.first = c(
-      graphics::abline(h = hseq, col = "grey", lty = 3),
-      graphics::abline(v = vseq, col = "grey", lty = 3)
-    ),
-    xlab = "", xaxt = "n", yaxt = "n", ylab = ylab
+       cex.lab = cex.lab,
+       bty = bty,
+       xlim = range(xseq), ylim = ylim,
+       panel.first = c(
+         graphics::abline(h = hseq, col = "grey", lty = 3),
+         graphics::abline(v = vseq, col = "grey", lty = 3)
+       ),
+       xlab = "", xaxt = "n", yaxt = "n", ylab = ylab
   )
   graphics::axis(
     side = 2, at = grDevices::axisTicks(ylim, log = FALSE),
