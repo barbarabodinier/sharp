@@ -94,30 +94,32 @@ ROC <- function(predicted, observed, n_thr = NULL) {
   # Defining the thresholds
   breaks <- sort(unique(predicted), decreasing = FALSE)
   if (length(breaks)==1){
-    stop("The predicted value is the same for all predictors.")
-  }
-  breaks <- breaks[-1]
-  if (!is.null(n_thr)) {
-    if (length(breaks) > n_thr) {
-      breaks <- breaks[floor(seq(1, length(breaks), length.out = n_thr))]
-    } else {
-      breaks <- seq(min(breaks), max(breaks), length.out = n_thr)
+    message("The predicted value is the same for all predictors.")
+    FPR=TPR=AUC=NA
+  } else {
+    breaks <- breaks[-1]
+    if (!is.null(n_thr)) {
+      if (length(breaks) > n_thr) {
+        breaks <- breaks[floor(seq(1, length(breaks), length.out = n_thr))]
+      } else {
+        breaks <- seq(min(breaks), max(breaks), length.out = n_thr)
+      }
     }
+    
+    # Computing
+    TPR <- FPR <- rep(NA, length(breaks) + 2)
+    for (k in 1:length(breaks)) {
+      out <- Rates(observed = observed, predicted = predicted, thr = breaks[k])
+      TPR[k + 1] <- out$TPR
+      FPR[k + 1] <- out$FPR
+    }
+    TPR[1] <- FPR[1] <- 1
+    TPR[length(TPR)] <- FPR[length(FPR)] <- 0
+    
+    # Computing the AUC
+    tmp <- apply(rbind(TPR[-1], TPR[-length(TPR)]), 2, mean)
+    AUC <- abs(sum(diff(FPR) * tmp))
   }
-  
-  # Computing
-  TPR <- FPR <- rep(NA, length(breaks) + 2)
-  for (k in 1:length(breaks)) {
-    out <- Rates(observed = observed, predicted = predicted, thr = breaks[k])
-    TPR[k + 1] <- out$TPR
-    FPR[k + 1] <- out$FPR
-  }
-  TPR[1] <- FPR[1] <- 1
-  TPR[length(TPR)] <- FPR[length(FPR)] <- 0
-  
-  # Computing the AUC
-  tmp <- apply(rbind(TPR[-1], TPR[-length(TPR)]), 2, mean)
-  AUC <- abs(sum(diff(FPR) * tmp))
   
   return(list(FPR = rbind(FPR), TPR = rbind(TPR), AUC = AUC))
 }
