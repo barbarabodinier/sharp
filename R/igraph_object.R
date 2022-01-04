@@ -172,7 +172,7 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
         node_colour <- ifelse(grepl("comp", colnames(adjacency)),
           yes = "orange", no = "skyblue"
         )
-        node_colour[colnames(adjacency) %in% colnames(stability$selectedY)] <- "red"
+        node_colour[colnames(adjacency) %in% rownames(stability$selectedY)] <- "red"
       }
     }
   }

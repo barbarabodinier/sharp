@@ -225,7 +225,7 @@ Argmax <- function(stability, clustering = FALSE) {
 Adjacency <- function(stability, argmax_id = NULL) {
   if (class(stability) == "bi_selection") {
     if ("selectedY" %in% names(stability)) {
-      A <- Square(cbind(stability$selectedX, stability$selectedY))
+      A <- Square(t(rbind(stability$selectedX, stability$selectedY)))
     } else {
       A <- Square(stability$selectedX)
     }
