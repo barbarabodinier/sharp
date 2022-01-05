@@ -291,7 +291,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
 #'
 #' # Data split
 #' ids_train <- Resample(
@@ -304,15 +304,22 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
-#' stab <- BiSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-#' print(SelectedVariables(stab))
+#' stab <- BiSelection(
+#'   xdata = xtrain, ydata = ytrain,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(xtrain) - 1),
+#'   LambdaY = 1:(ncol(ytrain) - 1),
+#'   implementation = SparsePLS
+#' )
+#' plot(stab)
 #'
 #' # Recalibrating the model
 #' recalibrated <- Recalibrate(
 #'   xdata = xrecalib, ydata = yrecalib,
 #'   stability = stab
 #' )
-#' recalibrated$loadings # recalibrated loadings coefficients
+#' recalibrated$Wmat # recalibrated X-weights
+#' recalibrated$Cmat # recalibrated Y-weights
 #' }
 #'
 #' @export
@@ -322,16 +329,21 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 
   # Checking input
   if (!is.null(stability)) {
-    if (!class(stability) %in% c("variable_selection")) {
-      stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
+    if (!class(stability) %in% c("variable_selection", "bi_selection")) {
+      stop("Argument 'stability' is not of class 'variable_selection' or 'bi_selection'. This function can only be applied on the output of (i) VariableSelection() or (ii) BiSelection() for PLS models.")
     }
     if (class(stability) == "bi_selection") {
       # Checking mixOmics package is installed
       CheckPackageInstalled("mixOmics")
       use_pls <- TRUE
-    }
-    if (!stability$methods$family %in% c("gaussian", "cox", "binomial", "multinomial")) {
-      stop("This function can only be applied with the following families: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
+
+      if (!stability$methods$family %in% c("gaussian")) {
+        stop("This function can only be applied with the 'gaussian' family for PLS models.")
+      }
+    } else {
+      if (!stability$methods$family %in% c("gaussian", "cox", "binomial", "multinomial")) {
+        stop("This function can only be applied with the following families for regression models: 'gaussian', 'cox', 'binomial', or 'multinomial'.")
+      }
     }
     if (!is.null(family)) {
       if (family != stability$methods$family) {
@@ -360,43 +372,25 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
     }
   }
 
-  # Defining predictors for the model
-  if (is.null(stability)) {
-    selected <- rep(1, ncol(xdata))
-    names(selected) <- colnames(xdata)
-  } else {
-    selected <- SelectedVariables(stability)
-  }
-
   if (use_pls) {
-    # Recalibration for PLS(DA)
-    print(ids)
-    if (family == "gaussian") {
-      mymodel <- mixOmics::pls(X = xdata[, ids], Y = ydata, ...)
-    } else {
-      mymodel <- mixOmics::plsda(X = xdata[, ids], Y = ydata, ...)
-    }
-
-    # Extracting the number of components
-    ncomp <- nrow(stability$summary)
-
-    # Extracting the stably selected predictors
-    comp <- 1
-    ids <- names(selected[, comp])[which(selected[, comp] == 1)]
-    if (length(ids) > 1) {
-      xdata[, ids]
-    } else {
-      warning(paste0("No selected variables for component ", comp, ". All predictors were included."))
-      x <- xdata
-    }
-
-    # Initialisation
-    X_h <- scale(x)
-    Y_h <- scale(ydata)
-    pls_full <- mixOmics::pls(X = X_h, Y = Y_h, ncomp = ncomp)
-    pls_hminus1 <- mixOmics::pls(X = X_h, Y = Y_h, ncomp = ncomp)
+    # Recalibrating the PLS model
+    mymodel <- PLS(
+      xdata = xdata, ydata = ydata,
+      selectedX = stability$selectedX,
+      selectedY = stability$selectedY,
+      family = family, ncomp = NULL,
+      scale = stability$methods$scale
+    )
   } else {
     # Extracting the stably selected predictors
+    if (is.null(stability)) {
+      selected <- rep(1, ncol(xdata))
+      names(selected) <- colnames(xdata)
+    } else {
+      selected <- SelectedVariables(stability)
+    }
+
+    # Defining predictors for the model (including un-penalised)
     ids <- c(
       names(selected)[which(selected == 1)],
       colnames(xdata)[!colnames(xdata) %in% names(selected)]

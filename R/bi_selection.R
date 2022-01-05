@@ -26,6 +26,8 @@
 #'   groups (sparse group PLS) in X. Only used with
 #'   \code{implementation=SparseGroupPLS} and \code{family="gaussian"}.
 #' @param ncomp number of components.
+#' @param scale logical indicating if the data should be scaled (i.e.
+#'   transformed so that all variables have a standard deviation of one).
 #'
 #' @return A list with: \item{summary}{a matrix of the best stability scores and
 #'   corresponding parameters controlling the level of sparsity in the
@@ -268,7 +270,8 @@
 #' }
 #' @export
 BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
-                        LambdaX = NULL, LambdaY = NULL, AlphaX = NULL, AlphaY = NULL, ncomp = 1,
+                        LambdaX = NULL, LambdaY = NULL, AlphaX = NULL, AlphaY = NULL,
+                        ncomp = 1, scale = TRUE,
                         pi_list = seq(0.6, 0.9, by = 0.01),
                         K = 100, tau = 0.5, seed = 1, n_cat = 3,
                         family = "gaussian", implementation = SparsePLS,
@@ -390,7 +393,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             } else {
               stab <- VariableSelection(
@@ -402,7 +405,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             }
           }
@@ -418,7 +421,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             } else {
               stab <- VariableSelection(
@@ -430,7 +433,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             }
           }
@@ -449,7 +452,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
                 keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
                 alpha.y = NAToNULL(c(params_comp[1:comp, "alphay"], alphay)),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             } else {
               stab <- VariableSelection(
@@ -463,7 +466,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 group_x = NAToNULL(group_x), group_y = group_y,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             }
           }
@@ -481,7 +484,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 group_penalisation = TRUE,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
                 keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             } else {
               stab <- VariableSelection(
@@ -495,7 +498,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 group_x = NAToNULL(group_x), group_y = group_y,
                 group_penalisation = TRUE,
                 keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                ncomp = comp, ...
+                ncomp = comp, scale = scale, ...
               )
             }
           }
@@ -670,7 +673,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       coefX = coefs_X,
       coefY = coefs_Y,
       methods = list(
-        type = "bi_selection", implementation = as.character(substitute(implementation)), family = family,
+        type = "bi_selection", implementation = as.character(substitute(implementation)),
+        family = family, scale = scale,
         resampling = myresampling, PFER_method = PFER_method
       ),
       params = list(
@@ -695,7 +699,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selpropX_full = selprop_x,
       coefX = coefs_X,
       methods = list(
-        type = "bi_selection", implementation = as.character(substitute(implementation)), family = family,
+        type = "bi_selection", implementation = as.character(substitute(implementation)),
+        family = family, scale = scale,
         resampling = myresampling, PFER_method = PFER_method
       ),
       params = list(

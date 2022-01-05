@@ -10,6 +10,7 @@ SparsePLS(
   Lambda,
   family = "gaussian",
   ncomp = 1,
+  scale = TRUE,
   keepX_previous = NULL,
   keepY = NULL,
   ...
@@ -32,6 +33,10 @@ outcomes). If \code{family="binomial"}, a PLS-DA model as defined in
 \code{\link[sgPLS]{sPLSda}} is run (for categorical outcomes).}
 
 \item{ncomp}{number of components.}
+
+\item{scale}{logical indicating if the data should be scaled (i.e.
+transformed so that all variables have a standard deviation of one). Only
+used if \code{family="gaussian"}.}
 
 \item{keepX_previous}{number of selected predictors in previous components.
 Only used if \code{ncomp > 1}. The argument \code{keepX} in

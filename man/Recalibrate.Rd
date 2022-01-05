@@ -178,7 +178,7 @@ head(recalibrated$fitted.values) # recalibrated predicted probabilities
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
 
 # Data split
 ids_train <- Resample(
@@ -191,15 +191,22 @@ xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
 yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
 
 # Stability selection
-stab <- BiSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-print(SelectedVariables(stab))
+stab <- BiSelection(
+  xdata = xtrain, ydata = ytrain,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(xtrain) - 1),
+  LambdaY = 1:(ncol(ytrain) - 1),
+  implementation = SparsePLS
+)
+plot(stab)
 
 # Recalibrating the model
 recalibrated <- Recalibrate(
   xdata = xrecalib, ydata = yrecalib,
   stability = stab
 )
-recalibrated$loadings # recalibrated loadings coefficients
+recalibrated$Wmat # recalibrated X-weights
+recalibrated$Cmat # recalibrated Y-weights
 }
 
 }

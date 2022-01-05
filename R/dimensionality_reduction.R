@@ -17,7 +17,7 @@
 #' @param family type of PLS model. Only \code{family="gaussian"} is supported.
 #'   This corresponds to a PLS model as defined in \code{\link[mixOmics]{pls}}
 #'   (for continuous outcomes).
-#' @param ncomp number of components. By default, one component is used.
+#' @param ncomp number of components.
 #' @param scale logical indicating if the data should be scaled (i.e.
 #'   transformed so that all variables have a standard deviation of one).
 #'
@@ -30,14 +30,15 @@
 #'
 #' @return A list with: \item{Wmat}{matrix of X-weights.} \item{Wstar}{matrix of
 #'   transformed X-weights.} \item{Pmat}{matrix of X-loadings.}
-#'   \item{Tmat}{matrix of X-scores.} \item{Umat}{matrix of Y-scores.}
-#'   \item{Qmat}{matrix needed for predictions.} \item{Rmat}{matrix needed for
-#'   predictions.} \item{meansX}{vector used for centering of predictors, needed
-#'   for predictions.} \item{sigmaX}{vector used for scaling of predictors,
-#'   needed for predictions.} \item{meansY}{vector used for centering of
-#'   outcomes, needed for predictions.} \item{sigmaY}{vector used for scaling of
-#'   outcomes, needed for predictions.} \item{methods}{a list with \code{family}
-#'   and \code{scale} values used for the run.} \item{params}{a list with
+#'   \item{Cmat}{matrix of Y-weights.} \item{Tmat}{matrix of X-scores.}
+#'   \item{Umat}{matrix of Y-scores.} \item{Qmat}{matrix needed for
+#'   predictions.} \item{Rmat}{matrix needed for predictions.}
+#'   \item{meansX}{vector used for centering of predictors, needed for
+#'   predictions.} \item{sigmaX}{vector used for scaling of predictors, needed
+#'   for predictions.} \item{meansY}{vector used for centering of outcomes,
+#'   needed for predictions.} \item{sigmaY}{vector used for scaling of outcomes,
+#'   needed for predictions.} \item{methods}{a list with \code{family} and
+#'   \code{scale} values used for the run.} \item{params}{a list with
 #'   \code{selectedX} and \code{selectedY} values used for the run.}
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
@@ -74,13 +75,23 @@
 #' )
 #'
 #' # Nonzero entries in weights are the same as in selectedX
-#' par(mfrow = c(1, 2))
+#' par(mfrow = c(2, 2))
 #' Heatmap(stab$selectedX,
 #'   legend = FALSE
 #' )
+#' title("Selected in X")
 #' Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
 #'   legend = FALSE
 #' )
+#' title("Nonzero entries in Wmat")
+#' Heatmap(stab$selectedY,
+#'   legend = FALSE
+#' )
+#' title("Selected in Y")
+#' Heatmap(ifelse(mypls$Cmat != 0, yes = 1, no = 0),
+#'   legend = FALSE
+#' )
+#' title("Nonzero entries in Cmat")
 #' }
 #' @export
 PLS <- function(xdata, ydata,
@@ -156,10 +167,12 @@ PLS <- function(xdata, ydata,
   # Initialisation of empty objects
   Wmat <- Pmat <- matrix(0, nrow = ncol(xdata), ncol = ncomp)
   rownames(Wmat) <- rownames(Pmat) <- colnames(xdata)
+  Cmat <- matrix(0, nrow = ncol(ydata), ncol = ncomp)
+  rownames(Cmat) <- colnames(ydata)
   Tmat <- matrix(NA, nrow = nrow(xdata), ncol = ncomp)
   Umat <- matrix(NA, nrow = nrow(ydata), ncol = ncomp)
   rownames(Tmat) <- rownames(Umat) <- rownames(xdata)
-  colnames(Wmat) <- colnames(Pmat) <- colnames(Tmat) <- colnames(Umat) <- paste0("comp", 1:ncomp)
+  colnames(Wmat) <- colnames(Pmat) <- colnames(Cmat) <- colnames(Tmat) <- colnames(Umat) <- paste0("comp", 1:ncomp)
 
   # Loop over the components
   for (comp in 1:ncomp) {
@@ -201,6 +214,9 @@ PLS <- function(xdata, ydata,
     w_h <- pls_h$loadings$X
     Wmat[idsX, comp] <- w_h
 
+    # Extracting the Y-weights
+    Cmat[idsY, comp] <- pls_h$loadings$Y
+
     # Extracting the X-loadings
     Pmat[idsX, comp] <- pls_h$mat.c[, 1, drop = FALSE]
 
@@ -222,6 +238,7 @@ PLS <- function(xdata, ydata,
     Wmat = Wmat,
     Wstar = Wstar,
     Pmat = Pmat,
+    Cmat = Cmat,
     Tmat = Tmat,
     Umat = Umat,
     Qmat = Qmat,
@@ -319,20 +336,22 @@ PredictPLS <- function(xdata, pls) {
 #' Runs a sparse Partial Least Squares model using implementation from
 #' \code{\link[sgPLS]{sgPLS-package}}. This function is not using stability.
 #'
-#' @inheritParams SelectionAlgo
+#' @inheritParams PLS
 #' @param Lambda matrix of parameters controlling the number of selected
 #'   predictors at current component, as defined by \code{ncomp}.
 #' @param family type of PLS model. If \code{family="gaussian"}, a sparse PLS
 #'   model as defined in \code{\link[sgPLS]{sPLS}} is run (for continuous
 #'   outcomes). If \code{family="binomial"}, a PLS-DA model as defined in
 #'   \code{\link[sgPLS]{sPLSda}} is run (for categorical outcomes).
-#' @param ncomp number of components.
 #' @param keepX_previous number of selected predictors in previous components.
 #'   Only used if \code{ncomp > 1}. The argument \code{keepX} in
 #'   \code{\link[sgPLS]{sPLS}} is obtained by concatenating
 #'   \code{keepX_previous} and \code{Lambda}.
 #' @param keepY number of selected outcome variables. This argument is defined
 #'   as in \code{\link[sgPLS]{sPLS}}. Only used if \code{family="gaussian"}.
+#' @param scale logical indicating if the data should be scaled (i.e.
+#'   transformed so that all variables have a standard deviation of one). Only
+#'   used if \code{family="gaussian"}.
 #' @param ... additional arguments to be passed to \code{\link[sgPLS]{sPLS}} or
 #'   \code{\link[sgPLS]{sPLSda}}.
 #'
@@ -370,7 +389,9 @@ PredictPLS <- function(xdata, pls) {
 #' # Running sPLS-DA with 2 X-variables and 1 Y-variable
 #' mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
 #' @export
-SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keepX_previous = NULL, keepY = NULL, ...) {
+SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
+                      ncomp = 1, scale = TRUE,
+                      keepX_previous = NULL, keepY = NULL, ...) {
   # Checking sgPLS package is installed
   CheckPackageInstalled("sgPLS")
 
@@ -431,14 +452,28 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
       ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
 
       # Running PLS model
-      mymodel <- do.call(sgPLS::sPLS, args = c(list(X = xdata, Y = ydata, ncomp = ncomp, keepX = nvarx, keepY = keepY), extra_args[ids]))
+      mymodel <- do.call(sgPLS::sPLS, args = c(
+        list(
+          X = xdata, Y = ydata,
+          ncomp = ncomp, scale = scale,
+          keepX = nvarx, keepY = keepY
+        ),
+        extra_args[ids]
+      ))
     } else {
       # Extracting relevant extra arguments
       ids <- which(names(extra_args) %in% names(formals(sgPLS::sPLSda)))
       ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX")]
 
       # Running PLS model
-      mymodel <- do.call(sgPLS::sPLSda, args = c(list(X = xdata, Y = as.vector(ydata), ncomp = ncomp, keepX = nvarx), extra_args[ids]))
+      mymodel <- do.call(sgPLS::sPLSda, args = c(
+        list(
+          X = xdata, Y = as.vector(ydata),
+          ncomp = ncomp,
+          keepX = nvarx
+        ),
+        extra_args[ids]
+      ))
     }
 
     # Extracting X and Y loadings
@@ -544,7 +579,8 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian", ncomp = 1, keep
 #' @export
 SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
                            Lambda, alpha.x, alpha.y = NULL,
-                           keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
+                           keepX_previous = NULL, keepY = NULL,
+                           ncomp = 1, scale = TRUE, ...) {
   # Checking sgPLS package is installed
   if (!requireNamespace("sgPLS")) {
     stop("This function requires the 'sgPLS' package.")
@@ -627,7 +663,8 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
       # Running PLS model
       mymodel <- do.call(sgPLS::sgPLSda, args = c(
         list(
-          X = xdata, Y = as.vector(ydata), ncomp = ncomp,
+          X = xdata, Y = as.vector(ydata),
+          ncomp = ncomp,
           ind.block.x = ind.block.x,
           keepX = nvarx, alpha.x = alpha.x
         ),
@@ -641,7 +678,8 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
       # Running PLS model
       mymodel <- do.call(sgPLS::sgPLS, args = c(
         list(
-          X = xdata, Y = ydata, ncomp = ncomp,
+          X = xdata, Y = ydata,
+          ncomp = ncomp, scale = scale,
           ind.block.x = ind.block.x, ind.block.y = ind.block.y,
           keepX = nvarx, keepY = keepY,
           alpha.x = alpha.x, alpha.y = alpha.y
@@ -748,7 +786,8 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #' )
 #' @export
 GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
-                     Lambda, keepX_previous = NULL, keepY = NULL, ncomp = 1, ...) {
+                     Lambda, keepX_previous = NULL, keepY = NULL,
+                     ncomp = 1, scale = TRUE, ...) {
   # Checking sgPLS package is installed
   if (!requireNamespace("sgPLS")) {
     stop("This function requires the 'sgPLS' package.")
@@ -831,7 +870,8 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
       # Running PLS model
       mymodel <- do.call(sgPLS::gPLSda, args = c(
         list(
-          X = xdata, Y = as.vector(ydata), ncomp = ncomp,
+          X = xdata, Y = as.vector(ydata),
+          ncomp = ncomp,
           ind.block.x = ind.block.x,
           keepX = nvarx
         ),
@@ -845,7 +885,8 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
       # Running PLS model
       mymodel <- do.call(sgPLS::gPLS, args = c(
         list(
-          X = xdata, Y = ydata, ncomp = ncomp,
+          X = xdata, Y = ydata,
+          ncomp = ncomp, scale = scale,
           ind.block.x = ind.block.x, ind.block.y = ind.block.y,
           keepX = nvarx, keepY = keepY
         ),
@@ -887,20 +928,20 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' \code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}). This function is not
 #' using stability.
 #'
+#' @inheritParams PLS
 #' @param xdata data matrix with observations as rows and variables as columns.
 #' @param Lambda matrix of parameters controlling the number of selected
 #'   variables at current component, as defined by \code{ncomp}.
-#' @param ncomp number of components.
 #' @param keepX_previous number of selected predictors in previous components.
 #'   Only used if \code{ncomp > 1}.
-#' @param algo character string indicating the name of the algorithm to use for
+#' @param algorithm character string indicating the name of the algorithm to use for
 #'   sparse PCA. Possible values are: "sPCA" (for the algorithm proposed by Zou,
 #'   Hastie and Tibshirani and implemented in \code{\link[elasticnet]{spca}}) or
 #'   "rSVD" (for the regularised SVD approach proposed by Shen and Huang and
 #'   implemented in \code{\link[mixOmics]{spca}}).
 #' @param ... additional arguments to be passed to
-#'   \code{\link[elasticnet]{spca}} (if \code{algo="sPCA"}) or
-#'   \code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}).
+#'   \code{\link[elasticnet]{spca}} (if \code{algorithm="sPCA"}) or
+#'   \code{\link[mixOmics]{spca}} (if \code{algorithm="rSVD"}).
 #'
 #' @return A list with: \item{selected}{matrix of binary selection status. Rows
 #'   correspond to different model parameters. Columns correspond to
@@ -923,26 +964,29 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' x <- simul$xdata
 #'
 #' # Sparse PCA (by Zou, Hastie, Tibshirani)
-#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "sPCA")
+#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "sPCA")
 #'
 #' # Sparse PCA (by Shen and Huang)
-#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "rSVD")
+#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD")
 #' @export
-SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, algo = "sPCA", ...) {
-  # Checking input value for algo
-  if (!algo %in% c("sPCA", "rSVD")) {
-    stop("Invalid input for argument 'algo'. Possible values are: 'sPCA' or 'rSVD'.")
+SparsePCA <- function(xdata, Lambda,
+                      ncomp = 1, scale = TRUE,
+                      keepX_previous = NULL,
+                      algorithm = "sPCA", ...) {
+  # Checking input value for algorithm
+  if (!algorithm %in% c("sPCA", "rSVD")) {
+    stop("Invalid input for argument 'algorithm'. Possible values are: 'sPCA' or 'rSVD'.")
   }
 
   # Checking mixOmics package is installed
-  if (algo == "rSVD") {
+  if (algorithm == "rSVD") {
     if (!requireNamespace("mixOmics")) {
       stop("This function requires the 'mixOmics' package.")
     }
   }
 
   # Checking elasticnet package is installed
-  if (algo == "sPCA") {
+  if (algorithm == "sPCA") {
     if (!requireNamespace("elasticnet")) {
       stop("This function requires the 'elasticnet' package.")
     }
@@ -975,20 +1019,35 @@ SparsePCA <- function(xdata, Lambda, ncomp = 1, keepX_previous = NULL, algo = "s
     ids <- which(names(extra_args) %in% names(formals(mixOmics::spca)))
     ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
 
-    if (algo == "rSVD") {
+    if (algorithm == "rSVD") {
       # Running PLS model
-      mymodel <- do.call(mixOmics::spca, args = c(list(X = xdata, ncomp = ncomp, keepX = nvarx), extra_args[ids]))
+      mymodel <- do.call(mixOmics::spca, args = c(
+        list(
+          X = xdata,
+          ncomp = ncomp,
+          scale = scale,
+          keepX = nvarx
+        ),
+        extra_args[ids]
+      ))
 
       # Extracting X and Y loadings
       Xloadings <- mymodel$loadings$X
     }
 
-    if (algo == "sPCA") {
+    if (algorithm == "sPCA") {
       # Running PLS model
-      mymodel <- do.call(elasticnet::spca, args = c(list(
-        x = stats::cor(xdata), type = "Gram",
-        K = ncomp, para = nvarx, sparse = "varnum"
-      ), extra_args[ids]))
+      if (scale) {
+        mymodel <- do.call(elasticnet::spca, args = c(list(
+          x = stats::cor(xdata), type = "Gram",
+          K = ncomp, para = nvarx, sparse = "varnum"
+        ), extra_args[ids]))
+      } else {
+        mymodel <- do.call(elasticnet::spca, args = c(list(
+          x = stats::cov(xdata), type = "Gram",
+          K = ncomp, para = nvarx, sparse = "varnum"
+        ), extra_args[ids]))
+      }
 
       # Extracting X and Y loadings
       Xloadings <- mymodel$loadings

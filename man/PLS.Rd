@@ -36,7 +36,7 @@ outcomes are selected for all components.}
 This corresponds to a PLS model as defined in \code{\link[mixOmics]{pls}}
 (for continuous outcomes).}
 
-\item{ncomp}{number of components. By default, one component is used.}
+\item{ncomp}{number of components.}
 
 \item{scale}{logical indicating if the data should be scaled (i.e.
 transformed so that all variables have a standard deviation of one).}
@@ -44,14 +44,15 @@ transformed so that all variables have a standard deviation of one).}
 \value{
 A list with: \item{Wmat}{matrix of X-weights.} \item{Wstar}{matrix of
   transformed X-weights.} \item{Pmat}{matrix of X-loadings.}
-  \item{Tmat}{matrix of X-scores.} \item{Umat}{matrix of Y-scores.}
-  \item{Qmat}{matrix needed for predictions.} \item{Rmat}{matrix needed for
-  predictions.} \item{meansX}{vector used for centering of predictors, needed
-  for predictions.} \item{sigmaX}{vector used for scaling of predictors,
-  needed for predictions.} \item{meansY}{vector used for centering of
-  outcomes, needed for predictions.} \item{sigmaY}{vector used for scaling of
-  outcomes, needed for predictions.} \item{methods}{a list with \code{family}
-  and \code{scale} values used for the run.} \item{params}{a list with
+  \item{Cmat}{matrix of Y-weights.} \item{Tmat}{matrix of X-scores.}
+  \item{Umat}{matrix of Y-scores.} \item{Qmat}{matrix needed for
+  predictions.} \item{Rmat}{matrix needed for predictions.}
+  \item{meansX}{vector used for centering of predictors, needed for
+  predictions.} \item{sigmaX}{vector used for scaling of predictors, needed
+  for predictions.} \item{meansY}{vector used for centering of outcomes,
+  needed for predictions.} \item{sigmaY}{vector used for scaling of outcomes,
+  needed for predictions.} \item{methods}{a list with \code{family} and
+  \code{scale} values used for the run.} \item{params}{a list with
   \code{selectedX} and \code{selectedY} values used for the run.}
 }
 \description{
@@ -98,13 +99,23 @@ mypls <- PLS(
 )
 
 # Nonzero entries in weights are the same as in selectedX
-par(mfrow = c(1, 2))
+par(mfrow = c(2, 2))
 Heatmap(stab$selectedX,
   legend = FALSE
 )
+title("Selected in X")
 Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
   legend = FALSE
 )
+title("Nonzero entries in Wmat")
+Heatmap(stab$selectedY,
+  legend = FALSE
+)
+title("Selected in Y")
+Heatmap(ifelse(mypls$Cmat != 0, yes = 1, no = 0),
+  legend = FALSE
+)
+title("Nonzero entries in Cmat")
 }
 }
 \references{

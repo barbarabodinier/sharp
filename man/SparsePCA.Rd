@@ -4,7 +4,15 @@
 \alias{SparsePCA}
 \title{Sparse Principal Component Analysis}
 \usage{
-SparsePCA(xdata, Lambda, ncomp = 1, keepX_previous = NULL, algo = "sPCA", ...)
+SparsePCA(
+  xdata,
+  Lambda,
+  ncomp = 1,
+  scale = TRUE,
+  keepX_previous = NULL,
+  algorithm = "sPCA",
+  ...
+)
 }
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
@@ -14,18 +22,21 @@ variables at current component, as defined by \code{ncomp}.}
 
 \item{ncomp}{number of components.}
 
+\item{scale}{logical indicating if the data should be scaled (i.e.
+transformed so that all variables have a standard deviation of one).}
+
 \item{keepX_previous}{number of selected predictors in previous components.
 Only used if \code{ncomp > 1}.}
 
-\item{algo}{character string indicating the name of the algorithm to use for
+\item{algorithm}{character string indicating the name of the algorithm to use for
 sparse PCA. Possible values are: "sPCA" (for the algorithm proposed by Zou,
 Hastie and Tibshirani and implemented in \code{\link[elasticnet]{spca}}) or
 "rSVD" (for the regularised SVD approach proposed by Shen and Huang and
 implemented in \code{\link[mixOmics]{spca}}).}
 
 \item{...}{additional arguments to be passed to
-\code{\link[elasticnet]{spca}} (if \code{algo="sPCA"}) or
-\code{\link[mixOmics]{spca}} (if \code{algo="rSVD"}).}
+\code{\link[elasticnet]{spca}} (if \code{algorithm="sPCA"}) or
+\code{\link[mixOmics]{spca}} (if \code{algorithm="rSVD"}).}
 }
 \value{
 A list with: \item{selected}{matrix of binary selection status. Rows
@@ -48,10 +59,10 @@ simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 x <- simul$xdata
 
 # Sparse PCA (by Zou, Hastie, Tibshirani)
-mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "sPCA")
+mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "sPCA")
 
 # Sparse PCA (by Shen and Huang)
-mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algo = "rSVD")
+mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD")
 }
 \references{
 \insertRef{sparsePCA}{focus}

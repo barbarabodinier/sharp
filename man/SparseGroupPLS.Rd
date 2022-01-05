@@ -16,6 +16,7 @@ SparseGroupPLS(
   keepX_previous = NULL,
   keepY = NULL,
   ncomp = 1,
+  scale = TRUE,
   ...
 )
 }
@@ -57,6 +58,10 @@ defined as in \code{\link[sgPLS]{sgPLS}}. Only used if
 \code{family="gaussian"}.}
 
 \item{ncomp}{number of components.}
+
+\item{scale}{logical indicating if the data should be scaled (i.e.
+transformed so that all variables have a standard deviation of one). Only
+used if \code{family="gaussian"}.}
 
 \item{...}{additional arguments to be passed to \code{\link[sgPLS]{sgPLS}} or
 \code{\link[sgPLS]{sgPLSda}}.}

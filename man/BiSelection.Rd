@@ -14,6 +14,7 @@ BiSelection(
   AlphaX = NULL,
   AlphaY = NULL,
   ncomp = 1,
+  scale = TRUE,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
   tau = 0.5,
@@ -63,6 +64,9 @@ groups (sparse group PLS) in X. Only used with
 \code{implementation=SparseGroupPLS} and \code{family="gaussian"}.}
 
 \item{ncomp}{number of components.}
+
+\item{scale}{logical indicating if the data should be scaled (i.e.
+transformed so that all variables have a standard deviation of one).}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
 \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
