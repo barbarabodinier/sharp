@@ -1,4 +1,317 @@
+#' Partial Least Squares 'a la carte'
+#'
+#' Runs a Partial Least Squares (PLS) model in regression mode using algorithm
+#' implemented in \code{\link[mixOmics]{pls}}. This function allows for the
+#' construction of components based on different sets of predictor and/or
+#' outcome variables. This function is not using stability.
+#'
+#' @inheritParams SelectionAlgo
+#' @param selectedX binary matrix of size \code{(ncol(xdata) * ncomp)}. The
+#'   binary entries indicate which predictors (in rows) contribute to the
+#'   definition of each component (in columns). If \code{selectedX=NULL}, all
+#'   predictors are selected for all components.
+#' @param selectedY binary matrix of size \code{(ncol(ydata) * ncomp)}. The
+#'   binary entries indicate which outcomes (in rows) contribute to the
+#'   definition of each component (in columns). If \code{selectedY=NULL}, all
+#'   outcomes are selected for all components.
+#' @param family type of PLS model. Only \code{family="gaussian"} is supported.
+#'   This corresponds to a PLS model as defined in \code{\link[mixOmics]{pls}}
+#'   (for continuous outcomes).
+#' @param ncomp number of components. By default, one component is used.
+#' @param scale logical indicating if the data should be scaled (i.e.
+#'   transformed so that all variables have a standard deviation of one).
+#'
+#' @details All matrices are defined as in (Wold et al. 2001). The weight matrix
+#'   \code{Wmat} is the equivalent of \code{loadings$X} in
+#'   \code{\link[mixOmics]{pls}}. The loadings matrix \code{Pmat} is the
+#'   equivalent of \code{mat.c} in \code{\link[mixOmics]{pls}}. The score
+#'   matrices \code{Tmat} and \code{Qmat} are the equivalent of
+#'   \code{variates$X} and \code{variates$Y} in \code{\link[mixOmics]{pls}}.
+#'
+#' @return A list with: \item{Wmat}{matrix of X-weights.} \item{Wstar}{matrix of
+#'   transformed X-weights.} \item{Pmat}{matrix of X-loadings.}
+#'   \item{Tmat}{matrix of X-scores.} \item{Umat}{matrix of Y-scores.}
+#'   \item{Qmat}{matrix needed for predictions.} \item{Rmat}{matrix needed for
+#'   predictions.} \item{meansX}{vector used for centering of predictors, needed
+#'   for predictions.} \item{sigmaX}{vector used for scaling of predictors,
+#'   needed for predictions.} \item{meansY}{vector used for centering of
+#'   outcomes, needed for predictions.} \item{sigmaY}{vector used for scaling of
+#'   outcomes, needed for predictions.} \item{methods}{a list with \code{family}
+#'   and \code{scale} values used for the run.} \item{params}{a list with
+#'   \code{selectedX} and \code{selectedY} values used for the run.}
+#'
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
+#'
+#' @references \insertRef{PLS}{focus}
+#'
+#' @examples
+#' \dontrun{
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
+#' x <- simul$xdata
+#' y <- simul$ydata
+#'
+#' # PLS
+#' mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
+#'
+#' # Sparse PLS to identify relevant variables
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   LambdaY = 1:(ncol(y) - 1),
+#'   implementation = SparsePLS,
+#'   n_cat = 2
+#' )
+#' plot(stab)
+#'
+#' # Recalibration of PLS model
+#' mypls <- PLS(
+#'   xdata = x, ydata = y,
+#'   selectedX = stab$selectedX,
+#'   selectedY = stab$selectedY
+#' )
+#'
+#' # Nonzero entries in weights are the same as in selectedX
+#' par(mfrow = c(1, 2))
+#' Heatmap(stab$selectedX,
+#'   legend = FALSE
+#' )
+#' Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
+#'   legend = FALSE
+#' )
+#' }
+#' @export
+PLS <- function(xdata, ydata,
+                selectedX = NULL, selectedY = NULL,
+                family = "gaussian", ncomp = NULL, scale = TRUE) {
+  # Checking mixOmics package is installed
+  CheckPackageInstalled("mixOmics")
 
+  # Checking arguments
+  if (!family %in% c("gaussian")) {
+    stop("Invalid input for argument 'family'. Only 'gaussian' family is supported.")
+  }
+
+  # Re-formatting ydata
+  if (is.vector(ydata)) {
+    ydata <- cbind(ydata)
+  }
+
+  # Checking consistency of arguments
+  if (is.null(selectedX) & is.null(selectedY)) {
+    if (is.null(ncomp)) {
+      ncomp <- 1
+    }
+  } else {
+    if (!is.null(selectedX)) {
+      if (is.null(ncomp)) {
+        ncomp <- ncol(selectedX)
+      } else {
+        if (!is.null(selectedY)) {
+          if (ncol(selectedX) != ncol(selectedY)) {
+            stop("Arguments 'selectedX' and 'selectedY' are not consistent. These matrices must have the same number of columns.")
+          }
+        }
+        if (ncomp != ncol(selectedX)) {
+          message(paste0(
+            "Arguments 'ncomp' and 'selectedX' are not consistent. The algorithm is run with ncomp=",
+            ncol(selectedX), "."
+          ))
+        }
+      }
+    } else {
+      ncomp <- ncol(selectedY)
+    }
+  }
+
+  # Defining the selection status for predictors
+  if (is.null(selectedX)) {
+    selectedX <- matrix(1, nrow = ncol(xdata), ncol = ncomp)
+  }
+  rownames(selectedX) <- colnames(xdata)
+  colnames(selectedX) <- paste0("comp", 1:ncomp)
+
+  # Defining the selection status for outcomes
+  if (is.null(selectedY)) {
+    selectedY <- matrix(1, nrow = ncol(ydata), ncol = ncomp)
+  }
+  rownames(selectedY) <- colnames(ydata)
+  colnames(selectedY) <- paste0("comp", 1:ncomp)
+
+  # Initialisation
+  Emat <- scale(xdata, center = TRUE, scale = scale)
+  Fmat <- scale(ydata, center = TRUE, scale = scale)
+  meansX <- attr(Emat, "scaled:center")
+  meansY <- attr(Fmat, "scaled:center")
+  if (scale) {
+    sigmaX <- attr(Emat, "scaled:scale")
+    sigmaY <- attr(Fmat, "scaled:scale")
+  } else {
+    sigmaX <- rep(1, ncol(xdata))
+    sigmaY <- rep(1, ncol(ydata))
+  }
+
+  # Initialisation of empty objects
+  Wmat <- Pmat <- matrix(0, nrow = ncol(xdata), ncol = ncomp)
+  rownames(Wmat) <- rownames(Pmat) <- colnames(xdata)
+  Tmat <- matrix(NA, nrow = nrow(xdata), ncol = ncomp)
+  Umat <- matrix(NA, nrow = nrow(ydata), ncol = ncomp)
+  rownames(Tmat) <- rownames(Umat) <- rownames(xdata)
+  colnames(Wmat) <- colnames(Pmat) <- colnames(Tmat) <- colnames(Umat) <- paste0("comp", 1:ncomp)
+
+  # Loop over the components
+  for (comp in 1:ncomp) {
+    # Extracting the stably selected predictors
+    idsX <- rownames(selectedX)[which(selectedX[, comp] == 1)]
+    if (length(idsX) > 0) {
+      Emat_selected <- Emat[, idsX, drop = FALSE]
+    } else {
+      warning(paste0("No selected predictors for component ", comp, ". All predictors were included."))
+      Emat_selected <- Emat
+    }
+
+    # Extracting the stably selected outcomes
+    idsY <- rownames(selectedY)[which(selectedY[, comp] == 1)]
+    if (length(idsY) > 0) {
+      Fmat_selected <- Fmat[, idsY, drop = FALSE]
+    } else {
+      warning(paste0("No selected outcomes for component ", comp, ". All outcomes were included."))
+      Fmat_selected <- Fmat
+    }
+
+    # Fitting PLS model (scaling done in initialisation and not required for further components)
+    pls_h <- mixOmics::pls(
+      X = Emat_selected,
+      Y = Fmat_selected,
+      mode = "regression",
+      all.outputs = TRUE,
+      multilevel = NULL,
+      ncomp = 1,
+      scale = FALSE
+    )
+
+    # Extracting the scores
+    t_h <- pls_h$variates$X
+    Tmat[, comp] <- t_h
+    Umat[, comp] <- pls_h$variates$Y
+
+    # Extracting the X-weights
+    w_h <- pls_h$loadings$X
+    Wmat[idsX, comp] <- w_h
+
+    # Extracting the X-loadings
+    Pmat[idsX, comp] <- pls_h$mat.c[, 1, drop = FALSE]
+
+    # Deflation step
+    Emat <- Emat - t_h %*% t(Pmat[, comp, drop = FALSE])
+    d_h <- t(Fmat) %*% t_h * 1 / as.numeric(t(t_h) %*% t_h)
+    Fmat <- Fmat - t_h %*% t(d_h)
+  }
+
+  # Transforming the weights
+  Wstar <- base::zapsmall(Wmat %*% solve(t(Pmat) %*% Wmat))
+
+  # Calculating matrices needed for predictions
+  Qmat <- crossprod(scale(xdata, center = TRUE, scale = scale), Tmat)
+  Rmat <- crossprod(scale(ydata, center = TRUE, scale = scale), Tmat)
+
+  # Preparing outputs
+  out <- list(
+    Wmat = Wmat,
+    Wstar = Wstar,
+    Pmat = Pmat,
+    Tmat = Tmat,
+    Umat = Umat,
+    Qmat = Qmat,
+    Rmat = Rmat,
+    meansX = meansX,
+    sigmaX = sigmaX,
+    meansY = meansY,
+    sigmaY = sigmaY,
+    methods = list(family = family, scale = scale),
+    params = list(selectedX = selectedX, selectedY = selectedY)
+  )
+
+  return(out)
+}
+
+
+#' Partial Least Squares predictions
+#'
+#' Computes predicted values from a Partial Least Squares (PLS) model in
+#' regression mode applied on \code{xdata}. This function is using the algorithm
+#' implemented in \code{\link[mixOmics]{predict.pls}}.
+#'
+#' @inheritParams SelectionAlgo
+#' @param pls output of \code{\link{PLS}}.
+#'
+#' @return A list with: \item{Wmat}{matrix of X-weights.} \item{Wstar}{matrix of
+#'   transformed X-weights.} \item{Pmat}{matrix of X-loadings.}
+#'   \item{Tmat}{matrix of X-scores.} \item{Umat}{matrix of Y-scores.}
+#'   \item{Qmat}{matrix needed for predictions.} \item{Rmat}{matrix needed for
+#'   predictions.} \item{meansX}{vector used for centering of predictors, needed
+#'   for predictions.} \item{sigmaX}{vector used for scaling of predictors,
+#'   needed for predictions.} \item{meansY}{vector used for centering of
+#'   outcomes, needed for predictions.} \item{sigmaY}{vector used for scaling of
+#'   outcomes, needed for predictions.} \item{methods}{a list with \code{family}
+#'   and \code{scale} values used for the run.} \item{params}{a list with
+#'   \code{selectedX} and \code{selectedY} values used for the run.}
+#'
+#' @seealso \code{\link{PLS}}
+#'
+#' @examples
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = c(5, 5, 5), family = "gaussian")
+#' x <- simul$xdata
+#' y <- simul$ydata
+#'
+#' # PLS
+#' mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
+#'
+#' # Predicted values
+#' predicted <- PredictPLS(xdata = x, pls = mypls)
+#' @export
+PredictPLS <- function(xdata, pls) {
+  # Extracting arguments
+  family <- pls$methods$family
+  ncomp <- ncol(pls$Wmat)
+
+  # Checking arguments
+  if (!family %in% c("gaussian")) {
+    stop("Invalid input for argument 'family'. Only 'gaussian' family is supported.")
+  }
+
+  # Re-scaling data
+  newdata <- t(apply(xdata, 1, FUN = function(x) {
+    (x - pls$meansX) / pls$sigmaX
+  }))
+
+  # Initialising empty object
+  out <- array(NA,
+    dim = c(nrow(newdata), nrow(pls$Rmat), ncomp),
+    dimnames = list(rownames(newdata), rownames(pls$Rmat), colnames(pls$Rmat))
+  )
+
+  # Loop over the components
+  for (comp in 1:ncomp) {
+    # Computing predicted values
+    Ypred <- newdata %*% pls$Wmat[, 1:comp] %*% solve(t(pls$Qmat[, 1:comp]) %*% pls$Wmat[, 1:comp]) %*% t(pls$Rmat)[1:comp, ]
+
+    # Re-scaling
+    Ypred <- t(apply(Ypred, 1, FUN = function(y) {
+      y * pls$sigmaY + pls$meansY
+    }))
+
+    # Storing in the output
+    print(dim(Ypred))
+    out[, , comp] <- Ypred
+  }
+
+  return(out)
+}
 
 
 #' Sparse Partial Least Squares

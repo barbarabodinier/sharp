@@ -146,7 +146,7 @@ A list with: \item{S}{a matrix of the best stability scores for
   to outcome-specific coefficients.} \item{method}{a list with
   \code{type="variable_selection"}, \code{implementation}, \code{family},
   \code{resampling} and \code{PFER_method} values used for the run.}
-  \item{params}{a list of \code{K}, \code{pi_list}, \code{tau}, \code{n_cat},
+  \item{params}{a list with \code{K}, \code{pi_list}, \code{tau}, \code{n_cat},
   \code{pk}, \code{n} (number of observations), \code{PFER_thr},
   \code{FDP_thr} and \code{seed} values used for the run. The datasets
   \code{xdata} and \code{ydata} are also included if
