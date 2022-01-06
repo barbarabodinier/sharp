@@ -93,11 +93,11 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 
   # Defining the thresholds
   breaks <- sort(unique(predicted), decreasing = FALSE)
-  if (length(breaks) == 1) {
+  if (length(breaks) <= 1) {
     message("The predicted value is the same for all predictors.")
     FPR <- TPR <- AUC <- NA
   } else {
-    breaks <- breaks[-1]
+    breaks <- breaks[-length(breaks)]
     if (!is.null(n_thr)) {
       if (length(breaks) > n_thr) {
         breaks <- breaks[floor(seq(1, length(breaks), length.out = n_thr))]
