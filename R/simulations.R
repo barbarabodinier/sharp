@@ -1005,8 +1005,8 @@ HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   extra_args <- list(...)
 
   # Extracting relevant extra arguments
-  ids <- which(names(extra_args) %in% names(formals(huge::huge.generator)))
-  ids <- ids[!ids %in% c("n", "d", "prob", "graph", "verbose")]
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = huge::huge.generator)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("n", "d", "prob", "graph", "verbose")]
 
   # Running simulation model
   mymodel <- do.call(huge::huge.generator, args = c(
@@ -1014,7 +1014,7 @@ HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
       n = 2, d = sum(pk), prob = nu,
       graph = topology, verbose = FALSE
     ),
-    extra_args[ids]
+    tmp_extra_args
   ))
   theta <- as.matrix(mymodel$theta)
 
