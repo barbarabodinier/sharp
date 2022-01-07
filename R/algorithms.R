@@ -45,7 +45,8 @@
 #' @export
 SelectionAlgo <- function(xdata, ydata = NULL,
                           Lambda, group_x = NULL,
-                          family = NULL, implementation = PenalisedRegression, ...) {
+                          family = NULL,
+                          implementation = PenalisedRegression, ...) {
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
   for (j in 1:ncol(xdata)) {

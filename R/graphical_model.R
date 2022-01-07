@@ -482,7 +482,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
     for (i in 1:K) {
       # Resampling of the data
       s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)
-      xdata_sub <- xdata[s, ]
+      xdata_sub <- xdata[s, , drop = FALSE]
 
       # Estimation of the networks for different penalties
       A <- GraphicalAlgo(
@@ -511,7 +511,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
     for (i in 1:ceiling(K / 2)) {
       # Sample 1
       s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)
-      xdata_sub <- xdata[s, ]
+      xdata_sub <- xdata[s, , drop = FALSE]
 
       # Estimation of the networks for different penalties
       A1 <- GraphicalAlgo(
@@ -520,7 +520,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
       )
 
       # Sample 2: everything not in sample 1
-      xdata_sub <- xdata[-s, ]
+      xdata_sub <- xdata[-s, , drop = FALSE]
 
       # Estimation of the networks for different penalties
       A2 <- GraphicalAlgo(

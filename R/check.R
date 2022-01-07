@@ -103,6 +103,7 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
       ydata <- as.numeric(ydata) - 1
     }
     ydata <- matrix(ydata, ncol = 1)
+    rownames(ydata) <- rownames(xdata)
     ytmp <- as.numeric(table(ydata))
     if (any(ytmp == 1)) {
       stop("At least one category in 'ydata' with only one observation.")

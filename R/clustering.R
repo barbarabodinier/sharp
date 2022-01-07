@@ -354,7 +354,7 @@ SerialClustering <- function(xdata, Lambda, nc, pi_list = seq(0.6, 0.9, by = 0.0
       s <- Resample(
         data = xdata, family = NULL, tau = tau, resampling = resampling, ...
       )
-      Xsub <- xdata[s, ]
+      Xsub <- xdata[s, , drop = FALSE]
 
       # Applying clustering algorithm
       mybeta <- ClusteringAlgo(

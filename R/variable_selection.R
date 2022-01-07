@@ -484,8 +484,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
 
   # Initialising the arrays
   s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
-  Xsub <- xdata[s, ]
-  Ysub <- ydata[s, ]
+  Xsub <- xdata[s, , drop = FALSE]
+  Ysub <- ydata[s, , drop = FALSE]
   mybeta <- SelectionAlgo(
     xdata = Xsub, ydata = Ysub,
     Lambda = Lambda[, 1], group_x = group_x,
@@ -520,8 +520,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   if (PFER_method == "MB") {
     for (k in 1:K) {
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
-      Xsub <- xdata[s, ]
-      Ysub <- ydata[s, ]
+      Xsub <- xdata[s, , drop = FALSE]
+      Ysub <- ydata[s, , drop = FALSE]
       mybeta <- SelectionAlgo(
         xdata = Xsub, ydata = Ysub,
         Lambda = Lambda[, 1], group_x = group_x,
@@ -531,8 +531,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       # Resampling if model failed to converge
       while (is.infinite(mybeta$selected[1])) {
         s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
-        Xsub <- xdata[s, ]
-        Ysub <- ydata[s, ]
+        Xsub <- xdata[s, , drop = FALSE]
+        Ysub <- ydata[s, , drop = FALSE]
         mybeta <- SelectionAlgo(
           xdata = Xsub, ydata = Ysub,
           Lambda = Lambda[, 1], group_x = group_x,
@@ -571,8 +571,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
       # First subset
-      Xsub <- xdata[s, ]
-      Ysub <- ydata[s, ]
+      Xsub <- xdata[s, , drop = FALSE]
+      Ysub <- ydata[s, , drop = FALSE]
       mybeta1 <- SelectionAlgo(
         xdata = Xsub, ydata = Ysub,
         Lambda = Lambda[, 1], group_x = group_x,
@@ -580,8 +580,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
       )
 
       # Complementary subset
-      Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
-      Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
+      Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], , drop = FALSE]
+      Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], , drop = FALSE]
       mybeta2 <- SelectionAlgo(
         xdata = Xsub, ydata = Ysub,
         Lambda = Lambda[, 1], group_x = group_x,
@@ -593,8 +593,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
         s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
         # First subset
-        Xsub <- xdata[s, ]
-        Ysub <- ydata[s, ]
+        Xsub <- xdata[s, , drop = FALSE]
+        Ysub <- ydata[s, , drop = FALSE]
         mybeta <- SelectionAlgo(
           xdata = Xsub, ydata = Ysub,
           Lambda = Lambda[, 1], group_x = group_x,
@@ -602,8 +602,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
         )
 
         # Complementary subset
-        Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
-        Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], ]
+        Xsub <- xdata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], , drop = FALSE]
+        Ysub <- ydata[seq(1, nrow(xdata))[!seq(1, nrow(xdata)) %in% s], , drop = FALSE]
         mybeta <- SelectionAlgo(
           xdata = Xsub, ydata = Ysub,
           Lambda = Lambda[, 1], group_x = group_x,
