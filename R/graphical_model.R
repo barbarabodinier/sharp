@@ -478,7 +478,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
   }
 
   # Using MB formula of the PFER
-  if (PFER_method == "MB") {
+  if (!cpss) {
     for (i in 1:K) {
       # Resampling of the data
       s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)
@@ -504,10 +504,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
       bigstab[, , k] <- bigstab[, , k] / K
       diag(bigstab[, , k]) <- 0
     }
-  }
-
-  # Using complementary pairs and SS formula of the PFER
-  if (PFER_method == "SS") {
+  } else {
     for (i in 1:ceiling(K / 2)) {
       # Sample 1
       s <- Resample(data = xdata, family = NULL, tau = tau, resampling = resampling, ...)

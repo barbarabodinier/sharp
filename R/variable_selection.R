@@ -517,7 +517,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   if (verbose) {
     pb <- utils::txtProgressBar(style = 3)
   }
-  if (PFER_method == "MB") {
+  if (!cpss) {
     for (k in 1:K) {
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
       Xsub <- xdata[s, , drop = FALSE]
@@ -564,9 +564,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
         bigstab[i, j] <- sum(Beta[i, j, ] != 0) / K
       }
     }
-  }
-
-  if (PFER_method == "SS") {
+  } else {
     for (k in 1:ceiling(K / 2)) {
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
