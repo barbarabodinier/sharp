@@ -27,8 +27,8 @@ returned. Option \code{side="Y"} is only applicable to PLS models.}
 \item{comp}{component ID. Only applicable to PLS models.}
 
 \item{FUN}{function to use to aggregate coefficients of visited models over
-resampling iterations. Recommended functions include \code{\link[stats]{median}}
-or \code{\link[base]{mean}}.}
+resampling iterations. Recommended functions include
+\code{\link[stats]{median}} or \code{\link[base]{mean}}.}
 
 \item{...}{additional arguments to be passed to \code{FUN}.}
 }
@@ -36,9 +36,10 @@ or \code{\link[base]{mean}}.}
 A matrix of average coefficients across resampling iterations.
 }
 \description{
-Extracts the average coefficients of the (calibrated) models conditionally on
-selection across resampling iterations. This function can be applied to the
-output of \code{\link{VariableSelection}}.
+Computes descriptive statistics (defined by \code{FUN}) for coefficients of
+the (calibrated) models conditionally on selection across resampling
+iterations. This function can be applied to the output of
+\code{\link{VariableSelection}}.
 }
 \examples{
 \dontrun{

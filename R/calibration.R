@@ -626,9 +626,10 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 
 #' Average coefficients conditionally on selection
 #'
-#' Extracts the average coefficients of the (calibrated) models conditionally on
-#' selection across resampling iterations. This function can be applied to the
-#' output of \code{\link{VariableSelection}}.
+#' Computes descriptive statistics (defined by \code{FUN}) for coefficients of
+#' the (calibrated) models conditionally on selection across resampling
+#' iterations. This function can be applied to the output of
+#' \code{\link{VariableSelection}}.
 #'
 #' @param stability output of \code{\link{VariableSelection}}.
 #' @param side character string indicating if coefficients of the predictor
@@ -639,8 +640,8 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'   \code{NULL}, average coefficients across the models run with the calibrated
 #'   parameter are returned.
 #' @param FUN function to use to aggregate coefficients of visited models over
-#'   resampling iterations. Recommended functions include \code{\link[stats]{median}}
-#'   or \code{\link[base]{mean}}.
+#'   resampling iterations. Recommended functions include
+#'   \code{\link[stats]{median}} or \code{\link[base]{mean}}.
 #' @param ... additional arguments to be passed to \code{FUN}.
 #'
 #' @return A matrix of average coefficients across resampling iterations.
