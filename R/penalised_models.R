@@ -26,6 +26,14 @@
 #'   xdata = simul$xdata, ydata = simul$ydata,
 #'   Lambda = c(0.1, 0.2), family = "gaussian"
 #' )
+#'
+#' # Using glmnet arguments
+#' mylasso <- PenalisedRegression(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   Lambda = c(0.1), family = "gaussian",
+#'   penalty.factor = c(rep(0, 10), rep(1, 40))
+#' )
+#' mylasso$beta_full
 #' @export
 PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Storing extra arguments
@@ -34,18 +42,18 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Running the regression
   if (family == "multinomial") {
     # Extracting relevant extra arguments
-    ids <- which(names(extra_args) %in% names(formals(glmnet::glmnet)))
-    ids <- ids[!ids %in% c("x", "y", "lambda", "family", "type.multinomial")]
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::glmnet)
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "family", "type.multinomial")]
 
     # Running model
-    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family, type.multinomial = "grouped"), extra_args[ids]))
+    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family, type.multinomial = "grouped"), tmp_extra_args))
   } else {
     # Extracting relevant extra arguments
-    ids <- which(names(extra_args) %in% names(formals(glmnet::glmnet)))
-    ids <- ids[!ids %in% c("x", "y", "lambda", "family")]
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::glmnet)
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "family")]
 
     # Running model
-    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family), extra_args[ids]))
+    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family), tmp_extra_args))
   }
 
   if (!is.infinite(mymodel$lambda[1])) {
@@ -54,7 +62,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
       if (length(Lambda) > 1) {
         mybeta <- suppressWarnings({
           do.call(stats::coef,
-            args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), extra_args[ids])
+            args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), tmp_extra_args)
           )
         })
       } else {
@@ -80,7 +88,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
             do.call(stats::coef,
-              args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), extra_args[ids])
+              args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), tmp_extra_args)
             )
           })
         } else {
@@ -104,7 +112,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
             do.call(stats::coef,
-              args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), extra_args[ids])
+              args = c(list(object = mymodel, s = Lambda, exact = TRUE, x = xdata, y = ydata), tmp_extra_args)
             )
           })
         } else {
@@ -214,8 +222,8 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
     }
 
     # Extracting relevant extra arguments
-    ids <- which(names(extra_args) %in% names(formals(glassoFast::glassoFast)))
-    ids <- ids[!ids %in% c("S", "rho", "start", "w.init", "wi.init")] # avoid duplicates and args that cannot be manually set (related to warm start)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glassoFast::glassoFast)
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("S", "rho", "start", "w.init", "wi.init")] # avoid duplicates and args that cannot be manually set (related to warm start)
 
     # Estimation of the sparse inverse covariance
     if ((start == "warm") & (k != 1)) {
@@ -226,20 +234,20 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
             S = cov_sub, rho = lambdamat,
             start = "warm", w.init = sigma, wi.init = omega
           ),
-          extra_args[ids]
+          tmp_extra_args
         ))
       } else {
         # Cold start if first iteration for the block
         g_sub <- do.call(glassoFast::glassoFast, args = c(
           list(S = cov_sub, rho = lambdamat),
-          extra_args[ids]
+          tmp_extra_args
         ))
       }
     } else {
       # Cold start
       g_sub <- do.call(glassoFast::glassoFast, args = c(
         list(S = cov_sub, rho = lambdamat),
-        extra_args[ids]
+        tmp_extra_args
       ))
     }
     omega <- g_sub$wi

@@ -266,7 +266,8 @@
 GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,
                            pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,
                            implementation = PenalisedGraphical, start = "warm", scale = TRUE,
-                           resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
+                           resampling = "subsampling", cpss = FALSE,
+                           PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                            Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001, max_density = 0.5,
                            n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Definition of the type of approach (single or multi-block)
@@ -410,13 +411,19 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
 SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
                             pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = n_cat,
                             implementation = PenalisedGraphical, start = "cold", scale = TRUE,
-                            resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
+                            resampling = "subsampling", cpss = FALSE,
+                            PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                             output_data = FALSE, verbose = TRUE, ...) {
   # Marginal correlation to get sign of the relationship
   mycor_for_sign <- stats::cor(xdata)
 
-  # Defining K if using complementary pairs (SS)
+  # Using complementary pairs for SS
   if (PFER_method == "SS") {
+    cpss <- TRUE
+  }
+
+  # Defining K if using complementary pairs
+  if (cpss) {
     K <- ceiling(K / 2) * 2
     tau <- 0.5
   }

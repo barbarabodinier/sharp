@@ -53,6 +53,14 @@ mylasso <- PenalisedRegression(
   xdata = simul$xdata, ydata = simul$ydata,
   Lambda = c(0.1, 0.2), family = "gaussian"
 )
+
+# Using glmnet arguments
+mylasso <- PenalisedRegression(
+  xdata = simul$xdata, ydata = simul$ydata,
+  Lambda = c(0.1), family = "gaussian",
+  penalty.factor = c(rep(0, 10), rep(1, 40))
+)
+mylasso$beta_full
 }
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}

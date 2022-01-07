@@ -448,8 +448,8 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
 
     if (family == "gaussian") {
       # Extracting relevant extra arguments
-      ids <- which(names(extra_args) %in% names(formals(sgPLS::sPLS)))
-      ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sgPLS::sPLS)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "Y", "ncomp", "scale", "keepX", "keepY")]
 
       # Running PLS model
       mymodel <- do.call(sgPLS::sPLS, args = c(
@@ -458,12 +458,12 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
           ncomp = ncomp, scale = scale,
           keepX = nvarx, keepY = keepY
         ),
-        extra_args[ids]
+        tmp_extra_args
       ))
     } else {
       # Extracting relevant extra arguments
-      ids <- which(names(extra_args) %in% names(formals(sgPLS::sPLSda)))
-      ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX")]
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sgPLS::sPLSda)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "Y", "ncomp", "keepX")]
 
       # Running PLS model
       mymodel <- do.call(sgPLS::sPLSda, args = c(
@@ -472,7 +472,7 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
           ncomp = ncomp,
           keepX = nvarx
         ),
-        extra_args[ids]
+        tmp_extra_args
       ))
     }
 
@@ -657,8 +657,8 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 
     if (family == "binomial") {
       # Extracting relevant extra arguments
-      ids <- which(names(extra_args) %in% names(formals(sgPLS::sgPLSda)))
-      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "keepX", "alpha.x")]
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sgPLS::sgPLSda)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "Y", "ncomp", "ind.block.x", "keepX", "alpha.x")]
 
       # Running PLS model
       mymodel <- do.call(sgPLS::sgPLSda, args = c(
@@ -668,12 +668,12 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
           ind.block.x = ind.block.x,
           keepX = nvarx, alpha.x = alpha.x
         ),
-        extra_args[ids]
+        tmp_extra_args
       )) # no sparsity in Y
     } else {
       # Extracting relevant extra arguments
-      ids <- which(names(extra_args) %in% names(formals(sgPLS::sgPLS)))
-      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "ind.block.y", "keepX", "keepY", "alpha.x", "alpha.y")]
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sgPLS::sgPLS)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "Y", "ncomp", "scale", "ind.block.x", "ind.block.y", "keepX", "keepY", "alpha.x", "alpha.y")]
 
       # Running PLS model
       mymodel <- do.call(sgPLS::sgPLS, args = c(
@@ -684,7 +684,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
           keepX = nvarx, keepY = keepY,
           alpha.x = alpha.x, alpha.y = alpha.y
         ),
-        extra_args[ids]
+        tmp_extra_args
       ))
     }
 
@@ -864,8 +864,8 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 
     if (family == "binomial") {
       # Extracting relevant extra arguments
-      ids <- which(names(extra_args) %in% names(formals(sgPLS::gPLSda)))
-      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "keepX")]
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sgPLS::gPLSda)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "Y", "ncomp", "ind.block.x", "keepX")]
 
       # Running PLS model
       mymodel <- do.call(sgPLS::gPLSda, args = c(
@@ -875,12 +875,12 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
           ind.block.x = ind.block.x,
           keepX = nvarx
         ),
-        extra_args[ids]
+        tmp_extra_args
       )) # no sparsity in Y
     } else {
       # Extracting relevant extra arguments
-      ids <- which(names(extra_args) %in% names(formals(sgPLS::gPLS)))
-      ids <- ids[!ids %in% c("X", "Y", "ncomp", "ind.block.x", "ind.block.y", "keepX", "keepY")]
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sgPLS::gPLSda)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "Y", "ncomp", "ind.block.x", "keepX")]
 
       # Running PLS model
       mymodel <- do.call(sgPLS::gPLS, args = c(
@@ -890,7 +890,7 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
           ind.block.x = ind.block.x, ind.block.y = ind.block.y,
           keepX = nvarx, keepY = keepY
         ),
-        extra_args[ids]
+        tmp_extra_args
       ))
     }
 
@@ -1015,11 +1015,11 @@ SparsePCA <- function(xdata, Lambda,
     # Number of selected variables per component in X
     nvarx <- c(keepX_previous, Lambda[k])
 
-    # Extracting relevant extra arguments
-    ids <- which(names(extra_args) %in% names(formals(mixOmics::spca)))
-    ids <- ids[!ids %in% c("X", "Y", "ncomp", "keepX", "keepY")]
-
     if (algorithm == "rSVD") {
+      # Extracting relevant extra arguments
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = mixOmics::spca)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "ncomp", "keepX", "scale")]
+
       # Running PLS model
       mymodel <- do.call(mixOmics::spca, args = c(
         list(
@@ -1028,7 +1028,7 @@ SparsePCA <- function(xdata, Lambda,
           scale = scale,
           keepX = nvarx
         ),
-        extra_args[ids]
+        tmp_extra_args
       ))
 
       # Extracting X and Y loadings
@@ -1036,17 +1036,21 @@ SparsePCA <- function(xdata, Lambda,
     }
 
     if (algorithm == "sPCA") {
+      # Extracting relevant extra arguments
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = elasticnet::spca)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "type", "K", "para", "sparse")]
+
       # Running PLS model
       if (scale) {
         mymodel <- do.call(elasticnet::spca, args = c(list(
           x = stats::cor(xdata), type = "Gram",
           K = ncomp, para = nvarx, sparse = "varnum"
-        ), extra_args[ids]))
+        ), tmp_extra_args))
       } else {
         mymodel <- do.call(elasticnet::spca, args = c(list(
           x = stats::cov(xdata), type = "Gram",
           K = ncomp, para = nvarx, sparse = "varnum"
-        ), extra_args[ids]))
+        ), tmp_extra_args))
       }
 
       # Extracting X and Y loadings

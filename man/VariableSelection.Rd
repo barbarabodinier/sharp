@@ -16,6 +16,7 @@ VariableSelection(
   family = "gaussian",
   implementation = PenalisedRegression,
   resampling = "subsampling",
+  cpss = FALSE,
   PFER_method = "MB",
   PFER_thr = Inf,
   FDP_thr = Inf,
@@ -80,6 +81,14 @@ the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
 \code{tau} and return IDs of observations to be included in the resampled
 dataset (see example in \code{\link{Resample}}).}
+
+\item{cpss}{logical indicating if complementary pair stability selection
+should be done. For this, the algorithm is applied on two non-overlapping
+subsets of half of the observations. A feature is considered as selected if
+it is selected for both subsets. With this method, the data is split
+\code{K/2} times (\code{K} models are fitted). If \code{PFER_method="SS"},
+complementary pair stability selection is used (\code{cpss} is set to
+\code{TRUE}). Argument \code{tau} is ignored if \code{cpss=TRUE}.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With
@@ -146,10 +155,10 @@ A list with: \item{S}{a matrix of the best stability scores for
   to outcome-specific coefficients.} \item{method}{a list with
   \code{type="variable_selection"}, \code{implementation}, \code{family},
   \code{resampling} and \code{PFER_method} values used for the run.}
-  \item{params}{a list with \code{K}, \code{pi_list}, \code{tau}, \code{n_cat},
-  \code{pk}, \code{n} (number of observations), \code{PFER_thr},
-  \code{FDP_thr} and \code{seed} values used for the run. The datasets
-  \code{xdata} and \code{ydata} are also included if
+  \item{params}{a list with \code{K}, \code{pi_list}, \code{tau},
+  \code{n_cat}, \code{pk}, \code{n} (number of observations),
+  \code{PFER_thr}, \code{FDP_thr} and \code{seed} values used for the run.
+  The datasets \code{xdata} and \code{ydata} are also included if
   \code{output_data=TRUE}.} For all objects except those stored in
   \code{methods} or \code{params}, rows correspond to parameter values stored
   in the output \code{Lambda}.

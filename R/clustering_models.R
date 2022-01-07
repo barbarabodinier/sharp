@@ -45,19 +45,19 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
     nc <- cbind(seq(1, nrow(xdata)))
   }
 
-  # Extracting relevant extra arguments (distance)
-  ids <- which(names(extra_args) %in% names(formals(stats::dist)))
-  ids <- ids[!ids %in% c("x")]
+  # Extracting relevant extra arguments (dist)
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x")]
 
   # Computing pairwise distances
-  mydistance <- do.call(stats::dist, args = c(list(x = xdata), extra_args[ids]))
+  mydistance <- do.call(stats::dist, args = c(list(x = xdata), tmp_extra_args))
 
   # Extracting relevant extra arguments (hclust)
-  ids <- which(names(extra_args) %in% names(formals(stats::hclust)))
-  ids <- ids[!ids %in% c("d")]
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::hclust)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("d")]
 
   # Running hierarchical clustering
-  myclust <- do.call(stats::hclust, args = c(list(d = mydistance), extra_args[ids]))
+  myclust <- do.call(stats::hclust, args = c(list(d = mydistance), tmp_extra_args))
 
   # Initialisation of array storing co-membership matrices
   adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
@@ -136,9 +136,9 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
     nc <- cbind(seq(1, nrow(xdata)))
   }
 
-  # Extracting relevant extra arguments (hclust)
-  ids <- which(names(extra_args) %in% names(formals(stats::hclust)))
-  ids <- ids[!ids %in% c("x", "wbound", "silent")]
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::hclust)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "wbound", "silent")]
 
   # Initialisation of array storing co-membership matrices
   adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * nrow(Lambda)))
@@ -150,7 +150,7 @@ SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE,
     # Running sparse hierarchical clustering
     myclust <- do.call(sparcl::HierarchicalSparseCluster, args = c(
       list(x = xdata, wbound = Lambda[i, 1], silent = TRUE),
-      extra_args[ids]
+      tmp_extra_args
     ))
 
     # Defining clusters
@@ -220,9 +220,9 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Initialisation of array storing co-membership matrices
   adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
-  # Extracting relevant extra arguments (kmeans)
-  ids <- which(names(extra_args) %in% names(formals(stats::kmeans)))
-  ids <- ids[!ids %in% c("x", "centers")]
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::kmeans)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "centers")]
 
   # Running k-means clustering
   for (k in 1:nrow(nc)) {
@@ -230,7 +230,7 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
       if (nc[k, 1] < nrow(xdata)) {
-        myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = nc[k, 1]), extra_args[ids]))
+        myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = nc[k, 1]), tmp_extra_args))
         mygroups <- myclust$cluster
         adjacency[, , k] <- CoMembership(groups = mygroups)
       }
@@ -294,9 +294,9 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Initialisation of array storing co-membership matrices
   adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
-  # Extracting relevant extra arguments (kmeans)
-  ids <- which(names(extra_args) %in% names(formals(stats::kmeans)))
-  ids <- ids[!ids %in% c("data", "G", "verbose")]
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = mclust::Mclust)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("data", "G", "verbose")]
 
   # Running k-means clustering
   for (k in 1:nrow(nc)) {
@@ -304,7 +304,7 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
       if (nc[k, 1] < nrow(xdata)) {
-        myclust <- do.call(mclust::Mclust, args = c(list(data = xdata, G = nc[k, 1], verbose = FALSE), extra_args[ids]))
+        myclust <- do.call(mclust::Mclust, args = c(list(data = xdata, G = nc[k, 1], verbose = FALSE), tmp_extra_args))
         mygroups <- myclust$classification
         adjacency[, , k] <- CoMembership(groups = mygroups)
       }
@@ -340,6 +340,22 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #'
 #' # PAM clustering
 #' mypam <- PAMClustering(xdata = simul$data, nc = 1:20)
+#' mypam$comembership[, , 5]
+#'
+#' # Using another distance metric: argument passed to stats::dist()
+#' mypam <- PAMClustering(xdata = simul$data, nc = 1:20, method = "manhattan")
+#' mypam$comembership[, , 5]
+#'
+#' # Using specific medoids: arguments passed to cluster::pam()
+#' mypam <- PAMClustering(
+#'   xdata = simul$data, nc = 5,
+#'   medoids = 1:5, do.swap = FALSE
+#' )
+#' plot(Graph(
+#'   adjacency = mypam$comembership[, , 1],
+#'   node_colour = c(rep("red", 5), rep("blue", 15)),
+#'   satellites = TRUE
+#' ))
 #' @export
 PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking cluster package is installed
@@ -372,16 +388,16 @@ PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Initialisation of array storing co-membership matrices
   adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
-  # Extracting relevant extra arguments (distance)
-  ids <- which(names(extra_args) %in% names(formals(stats::dist)))
-  ids <- ids[!ids %in% c("x")]
+  # Extracting relevant extra arguments (dist)
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x")]
 
   # Computing pairwise distances
-  mydistance <- do.call(stats::dist, args = c(list(x = xdata), extra_args[ids]))
+  mydistance <- do.call(stats::dist, args = c(list(x = xdata), tmp_extra_args))
 
   # Extracting relevant extra arguments (pam)
-  ids <- which(names(extra_args) %in% names(formals(cluster::pam)))
-  ids <- ids[!ids %in% c("x", "k", "diss", "cluster.only")]
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = cluster::pam)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "k", "diss", "cluster.only", "stand")] # stand is ignored since x is dissimilarity matrix
 
   # Running k-means clustering
   for (k in 1:nrow(nc)) {
@@ -391,7 +407,7 @@ PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
       if (nc[k, 1] < nrow(xdata)) {
         mygroups <- do.call(cluster::pam, args = c(
           list(x = mydistance, k = nc[k, 1], diss = TRUE, cluster.only = TRUE),
-          extra_args[ids]
+          tmp_extra_args
         ))
         adjacency[, , k] <- CoMembership(groups = mygroups)
       }
@@ -457,9 +473,9 @@ CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Initialisation of array storing co-membership matrices
   adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
-  # Extracting relevant extra arguments (clara)
-  ids <- which(names(extra_args) %in% names(formals(cluster::clara)))
-  ids <- ids[!ids %in% c("x", "k", "cluster.only", "stand")]
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = cluster::clara)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "k", "stand", "cluster.only")]
 
   # Running k-means clustering
   for (k in 1:nrow(nc)) {
@@ -469,7 +485,7 @@ CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
       if (nc[k, 1] < nrow(xdata)) {
         mygroups <- do.call(cluster::clara, args = c(
           list(x = xdata, k = nc[k, 1], stand = scale, cluster.only = TRUE),
-          extra_args[ids]
+          tmp_extra_args
         ))
         adjacency[, , k] <- CoMembership(groups = mygroups)
       }
@@ -536,15 +552,15 @@ DBSCANClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Initialisation of array storing co-membership matrices
   adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
 
-  # Extracting relevant extra arguments (dbscan)
-  ids <- which(names(extra_args) %in% names(formals(dbscan::dbscan)))
-  ids <- ids[!ids %in% c("x", "eps", "minPts")]
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = dbscan::dbscan)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "eps", "minPts")]
 
   # Running k-means clustering
   for (k in 1:nrow(nc)) {
     mygroups <- do.call(dbscan::dbscan, args = c(
       list(x = xdata, eps = nc[k, 1], minPts = 1),
-      extra_args[ids]
+      tmp_extra_args
     ))$cluster
     adjacency[, , k] <- CoMembership(groups = mygroups)
   }

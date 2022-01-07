@@ -48,6 +48,13 @@
 #'   resampling. This function must use arguments named \code{data} and
 #'   \code{tau} and return IDs of observations to be included in the resampled
 #'   dataset (see example in \code{\link{Resample}}).
+#' @param cpss logical indicating if complementary pair stability selection
+#'   should be done. For this, the algorithm is applied on two non-overlapping
+#'   subsets of half of the observations. A feature is considered as selected if
+#'   it is selected for both subsets. With this method, the data is split
+#'   \code{K/2} times (\code{K} models are fitted). If \code{PFER_method="SS"},
+#'   complementary pair stability selection is used (\code{cpss} is set to
+#'   \code{TRUE}). Argument \code{tau} is ignored if \code{cpss=TRUE}.
 #' @param PFER_method method used to compute the upper-bound of the expected
 #'   number of False Positives (or Per Family Error Rate, PFER). With
 #'   \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
@@ -109,10 +116,10 @@
 #'   to outcome-specific coefficients.} \item{method}{a list with
 #'   \code{type="variable_selection"}, \code{implementation}, \code{family},
 #'   \code{resampling} and \code{PFER_method} values used for the run.}
-#'   \item{params}{a list with \code{K}, \code{pi_list}, \code{tau}, \code{n_cat},
-#'   \code{pk}, \code{n} (number of observations), \code{PFER_thr},
-#'   \code{FDP_thr} and \code{seed} values used for the run. The datasets
-#'   \code{xdata} and \code{ydata} are also included if
+#'   \item{params}{a list with \code{K}, \code{pi_list}, \code{tau},
+#'   \code{n_cat}, \code{pk}, \code{n} (number of observations),
+#'   \code{PFER_thr}, \code{FDP_thr} and \code{seed} values used for the run.
+#'   The datasets \code{xdata} and \code{ydata} are also included if
 #'   \code{output_data=TRUE}.} For all objects except those stored in
 #'   \code{methods} or \code{params}, rows correspond to parameter values stored
 #'   in the output \code{Lambda}.
@@ -316,7 +323,8 @@
 VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                               K = 100, tau = 0.5, seed = 1, n_cat = 3,
                               family = "gaussian", implementation = PenalisedRegression,
-                              resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
+                              resampling = "subsampling", cpss = FALSE,
+                              PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                               Lambda_cardinal = 100, group_x = NULL, group_penalisation = FALSE,
                               n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Defining Lambda if used with sparse PCA or PLS
@@ -456,11 +464,17 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9, by = 0.01),
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              family = "gaussian", implementation = PenalisedRegression,
-                             resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
+                             resampling = "subsampling", cpss = FALSE,
+                             PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                              group_x = NULL, group_penalisation = FALSE,
                              output_data = FALSE, verbose = TRUE, ...) {
-  # Defining K if using complementary pairs (SS)
+  # Using complementary pairs for SS
   if (PFER_method == "SS") {
+    cpss <- TRUE
+  }
+
+  # Defining K if using complementary pairs
+  if (cpss) {
     K <- ceiling(K / 2) * 2
     tau <- 0.5
   }

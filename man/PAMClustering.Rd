@@ -42,6 +42,22 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
 # PAM clustering
 mypam <- PAMClustering(xdata = simul$data, nc = 1:20)
+mypam$comembership[, , 5]
+
+# Using another distance metric: argument passed to stats::dist()
+mypam <- PAMClustering(xdata = simul$data, nc = 1:20, method = "manhattan")
+mypam$comembership[, , 5]
+
+# Using specific medoids: arguments passed to cluster::pam()
+mypam <- PAMClustering(
+  xdata = simul$data, nc = 5,
+  medoids = 1:5, do.swap = FALSE
+)
+plot(Graph(
+  adjacency = mypam$comembership[, , 1],
+  node_colour = c(rep("red", 5), rep("blue", 15)),
+  satellites = TRUE
+))
 }
 \seealso{
 Other clustering algorithms: 
