@@ -89,10 +89,7 @@ BlockDiagonal <- function(pk) {
 #' mat <- BlockStructure(pk = rep(10, 5))
 #' @export
 BlockStructure <- function(pk) {
-  nblocks <- sum(upper.tri(matrix(NA, ncol = length(pk), nrow = length(pk)), diag = TRUE))
-  blocks <- matrix(NA, nrow = length(pk), ncol = length(pk))
-  blocks[upper.tri(blocks, diag = TRUE)] <- 1:nblocks
-  blocks[lower.tri(blocks, diag = TRUE)] <- 1:nblocks
+  blocks <- BlockMatrix(pk = rep(1, length(pk)))
 
   return(blocks)
 }
