@@ -79,7 +79,7 @@
 #'   theta_star = simul$theta,
 #'   pk = c(10, 10)
 #' ) # alternative formulation
-#' 
+#'
 #' # Sparse PLS model
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
@@ -92,6 +92,10 @@
 #'   n_cat = 2
 #' )
 #' perf <- SelectionPerformance(theta = stab, theta_star = simul)
+#' perf <- SelectionPerformance(
+#'   theta = stab$selected,
+#'   theta_star = simul$theta
+#' ) # alternative formulation
 #' }
 #'
 #' @export
@@ -105,11 +109,11 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
         theta <- SelectedVariables(theta)
         theta <- as.vector(theta)
       } else {
-        theta=theta$selected
+        theta <- theta$selected
       }
     }
   }
-  
+
   # Re-formatting input theta_star
   if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model"))) {
     theta_star <- theta_star$theta
@@ -117,20 +121,24 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
   if (is.vector(theta)) {
     theta_star <- as.vector(theta_star)
   }
-  
+
   # Storing similarities/differences between estimated and true sets
   Asum <- theta + 2 * theta_star
 
   # Extracting block-specific performances
   if (is.null(pk)) {
-    if (is.vector(Asum) | (isSymmetric(simul$theta))){
-      out=SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
+    if (is.vector(Asum)) {
+      out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
     } else {
-      out=NULL
-      for (k in 1:ncol(Asum)){
-        out=rbind(out, SelectionPerformanceSingle(Asum[,k], cor = cor, thr = thr))
+      if (isSymmetric(theta_star)) {
+        out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
+      } else {
+        out <- NULL
+        for (k in 1:ncol(Asum)) {
+          out <- rbind(out, SelectionPerformanceSingle(Asum[, k], cor = cor, thr = thr))
+        }
+        rownames(out) <- colnames(Asum)
       }
-      rownames(out)=colnames(Asum)
     }
   } else {
     Asum_vect <- Asum[upper.tri(Asum)]
@@ -141,16 +149,16 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
     } else {
       cor_vect <- NULL
     }
-    
+
     out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
     for (k in sort(unique(bigblocks_vect))) {
       tmp <- SelectionPerformanceSingle(Asum_vect[bigblocks_vect == k],
-                                        cor = cor_vect[bigblocks_vect == k], thr = thr
+        cor = cor_vect[bigblocks_vect == k], thr = thr
       )
       out <- rbind(out, tmp)
     }
   }
-    
+
   return(out)
 }
 
@@ -277,7 +285,7 @@ SelectionPerformanceGraph <- function(theta, theta_star,
       }
     }
   }
-  
+
   # Re-formatting input theta_star
   if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model"))) {
     if (class(theta_star) == "simulation_regression") {
@@ -290,34 +298,34 @@ SelectionPerformanceGraph <- function(theta, theta_star,
       theta_star <- theta_star$theta
     }
   }
-  
+
   # Checking input is a matrix
   if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
     stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
   }
-  
+
   # Storing similarities/differences between estimated and true sets
   Asum <- theta + 2 * theta_star
-  
+
   # Refining inputs
   names(colours) <- names(lty) <- c("FP", "TN", "TP")
-  
+
   # Making consensus graph
   g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), ...)
-  
+
   # Formatting vertices
   igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
   if (!show_labels) {
     igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
   }
-  
+
   # Formatting edges
   myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
   myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
   igraph::E(g)$color <- myedgecolour
   igraph::E(g)$width <- 1
   igraph::E(g)$lty <- myedgelty
-  
+
   # Plotting graph
   if (plot | (!is.null(filename))) {
     if (!is.null(filename)) {
@@ -333,7 +341,7 @@ SelectionPerformanceGraph <- function(theta, theta_star,
       grDevices::dev.off()
     }
   }
-  
+
   # Returning output graph
   return(g)
 }
@@ -367,7 +375,7 @@ SelectionPerformanceGraph <- function(theta, theta_star,
 #' @keywords internal
 SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   # Asum is an adjacency matrix with 3 for TP, 2 for FN, 1 for FP, and 0 for TN
-  
+
   # Preparing objects
   if (is.matrix(Asum)) {
     p <- ncol(Asum)
@@ -376,13 +384,13 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   } else {
     N <- length(Asum)
   }
-  
+
   # Computing the numbers of True/False Positives/Negatives
   TP <- sum(Asum == 3)
   FN <- sum(Asum == 2)
   FP <- sum(Asum == 1)
   TN <- sum(Asum == 0)
-  
+
   # Separation between correlated and independent features based on a threshold in correlation
   if (!is.null(cor)) {
     if (is.matrix(cor)) {
@@ -393,7 +401,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
     FP_c <- sum((Asum == 1) & (abs(cor_vect) >= thr))
     FP_i <- sum((Asum == 1) & (abs(cor_vect) < thr))
   }
-  
+
   # Computing performances in selection
   sensitivity <- TP / (TP + FN)
   specificity <- TN / (TN + FP)
@@ -413,7 +421,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   } else {
     F1_score <- 0
   }
-  
+
   if (is.null(cor)) {
     return(data.frame(
       TP = TP, FN = FN, FP = FP, TN = TN,
@@ -528,23 +536,23 @@ ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
   if (any(class(theta) %in% c("graphical_model", "clustering"))) {
     theta <- Clusters(theta)
   }
-  
+
   # Re-formatting input theta_star
   if (any(class(theta_star) %in% c("simulation_clustering"))) {
     theta_star <- theta_star$theta
   }
-  
+
   # Initialising unused parameters
   cor <- NULL
   thr <- 0.5
-  
+
   # Computing co-membership matrices
   theta <- CoMembership(theta)
   theta_star <- CoMembership(theta_star)
-  
+
   # Storing similarities/differences between estimated and true sets
   Asum <- theta + 2 * theta_star
-  
+
   # Extracting block-specific performances
   if (is.null(pk)) {
     tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
@@ -560,20 +568,20 @@ ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
     } else {
       cor_vect <- NULL
     }
-    
+
     tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
     rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
     tmp <- cbind(tmp, rand = rand)
     out <- tmp
     for (k in sort(unique(bigblocks_vect))) {
       tmp <- SelectionPerformanceSingle(Asum_vect[bigblocks_vect == k],
-                                        cor = cor_vect[bigblocks_vect == k], thr = thr
+        cor = cor_vect[bigblocks_vect == k], thr = thr
       )
       rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
       tmp <- cbind(tmp, rand = rand)
       out <- rbind(out, tmp)
     }
-    
+
     return(out)
   }
 }

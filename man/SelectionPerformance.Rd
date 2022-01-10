@@ -93,6 +93,23 @@ perf <- SelectionPerformance(
   theta_star = simul$theta,
   pk = c(10, 10)
 ) # alternative formulation
+
+# Sparse PLS model
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+stab <- BiSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  LambdaY = 1:(ncol(y) - 1),
+  implementation = SparsePLS,
+  n_cat = 2
+)
+perf <- SelectionPerformance(theta = stab, theta_star = simul)
+perf <- SelectionPerformance(
+  theta = stab$selected,
+  theta_star = simul$theta
+) # alternative formulation
 }
 
 }

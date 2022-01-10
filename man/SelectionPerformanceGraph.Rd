@@ -106,14 +106,14 @@ require(igraph)
 igraph::V(perfgraph)$size <- 10
 plot(perfgraph, layout = layout_with_kk(perfgraph))
 
-# Variable selection model
+# Regression model
 set.seed(1)
 simul <- SimulateRegression(pk = 30)
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 perf <- SelectionPerformance(theta = stab, theta_star = simul)
 perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
 
-# Data simulation (continuous outcomes)
+# Sparse PLS model
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
 stab <- BiSelection(
