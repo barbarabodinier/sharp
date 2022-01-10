@@ -196,7 +196,7 @@ summary.bi_selection <- function(object, ...) {
   for (k in 1:nrow(object$summary)) {
     cat(paste0(
       "Component ", k, ": ",
-      round(sum(object$selectedX[k, ]))
+      round(sum(object$selectedX[, k]))
     ))
     cat("\n")
   }
@@ -207,7 +207,7 @@ summary.bi_selection <- function(object, ...) {
     for (k in 1:nrow(object$summary)) {
       cat(paste0(
         "Component ", k, ": ",
-        round(sum(object$selectedY[k, ]))
+        round(sum(object$selectedY[, k]))
       ))
       cat("\n")
     }
