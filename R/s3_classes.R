@@ -252,33 +252,12 @@ plot.bi_selection <- function(x, ...) {
 print.simulation_graphical_model <- function(x, ...) {
   cat(paste0("Multivariate Normal data with underlying structure of a graphical model."))
   cat("\n")
-  cat("\n")
-  cat(paste0("Number of observations: ", nrow(x$data)))
-  cat("\n")
-  cat(paste0("Number of variables (nodes): ", ncol(x$data)))
-  cat("\n")
-  cat(paste0("Number of edges: ", sum(x$theta == 1) / 2))
-  cat("\n")
 }
 
 
 #' @export
 print.simulation_clustering <- function(x, ...) {
   cat(paste0("Multivariate Normal data with underlying clusters of participants along (a subset of) variables."))
-  cat("\n")
-  cat("\n")
-  cat(paste0("Number of observations: ", nrow(x$data)))
-  cat("\n")
-  cat(paste0("Number of clusters: ", max(x$theta)))
-  for (k in 1:max(x$theta)) {
-    cat("\n")
-    cat(paste0("- Cluster ", k, " (N=", sum(x$theta == k), " observations)"))
-  }
-  cat("\n")
-  cat("\n")
-  cat(paste0("Number of variables: ", ncol(x$data)))
-  cat("\n")
-  cat(paste0("Number of variables contributing to the clustering: ", sum(x$theta_xc)))
   cat("\n")
 }
 
@@ -287,18 +266,6 @@ print.simulation_clustering <- function(x, ...) {
 print.simulation_components <- function(x, ...) {
   cat(paste0("Multivariate Normal data with independent groups of variables."))
   cat("\n")
-  cat("\n")
-  cat(paste0("Number of observations: ", nrow(x$data)))
-  cat("\n")
-  cat("\n")
-  cat(paste0("Number of variables: ", ncol(x$data)))
-  cat("\n")
-  cat(paste0("Number of independent groups of variables: ", max(x$membership)))
-  for (k in 1:max(x$membership)) {
-    cat("\n")
-    cat(paste0("- Group ", k, " (N=", sum(x$membership == k), " variables)"))
-  }
-  cat("\n")
 }
 
 
@@ -306,16 +273,65 @@ print.simulation_components <- function(x, ...) {
 print.simulation_regression <- function(x, ...) {
   cat(paste0("Multivariate Normal data with predictors and outcome(s)."))
   cat("\n")
+}
+
+
+#' @export
+summary.simulation_graphical_model <- function(object, ...) {
+  cat(paste0("Number of observations: ", nrow(object$data)))
   cat("\n")
-  cat(paste0("Number of observations: ", nrow(x$xdata)))
+  cat(paste0("Number of variables (nodes): ", ncol(object$data)))
   cat("\n")
-  cat(paste0("Number of outcome variable(s): ", ncol(x$ydata)))
+  cat(paste0("Number of edges: ", sum(object$theta == 1) / 2))
   cat("\n")
-  cat(paste0("Number of predictor variables: ", ncol(x$xdata)))
+}
+
+
+#' @export
+summary.simulation_clustering <- function(object, ...) {
+  cat(paste0("Number of observations: ", nrow(object$data)))
+  cat("\n")
+  cat(paste0("Number of clusters: ", max(object$theta)))
+  for (k in 1:max(object$theta)) {
+    cat("\n")
+    cat(paste0("- Cluster ", k, " (N=", sum(object$theta == k), " observations)"))
+  }
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of variables: ", ncol(object$data)))
+  cat("\n")
+  cat(paste0("Number of variables contributing to the clustering: ", sum(object$theta_xc)))
+  cat("\n")
+}
+
+
+#' @export
+summary.simulation_components <- function(object, ...) {
+  cat(paste0("Number of observations: ", nrow(object$data)))
+  cat("\n")
+  cat("\n")
+  cat(paste0("Number of variables: ", ncol(object$data)))
+  cat("\n")
+  cat(paste0("Number of independent groups of variables: ", max(object$membership)))
+  for (k in 1:max(object$membership)) {
+    cat("\n")
+    cat(paste0("- Group ", k, " (N=", sum(object$membership == k), " variables)"))
+  }
+  cat("\n")
+}
+
+
+#' @export
+summary.simulation_regression <- function(object, ...) {
+  cat(paste0("Number of observations: ", nrow(object$xdata)))
+  cat("\n")
+  cat(paste0("Number of outcome variable(s): ", ncol(object$ydata)))
+  cat("\n")
+  cat(paste0("Number of predictor variables: ", ncol(object$xdata)))
   cat("\n")
   cat(paste0(
     "Number of predictor variables contributing to the outcome(s): ",
-    sum(apply(x$beta, 1, sum) != 0)
+    sum(apply(object$beta, 1, sum) != 0)
   ))
   cat("\n")
 }
