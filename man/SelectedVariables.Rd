@@ -34,7 +34,7 @@ stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 selected <- SelectedVariables(stab)
 
 # User-defined parameters
-myids <- matrix(c(80, 10), nrow = 1)
+myids <- matrix(c(50, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 selected <- SelectedVariables(stab, argmax_id = myids)
