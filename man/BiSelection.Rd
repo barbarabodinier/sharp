@@ -159,13 +159,15 @@ A list with: \item{summary}{a matrix of the best stability scores and
   \item{selpropX}{a matrix with the calibrated selection proportions of
   predictors.} \item{selectedY}{a binary matrix encoding stably selected
   outcomes.} \item{selpropY}{a matrix with the calibrated selection
-  proportions of outcomes.} \item{selectedX_full}{a binary matrix encoding
-  stably selected predictors.} \item{selpropX_full}{a matrix with the
-  selection proportions of predictors.} \item{selectedY_full}{a binary matrix
-  encoding stably selected outcomes.} \item{selpropY_full}{a matrix with the
-  selection proportions of outcomes.} \item{coefX}{an array of loadings
-  coefficients for the predictors (columns) over the fitted components (rows)
-  and across the \code{K} resampling iterations (along the third dimension).}
+  proportions of outcomes.} \item{selected}{a binary matrix encoding stable
+  relationships between predictor and outcome variables.}
+  \item{selectedX_full}{a binary matrix encoding stably selected predictors.}
+  \item{selpropX_full}{a matrix with the selection proportions of
+  predictors.} \item{selectedY_full}{a binary matrix encoding stably selected
+  outcomes.} \item{selpropY_full}{a matrix with the selection proportions of
+  outcomes.} \item{coefX}{an array of loadings coefficients for the
+  predictors (columns) over the fitted components (rows) and across the
+  \code{K} resampling iterations (along the third dimension).}
   \item{coefY}{an array of loadings coefficients for the outcomes (columns)
   over the fitted components (rows) and across the \code{K} resampling
   iterations (along the third dimension). Only returned for supervised

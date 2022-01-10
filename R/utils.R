@@ -57,11 +57,21 @@ CoMembership <- function(groups) {
 #'
 #' @export
 Square <- function(x) {
+  # Assigning row and column names
+  if (is.null(rownames(x))) {
+    rownames(x) <- paste0("row", 1:nrow(x))
+  }
+  if (is.null(colnames(x))) {
+    colnames(x) <- paste0("col", 1:ncol(x))
+  }
+
+  # Defining the square matrix
   adjacency <- rbind(
     cbind(matrix(0, nrow = nrow(x), ncol = nrow(x)), x),
     cbind(t(x), matrix(0, nrow = ncol(x), ncol = ncol(x)))
   )
   rownames(adjacency) <- colnames(adjacency) <- c(rownames(x), colnames(x))
+
   return(adjacency)
 }
 

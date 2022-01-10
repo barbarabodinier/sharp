@@ -48,13 +48,15 @@
 #'   \item{selpropX}{a matrix with the calibrated selection proportions of
 #'   predictors.} \item{selectedY}{a binary matrix encoding stably selected
 #'   outcomes.} \item{selpropY}{a matrix with the calibrated selection
-#'   proportions of outcomes.} \item{selectedX_full}{a binary matrix encoding
-#'   stably selected predictors.} \item{selpropX_full}{a matrix with the
-#'   selection proportions of predictors.} \item{selectedY_full}{a binary matrix
-#'   encoding stably selected outcomes.} \item{selpropY_full}{a matrix with the
-#'   selection proportions of outcomes.} \item{coefX}{an array of loadings
-#'   coefficients for the predictors (columns) over the fitted components (rows)
-#'   and across the \code{K} resampling iterations (along the third dimension).}
+#'   proportions of outcomes.} \item{selected}{a binary matrix encoding stable
+#'   relationships between predictor and outcome variables.}
+#'   \item{selectedX_full}{a binary matrix encoding stably selected predictors.}
+#'   \item{selpropX_full}{a matrix with the selection proportions of
+#'   predictors.} \item{selectedY_full}{a binary matrix encoding stably selected
+#'   outcomes.} \item{selpropY_full}{a matrix with the selection proportions of
+#'   outcomes.} \item{coefX}{an array of loadings coefficients for the
+#'   predictors (columns) over the fitted components (rows) and across the
+#'   \code{K} resampling iterations (along the third dimension).}
 #'   \item{coefY}{an array of loadings coefficients for the outcomes (columns)
 #'   over the fitted components (rows) and across the \code{K} resampling
 #'   iterations (along the third dimension). Only returned for supervised
@@ -674,6 +676,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       selpropX = selprop_x_comp,
       selectedY = selected_y_comp,
       selpropY = selprop_y_comp,
+      selected = ifelse(selected_x_comp %*% t(selected_y_comp) != 0, yes = 1, no = 0),
       selectedX_full = selected_x,
       selpropX_full = selprop_x,
       selectedY_full = selected_y,

@@ -10,6 +10,7 @@ SelectionPerformanceGraph(
   colours = c("tomato", "forestgreen", "navy"),
   lty = c(2, 3, 1),
   plot = FALSE,
+  show_labels = TRUE,
   filename = NULL,
   fileformat = "pdf",
   res = 500,
@@ -20,9 +21,10 @@ SelectionPerformanceGraph(
 )
 }
 \arguments{
-\item{theta}{binary adjacency matrix.}
+\item{theta}{binary adjacency matrix or output from \code{GraphicalModel}.}
 
-\item{theta_star}{true binary adjacency matrix.}
+\item{theta_star}{true binary adjacency matrix or output from
+\code{SimulateGraphical}.}
 
 \item{colours}{vector of edge colours. The first entry of the vector defines
 the colour of False Positive edges, second entry is for True Negatives and
@@ -33,6 +35,8 @@ defines the colour of False Positive edges, second entry is for True
 Negatives and third entry is for True Positives.}
 
 \item{plot}{logical indicating if the generated graph should be plotted.}
+
+\item{show_labels}{logical indicating if the node labels should be displayed.}
 
 \item{filename}{file path to saved figure. If \code{filename=NULL}, the plot
 is not saved.}
@@ -76,18 +80,24 @@ stab <- GraphicalModel(xdata = simul$data, K = 10)
 
 # Performance graph
 perfgraph <- SelectionPerformanceGraph(
+  theta = stab,
+  theta_star = simul, plot = TRUE
+)
+
+# Alternative formulation
+perfgraph <- SelectionPerformanceGraph(
   theta = Adjacency(stab),
   theta_star = simul$theta, plot = TRUE
 )
 
 # User-defined colours/shapes
 perfgraph <- SelectionPerformanceGraph(
-  theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
+  theta = stab, theta_star = simul, plot = TRUE,
   colours = c("forestgreen", "orange", "black"),
   node_colour = "red", node_shape = "star"
 )
 perfgraph <- SelectionPerformanceGraph(
-  theta = Adjacency(stab), theta_star = simul$theta, plot = TRUE,
+  theta = stab, theta_star = simul, plot = TRUE,
   colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
 )
 
@@ -95,6 +105,26 @@ perfgraph <- SelectionPerformanceGraph(
 require(igraph)
 igraph::V(perfgraph)$size <- 10
 plot(perfgraph, layout = layout_with_kk(perfgraph))
+
+# Variable selection model
+set.seed(1)
+simul <- SimulateRegression(pk = 30)
+stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
+perf <- SelectionPerformance(theta = stab, theta_star = simul)
+perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
+
+# Data simulation (continuous outcomes)
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+stab <- BiSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  LambdaY = 1:(ncol(y) - 1),
+  implementation = SparsePLS,
+  n_cat = 2
+)
+perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
 }
 
 }
