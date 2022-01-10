@@ -258,6 +258,7 @@ print.simulation_graphical_model <- function(x, ...) {
   cat(paste0("Number of variables (nodes): ", ncol(x$data)))
   cat("\n")
   cat(paste0("Number of edges: ", sum(x$theta == 1) / 2))
+  cat("\n")
 }
 
 
@@ -278,6 +279,7 @@ print.simulation_clustering <- function(x, ...) {
   cat(paste0("Number of variables: ", ncol(x$data)))
   cat("\n")
   cat(paste0("Number of variables contributing to the clustering: ", sum(x$theta_xc)))
+  cat("\n")
 }
 
 
@@ -296,6 +298,7 @@ print.simulation_components <- function(x, ...) {
     cat("\n")
     cat(paste0("- Group ", k, " (N=", sum(x$membership == k), " variables)"))
   }
+  cat("\n")
 }
 
 
@@ -314,6 +317,7 @@ print.simulation_regression <- function(x, ...) {
     "Number of predictor variables contributing to the outcome(s): ",
     sum(apply(x$beta, 1, sum) != 0)
   ))
+  cat("\n")
 }
 
 
