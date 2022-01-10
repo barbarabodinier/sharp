@@ -170,6 +170,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' true edges. This function only applies to graphical models and can only be
 #' used in simulation studies (i.e. when the true model is known).
 #'
+#' @inheritParams Graph
 #' @param theta binary adjacency matrix or output from \code{GraphicalModel}.
 #' @param theta_star true binary adjacency matrix or output from
 #'   \code{SimulateGraphical}.
@@ -258,6 +259,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   implementation = SparsePLS,
 #'   n_cat = 2
 #' )
+#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
 #' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
 #' }
 #'
@@ -265,22 +267,35 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 SelectionPerformanceGraph <- function(theta, theta_star,
                                       colours = c("tomato", "forestgreen", "navy"),
                                       lty = c(2, 3, 1),
+                                      node_colour = NULL,
                                       plot = FALSE, show_labels = TRUE,
                                       filename = NULL, fileformat = "pdf", res = 500,
                                       width = 7, height = 7, units = "in", ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Re-formatting input theta
   if (any(class(theta) %in% c("variable_selection", "graphical_model", "bi_selection"))) {
     if (class(theta) == "variable_selection") {
       theta <- cbind(SelectedVariables(theta))
+      if (is.null(node_colour)) {
+        node_colour <- c(rep("skyblue", nrow(theta)), "red")
+      }
       if (ncol(theta) == 1) {
         colnames(theta) <- "outcome"
       }
       theta <- Square(theta)
     } else {
-      if (class(theta) == "variable_selection") {
+      if (class(theta) == "graphical_model") {
         theta <- Adjacency(theta)
       } else {
         # Relating predictors and outcomes (ignoring latent variables)
+        if (is.null(node_colour)) {
+          node_colour <- c(
+            rep("skyblue", nrow(theta$selected)),
+            rep("red", ncol(theta$selected))
+          )
+        }
         theta <- Square(theta$selected)
       }
     }
@@ -299,6 +314,11 @@ SelectionPerformanceGraph <- function(theta, theta_star,
     }
   }
 
+  # Defining node colour if not done before
+  if (is.null(node_colour)) {
+    node_colour <- "skyblue"
+  }
+
   # Checking input is a matrix
   if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
     stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
@@ -310,8 +330,12 @@ SelectionPerformanceGraph <- function(theta, theta_star,
   # Refining inputs
   names(colours) <- names(lty) <- c("FP", "TN", "TP")
 
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = focus::Graph)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
+
   # Making consensus graph
-  g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), ...)
+  g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
 
   # Formatting vertices
   igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
@@ -335,7 +359,6 @@ SelectionPerformanceGraph <- function(theta, theta_star,
         grDevices::png(filename, width = width, height = height, res = res, units = units)
       }
     }
-    graphics::par(mar = rep(0, 4))
     igraph::plot.igraph(g, layout = igraph::layout_with_kk(g))
     if (!is.null(filename)) {
       grDevices::dev.off()

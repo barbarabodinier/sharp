@@ -9,6 +9,7 @@ SelectionPerformanceGraph(
   theta_star,
   colours = c("tomato", "forestgreen", "navy"),
   lty = c(2, 3, 1),
+  node_colour = NULL,
   plot = FALSE,
   show_labels = TRUE,
   filename = NULL,
@@ -33,6 +34,11 @@ third entry is for True Positives.}
 \item{lty}{vector of line types for edges. The first entry of the vector
 defines the colour of False Positive edges, second entry is for True
 Negatives and third entry is for True Positives.}
+
+\item{node_colour}{optional vector of node colours. This vector must contain
+as many entries as there are rows/columns in the adjacency matrix and must
+be in the same order (the order is used to assign colours to nodes).
+Integers, named colours or RGB values can be used.}
 
 \item{plot}{logical indicating if the generated graph should be plotted.}
 
@@ -124,6 +130,7 @@ stab <- BiSelection(
   implementation = SparsePLS,
   n_cat = 2
 )
+perf <- SelectionPerformance(theta = stab, theta_star = simul)
 perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
 }
 
