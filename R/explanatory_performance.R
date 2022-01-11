@@ -485,7 +485,9 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #'   regression and with \code{ij_method=TRUE}).} \item{upper}{upper bound of
 #'   the confidence interval at level 0.05 for the concordance index calculated
 #'   using the infinitesimal jackknife (for Cox regression and with
-#'   \code{ij_method=TRUE}).}
+#'   \code{ij_method=TRUE}).} \item{Beta}{matrix of estimated beta coefficients
+#'   across the \code{K} iterations. Coefficients are extracted using the
+#'   \code{\link[stats]{coef}} function.}
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
 #'
@@ -673,6 +675,20 @@ ExplanatoryPerformance <- function(xdata, ydata,
       # Recalibration from stability selection model
       recalibrated <- Recalibrate(xdata = xtrain, ydata = ytrain, stability = stability, family = family)
 
+      # Initialising matrix of beta coefficients
+      if (iter == 1) {
+        if (family %in% c("gaussian", "binomial", "cox")) {
+          Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(recalibrated)))
+          colnames(Beta) <- names(stats::coef(recalibrated))
+          rownames(Beta) <- paste0("iter", 1:K)
+        }
+      }
+
+      # Storing beta coefficients
+      if (family %in% c("gaussian", "binomial", "cox")) {
+        Beta[iter, ] <- stats::coef(recalibrated)
+      }
+
       # Performing ROC analyses
       if (tolower(metric) == "roc") {
         # ROC analysis
@@ -747,6 +763,8 @@ ExplanatoryPerformance <- function(xdata, ydata,
   if (tolower(metric) == "q2") {
     out <- list(Q_squared = Q_squared)
   }
+
+  out <- c(out, Beta = list(Beta))
 
   return(out)
 }
@@ -928,6 +946,7 @@ Incremental <- function(xdata, ydata,
   }
 
   # Initialisation of the objects
+  Beta <- list()
   if (family == "binomial") {
     TPR <- FPR <- AUC <- list()
   }
@@ -969,6 +988,7 @@ Incremental <- function(xdata, ydata,
     if (family == "gaussian") {
       Q_squared <- c(Q_squared, list(perf$Q_squared))
     }
+    Beta <- c(Beta, list(perf$Beta))
   }
 
   # Preparing the output
@@ -985,6 +1005,9 @@ Incremental <- function(xdata, ydata,
   if (family == "gaussian") {
     out <- list(Q_squared = Q_squared)
   }
+
+  # Adding beta coefficients
+  out <- c(out, list(Beta = Beta))
 
   # Adding variable names
   out <- c(out, names = list(myorder[1:n_predictors]))

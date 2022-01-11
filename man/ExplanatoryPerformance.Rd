@@ -67,14 +67,17 @@ A list with: \item{TPR}{True Positive Rate (for logistic regression
   regression and with \code{ij_method=TRUE}).} \item{upper}{upper bound of
   the confidence interval at level 0.05 for the concordance index calculated
   using the infinitesimal jackknife (for Cox regression and with
-  \code{ij_method=TRUE}).}
+  \code{ij_method=TRUE}).} \item{Beta}{matrix of estimated beta coefficients
+  across the \code{K} iterations. Coefficients are extracted using the
+  \code{\link[stats]{coef}} function.}
 }
 \description{
-Computes the prediction performance for logistic or Cox regression models.
-This is done by (i) recalibrating the model on a training set including a
-proportion \code{tau} of the observations, and (ii) evaluating the
-performance on the remaining observations (test set). For more reliable
-results, the procedure can be repeated \code{K} times (default \code{K=1}).
+Calculates model performance for linear (measured by Q-squared), logistic
+(AUC) or Cox (C-statistic) regression. This is done by (i) recalibrating the
+model on a training set including a proportion \code{tau} of the
+observations, and (ii) evaluating the performance on the remaining
+observations (test set). For more reliable results, the procedure can be
+repeated \code{K} times (default \code{K=1}).
 }
 \details{
 For a fair evaluation of the prediction performance, the data is

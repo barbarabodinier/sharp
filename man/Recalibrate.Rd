@@ -211,5 +211,5 @@ recalibrated$Cmat # recalibrated Y-weights
 
 }
 \seealso{
-\code{\link{VariableSelection}}
+\code{\link{VariableSelection}}, \code{\link{ExplanatoryPerformance}}
 }
