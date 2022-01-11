@@ -144,10 +144,10 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
 #' @return A list of length \code{n_folds} with sets of non-overlapping
 #'   observation IDs.
 #'
-#' @details With categorical outcomes (i.e. "family" argument is set to
-#'   "binomial", "multinomial" or "cox"), the split is done such that the
-#'   proportion of observations from each of the categories in each of the folds
-#'   is representative of that of the full sample.
+#' @details With categorical outcomes (i.e. \code{family} argument is set to
+#'   \code{"binomial"}, \code{"multinomial"} or \code{"cox"}), the split is done
+#'   such that the proportion of observations from each of the categories in
+#'   each of the folds is representative of that of the full sample.
 #'
 #' @examples
 #'
@@ -187,4 +187,73 @@ Folds <- function(data, family = NULL, n_folds = 5) {
   })
 
   return(folds_ids)
+}
+
+
+#' Splitting observations into non-overlapping sets
+#'
+#' Generates a list of \code{length(tau)} non-overlapping sets of observation
+#' IDs.
+#'
+#' @inheritParams Resample
+#' @param tau vector of the proportion of observations in each of the sets.
+#'
+#' @return A list of length \code{length(tau)} with sets of non-overlapping
+#'   observation IDs.
+#'
+#' @details With categorical outcomes (i.e. \code{family} argument is set to
+#'   \code{"binomial"}, \code{"multinomial"} or \code{"cox"}), the split is done
+#'   such that the proportion of observations from each of the categories in
+#'   each of the sets is representative of that of the full sample.
+#'
+#' @examples
+#'
+#' # Splitting into 3 sets
+#' simul <- SimulateRegression()
+#' ids <- Split(data = simul$ydata)
+#' lapply(ids, length)
+#'
+#' # Balanced splits with respect to a binary variable
+#' simul <- SimulateRegression(family = "binomial")
+#' ids <- Split(data = simul$ydata, family = "binomial")
+#' lapply(ids, FUN = function(x) {
+#'   table(simul$ydata[x, ])
+#' })
+#' @export
+Split <- function(data, family = NULL, tau = c(0.5, 0.25, 0.25)) {
+  # Re-formatting the inputs
+  if (is.vector(data)) {
+    data <- cbind(data)
+  }
+  rownames(data) <- paste0("obs", 1:nrow(data))
+
+  # Re-scaling input tau
+  tau <- tau / sum(tau)
+
+  # Storing total number of observations
+  n <- nrow(data)
+
+  # Defining the number of sets
+  n_sets <- length(tau)
+
+  # Creating balanced folds
+  sets_ids <- list()
+  for (k in 1:n_sets) {
+    if (k < n_sets) {
+      ids <- rownames(data)[Resample(data = data, family = family, tau = tau[1])]
+      sets_ids <- c(sets_ids, list(ids))
+      data <- data[-which(rownames(data) %in% ids), , drop = FALSE]
+      tau <- tau[-1]
+      tau <- tau / sum(tau)
+    } else {
+      sets_ids <- c(sets_ids, list(rownames(data)))
+    }
+  }
+
+  # Returning row ids
+  sets_ids <- lapply(sets_ids, FUN = function(x) {
+    as.numeric(gsub("obs", "", x))
+  })
+
+  return(sets_ids)
 }
