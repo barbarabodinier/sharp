@@ -57,6 +57,10 @@ plot(median_betas[names(recalib_betas), ], recalib_betas,
   panel.first = abline(0, 1, lty = 2)
 )
 
+# Extracting mean betas conditionally on selection
+mean_betas <- AggregatedEffects(stab, FUN = mean)
+plot(median_betas, mean_betas)
+
 # Regression with multivariate outcomes
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")

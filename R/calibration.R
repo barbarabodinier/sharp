@@ -663,6 +663,10 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'   panel.first = abline(0, 1, lty = 2)
 #' )
 #'
+#' # Extracting mean betas conditionally on selection
+#' mean_betas <- AggregatedEffects(stab, FUN = mean)
+#' plot(median_betas, mean_betas)
+#'
 #' # Regression with multivariate outcomes
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
@@ -723,12 +727,12 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 
     # Aggregating the betas conditionally on selection
     if (length(dim(stability$Beta)) == 3) {
-      av_betas <- apply(betas, 1, FUN = function(x) {
+      aggregated_betas <- apply(betas, 1, FUN = function(x) {
         FUN(x[x != 0], ...)
       })
-      av_betas <- cbind(av_betas)
+      aggregated_betas <- cbind(aggregated_betas)
     } else {
-      av_betas <- apply(betas, c(1, 3), FUN = function(x) {
+      aggregated_betas <- apply(betas, c(1, 3), FUN = function(x) {
         FUN(x[x != 0], ...)
       })
     }
@@ -738,15 +742,15 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
     } else {
       betas <- stability$coefY
     }
-    av_betas <- apply(betas, c(1, 2), FUN = function(x) {
+    aggregated_betas <- apply(betas, c(1, 2), FUN = function(x) {
       FUN(x[x != 0], ...)
     })
   }
 
   # Re-formatting the output
-  av_betas[which(is.nan(av_betas))] <- NA
+  aggregated_betas[which(is.nan(aggregated_betas))] <- NA
 
-  return(av_betas)
+  return(aggregated_betas)
 }
 
 
