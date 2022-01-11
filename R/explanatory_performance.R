@@ -154,7 +154,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   (\code{"binomial"} family).} \item{\code{\link[nnet]{multinom}}}{for
 #'   multinomial regression (\code{"multinomial"} family).}
 #'
-#' @seealso \code{\link{VariableSelection}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{ExplanatoryPerformance}}
 #'
 #' @examples
 #' \dontrun{
@@ -437,11 +437,12 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 
 #' Prediction performance in regression
 #'
-#' Computes the prediction performance for logistic or Cox regression models.
-#' This is done by (i) recalibrating the model on a training set including a
-#' proportion \code{tau} of the observations, and (ii) evaluating the
-#' performance on the remaining observations (test set). For more reliable
-#' results, the procedure can be repeated \code{K} times (default \code{K=1}).
+#' Calculates model performance for linear (measured by Q-squared), logistic
+#' (AUC) or Cox (C-statistic) regression. This is done by (i) recalibrating the
+#' model on a training set including a proportion \code{tau} of the
+#' observations, and (ii) evaluating the performance on the remaining
+#' observations (test set). For more reliable results, the procedure can be
+#' repeated \code{K} times (default \code{K=1}).
 #'
 #' @inheritParams Recalibrate
 #' @param K number of subsampling iterations.
