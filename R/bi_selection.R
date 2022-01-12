@@ -686,7 +686,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       methods = list(
         type = "bi_selection", implementation = as.character(substitute(implementation)),
         family = family, scale = scale,
-        resampling = myresampling, PFER_method = PFER_method
+        resampling = myresampling, cpss = cpss, PFER_method = PFER_method
       ),
       params = list(
         K = K, group_x = group_x, group_y = group_y,
@@ -712,7 +712,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       methods = list(
         type = "bi_selection", implementation = as.character(substitute(implementation)),
         family = family, scale = scale,
-        resampling = myresampling, PFER_method = PFER_method
+        resampling = myresampling, cpss = cpss, PFER_method = PFER_method
       ),
       params = list(
         K = K,

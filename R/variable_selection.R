@@ -378,7 +378,8 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     return(SerialRegression(
       xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
       K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
-      family = family, implementation = implementation, resampling = resampling,
+      family = family, implementation = implementation,
+      resampling = resampling, cpss = cpss,
       PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       group_x = group_x, group_penalisation = group_penalisation,
       output_data = output_data, verbose = verbose, ...
@@ -687,7 +688,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     selprop = bigstab, Beta = Beta,
     methods = list(
       type = "variable_selection", implementation = myimplementation, family = family,
-      resampling = myresampling, PFER_method = PFER_method
+      resampling = myresampling, cpss = cpss, PFER_method = PFER_method
     ),
     params = list(
       K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,

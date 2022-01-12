@@ -64,8 +64,8 @@ test_that("outputs from VariableSelection() are of correct dimensions (gaussian)
         expect_equal(dim(stab$Beta), c(nlambda, pk, K))
 
         # Group of outputs 4
-        default_params <- c("variable_selection", "PenalisedRegression", "gaussian", "subsampling", "MB")
-        names(default_params) <- c("type", "implementation", "family", "resampling", "PFER_method")
+        default_params <- c("variable_selection", "PenalisedRegression", "gaussian", "subsampling", FALSE, "MB")
+        names(default_params) <- c("type", "implementation", "family", "resampling", "cpss", "PFER_method")
         expect_equal(unlist(stab$methods), default_params)
 
         # Group of outputs 5
@@ -189,11 +189,6 @@ test_that("outputs from VariableSelection() are of correct dimensions (binomial)
   expect_equal(dim(stab$selprop), c(nlambda, pk))
   expect_equal(dim(stab$Beta), c(nlambda, pk, K))
 
-  # Group of outputs 4
-  default_params <- c("variable_selection", "PenalisedRegression", "binomial", "subsampling", "MB")
-  names(default_params) <- c("type", "implementation", "family", "resampling", "PFER_method")
-  expect_equal(unlist(stab$methods), default_params)
-
   # Group of outputs 5
   expect_equal(stab$params$K, K)
   expect_equal(stab$params$pi_list, pi_list)
@@ -262,11 +257,6 @@ test_that("outputs from VariableSelection() are of correct dimensions (mgaussian
   # Group of outputs 3
   expect_equal(dim(stab$selprop), c(nlambda, pk))
   expect_equal(dim(stab$Beta), c(nlambda, pk, K, ncol(Y)))
-
-  # Group of outputs 4
-  default_params <- c("variable_selection", "PenalisedRegression", "mgaussian", "subsampling", "MB")
-  names(default_params) <- c("type", "implementation", "family", "resampling", "PFER_method")
-  expect_equal(unlist(stab$methods), default_params)
 
   # Group of outputs 5
   expect_equal(stab$params$K, K)
@@ -363,11 +353,6 @@ test_that("outputs from VariableSelection() are of correct dimensions (multinomi
   # Group of outputs 3
   expect_equal(dim(stab$selprop), c(nlambda, pk))
   expect_equal(dim(stab$Beta), c(nlambda, pk, K, length(unique(Y))))
-
-  # Group of outputs 4
-  default_params <- c("variable_selection", "PenalisedRegression", "multinomial", "subsampling", "MB")
-  names(default_params) <- c("type", "implementation", "family", "resampling", "PFER_method")
-  expect_equal(unlist(stab$methods), default_params)
 
   # Group of outputs 5
   expect_equal(stab$params$K, K)

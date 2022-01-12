@@ -298,7 +298,8 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
     Lambda <- LambdaGridGraphical(
       xdata = xdata, pk = pk, lambda_other_blocks = lambda_other_blocks, tau = tau,
       implementation = implementation, start = "cold", scale = scale,
-      resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+      resampling = resampling, cpss = cpss,
+      PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       lambda_max = lambda_max, lambda_path_factor = lambda_path_factor, max_density = max_density,
       Lambda_cardinal = Lambda_cardinal, ...
     )
@@ -569,7 +570,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
       selprop = bigstab, sign = sign(mycor_for_sign),
       methods = list(
         type = "graphical_model", implementation = myimplementation, start = start,
-        resampling = myresampling, PFER_method = PFER_method
+        resampling = myresampling, cpss = cpss, PFER_method = PFER_method
       ),
       params = list(
         K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
@@ -590,7 +591,7 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
       selprop = bigstab, sign = sign(mycor_for_sign),
       methods = list(
         type = "graphical_model", implementation = myimplementation, start = start,
-        resampling = myresampling, PFER_method = PFER_method
+        resampling = myresampling, cpss = cpss, PFER_method = PFER_method
       ),
       params = list(
         K = K, pi_list = pi_list, tau = tau, n_cat = n_cat,
