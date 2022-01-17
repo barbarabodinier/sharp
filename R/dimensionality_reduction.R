@@ -92,6 +92,18 @@
 #'   legend = FALSE
 #' )
 #' title("Nonzero entries in Cmat")
+#'
+#' # Multilevel PLS
+#' if (requireNamespace("mixOmics", quietly = TRUE)) {
+#'   # Generating random design
+#'   z <- rep(1:50, each = 4)
+#'
+#'   # Extracting the within-variability
+#'   x_within <- mixOmics::withinVariation(X = x, design = cbind(z))
+#'
+#'   # Running PLS on within-variability
+#'   mypls <- PLS(xdata = x_within, ydata = y, ncomp = 3)
+#' }
 #' }
 #' @export
 PLS <- function(xdata, ydata,
