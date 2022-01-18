@@ -119,24 +119,6 @@
 #' simul <- SimulateGraphical(n = 50, pk = 30, nu_within = 0.05)
 #' stab <- GraphicalModel(xdata = simul$data, K = 5, verbose = FALSE)
 #' CalibrationPlot(stab)
-#' A <- Adjacency(stab)
-#' mygraph <- Graph(A)
-#' perf <- SelectionPerformance(theta = A, theta_star = simul$theta)
-#' perfgraph <- SelectionPerformanceGraph(
-#'   theta = Adjacency(stab),
-#'   theta_star = simul$theta, plot = TRUE
-#' )
-#' SelectionProportions(stab)
-#'
-#' # Multi-block stability selection
-#' set.seed(1)
-#' pk <- c(10, 10)
-#' simul <- SimulateGraphical(n = 50, pk = pk)
-#' stab <- GraphicalModel(xdata = simul$data, pk = pk, Lambda_cardinal = 10, K = 5, verbose = FALSE)
-#' CalibrationPlot(stab)
-#' A <- Adjacency(stab)
-#' mygraph <- Graph(A)
-#' perf <- SelectionPerformance(theta = A, theta_star = simul$theta, pk = pk)
 #' SelectionProportions(stab)
 #' }
 #' \dontrun{

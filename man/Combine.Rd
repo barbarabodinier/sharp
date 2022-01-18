@@ -34,8 +34,9 @@ The two runs must have been done using the same data, the same grids
   \code{stability1} and \code{stability2}.
 }
 \examples{
-
+\dontrun{
 ## Variable selection
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -48,7 +49,9 @@ stab2 <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, seed = 2, K
 stab <- Combine(stability1 = stab1, stability2 = stab2, include_beta = FALSE)
 print(stab$params$K)
 
+
 ## Graphical modelling
+
 # Data simulation
 simul <- SimulateGraphical(pk = 20)
 
@@ -59,6 +62,7 @@ stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
 # Merging the outputs
 stab <- Combine(stability1 = stab1, stability2 = stab2)
 print(stab$params$K)
+}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}

@@ -24,8 +24,9 @@
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' ## Variable selection
+#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -38,7 +39,9 @@
 #' stab <- Combine(stability1 = stab1, stability2 = stab2, include_beta = FALSE)
 #' print(stab$params$K)
 #'
+#'
 #' ## Graphical modelling
+#'
 #' # Data simulation
 #' simul <- SimulateGraphical(pk = 20)
 #'
@@ -49,6 +52,7 @@
 #' # Merging the outputs
 #' stab <- Combine(stability1 = stab1, stability2 = stab2)
 #' print(stab$params$K)
+#' }
 #' @export
 Combine <- function(stability1, stability2, include_beta = TRUE) {
   if (any(stability1$Lambda != stability2$Lambda)) {

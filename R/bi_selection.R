@@ -106,18 +106,6 @@
 #'   LambdaY = 1:2,
 #'   implementation = SparsePLS
 #' )
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateComponents(n = 50, pk = c(5, 5, 5))
-#'
-#' # sPCA: sparsity on X
-#' stab <- BiSelection(
-#'   xdata = simul$data,
-#'   K = K, ncomp = 2,
-#'   LambdaX = 1:2,
-#'   implementation = SparsePCA
-#' )
 #' }
 #'
 #' \dontrun{
