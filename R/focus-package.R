@@ -1,9 +1,8 @@
 #' focus: Feature selectiOn and Clustering Using Stability
 #'
-#' Implementation of stability-enhanced models for variable
-#' selection in multivariate regression, graphical and clustering models. These
-#' methods rely on resampling approaches to estimate selection (or
-#' co-membership) probability. Calibration of the models is done via
+#' Implementation of stability-enhanced regression, graphical and clustering
+#' models. These methods rely on resampling approaches to estimate selection (or
+#' co-membership) probabilities. Calibration of the models is done via
 #' maximisation of a stability score measuring the likelihood of informative
 #' (non-uniform) selection procedure.
 #'
@@ -21,6 +20,9 @@
 #' @name focus-package
 #' @examples
 #' \dontrun{
+#' par(mar = c(5, 5, 5, 5))
+#'
+#'
 #' ## Regression models
 #' # Data simulation
 #' set.seed(1)
@@ -29,8 +31,9 @@
 #' # Stability selection
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 #' CalibrationPlot(stab)
-#' argmax <- Argmax(stab) # calibrated parameters
-#' stably_selected <- SelectedVariables(stab) # stably selected variables
+#' summary(stab)
+#' SelectedVariables(stab)
+#'
 #'
 #' ## Graphical models
 #' # Data simulation
@@ -40,36 +43,15 @@
 #' # Stability selection
 #' stab <- GraphicalModel(xdata = simul$data)
 #' CalibrationPlot(stab)
-#' argmax <- Argmax(stab) # calibrated parameters
-#' stably_selected <- Adjacency(stab)
-#' plot(Graph(stably_selected))
+#' summary(stab)
+#' plot(stab)
 #'
-#' ## Clustering models
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateClustering(n = c(10, 10, 10), pk = 100)
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(t(simul$data)),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
-#'
-#' # Consensus clustering
-#' stab <- Clustering(xdata = simul$data)
-#' CalibrationPlot(stab, xlab = expression(italic(k)))
-#' Clusters(stab)
 #'
 #' ## PCA models
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateComponents(n = 100, pk = c(10, 10, 10))
-#' par(mar = c(5, 5, 5, 5))
-#' Heatmap(
-#'   mat = cor(simul$data),
-#'   colours = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
+#' simul <- SimulateComponents(pk = c(5, 3, 4))
+#' plot(simul)
 #'
 #' # Stability selection
 #' stab <- BiSelection(
@@ -77,7 +59,10 @@
 #'   ncomp = 3,
 #'   implementation = SparsePCA
 #' )
-#' print(stab$summary)
+#' CalibrationPlot(stab)
+#' summary(stab)
+#' SelectedVariables(stab)
+#'
 #'
 #' ## PLS models
 #' # Data simulation
@@ -90,6 +75,8 @@
 #'   family = "gaussian", ncomp = 3,
 #'   implementation = SparsePLS
 #' )
-#' print(stab$summary)
+#' CalibrationPlot(stab)
+#' summary(stab)
+#' plot(stab)
 #' }
 NULL
