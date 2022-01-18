@@ -25,7 +25,7 @@ The development version can be downloaded from
 from a working directory containing the folder:
 
 ``` r
-devtools::install("focus")
+devtools::install("focus", upgrade="always")
 ```
 
 ## Variable selection
@@ -61,6 +61,7 @@ provided as input:
 
 ``` r
 stab <- VariableSelection(xdata = X, ydata = Y)
+print(stab)
 ```
 
 Stability selection models are run for multiple pairs of parameters λ
@@ -72,13 +73,13 @@ parameter values used in the run can be extracted using:
 ``` r
 # First few penalty parameters
 print(head(stab$Lambda))
-#>         [,1]
-#> s0 0.2531010
-#> s1 0.2341099
-#> s2 0.2165437
-#> s3 0.2002956
-#> s4 0.1852667
-#> s5 0.1713655
+#>        [,1]
+#> s0 1.420237
+#> s1 1.307513
+#> s2 1.203736
+#> s3 1.108196
+#> s4 1.020239
+#> s5 0.939263
 
 # Grid of thresholds in selection proportion
 print(stab$params$pi_list)
@@ -104,6 +105,15 @@ CalibrationPlot(stab)
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" style="display: block; margin: auto;" />
 
+``` r
+summary(stab)
+#> Calibrated parameters: lambda = 0.348 and pi = 0.900
+#> 
+#> Maximum stability score: 694.140
+#> 
+#> Number of selected variable(s): 4
+```
+
 Visited penalty parameters λ are represented on the x-axis. The
 corresponding average number of selected features by the underlying
 algorithm (here, LASSO models) are reported on the z-axis and denoted by
@@ -114,55 +124,40 @@ example.
 
 ### Outputs
 
-The calibrated set of stably selected variables is obtained from:
+Stably selected variables in the calibrated model are denoted by a “1”
+in:
 
 ``` r
-stably_selected <- SelectedVariables(stab)
-print(stably_selected)
+SelectedVariables(stab)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
 #>     0     0     0     0     0     0     0     0     0     0     0     0     0 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
-#>     0     0     0     0     0     0     1     0     0     0     0     0     0 
+#>     0     0     0     0     0     0     1     0     0     0     0     0     1 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>     0     0     1     0     0     0     0     1     0     0     0     0     0 
+#>     0     0     0     0     0     0     0     1     0     0     0     0     0 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>     0     0     0     0     0     0     0     0     0     1     0
-print(table(stably_selected))
-#> stably_selected
-#>  0  1 
-#> 46  4
+#>     0     0     1     0     0     0     0     0     0     0     0
 ```
 
-In this example, 11 variables are stably selected.
-
-Additionally, selection proportions of the calibrated model can be
-extracted:
+Selection proportions of the calibrated model can be extracted using:
 
 ``` r
-selprop <- SelectionProportions(stab)
-print(selprop)
+SelectionProportions(stab)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.00  0.00  0.00  0.00  0.03  0.00  0.00  0.00  0.00  0.00  0.00  0.03  0.00 
+#>  0.00  0.02  0.00  0.00  0.35  0.00  0.00  0.05  0.01  0.01  0.00  0.02  0.00 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
-#>  0.00  0.02  0.00  0.00  0.00  0.00  1.00  0.00  0.00  0.01  0.00  0.13  0.62 
+#>  0.00  0.00  0.00  0.00  0.00  0.06  1.00  0.00  0.00  0.00  0.00  0.00  1.00 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>  0.00  0.00  0.94  0.00  0.00  0.00  0.00  0.96  0.01  0.00  0.01  0.00  0.00 
+#>  0.18  0.00  0.51  0.01  0.00  0.00  0.00  0.97  0.00  0.00  0.03  0.01  0.00 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>  0.14  0.00  0.14  0.00  0.00  0.00  0.00  0.00  0.00  1.00  0.00
+#>  0.00  0.01  0.90  0.01  0.00  0.00  0.01  0.00  0.00  0.73  0.04
 ```
 
 Selection proportions can be used to rank the variables by relevance in
 association with the outcome:
 
 ``` r
-selprop_ranked <- sort(selprop, decreasing = TRUE)
-plot(selprop_ranked,
-     type = "h", lwd = 3, las = 1, cex.lab = 1.3, bty = "n", ylim = c(0, 1),
-     col = ifelse(selprop_ranked >= Argmax(stab)[2], yes = "red", no = "grey"),
-     xaxt = "n", xlab = "", ylab = "Selection proportions"
-)
-abline(h = Argmax(stab)[2], lty = 2, col = "darkred")
-axis(side = 1, at = 1:length(selprop_ranked), labels = names(selprop_ranked), las = 2)
+plot(stab)
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" />
@@ -194,6 +189,7 @@ falsely selected edges (PFER) is below a user-defined threshold:
 
 ``` r
 stab <- GraphicalModel(xdata = X, PFER_thr = 10)
+print(stab)
 ```
 
 ### Calibration
@@ -210,6 +206,15 @@ CalibrationPlot(stab)
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="80%" style="display: block; margin: auto;" />
 
+``` r
+summary(stab)
+#> Calibrated parameters: lambda = 0.251 and pi = 0.900
+#> 
+#> Maximum stability score: 1102.130
+#> 
+#> Number of selected edge(s): 9
+```
+
 The effect of the constraint on the PFER can be visualised in this
 calibration plot. The white area corresponds to “forbidden” models,
 where the upper-bound of the expected number of parameters would exceed
@@ -217,34 +222,50 @@ the value specified in PFER\_thr.
 
 ### Outputs
 
-The adjacency matrix of the calibrated stability selection graphical
-model is obtained with:
+The calibrated graph can be visualised using:
 
 ``` r
-myadjacency <- Adjacency(stab)
-print(myadjacency)
+set.seed(1)
+plot(stab)
+```
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" />
+
+The adjacency matrix of the calibrated stability selection graphical
+model can also be extracted using:
+
+``` r
+Adjacency(stab)
 #>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10
 #> var1     0    0    0    0    0    0    0    0    1     0
 #> var2     0    0    0    1    0    0    0    0    0     0
-#> var3     0    0    0    0    0    1    0    0    1     1
+#> var3     0    0    0    0    0    0    0    0    1     1
 #> var4     0    1    0    0    1    0    1    1    0     0
-#> var5     0    0    0    1    0    0    0    1    0     0
-#> var6     0    0    1    0    0    0    0    0    0     1
+#> var5     0    0    0    1    0    0    0    0    0     0
+#> var6     0    0    0    0    0    0    0    0    0     1
 #> var7     0    0    0    1    0    0    0    0    0     0
-#> var8     0    0    0    1    1    0    0    0    0     1
+#> var8     0    0    0    1    0    0    0    0    0     1
 #> var9     1    0    1    0    0    0    0    0    0     0
 #> var10    0    0    1    0    0    1    0    1    0     0
 ```
 
-For visualisation, it can be converted into an igraph object:
+And converted to an igraph object using:
 
 ``` r
-mygraph <- Graph(myadjacency)
+mygraph=Graph(Adjacency(stab))
+mygraph
+#> IGRAPH 40f5438 UN-- 10 9 -- 
+#> + attr: name (v/c), size (v/n), label (v/c), color (v/c), shape (v/c),
+#> | frame.color (v/c), label.family (v/c), label.cex (v/n), label.color
+#> | (v/c), color (e/c), width (e/n)
+#> + edges from 40f5438 (vertex names):
+#> [1] var1--var9  var2--var4  var3--var9  var3--var10 var4--var5  var4--var7 
+#> [7] var4--var8  var6--var10 var8--var10
 set.seed(1)
 plot(mygraph)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" />
 
 ## Clustering
 
@@ -257,9 +278,9 @@ along 5 out of 15 variables is simulated:
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(10, 10, 10, 10), pk = 15,
+  n = c(10, 10, 10), pk = 15,
   theta_xc = c(rep(1, 5), rep(0, 10)),
-  ev = c(rep(0.99, 5), rep(0, 10)),
+  ev_xc = c(rep(0.99, 5), rep(0, 10)),
 )
 X <- simul$data
 
@@ -271,14 +292,14 @@ Heatmap(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 # Visualisation along two variables
 plot(simul$data[,1:2], col=simul$theta)
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-2.png" width="60%" style="display: block; margin: auto;" />
 
 ### Consensus clustering
 
@@ -294,41 +315,20 @@ stab <- Clustering(
 #> Loading required namespace: sparcl
 ```
 
-### Calibration
-
-The calibration of sparse consensus clustering is conducted in two
-steps: (i) calibration of parameters controlling the variable selection,
-and (ii) calibration of parameters controlling the clusters,
-conditionally on the choice of hyper-parameter for the variable
-selection.
-
-#### Variable selection
-
-In sparse hierarchical clustering, the number of variables used for the
-clustering is controlled by a penalty parameter. The penalty and
-threshold in selection proportions for the variables are jointly
-calibrated by maximising the stability score:
-
-``` r
-par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab)
-```
-
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="80%" style="display: block; margin: auto;" />
-
-#### Identification of stable clusters
-
-In addition, the consensus clustering model is defined by the number of
-clusters and a threshold in co-membership proportion. These two
-parameters are calibrated by maximising the stability score across
-models with the chosen penalty parameter:
-
-``` r
-par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab, clustering=TRUE)
-```
-
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;" />
+<!-- ### Calibration  -->
+<!-- The calibration of sparse consensus clustering is conducted in two steps: (i) calibration of parameters controlling the variable selection, and (ii) calibration of parameters controlling the clusters, conditionally on the choice of hyper-parameter for the variable selection. -->
+<!-- #### Variable selection -->
+<!-- In sparse hierarchical clustering, the number of variables used for the clustering is controlled by a penalty parameter. The penalty and threshold in selection proportions for the variables are jointly calibrated by maximising the stability score: -->
+<!-- ```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"} -->
+<!-- par(mar = c(7, 5, 7, 6)) -->
+<!-- CalibrationPlot(stab) -->
+<!-- ``` -->
+<!-- #### Identification of stable clusters -->
+<!-- In addition, the consensus clustering model is defined by the number of clusters and a threshold in co-membership proportion. These two parameters are calibrated by maximising the stability score across models with the chosen penalty parameter: -->
+<!-- ```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"} -->
+<!-- par(mar = c(7, 5, 7, 6)) -->
+<!-- CalibrationPlot(stab, clustering=TRUE) -->
+<!-- ``` -->
 
 ### Outputs
 
@@ -338,21 +338,19 @@ The variables contributing to the clustering structure can be identified
 using:
 
 ``` r
-# Selection proportions
-mat <- SelectionProportions(stab)
-print(mat)
-#>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.01  0.86  0.86  0.13  0.83  0.00  0.12  0.14  0.11  0.04  0.03  0.01  0.07 
-#> var14 var15 
-#>  0.05  0.10
-
 # Stable selection status
-mat <- SelectedVariables(stab)
-print(mat)
+SelectedVariables(stab)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>     0     1     1     0     1     0     0     0     0     0     0     0     0 
+#>     0     1     1     1     1     0     0     0     0     0     0     0     0 
 #> var14 var15 
 #>     0     0
+
+# Selection proportions
+SelectionProportions(stab)
+#>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
+#>  0.04  0.85  0.95  0.89  0.95  0.10  0.15  0.12  0.13  0.14  0.23  0.11  0.04 
+#> var14 var15 
+#>  0.03  0.12
 ```
 
 #### Identification of stable clusters
@@ -374,7 +372,7 @@ set.seed(1)
 plot(mygraph)
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" />
 
 The stable clusters are defined as the connected components of this
 graph. Stable cluster membership can be obtained using:
@@ -386,10 +384,8 @@ print(membership)
 #>     1     1     1     1     1     1     1     1     1     1     2     2     2 
 #> obs14 obs15 obs16 obs17 obs18 obs19 obs20 obs21 obs22 obs23 obs24 obs25 obs26 
 #>     2     2     2     2     2     2     2     3     3     3     3     3     3 
-#> obs27 obs28 obs29 obs30 obs31 obs32 obs33 obs34 obs35 obs36 obs37 obs38 obs39 
-#>     3     3     3     3     4     4     4     4     4     4     4     4     4 
-#> obs40 
-#>     4
+#> obs27 obs28 obs29 obs30 
+#>     3     3     3     3
 ```
 
 ## Dimensionality reduction
@@ -403,7 +399,8 @@ reconstructed from a sparse linear combination of orthogonal variables
 ``` r
 # Data simulation
 set.seed(1)
-simul <- SimulateComponents(n = 100, pk = c(3, 5, 4), v_within = c(-1, -0.8))
+simul <- SimulateComponents(n = 100, pk = c(3, 5, 4), v_within = c(0.8, 1), v_sign = -1)
+#> The smallest proportion of explained variance by PC1 that can be obtained is 0.24.
 X <- simul$data
 
 # Visualisation of correlations between participants
@@ -415,7 +412,7 @@ Heatmap(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-22-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" />
 
 ### Stability selection
 
@@ -441,33 +438,51 @@ by maximising the stability score. The PC-specific calibrated pair of
 parameters are reported in:
 
 ``` r
-print(stab$summary)
-#>   comp nx pix        S
-#> 1    1  5 0.9 454.4235
-#> 2    2  7 0.9 454.4235
-#> 3    3  3 0.9 371.4247
+stab$summary
+#>   comp nx  pix        S
+#> 1    1  5 0.90 454.4235
+#> 2    2  6 0.88 242.0888
+#> 3    3  3 0.84 272.4526
 ```
 
 ### Outputs
-
-The calibrated selection proportions for each of the three PCs can be
-obtained from:
-
-``` r
-print(stab$selpropX)
-#>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
-#> comp1 0.00 0.00 0.00 1.00 0.99 1.00 1.00 1.00 0.00  0.01  0.00  0.00
-#> comp2 0.95 0.94 0.95 0.03 0.04 0.02 0.03 0.08 0.99  0.99  0.99  0.99
-#> comp3 0.99 0.99 0.99 0.00 0.00 0.00 0.00 0.00 0.01  0.01  0.01  0.00
-```
 
 The sets of stably selected variables for each of the PCs are encoded
 in:
 
 ``` r
-print(stab$selectedX)
-#>       var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
-#> comp1    0    0    0    1    1    1    1    1    0     0     0     0
-#> comp2    1    1    1    0    0    0    0    0    1     1     1     1
-#> comp3    1    1    1    0    0    0    0    0    0     0     0     0
+SelectedVariables(stab)
+#>       comp1 comp2 comp3
+#> var1      0     0     1
+#> var2      0     0     1
+#> var3      0     0     1
+#> var4      1     0     0
+#> var5      1     0     0
+#> var6      1     0     0
+#> var7      1     0     0
+#> var8      1     0     0
+#> var9      0     1     0
+#> var10     0     1     0
+#> var11     0     1     0
+#> var12     0     0     0
+```
+
+The calibrated selection proportions for each of the three PCs can be
+obtained from:
+
+``` r
+SelectionProportions(stab)
+#>       comp1 comp2 comp3
+#> var1   0.08  0.76  0.84
+#> var2   0.05  0.68  0.86
+#> var3   0.00  0.42  0.87
+#> var4   0.91  0.09  0.01
+#> var5   0.91  0.09  0.00
+#> var6   0.92  0.10  0.01
+#> var7   0.91  0.11  0.00
+#> var8   0.93  0.21  0.00
+#> var9   0.08  0.91  0.07
+#> var10  0.08  0.88  0.06
+#> var11  0.07  0.90  0.13
+#> var12  0.06  0.85  0.15
 ```
