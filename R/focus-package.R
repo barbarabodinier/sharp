@@ -1,10 +1,10 @@
 #' focus: Feature selectiOn and Clustering Using Stability
 #'
-#' Implementation of stability-enhanced regression, graphical and clustering
-#' models. These methods rely on resampling approaches to estimate selection (or
-#' co-membership) probabilities. Calibration of the models is done via
-#' maximisation of a stability score measuring the likelihood of informative
-#' (non-uniform) selection procedure.
+#' Implementation of stability-enhanced regression, dimensionality reduction,
+#' graphical and clustering models. These methods rely on resampling approaches
+#' to estimate selection (or co-membership) probabilities. Calibration of the
+#' models is done via maximisation of a stability score measuring the likelihood
+#' of informative (non-uniform) selection procedure.
 #'
 #' \tabular{ll}{ Package: \tab focus\cr Type: \tab Package\cr Version: \tab
 #' 0.1\cr Date: \tab 2021-04-30\cr License: \tab GPL (>= 3)\cr Maintainer: \tab
