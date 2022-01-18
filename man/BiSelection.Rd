@@ -391,7 +391,6 @@ summary(stab)
   \code{\link{StabilityScore}}
 
 Other stability selection functions: 
-\code{\link{Clustering}()},
 \code{\link{GraphicalModel}()},
 \code{\link{VariableSelection}()}
 }

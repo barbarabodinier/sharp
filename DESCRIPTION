@@ -21,7 +21,6 @@ Imports:
     MASS,
     mclust,
     parallel,
-    randomcoloR,
     Rdpack,
     withr (>= 2.4.0)
 Suggests:
@@ -35,7 +34,6 @@ Suggests:
     plotrix,
     rmarkdown,
     sgPLS,
-    sparcl,
     survival (>= 3.2.13),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

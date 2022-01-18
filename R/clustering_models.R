@@ -3,9 +3,14 @@
 #' Runs hierarchical clustering using implementation from
 #' \code{\link[stats]{hclust}}. This function is not using stability.
 #'
-#' @inheritParams Clustering
+#' @param xdata data matrix with observations as rows and variables as columns.
+#' @param nc matrix of parameters controlling the number of clusters in the
+#'   underlying algorithm specified in \code{implementation}. If \code{nc} is
+#'   not provided, it is set to \code{seq(1, nrow(xdata))}.
 #' @param rows logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
 #'   should be inferred.
+#' @param scale logical indicating if the data should be scaled to ensure that
+#'   all variables contribute equally to the clustering of the observations.
 #' @param ... additional parameters passed to \code{\link[stats]{dist}} or
 #'   \code{\link[stats]{hclust}}.
 #'
@@ -72,104 +77,6 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
   }
 
   return(list(comembership = adjacency))
-}
-
-
-#' Sparse hierarchical clustering
-#'
-#' Runs sparse hierarchical clustering using implementation from
-#' \code{\link[sparcl]{HierarchicalSparseCluster}}. This function is not using
-#' stability.
-#'
-#' @inheritParams HierarchicalClustering
-#' @param Lambda vector of penalty parameters. Provided values must be striclty
-#'   greater than 1, see argument \code{wbound} from
-#'   \code{\link[sparcl]{HierarchicalSparseCluster}}.
-#' @param ... additional parameters passed to
-#'   \code{\link[sparcl]{HierarchicalSparseCluster}}.
-#'
-#' @return An array with binary and symmetric co-membership matrices.
-#'
-#' @family clustering algorithms
-#'
-#' @references \insertRef{SparseClustering}{focus}
-#'
-#' @examples
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateClustering(n = c(10, 10), pk = 50)
-#'
-#' # Hierarchical clustering
-#' myhclust <- SparseHierarchicalClustering(xdata = simul$data, nc = 1:20, Lambda = c(1.5, 2))
-#' @export
-SparseHierarchicalClustering <- function(xdata, nc = NULL, Lambda, scale = TRUE, rows = TRUE, ...) {
-  # Checking sparcl package is installed
-  if (!requireNamespace("sparcl")) {
-    stop("This function requires the 'sparcl' package.")
-  }
-
-  # Storing extra arguments
-  extra_args <- list(...)
-
-  # Transposing for clustering of columns
-  if (!rows) {
-    xdata <- t(xdata)
-  }
-
-  # Scaling the data
-  if (scale) {
-    xdata <- scale(xdata)
-  }
-
-  # Re-formatting Lambda
-  if (is.vector(Lambda)) {
-    Lambda <- cbind(Lambda)
-  }
-
-  # Re-formatting nc
-  if (!is.null(nc)) {
-    if (is.vector(nc)) {
-      nc <- cbind(nc)
-    }
-  } else {
-    nc <- cbind(seq(1, nrow(xdata)))
-  }
-
-  # Extracting relevant extra arguments
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::hclust)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "wbound", "silent")]
-
-  # Initialisation of array storing co-membership matrices
-  adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * nrow(Lambda)))
-  weight <- matrix(NA, nrow = nrow(nc) * nrow(Lambda), ncol = ncol(xdata))
-
-  # Iterating over the pair of parameters
-  id <- 0
-  for (i in 1:nrow(Lambda)) {
-    # Running sparse hierarchical clustering
-    myclust <- do.call(sparcl::HierarchicalSparseCluster, args = c(
-      list(x = xdata, wbound = Lambda[i, 1], silent = TRUE),
-      tmp_extra_args
-    ))
-
-    # Defining clusters
-    mygroups <- do.call(stats::cutree, args = list(tree = myclust$hc, k = nc))
-    if (is.null(dim(mygroups))) {
-      mygroups <- cbind(mygroups)
-    }
-    for (j in 1:nrow(nc)) {
-      adjacency[, , id + j] <- CoMembership(groups = mygroups[, j])
-      weight[id + j, ] <- myclust$ws[, 1]
-    }
-    id <- id + nrow(nc)
-  }
-
-  # Setting row and column names
-  rownames(weight) <- paste0("s", seq(0, nrow(weight) - 1))
-  colnames(weight) <- colnames(xdata)
-
-  return(list(comembership = adjacency, weight = weight))
 }
 
 

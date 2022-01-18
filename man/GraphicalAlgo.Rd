@@ -105,7 +105,6 @@ myglasso <- GraphicalAlgo(
 \code{\link{GraphicalModel}}
 
 Other underlying algorithm functions: 
-\code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedGraphical}()},
 \code{\link{PenalisedRegression}()},
 \code{\link{SelectionAlgo}()}

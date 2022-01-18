@@ -4,16 +4,11 @@
 \alias{Argmax}
 \title{Calibrated parameters}
 \usage{
-Argmax(stability, clustering = FALSE)
+Argmax(stability)
 }
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}} or
 \code{\link{GraphicalModel}}.}
-
-\item{clustering}{logical indicating whether indices of calibrated clustering
-parameters (\code{clustering=TRUE}) or variable selection
-(\code{clustering=FALSE}) should be extracted. This argument is only used
-if \code{stability} is the output from \code{\link{Clustering}}.}
 }
 \value{
 A matrix of parameter values. The first column (\code{lambda}])
@@ -39,24 +34,6 @@ stab <- GraphicalModel(xdata = simul$data)
 
 # Extracting calibrated parameters
 args <- Argmax(stab)
-
-
-## Clustering
-
-# Data simulation
-set.seed(1)
-simul <- SimulateClustering(
-  n = c(10, 30, 15)
-)
-
-# Consensus clustering
-stab <- Clustering(xdata = simul$data, Lambda = c(1.1, 1.5, 2))
-
-# Extracting calibrated parameters for variable selection
-Argmax(stab, clustering = FALSE)
-
-# Extracting calibrated parameters for co-membership
-Argmax(stab, clustering = TRUE)
 }
 
 }

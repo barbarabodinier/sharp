@@ -94,7 +94,6 @@ str(mylasso)
 \code{\link{VariableSelection}}
 
 Other underlying algorithm functions: 
-\code{\link{ClusteringAlgo}()},
 \code{\link{GraphicalAlgo}()},
 \code{\link{PenalisedGraphical}()},
 \code{\link{PenalisedRegression}()}

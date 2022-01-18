@@ -83,7 +83,6 @@ myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol 
 \code{\link{GraphicalModel}}
 
 Other underlying algorithm functions: 
-\code{\link{ClusteringAlgo}()},
 \code{\link{GraphicalAlgo}()},
 \code{\link{PenalisedRegression}()},
 \code{\link{SelectionAlgo}()}

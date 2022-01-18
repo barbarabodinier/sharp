@@ -44,7 +44,6 @@ Other clustering algorithms:
 \code{\link{DBSCANClustering}()},
 \code{\link{GMMClustering}()},
 \code{\link{KMeansClustering}()},
-\code{\link{PAMClustering}()},
-\code{\link{SparseHierarchicalClustering}()}
+\code{\link{PAMClustering}()}
 }
 \concept{clustering algorithms}

@@ -377,7 +377,6 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},
-\code{\link{Clustering}()},
 \code{\link{GraphicalModel}()}
 }
 \concept{stability selection functions}

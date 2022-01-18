@@ -11,11 +11,7 @@
 #'   controlling the level of sparsity in the underlying feature selection
 #'   algorithm and columns correspond to different values of the threshold in
 #'   selection proportions. If \code{S=NULL}, argument \code{stability} must be
-#'   provided. This argument cannot be used with \code{clustering=TRUE}.
-#' @param clustering logical indicating whether indices of calibrated clustering
-#'   parameters (\code{clustering=TRUE}) or variable selection
-#'   (\code{clustering=FALSE}) should be extracted. This argument is only used
-#'   if \code{stability} is the output from \code{\link{Clustering}}.
+#'   provided.
 #'
 #' @return A matrix of parameter indices. In multi-block graphical modelling,
 #'   rows correspond to different blocks.
@@ -38,12 +34,22 @@
 #' stab$Lambda[ids[1], 1]
 #' stab$params$pi_list[ids[2]]
 #'
+#' # Alternative formulation
+#' ids2 <- ArgmaxId(S = stab$S_2d)
+#'
 #' # Link with Argmax() function
 #' args <- Argmax(stab)
 #' }
 #'
 #' @export
-ArgmaxId <- function(stability = NULL, S = NULL, clustering = FALSE) {
+ArgmaxId <- function(stability = NULL, S = NULL) {
+  # To add to arguments for clustering (should work)
+  clustering <- FALSE
+  # @param clustering logical indicating whether indices of calibrated clustering
+  #   parameters (\code{clustering=TRUE}) or variable selection
+  #   (\code{clustering=FALSE}) should be extracted. This argument is only used
+  #   if \code{stability} is the output from \code{\link{Clustering}}.
+
   if ((is.null(stability)) & (is.null(S))) {
     stop("Invalid input. One of the two arguments has to be specified: 'stability' or 'S'.")
   }
@@ -111,7 +117,6 @@ ArgmaxId <- function(stability = NULL, S = NULL, clustering = FALSE) {
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
 #'   \code{\link{GraphicalModel}}.
-#' @inheritParams ArgmaxId
 #'
 #' @return A matrix of parameter values. The first column (\code{lambda}])
 #'   denotes the calibrated hyper-parameter of the underlying algorithm. The
@@ -136,31 +141,16 @@ ArgmaxId <- function(stability = NULL, S = NULL, clustering = FALSE) {
 #'
 #' # Extracting calibrated parameters
 #' args <- Argmax(stab)
-#'
-#'
-#' ## Clustering
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(10, 30, 15)
-#' )
-#'
-#' # Consensus clustering
-#' stab <- Clustering(xdata = simul$data, Lambda = c(1.1, 1.5, 2))
-#'
-#' # Extracting calibrated parameters for variable selection
-#' Argmax(stab, clustering = FALSE)
-#'
-#' # Extracting calibrated parameters for co-membership
-#' Argmax(stab, clustering = TRUE)
 #' }
 #'
 #' @export
-Argmax <- function(stability, clustering = FALSE) {
+Argmax <- function(stability) {
+  # To add to arguments for clustering (should work)
+  clustering <- FALSE
+
   argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
   if (clustering) {
-    id <- ArgmaxId(stability = stability, clustering = clustering)
+    id <- ArgmaxId(stability = stability)
     argmax[, 1] <- stability$nc[id[1], 1]
     argmax[, 2] <- stability$params$pi_list[id[2]]
   } else {
@@ -241,8 +231,8 @@ Adjacency <- function(stability, argmax_id = NULL) {
         argmax_id <- ArgmaxId(stability)
         argmax <- Argmax(stability)
       } else {
-        argmax_id <- ArgmaxId(stability, clustering = TRUE)
-        argmax <- Argmax(stability, clustering = TRUE)
+        argmax_id <- ArgmaxId(stability) # needs clustering = TRUE
+        argmax <- Argmax(stability) # needs clustering = TRUE
       }
     } else {
       argmax <- NULL
@@ -359,13 +349,12 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' defined from stable co-membership.
 #'
 #' @inheritParams Adjacency
-#' @param adjacency adjacency matrix or output of \code{\link{GraphicalModel}}
-#'   or \code{\link{Clustering}}.
+#' @param adjacency adjacency matrix or output of \code{\link{GraphicalModel}}.
 #'
 #' @return A vector encoding the cluster membership.
 #'
 #' @family calibration functions
-#' @seealso \code{\link{Clustering}}
+#' @seealso \code{\link{GraphicalModel}}
 #'
 #' @examples
 #' \dontrun{
@@ -388,7 +377,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' set.seed(1)
 #' plot(Graph(CoMembership(groups),
 #'   satellites = TRUE,
-#'   node_colour = distinctColorPalette(length(unique(groups)))[groups]
+#'   node_colour = groups
 #' ))
 #' }
 #' @export
@@ -1172,15 +1161,15 @@ CalibrationPlot <- function(stability, block_id = NULL,
           withr::local_par(list(xpd = FALSE))
           if (stability$methods$type == "clustering") {
             if (clustering) {
-              graphics::abline(v = nrow(mat) - which(stability$nc[ids, b] == Argmax(stability, clustering = clustering)[b, 1]) + 0.5, lty = 3)
+              graphics::abline(v = nrow(mat) - which(stability$nc[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
             } else {
-              tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability, clustering = clustering)[1, 1]]
+              tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability)[1, 1]]
               graphics::abline(v = nrow(mat) - which(rownames(mat) == tmp) + 0.5, lty = 3)
             }
           } else {
-            graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability, clustering = clustering)[b, 1]) + 0.5, lty = 3)
+            graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
           }
-          graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability, clustering = clustering)[b, 2])) - 0.5, lty = 3)
+          graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
         }
 
         # Including axes

@@ -59,19 +59,6 @@ stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
 # Merging the outputs
 stab <- Combine(stability1 = stab1, stability2 = stab2)
 print(stab$params$K)
-
-## Clustering
-# Data simulation
-set.seed(1)
-simul <- SimulateClustering(
-  n = c(5, 5, 5), pk = 100
-)
-
-# Two runs
-stab1 <- Clustering(xdata = simul$data, seed = 1, K = 10)
-stab2 <- Clustering(xdata = simul$data, seed = 2, K = 10)
-
-# Merging the outputs (TODO)
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}

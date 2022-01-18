@@ -42,33 +42,6 @@ simulation studies (i.e. when the true cluster membership is known).
 }
 \examples{
 \dontrun{
-## Consensus clustering
-
-# Simulation of 15 observations belonging to 3 groups
-set.seed(1)
-simul <- SimulateClustering(
-  n = rep(10, 5), pk = 100,
-  continuous = TRUE
-)
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = cor(t(simul$data)),
-  colours = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
-
-# Consensus clustering based on hierarchical clustering
-stab <- Clustering(xdata = simul$data)
-perf <- ClusteringPerformance(theta = stab, theta_star = simul)
-perf <- ClusteringPerformance(
-  theta = Clusters(stab),
-  theta_star = simul$theta
-) # alternative formulation
-
-
-## Variable grouping
-
-# Simulation with 5 groups of correlated variables
 set.seed(1)
 pk <- sample(1:10, size = 5, replace = TRUE)
 print(pk)

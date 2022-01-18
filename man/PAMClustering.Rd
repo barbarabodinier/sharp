@@ -65,7 +65,6 @@ Other clustering algorithms:
 \code{\link{DBSCANClustering}()},
 \code{\link{GMMClustering}()},
 \code{\link{HierarchicalClustering}()},
-\code{\link{KMeansClustering}()},
-\code{\link{SparseHierarchicalClustering}()}
+\code{\link{KMeansClustering}()}
 }
 \concept{clustering algorithms}

@@ -7,8 +7,7 @@
 Clusters(adjacency = NULL, argmax_id = NULL)
 }
 \arguments{
-\item{adjacency}{adjacency matrix or output of \code{\link{GraphicalModel}}
-or \code{\link{Clustering}}.}
+\item{adjacency}{adjacency matrix or output of \code{\link{GraphicalModel}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
 the calibrated adjacency matrix is returned.}
@@ -41,12 +40,12 @@ groups <- Clusters(stab)
 set.seed(1)
 plot(Graph(CoMembership(groups),
   satellites = TRUE,
-  node_colour = distinctColorPalette(length(unique(groups)))[groups]
+  node_colour = groups
 ))
 }
 }
 \seealso{
-\code{\link{Clustering}}
+\code{\link{GraphicalModel}}
 
 Other calibration functions: 
 \code{\link{Adjacency}()},
