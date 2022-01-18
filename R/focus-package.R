@@ -18,6 +18,10 @@
 #'
 #' @docType package
 #' @name focus-package
+#'
+#' @importFrom Rdpack reprompt
+#' @importFrom mclust mclustBIC
+#'
 #' @examples
 #' \dontrun{
 #' par(mar = c(5, 5, 5, 5))

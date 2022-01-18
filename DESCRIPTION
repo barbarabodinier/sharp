@@ -10,10 +10,8 @@ Description: Implementation of stability-enhanced regression, dimensionality red
 License: GPL (>= 3)
 Encoding: UTF-8
 RoxygenNote: 7.1.2
-RdMacros: Rdpack
 Imports: 
     glassoFast (>= 1.0.0),
-    abind,
     glmnet,
     grDevices,
     huge,
@@ -37,3 +35,4 @@ Suggests:
     survival (>= 3.2.13),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+RdMacros: Rdpack

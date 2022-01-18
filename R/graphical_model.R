@@ -184,11 +184,11 @@
 #'   # Writing user-defined algorithm in a portable function
 #'   ShrinkageSelection <- function(xdata, Lambda, ...) {
 #'     mypcor <- corpcor::pcor.shrink(xdata, verbose = FALSE)
-#'     adjacency <- NULL
+#'     adjacency <- array(NA, dim = c(nrow(mypcor), ncol(mypcor), nrow(Lambda)))
 #'     for (k in 1:nrow(Lambda)) {
 #'       A <- ifelse(abs(mypcor) >= Lambda[k, 1], yes = 1, no = 0)
 #'       diag(A) <- 0
-#'       adjacency <- abind::abind(adjacency, A, along = 3)
+#'       adjacency[, , k] <- A
 #'     }
 #'     return(adjacency)
 #'   }

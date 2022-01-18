@@ -168,7 +168,6 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #'
 #' # Clustering using Gaussian Mixture Models
 #' mygmm <- GMMClustering(xdata = simul$data, nc = 1:30)
-#' @importFrom mclust mclustBIC
 #' @export
 GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
   # Checking mclust package is installed
