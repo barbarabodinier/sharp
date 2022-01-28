@@ -160,7 +160,7 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 
   # Computing adjacency matrices
   if ("rows" %in% names(formals(implementation))) {
-    # Clustering algorithm (Lambda becomes)
+    # Clustering algorithm
     adjacency <- do.call(implementation, args = list(
       xdata = xdata, pk = pk, nc = Lambda, Sequential_template = Sequential_template,
       scale = scale, start = start, rows = FALSE, ...
@@ -168,8 +168,8 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
   } else {
     adjacency <- do.call(implementation, args = list(
       xdata = xdata, pk = pk, Lambda = Lambda, Sequential_template = Sequential_template,
-      scale = scale, start = start, ...
-    ))
+      scale = scale, start = start, output_omega = FALSE, ...
+    ))$adjacency
   }
 
   # Ensuring that there is no edge for variables with always the same value (null standard deviation)

@@ -145,9 +145,9 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 }
 
 
-#' Graph estimation algorithm
+#' GGM estimation algorithm
 #'
-#' Runs the algorithm for estimation of an undirected graph with no self-loops
+#' Runs the algorithm for estimation of a Gaussian Graphical Model (GGM)
 #' specified in the argument \code{implementation} and returns the estimated
 #' adjacency matrix. This function is not using stability.
 #'
@@ -160,6 +160,8 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 #'   others are weakly penalised (\code{TRUE} only for the block currently being
 #'   calibrated and \code{FALSE} for other blocks). Other approaches with joint
 #'   calibration of the blocks are allowed (all entries are set to \code{TRUE}).
+#' @param output_omega logical indicating if the estimated precision matrices
+#'   should be stored and returned.
 #' @param ... additional parameters passed to the function provided in
 #'   \code{implementation}.
 #'
@@ -180,11 +182,29 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 #' simul <- SimulateGraphical()
 #'
 #' # Running graphical LASSO
-#' myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+#' myglasso <- PenalisedGraphical(
+#'   xdata = simul$data,
+#'   Lambda = matrix(c(0.1, 0.2), ncol = 1)
+#' )
+#'
+#' # Returning estimated precision matrix
+#' myglasso <- PenalisedGraphical(
+#'   xdata = simul$data,
+#'   Lambda = matrix(c(0.1, 0.2), ncol = 1),
+#'   output_omega = TRUE
+#' )
 #' }
 #' @export
 PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
-                               scale = TRUE, start = "cold", ...) {
+                               scale = TRUE, start = "cold", output_omega = FALSE, ...) {
+  # Checking arguments
+  if (!is.matrix(Lambda)) {
+    Lambda <- matrix(Lambda, ncol = 1)
+  }
+  if (is.null(pk)) {
+    pk <- ncol(xdata)
+  }
+
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -202,6 +222,9 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 
   # Initialisation of array storing adjacency matrices
   adjacency <- array(NA, dim = c(ncol(xdata), ncol(xdata), nrow(Lambda)))
+  if (output_omega) {
+    omega_full <- adjacency
+  }
 
   for (k in 1:nrow(Lambda)) {
     # Creating penalisation matrix
@@ -260,7 +283,15 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
     diag(A) <- 0
 
     adjacency[, , k] <- A
+
+    if (output_omega) {
+      omega_full[, , k] <- omega
+    }
   }
 
-  return(adjacency)
+  if (output_omega) {
+    return(list(adjacency = adjacency, omega = omega_full))
+  } else {
+    return(list(adjacency = adjacency))
+  }
 }

@@ -283,7 +283,7 @@ if (requireNamespace("corpcor", quietly = TRUE)) {
       diag(A) <- 0
       adjacency[, , k] <- A
     }
-    return(adjacency)
+    return(list(adjacency = adjacency))
   }
 
   # Running the algorithm without stability

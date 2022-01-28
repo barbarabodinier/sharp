@@ -2,7 +2,7 @@
 % Please edit documentation in R/penalised_models.R
 \name{PenalisedGraphical}
 \alias{PenalisedGraphical}
-\title{Graph estimation algorithm}
+\title{GGM estimation algorithm}
 \usage{
 PenalisedGraphical(
   xdata,
@@ -11,6 +11,7 @@ PenalisedGraphical(
   Sequential_template = NULL,
   scale = TRUE,
   start = "cold",
+  output_omega = FALSE,
   ...
 )
 }
@@ -52,6 +53,9 @@ convergence issues (in particular with small \code{Lambda_cardinal}). Only
 used for \code{implementation=PenalisedGraphical} (see argument
 \code{"start"} in \code{\link[glassoFast]{glassoFast}}).}
 
+\item{output_omega}{logical indicating if the estimated precision matrices
+should be stored and returned.}
+
 \item{...}{additional parameters passed to the function provided in
 \code{implementation}.}
 }
@@ -60,7 +64,7 @@ An array with binary and symmetric adjacency matrices along the third
   dimension.
 }
 \description{
-Runs the algorithm for estimation of an undirected graph with no self-loops
+Runs the algorithm for estimation of a Gaussian Graphical Model (GGM)
 specified in the argument \code{implementation} and returns the estimated
 adjacency matrix. This function is not using stability.
 }
@@ -76,7 +80,17 @@ set.seed(1)
 simul <- SimulateGraphical()
 
 # Running graphical LASSO
-myglasso <- GraphicalAlgo(xdata = simul$data, Lambda = matrix(c(0.1, 0.2), ncol = 1))
+myglasso <- PenalisedGraphical(
+  xdata = simul$data,
+  Lambda = matrix(c(0.1, 0.2), ncol = 1)
+)
+
+# Returning estimated precision matrix
+myglasso <- PenalisedGraphical(
+  xdata = simul$data,
+  Lambda = matrix(c(0.1, 0.2), ncol = 1),
+  output_omega = TRUE
+)
 }
 }
 \seealso{

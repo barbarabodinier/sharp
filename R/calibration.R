@@ -249,8 +249,8 @@ Adjacency <- function(stability, argmax_id = NULL) {
       } else {
         A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
       }
-      A_block[lower.tri(A_block)] <- 0
-      A_block <- A_block + t(A_block) # for symmetry
+      # A_block[lower.tri(A_block)] <- 0
+      # A_block <- A_block + t(A_block) # for symmetry
       if (length(stability$params$pk) > 1) {
         A_block[bigblocks != block_id] <- 0
       }
