@@ -37,9 +37,9 @@
 #' @export
 PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Checking that input data are matrices
-  xdata=as.matrix(xdata)
-  ydata=as.matrix(ydata)
-  
+  xdata <- as.matrix(xdata)
+  ydata <- as.matrix(ydata)
+
   # Storing extra arguments
   extra_args <- list(...)
 

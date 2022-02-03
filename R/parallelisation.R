@@ -37,7 +37,7 @@
 #'
 #' # Merging the outputs
 #' stab <- Combine(stability1 = stab1, stability2 = stab2, include_beta = FALSE)
-#' print(stab$params$K)
+#' print(stab)
 #'
 #'
 #' ## Graphical modelling
@@ -51,7 +51,7 @@
 #'
 #' # Merging the outputs
 #' stab <- Combine(stability1 = stab1, stability2 = stab2)
-#' print(stab$params$K)
+#' print(stab)
 #' }
 #' @export
 Combine <- function(stability1, stability2, include_beta = TRUE) {
@@ -184,7 +184,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
   # Preparing output
   if (stability1$methods$type == "graphical_model") {
     if (nblocks == 1) {
-      return(list(
+      out <- list(
         S = metrics$S, Lambda = Lambda,
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
@@ -193,9 +193,9 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         sign = mysign,
         methods = mymethods,
         params = myparams
-      ))
+      )
     } else {
-      return(list(
+      out <- list(
         S = metrics$S, Lambda = Lambda,
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
@@ -204,13 +204,13 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         sign = mysign,
         methods = mymethods,
         params = myparams
-      ))
+      )
     }
   }
 
   if (stability1$methods$type == "variable_selection") {
     if (include_beta) {
-      return(list(
+      out <- list(
         S = metrics$S, Lambda = Lambda,
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
@@ -219,9 +219,9 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         Beta = Beta,
         methods = mymethods,
         params = myparams
-      ))
+      )
     } else {
-      return(list(
+      out <- list(
         S = metrics$S, Lambda = Lambda,
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
@@ -229,12 +229,12 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         selprop = bigstab,
         methods = mymethods,
         params = myparams
-      ))
+      )
     }
   }
 
   if (stability1$methods$type == "clustering") {
-    return(list(
+    out <- list(
       S = metrics$S, Lambda = Lambda,
       Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
       PFER = metrics$PFER, FDP = metrics$FDP,
@@ -242,6 +242,11 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
       selprop = bigstab,
       methods = mymethods,
       params = myparams
-    ))
+    )
   }
+
+  # Defining the class
+  class(out) <- class(stability1)
+
+  return(out)
 }
