@@ -22,10 +22,10 @@ Imports:
     Rdpack,
     withr (>= 2.4.0)
 Suggests:
-    elasticnet,
     cluster,
     corpcor,
     dbscan,
+    elasticnet,
     gglasso,
     mixOmics,
     nnet,
