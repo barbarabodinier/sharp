@@ -254,11 +254,11 @@ And converted to an igraph object using:
 ``` r
 mygraph=Graph(Adjacency(stab))
 mygraph
-#> IGRAPH 40f5438 UN-- 10 9 -- 
+#> IGRAPH 9fce7bd UN-- 10 9 -- 
 #> + attr: name (v/c), size (v/n), label (v/c), color (v/c), shape (v/c),
 #> | frame.color (v/c), label.family (v/c), label.cex (v/n), label.color
 #> | (v/c), color (e/c), width (e/n)
-#> + edges from 40f5438 (vertex names):
+#> + edges from 9fce7bd (vertex names):
 #> [1] var1--var9  var2--var4  var3--var9  var3--var10 var4--var5  var4--var7 
 #> [7] var4--var8  var6--var10 var8--var10
 set.seed(1)
@@ -266,127 +266,6 @@ plot(mygraph)
 ```
 
 <img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" />
-
-## Clustering
-
-### Data simulation
-
-A dataset with k=3 clusters of participants sharing similar profiles
-along 5 out of 15 variables is simulated:
-
-``` r
-# Data simulation
-set.seed(1)
-simul <- SimulateClustering(
-  n = c(10, 10, 10), pk = 15,
-  theta_xc = c(rep(1, 5), rep(0, 10)),
-  ev_xc = c(rep(0.99, 5), rep(0, 10)),
-)
-X <- simul$data
-
-# Visualisation of distances between participants
-par(mar = c(5, 5, 5, 5))
-Heatmap(
-  mat = as.matrix(dist(simul$data)),
-  colours = c("navy", "white", "red")
-)
-```
-
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
-# Visualisation along two variables
-plot(simul$data[,1:2], col=simul$theta)
-```
-
-<img src="man/figures/README-unnamed-chunk-15-2.png" width="60%" style="display: block; margin: auto;" />
-
-### Consensus clustering
-
-Consensus clustering is implemented in `Clustering()`. By default,
-sparse hierarchical clustering is used and applied on datasets with
-subsamples of the participants. The function takes the data as input:
-
-``` r
-stab <- Clustering(
-  xdata = simul$data,
-  Lambda = cbind(seq(1.1, 2, by = 0.1))
-)
-#> Loading required namespace: sparcl
-```
-
-<!-- ### Calibration  -->
-<!-- The calibration of sparse consensus clustering is conducted in two steps: (i) calibration of parameters controlling the variable selection, and (ii) calibration of parameters controlling the clusters, conditionally on the choice of hyper-parameter for the variable selection. -->
-<!-- #### Variable selection -->
-<!-- In sparse hierarchical clustering, the number of variables used for the clustering is controlled by a penalty parameter. The penalty and threshold in selection proportions for the variables are jointly calibrated by maximising the stability score: -->
-<!-- ```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"} -->
-<!-- par(mar = c(7, 5, 7, 6)) -->
-<!-- CalibrationPlot(stab) -->
-<!-- ``` -->
-<!-- #### Identification of stable clusters -->
-<!-- In addition, the consensus clustering model is defined by the number of clusters and a threshold in co-membership proportion. These two parameters are calibrated by maximising the stability score across models with the chosen penalty parameter: -->
-<!-- ```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"} -->
-<!-- par(mar = c(7, 5, 7, 6)) -->
-<!-- CalibrationPlot(stab, clustering=TRUE) -->
-<!-- ``` -->
-
-### Outputs
-
-#### Variable selection
-
-The variables contributing to the clustering structure can be identified
-using:
-
-``` r
-# Stable selection status
-SelectedVariables(stab)
-#>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>     0     1     1     1     1     0     0     0     0     0     0     0     0 
-#> var14 var15 
-#>     0     0
-
-# Selection proportions
-SelectionProportions(stab)
-#>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.04  0.85  0.95  0.89  0.95  0.10  0.15  0.12  0.13  0.14  0.23  0.11  0.04 
-#> var14 var15 
-#>  0.03  0.12
-```
-
-#### Identification of stable clusters
-
-In this example, observations that are grouped in the same cluster in
-more than 90% (calibrated threshold) of the subsamples are considered as
-stable co-members. The stable co-membership status can be obtained from:
-
-``` r
-myadjacency <- Adjacency(stab)
-```
-
-It can be interpreted like an adjacency matrix and visualised as a
-graph:
-
-``` r
-mygraph <- Graph(myadjacency, node_colour = simul$theta)
-set.seed(1)
-plot(mygraph)
-```
-
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" />
-
-The stable clusters are defined as the connected components of this
-graph. Stable cluster membership can be obtained using:
-
-``` r
-membership <- Clusters(stab)
-print(membership)
-#>  obs1  obs2  obs3  obs4  obs5  obs6  obs7  obs8  obs9 obs10 obs11 obs12 obs13 
-#>     1     1     1     1     1     1     1     1     1     1     2     2     2 
-#> obs14 obs15 obs16 obs17 obs18 obs19 obs20 obs21 obs22 obs23 obs24 obs25 obs26 
-#>     2     2     2     2     2     2     2     3     3     3     3     3     3 
-#> obs27 obs28 obs29 obs30 
-#>     3     3     3     3
-```
 
 ## Dimensionality reduction
 
@@ -412,7 +291,7 @@ Heatmap(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
 
 ### Stability selection
 
