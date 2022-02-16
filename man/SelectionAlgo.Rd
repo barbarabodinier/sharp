@@ -24,9 +24,7 @@ with character/numeric values or a factor.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-With \code{implementation=PenalisedRegression}, \code{Lambda} contains
-penalty parameters. If \code{Lambda=NULL} and
-\code{implementation=PenalisedRegression},
+If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
 \code{\link{LambdaGridRegression}} is used to define a relevant grid.}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This

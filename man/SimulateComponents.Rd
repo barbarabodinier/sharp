@@ -64,10 +64,10 @@ a uniform distribution between the minimum and maximum values in
 (\code{continuous=FALSE}).}
 
 \item{pd_strategy}{method to ensure that the generated precision matrix is
-positive definite (and hence can be a covariance matrix). With
+positive definite (and hence can be a covariance matrix). If
 \code{pd_strategy="diagonally_dominant"}, the precision matrix is made
 diagonally dominant by setting the diagonal entries to the sum of absolute
-values on the corresponding row and a constant u. With
+values on the corresponding row and a constant u. If
 \code{pd_strategy="min_eigenvalue"}, diagonal entries are set to the sum of
 the absolute value of the smallest eigenvalue of the precision matrix with
 zeros on the diagonal and a constant u.}

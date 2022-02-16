@@ -27,7 +27,7 @@ Generates a list of \code{n_folds} non-overlapping sets of observation IDs
 (folds).
 }
 \details{
-With categorical outcomes (i.e. \code{family} argument is set to
+For categorical outcomes (i.e. \code{family} argument is set to
   \code{"binomial"}, \code{"multinomial"} or \code{"cox"}), the split is done
   such that the proportion of observations from each of the categories in
   each of the folds is representative of that of the full sample.

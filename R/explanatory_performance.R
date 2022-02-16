@@ -132,7 +132,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' stability selection model will automatically be included as predictors.
 #'
 #' @inheritParams VariableSelection
-#' @param stability output of \code{\link{VariableSelection}}. With
+#' @param stability output of \code{\link{VariableSelection}}. If
 #'   \code{stability=NULL} (the default), a model including all variables in
 #'   \code{xdata} as predictors is fitted. Argument \code{family} must be
 #'   provided in this case.
@@ -154,7 +154,8 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   (\code{"binomial"} family).} \item{\code{\link[nnet]{multinom}}}{for
 #'   multinomial regression (\code{"multinomial"} family).}
 #'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{ExplanatoryPerformance}}
+#' @seealso \code{\link{VariableSelection}},
+#'   \code{\link{ExplanatoryPerformance}}
 #'
 #' @examples
 #' \dontrun{
@@ -456,10 +457,10 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #' @param ij_method logical indicating if the analysis should be done for only
 #'   one recalibration/test split with variance of the concordance index should
 #'   be computed using the infinitesimal jackknife method as implemented in
-#'   \code{\link[survival]{concordance}}. With \code{ij_method=TRUE}, the
-#'   concordance index and estimated confidence interval at level 0.05 are
-#'   reported. With \code{ij_method=FALSE} (the default), the concordance
-#'   indices computed for different recalibration/test splits are reported.
+#'   \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
+#'   default), the concordance indices computed for different recalibration/test
+#'   splits are reported. If \code{ij_method=TRUE}, the concordance index and
+#'   estimated confidence interval at level 0.05 are reported.
 #'
 #' @details For a fair evaluation of the prediction performance, the data is
 #'   split into a training set (including a proportion \code{tau} of the

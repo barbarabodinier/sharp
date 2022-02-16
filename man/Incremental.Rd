@@ -26,7 +26,7 @@ columns.}
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
 with character/numeric values or a factor.}
 
-\item{stability}{output of \code{\link{VariableSelection}}. With
+\item{stability}{output of \code{\link{VariableSelection}}. If
 \code{stability=NULL} (the default), a model including all variables in
 \code{xdata} as predictors is fitted. Argument \code{family} must be
 provided in this case.}
@@ -52,10 +52,10 @@ used. Only used for logistic regression.}
 \item{ij_method}{logical indicating if the analysis should be done for only
 one recalibration/test split with variance of the concordance index should
 be computed using the infinitesimal jackknife method as implemented in
-\code{\link[survival]{concordance}}. With \code{ij_method=TRUE}, the
-concordance index and estimated confidence interval at level 0.05 are
-reported. With \code{ij_method=FALSE} (the default), the concordance
-indices computed for different recalibration/test splits are reported.}
+\code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
+default), the concordance indices computed for different recalibration/test
+splits are reported. If \code{ij_method=TRUE}, the concordance index and
+estimated confidence interval at level 0.05 are reported.}
 
 \item{time}{numeric indicating the time for which the survival probabilities
 are computed. Only used for Cox regression.}

@@ -239,7 +239,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' # Using and re-formatting igraph object
 #' require(igraph)
 #' igraph::V(perfgraph)$size <- 10
-#' plot(perfgraph, layout = layout_with_kk(perfgraph))
+#' plot(perfgraph, layout = igraph::layout_with_kk(perfgraph))
 #'
 #' # Regression model
 #' set.seed(1)

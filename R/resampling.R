@@ -144,7 +144,7 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
 #' @return A list of length \code{n_folds} with sets of non-overlapping
 #'   observation IDs.
 #'
-#' @details With categorical outcomes (i.e. \code{family} argument is set to
+#' @details For categorical outcomes (i.e. \code{family} argument is set to
 #'   \code{"binomial"}, \code{"multinomial"} or \code{"cox"}), the split is done
 #'   such that the proportion of observations from each of the categories in
 #'   each of the folds is representative of that of the full sample.

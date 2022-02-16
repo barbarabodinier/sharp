@@ -38,16 +38,16 @@ Possible values are 2 or 3.}
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). If
 \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
-(2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah
-and Samworth (2013) under the assumption of unimodality is used.}
+(2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah and
+Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr_blocks}{vector of block-specific thresholds in PFER for
-constrained calibration by error control. With \code{PFER_thr=Inf} and
+constrained calibration by error control. If \code{PFER_thr=Inf} and
 \code{FDP_thr=Inf}, unconstrained calibration is used.}
 
 \item{FDP_thr_blocks}{vector of block-specific thresholds in the expected
 proportion of falsely selected features (or False Discovery Proportion,
-FDP) for constrained calibration by error control. With \code{PFER_thr=Inf}
+FDP) for constrained calibration by error control. If \code{PFER_thr=Inf}
 and \code{FDP_thr=Inf}, unconstrained calibration is used.}
 
 \item{Sequential_template}{logical matrix encoding the type of procedure to

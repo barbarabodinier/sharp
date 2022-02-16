@@ -8,11 +8,11 @@
 #' @inheritParams GraphicalModel
 #' @param selprop array of selection proportions.
 #' @param PFER_thr_blocks vector of block-specific thresholds in PFER for
-#'   constrained calibration by error control. With \code{PFER_thr=Inf} and
+#'   constrained calibration by error control. If \code{PFER_thr=Inf} and
 #'   \code{FDP_thr=Inf}, unconstrained calibration is used.
 #' @param FDP_thr_blocks vector of block-specific thresholds in the expected
 #'   proportion of falsely selected features (or False Discovery Proportion,
-#'   FDP) for constrained calibration by error control. With \code{PFER_thr=Inf}
+#'   FDP) for constrained calibration by error control. If \code{PFER_thr=Inf}
 #'   and \code{FDP_thr=Inf}, unconstrained calibration is used.
 #' @param Sequential_template logical matrix encoding the type of procedure to
 #'   use for data with multiple blocks in stability selection graphical

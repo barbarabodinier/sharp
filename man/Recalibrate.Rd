@@ -14,7 +14,7 @@ columns.}
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
 with character/numeric values or a factor.}
 
-\item{stability}{output of \code{\link{VariableSelection}}. With
+\item{stability}{output of \code{\link{VariableSelection}}. If
 \code{stability=NULL} (the default), a model including all variables in
 \code{xdata} as predictors is fitted. Argument \code{family} must be
 provided in this case.}
@@ -211,5 +211,6 @@ recalibrated$Cmat # recalibrated Y-weights
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{ExplanatoryPerformance}}
+\code{\link{VariableSelection}},
+  \code{\link{ExplanatoryPerformance}}
 }

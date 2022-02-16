@@ -13,9 +13,7 @@
 #'   with character/numeric values or a factor.
 #' @param Lambda matrix of parameters controlling the level of sparsity in the
 #'   underlying feature selection algorithm specified in \code{implementation}.
-#'   With \code{implementation=PenalisedRegression}, \code{Lambda} contains
-#'   penalty parameters. If \code{Lambda=NULL} and
-#'   \code{implementation=PenalisedRegression},
+#'   If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
 #'   \code{\link{LambdaGridRegression}} is used to define a relevant grid.
 #' @param pi_list vector of thresholds in selection proportions. If
 #'   \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
@@ -53,8 +51,8 @@
 #' @param PFER_method method used to compute the upper-bound of the expected
 #'   number of False Positives (or Per Family Error Rate, PFER). If
 #'   \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
-#'   (2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah
-#'   and Samworth (2013) under the assumption of unimodality is used.
+#'   (2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah and
+#'   Samworth (2013) under the assumption of unimodality is used.
 #' @param PFER_thr threshold in PFER for constrained calibration by error
 #'   control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 #'   calibration is used (the default).

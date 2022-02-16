@@ -81,8 +81,8 @@ resampled dataset (see \code{\link{Resample}}).}
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). If
 \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
-(2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah
-and Samworth (2013) under the assumption of unimodality is used.}
+(2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah and
+Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
 control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
