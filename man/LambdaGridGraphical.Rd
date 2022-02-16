@@ -79,18 +79,18 @@ resampling. This function must use arguments named \code{data} and
 resampled dataset (see \code{\link{Resample}}).}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
-number of False Positives (or Per Family Error Rate, PFER). With
+number of False Positives (or Per Family Error Rate, PFER). If
 \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
-(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+(2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah
 and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
-control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
-by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
+by error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
 unconstrained calibration is used (the default).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling

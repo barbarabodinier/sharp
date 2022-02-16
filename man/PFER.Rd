@@ -16,9 +16,9 @@ PFER(q, pi, N, K, PFER_method = "MB")
 \item{K}{number of resampling iterations.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
-number of False Positives (or Per Family Error Rate, PFER). With
+number of False Positives (or Per Family Error Rate, PFER). If
 \code{PFER_method="MB"}, the method proposed by Meinshausen and Bühlmann
-(2010) is used. With \code{PFER_method="SS"}, the method proposed by Shah
+(2010) is used. If \code{PFER_method="SS"}, the method proposed by Shah
 and Samworth (2013) under the assumption of unimodality is used.}
 }
 \value{
