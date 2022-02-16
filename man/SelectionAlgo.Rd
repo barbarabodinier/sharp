@@ -20,19 +20,19 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
 With \code{implementation=PenalisedRegression}, \code{Lambda} contains
-penalty parameters. If \code{Lambda=NULL},
-\code{\link{LambdaGridRegression}} is used to define a relevant grid. If
-\code{implementation} is not set to \code{PenalisedRegression},
-\code{Lambda} must be provided.}
+penalty parameters. If \code{Lambda=NULL} and
+\code{implementation=PenalisedRegression},
+\code{\link{LambdaGridRegression}} is used to define a relevant grid.}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
-argument indicates the number of variables in each group. Only used with
-\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
+argument indicates the number of variables in each group. Only used for
+models with group penalisation (e.g. \code{implementation=GroupPLS} or
+\code{implementation=SparseGroupPLS}).}
 
 \item{family}{type of regression model. If
 \code{implementation=PenalisedRegression}, this argument is defined as in
@@ -43,11 +43,12 @@ analysis).}
 
 \item{implementation}{function to use for variable selection. By default,
 \code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
-for regularised regression. Other possible functions are: \code{SparsePLS},
-\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
-arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
-\code{...}, and returning a list of two matrices named \code{selected} and
-\code{beta_full} of the correct dimensions can be used.}
+for regularised regression. Other readily implemented functions are:
+\code{SparsePLS}, \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively,
+a function with arguments \code{xdata}, \code{ydata}, \code{Lambda},
+\code{family} and \code{...}, and returning a list of two matrices named
+\code{selected} and \code{beta_full} of the correct dimensions can be used
+(see example below for the group LASSO).}
 
 \item{...}{additional parameters passed to the function provided in
 \code{implementation}.}

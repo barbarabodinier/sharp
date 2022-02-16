@@ -1,33 +1,95 @@
-#' Stability selection of both predictors and outcomes
+#' Stability selection of predictors and/or outcomes
 #'
-#' Runs stability selection regression models with different combinations of
-#' parameters controlling the sparsity in PLS/PCA models and thresholds in
-#' selection proportions. These parameters are jointly calibrated by maximising
-#' the stability score of the model (possibly under a constraint on the expected
-#' number of falsely stably selected features).
+#' Performs stability selection for dimensionality reduction. The underlying
+#' variable selection algorithm (e.g. sparse PLS) is run with different
+#' combinations of parameters controlling the sparsity (e.g. number of selected
+#' variables per component) and thresholds in selection proportions. These
+#' hyper-parameters are jointly calibrated by maximisation of the stability
+#' score.
 #'
 #' @inheritParams VariableSelection
 #' @param family type of PLS model. This parameter must be set to
 #'   \code{family="gaussian"} for continuous outcomes, or to
 #'   \code{family="binomial"} for categorical outcomes. Only used if
 #'   \code{ydata} is provided.
+#' @param implementation function to use for feature selection. Possible
+#'   functions are: \code{SparsePCA}, \code{SparsePLS}, \code{GroupPLS},
+#'   \code{SparseGroupPLS}.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
-#'   Only used with \code{implementation=SparseGroupPLS}.
+#'   Only applicable to \code{implementation=SparseGroupPLS}.
 #' @param LambdaX matrix of parameters controlling the number of selected
-#'   variables (sparse PLS) or groups (sparse group PLS) in X.
+#'   variables (for sparse PCA/PLS) or groups (for group and sparse group PLS)
+#'   in X.
 #' @param LambdaY matrix of parameters controlling the number of selected
-#'   variables (sparse PLS) or groups (sparse group PLS) in Y. Only used with
-#'   \code{family="gaussian"}.
+#'   variables (for sparse PLS) or groups (for group or sparse group PLS) in Y.
+#'   Only used if \code{family="gaussian"}.
 #' @param AlphaX matrix of parameters controlling the level of sparsity within
-#'   groups (sparse group PLS) in X. Only used with
+#'   groups (sparse group PLS) in X. Only used if
 #'   \code{implementation=SparseGroupPLS}.
 #' @param AlphaY matrix of parameters controlling the level of sparsity within
-#'   groups (sparse group PLS) in X. Only used with
+#'   groups (sparse group PLS) in X. Only used if
 #'   \code{implementation=SparseGroupPLS} and \code{family="gaussian"}.
 #' @param ncomp number of components.
 #' @param scale logical indicating if the data should be scaled (i.e.
 #'   transformed so that all variables have a standard deviation of one).
+#'
+#' @details In stability selection, a feature selection algorithm is fitted on
+#'   \code{K} subsamples (or bootstrap samples) of the data with different
+#'   parameters controlling the sparsity (\code{LambdaX}, \code{LambdaY},
+#'   \code{AlphaX}, and/or \code{AlphaY}). For a given (set of) sparsity
+#'   parameter(s), the proportion out of the \code{K} models in which each
+#'   feature is selected is calculated. Features with selection proportions
+#'   above a threshold pi are considered stably selected. The stability
+#'   selection model is controlled by the sparsity parameter(s) (denoted by
+#'   \eqn{\lambda}) for the underlying algorithm, and the threshold in selection
+#'   proportion:
+#'
+#'   \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
+#'
+#'   For sparse and sparse group dimensionality reduction, "feature" refers to
+#'   variable (variable selection model). For group PLS, "feature" refers to
+#'   group (group selection model). For (sparse) group PLS, groups need to be
+#'   defined \emph{a priori} and specified in arguments \code{group_x} and/or
+#'   \code{group_y}.
+#'
+#'   These parameters can be calibrated by maximisation of a stability score
+#'   derived from the likelihood under the assumption of uniform (uninformative)
+#'   selection:
+#'
+#'   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+#'
+#'   It is strongly recommended to examine the calibration plot carefully to
+#'   check that the grids of parameters \code{Lambda} and \code{pi_list} do not
+#'   restrict the calibration to a region that would not include the global
+#'   maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
+#'   \code{Lambda} may need to be extended when the maximum stability is
+#'   observed on the left or right edges of the calibration plot.
+#'
+#'   To control the expected number of False Positives (Per Family Error Rate)
+#'   in the results, a threshold \code{PFER_thr} can be specified. The
+#'   optimisation problem is then constrained to sets of parameters that
+#'   generate models with an upper-bound in PFER below \code{PFER_thr} (see
+#'   Meinshausen and Bühlmann (2010) and Shah and Samworth (2013)).
+#'
+#'   Possible resampling procedures include defining (i) \code{K} subsamples of
+#'   a proportion \code{tau} of the observations, (ii) \code{K} boostrap samples
+#'   with the full sample size (obtained with replacement), and (iii) \code{K/2}
+#'   splits of the data in half for complementary pair stability selection (see
+#'   arguments \code{resampling} and \code{cpss}). In complementary pair
+#'   stability selection, a feature is considered selected at a given resampling
+#'   iteration if it is selected in the two complementary subsamples.
+#'
+#'   For categorical outcomes (argument \code{family} is \code{"binomial"} or
+#'   \code{"multinomial"}), the proportions of observations from each category
+#'   in all subsamples or bootstrap samples are the same as in the full sample.
+#'
+#'   To ensure reproducibility of the results, the starting number of the random
+#'   number generator is fixed to \code{seed}.
+#'
+#'   For parallelisation, stability selection with different sets of parameters
+#'   can be run on \code{n_cores} cores. This relies on forking with
+#'   \code{\link[parallel]{mclapply}} (specific to Unix systems).
 #'
 #' @return A list with: \item{summary}{a matrix of the best stability scores and
 #'   corresponding parameters controlling the level of sparsity in the

@@ -20,7 +20,7 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
 \item{selectedX}{binary matrix of size \code{(ncol(xdata) * ncomp)}. The
 binary entries indicate which predictors (in rows) contribute to the

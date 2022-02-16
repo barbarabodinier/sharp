@@ -1,11 +1,10 @@
 #' Stability selection graphical model
 #'
-#' Runs stability selection graphical models with different combinations of
-#' parameters controlling the sparsity of the underlying selection algorithm
-#' (e.g. penalty parameter for regularised models) and thresholds in selection
-#' proportions. These two parameters are jointly calibrated by maximising the
-#' stability score of the model (possibly under a constraint on the expected
-#' number of falsely stably selected features).
+#' Performs stability selection for graphical models. The underlying graphical
+#' model (e.g. graphical LASSO) is run with different combinations of parameters
+#' controlling the sparsity (e.g. penalty parameter) and thresholds in selection
+#' proportions. These two hyper-parameters are jointly calibrated by
+#' maximisation of the stability score.
 #'
 #' @inheritParams VariableSelection
 #' @param xdata data matrix with observations as rows and variables as columns.
@@ -54,11 +53,53 @@
 #' @param max_density threshold on the density. The grid is defined such that
 #'   the density of the estimated graph does not exceed max_density.
 #'
-#' @details To ensure reproducibility of the results, the state of the random
-#'   number generator is fixed to \code{seed}. For parallelisation of the code,
-#'   stability selection results produced with different \code{seed}s and all
-#'   other parameters equal can be combined (more details in
-#'   \code{\link{Combine}}).
+#' @details In stability selection, a feature selection algorithm is fitted on
+#'   \code{K} subsamples (or bootstrap samples) of the data with different
+#'   parameters controlling the sparsity (\code{Lambda}). For a given (set of)
+#'   sparsity parameter(s), the proportion out of the \code{K} models in which
+#'   each feature is selected is calculated. Features with selection proportions
+#'   above a threshold pi are considered stably selected. The stability
+#'   selection model is controlled by the sparsity parameter(s) for the
+#'   underlying algorithm, and the threshold in selection proportion:
+#'
+#'   \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
+#'   
+#'   These parameters can be calibrated by maximisation of a stability score
+#'   derived from the likelihood under the assumption of uniform (uninformative)
+#'   selection:
+#'
+#'   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+#'
+#'   It is strongly recommended to examine the calibration plot carefully to
+#'   check that the grids of parameters \code{Lambda} and \code{pi_list} do not
+#'   restrict the calibration to a region that would not include the global
+#'   maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
+#'   \code{Lambda} may need to be extended when the maximum stability is
+#'   observed on the left or right edges of the calibration heatmap.
+#'
+#'   To control the expected number of False Positives (Per Family Error Rate)
+#'   in the results, a threshold \code{PFER_thr} can be specified. The
+#'   optimisation problem is then constrained to sets of parameters that
+#'   generate models with an upper-bound in PFER below \code{PFER_thr} (see
+#'   Meinshausen and Bühlmann (2010) and Shah and Samworth (2013)).
+#'
+#'   Possible resampling procedures include defining (i) \code{K} subsamples of
+#'   a proportion \code{tau} of the observations, (ii) \code{K} boostrap samples
+#'   with the full sample size (obtained with replacement), and (iii) \code{K/2}
+#'   splits of the data in half for complementary pair stability selection (see
+#'   arguments \code{resampling} and \code{cpss}). In complementary pair
+#'   stability selection, a feature is considered selected at a given resampling
+#'   iteration if it is selected in the two complementary subsamples.
+#'
+#'   To ensure reproducibility of the results, the starting number of the random
+#'   number generator is fixed to \code{seed}.
+#'
+#'   For parallelisation, stability selection with different sets of parameters
+#'   can be run on \code{n_cores} cores. This relies on forking with
+#'   \code{\link[parallel]{mclapply}} (specific to Unix systems). Alternatively,
+#'   the function can be run manually with different \code{seed}s and all other
+#'   parameters equal. The results can then be combined using
+#'   \code{\link{Combine}}.
 #'
 #' @references \insertRef{ourstabilityselection}{focus}
 #'
@@ -108,7 +149,8 @@
 #'   objects correspond to different blocks.
 #'
 #' @family stability selection functions
-#' @seealso \code{\link{Graph}}, \code{\link{Adjacency}}, \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
+#' @seealso \code{\link{Graph}}, \code{\link{Adjacency}},
+#'   \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
 #'   \code{\link{GraphicalAlgo}}, \code{\link{Combine}},
 #'   \code{\link{StabilityScore}}
 #'

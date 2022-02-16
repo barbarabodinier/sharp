@@ -26,7 +26,7 @@ Possible values are 2 or 3.}
 
 \item{group}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group and only needs to
-be provided for group penalisation (not sparse group).}
+be provided for group (but not sparse group) penalisation.}
 }
 \value{
 A vector of stability scores obtained with the different thresholds
@@ -38,6 +38,35 @@ given parameter controlling the sparsity and for different thresholds in
 selection proportions. The score measures how unlikely it is that the
 selection procedure is uniform (i.e. uninformative) for a given combination
 of parameters.
+}
+\details{
+The stability score is derived from the likelihood under the
+  assumption of uniform (uninformative) selection.
+
+  We classify the features into three categories: the stably selected ones
+  (that have selection proportions \eqn{\ge \pi}), the stably excluded ones
+  (selection proportion \eqn{\le 1-\pi}), and the unstable ones (selection
+  proportions between \eqn{1-\pi} and \eqn{\pi}).
+
+  The likelihood of observing stably selected, stably excluded and unstable
+  features can be expressed as:
+
+  \eqn{L_{\lambda, \pi} = \prod_{j=1}^N [ P( H_{\lambda} (j) \geq K
+  \pi)^{1_{H_{\lambda} (j) \ge K \pi}} x P( (1-\pi) K < H_{\lambda} (j) < K
+  \pi )^{1_{ (1-\pi) K < H_{\lambda} (j) < K \pi }} x P( H_{\lambda} (j) \leq
+  K (1-\pi) )^{1_{ H_{\lambda} (j) \le K (1-\pi) }} ]}
+
+  where \eqn{H_{\lambda} (j)} is the selection count of feature \eqn{j}.
+
+  The stability score is computed as the minus log-transformed likelihood
+  under the assumption of uniform selection:
+
+  \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+
+  Alternatively, the stability score can be computed by considering only two
+  sets of features: stably selected (selection proportions \eqn{\ge \pi}) or
+  not (selection proportions \eqn{< \pi}). This can be done using
+  \code{n_cat=2}.
 }
 \examples{
 # Simulating set of selection proportions

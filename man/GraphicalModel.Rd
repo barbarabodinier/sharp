@@ -62,9 +62,11 @@ Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
@@ -96,16 +98,15 @@ used in the function provided in \code{implementation}.}
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{cpss}{logical indicating if complementary pair stability selection
 should be done. For this, the algorithm is applied on two non-overlapping
 subsets of half of the observations. A feature is considered as selected if
 it is selected for both subsets. With this method, the data is split
-\code{K/2} times (\code{K} models are fitted). If \code{PFER_method="SS"},
-complementary pair stability selection is used (\code{cpss} is set to
-\code{TRUE}). Argument \code{tau} is ignored if \code{cpss=TRUE}.}
+\code{K/2} times (\code{K} models are fitted). Only used if
+\code{PFER_method="MB"}.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With
@@ -115,15 +116,16 @@ and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
 control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
-calibration is used.}
+calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used.}
+unconstrained calibration is used (the default).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
-the level of sparsity in the underlying algorithm.}
+the level of sparsity in the underlying algorithm. Only used if
+\code{Lambda=NULL}.}
 
 \item{lambda_max}{optional maximum value for the grid in penalty parameters.
 If \code{lambda_max=NULL}, the maximum value is set to the maximum
@@ -191,19 +193,60 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   objects correspond to different blocks.
 }
 \description{
-Runs stability selection graphical models with different combinations of
-parameters controlling the sparsity of the underlying selection algorithm
-(e.g. penalty parameter for regularised models) and thresholds in selection
-proportions. These two parameters are jointly calibrated by maximising the
-stability score of the model (possibly under a constraint on the expected
-number of falsely stably selected features).
+Performs stability selection for graphical models. The underlying graphical
+model (e.g. graphical LASSO) is run with different combinations of parameters
+controlling the sparsity (e.g. penalty parameter) and thresholds in selection
+proportions. These two hyper-parameters are jointly calibrated by
+maximisation of the stability score.
 }
 \details{
-To ensure reproducibility of the results, the state of the random
-  number generator is fixed to \code{seed}. For parallelisation of the code,
-  stability selection results produced with different \code{seed}s and all
-  other parameters equal can be combined (more details in
-  \code{\link{Combine}}).
+In stability selection, a feature selection algorithm is fitted on
+  \code{K} subsamples (or bootstrap samples) of the data with different
+  parameters controlling the sparsity (\code{Lambda}). For a given (set of)
+  sparsity parameter(s), the proportion out of the \code{K} models in which
+  each feature is selected is calculated. Features with selection proportions
+  above a threshold pi are considered stably selected. The stability
+  selection model is controlled by the sparsity parameter(s) for the
+  underlying algorithm, and the threshold in selection proportion:
+
+  \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
+  
+  These parameters can be calibrated by maximisation of a stability score
+  derived from the likelihood under the assumption of uniform (uninformative)
+  selection:
+
+  \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+
+  It is strongly recommended to examine the calibration plot carefully to
+  check that the grids of parameters \code{Lambda} and \code{pi_list} do not
+  restrict the calibration to a region that would not include the global
+  maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
+  \code{Lambda} may need to be extended when the maximum stability is
+  observed on the left or right edges of the calibration heatmap.
+
+  To control the expected number of False Positives (Per Family Error Rate)
+  in the results, a threshold \code{PFER_thr} can be specified. The
+  optimisation problem is then constrained to sets of parameters that
+  generate models with an upper-bound in PFER below \code{PFER_thr} (see
+  Meinshausen and Bühlmann (2010) and Shah and Samworth (2013)).
+
+  Possible resampling procedures include defining (i) \code{K} subsamples of
+  a proportion \code{tau} of the observations, (ii) \code{K} boostrap samples
+  with the full sample size (obtained with replacement), and (iii) \code{K/2}
+  splits of the data in half for complementary pair stability selection (see
+  arguments \code{resampling} and \code{cpss}). In complementary pair
+  stability selection, a feature is considered selected at a given resampling
+  iteration if it is selected in the two complementary subsamples.
+
+  To ensure reproducibility of the results, the starting number of the random
+  number generator is fixed to \code{seed}.
+
+  For parallelisation, stability selection with different sets of parameters
+  can be run on \code{n_cores} cores. This relies on forking with
+  \code{\link[parallel]{mclapply}} (specific to Unix systems). Alternatively,
+  the function can be run manually with different \code{seed}s and all other
+  parameters equal. The results can then be combined using
+  \code{\link{Combine}}.
 }
 \examples{
 \dontshow{
@@ -346,7 +389,8 @@ ClusteringPerformance(
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{Graph}}, \code{\link{Adjacency}}, \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
+\code{\link{Graph}}, \code{\link{Adjacency}},
+  \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
   \code{\link{GraphicalAlgo}}, \code{\link{Combine}},
   \code{\link{StabilityScore}}
 

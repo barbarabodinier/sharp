@@ -2,7 +2,7 @@
 % Please edit documentation in R/bi_selection.R
 \name{BiSelection}
 \alias{BiSelection}
-\title{Stability selection of both predictors and outcomes}
+\title{Stability selection of predictors and/or outcomes}
 \usage{
 BiSelection(
   xdata,
@@ -39,29 +39,31 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
-argument indicates the number of variables in each group. Only used with
-\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
+argument indicates the number of variables in each group. Only used for
+models with group penalisation (e.g. \code{implementation=GroupPLS} or
+\code{implementation=SparseGroupPLS}).}
 
 \item{group_y}{optional vector encoding the grouping structure among
 outcomes. This argument indicates the number of variables in each group.
-Only used with \code{implementation=SparseGroupPLS}.}
+Only applicable to \code{implementation=SparseGroupPLS}.}
 
 \item{LambdaX}{matrix of parameters controlling the number of selected
-variables (sparse PLS) or groups (sparse group PLS) in X.}
+variables (for sparse PCA/PLS) or groups (for group and sparse group PLS)
+in X.}
 
 \item{LambdaY}{matrix of parameters controlling the number of selected
-variables (sparse PLS) or groups (sparse group PLS) in Y. Only used with
-\code{family="gaussian"}.}
+variables (for sparse PLS) or groups (for group or sparse group PLS) in Y.
+Only used if \code{family="gaussian"}.}
 
 \item{AlphaX}{matrix of parameters controlling the level of sparsity within
-groups (sparse group PLS) in X. Only used with
+groups (sparse group PLS) in X. Only used if
 \code{implementation=SparseGroupPLS}.}
 
 \item{AlphaY}{matrix of parameters controlling the level of sparsity within
-groups (sparse group PLS) in X. Only used with
+groups (sparse group PLS) in X. Only used if
 \code{implementation=SparseGroupPLS} and \code{family="gaussian"}.}
 
 \item{ncomp}{number of components.}
@@ -75,9 +77,11 @@ transformed so that all variables have a standard deviation of one).}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
@@ -87,13 +91,9 @@ Possible values are 2 or 3.}
 \code{family="binomial"} for categorical outcomes. Only used if
 \code{ydata} is provided.}
 
-\item{implementation}{function to use for variable selection. By default,
-\code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
-for regularised regression. Other possible functions are: \code{SparsePLS},
-\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
-arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
-\code{...}, and returning a list of two matrices named \code{selected} and
-\code{beta_full} of the correct dimensions can be used.}
+\item{implementation}{function to use for feature selection. Possible
+functions are: \code{SparsePCA}, \code{SparsePLS}, \code{GroupPLS},
+\code{SparseGroupPLS}.}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -101,16 +101,15 @@ arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{cpss}{logical indicating if complementary pair stability selection
 should be done. For this, the algorithm is applied on two non-overlapping
 subsets of half of the observations. A feature is considered as selected if
 it is selected for both subsets. With this method, the data is split
-\code{K/2} times (\code{K} models are fitted). If \code{PFER_method="SS"},
-complementary pair stability selection is used (\code{cpss} is set to
-\code{TRUE}). Argument \code{tau} is ignored if \code{cpss=TRUE}.}
+\code{K/2} times (\code{K} models are fitted). Only used if
+\code{PFER_method="MB"}.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With
@@ -120,12 +119,12 @@ and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
 control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
-calibration is used.}
+calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used.}
+unconstrained calibration is used (the default).}
 
 \item{n_cores}{number of cores to use for parallel computing. Only available
 on Unix systems.}
@@ -183,11 +182,70 @@ A list with: \item{summary}{a matrix of the best stability scores and
   listed in \code{summary_full}.
 }
 \description{
-Runs stability selection regression models with different combinations of
-parameters controlling the sparsity in PLS/PCA models and thresholds in
-selection proportions. These parameters are jointly calibrated by maximising
-the stability score of the model (possibly under a constraint on the expected
-number of falsely stably selected features).
+Performs stability selection for dimensionality reduction. The underlying
+variable selection algorithm (e.g. sparse PLS) is run with different
+combinations of parameters controlling the sparsity (e.g. number of selected
+variables per component) and thresholds in selection proportions. These
+hyper-parameters are jointly calibrated by maximisation of the stability
+score.
+}
+\details{
+In stability selection, a feature selection algorithm is fitted on
+  \code{K} subsamples (or bootstrap samples) of the data with different
+  parameters controlling the sparsity (\code{LambdaX}, \code{LambdaY},
+  \code{AlphaX}, and/or \code{AlphaY}). For a given (set of) sparsity
+  parameter(s), the proportion out of the \code{K} models in which each
+  feature is selected is calculated. Features with selection proportions
+  above a threshold pi are considered stably selected. The stability
+  selection model is controlled by the sparsity parameter(s) (denoted by
+  \eqn{\lambda}) for the underlying algorithm, and the threshold in selection
+  proportion:
+
+  \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
+
+  For sparse and sparse group dimensionality reduction, "feature" refers to
+  variable (variable selection model). For group PLS, "feature" refers to
+  group (group selection model). For (sparse) group PLS, groups need to be
+  defined \emph{a priori} and specified in arguments \code{group_x} and/or
+  \code{group_y}.
+
+  These parameters can be calibrated by maximisation of a stability score
+  derived from the likelihood under the assumption of uniform (uninformative)
+  selection:
+
+  \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+
+  It is strongly recommended to examine the calibration plot carefully to
+  check that the grids of parameters \code{Lambda} and \code{pi_list} do not
+  restrict the calibration to a region that would not include the global
+  maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
+  \code{Lambda} may need to be extended when the maximum stability is
+  observed on the left or right edges of the calibration plot.
+
+  To control the expected number of False Positives (Per Family Error Rate)
+  in the results, a threshold \code{PFER_thr} can be specified. The
+  optimisation problem is then constrained to sets of parameters that
+  generate models with an upper-bound in PFER below \code{PFER_thr} (see
+  Meinshausen and Bühlmann (2010) and Shah and Samworth (2013)).
+
+  Possible resampling procedures include defining (i) \code{K} subsamples of
+  a proportion \code{tau} of the observations, (ii) \code{K} boostrap samples
+  with the full sample size (obtained with replacement), and (iii) \code{K/2}
+  splits of the data in half for complementary pair stability selection (see
+  arguments \code{resampling} and \code{cpss}). In complementary pair
+  stability selection, a feature is considered selected at a given resampling
+  iteration if it is selected in the two complementary subsamples.
+
+  For categorical outcomes (argument \code{family} is \code{"binomial"} or
+  \code{"multinomial"}), the proportions of observations from each category
+  in all subsamples or bootstrap samples are the same as in the full sample.
+
+  To ensure reproducibility of the results, the starting number of the random
+  number generator is fixed to \code{seed}.
+
+  For parallelisation, stability selection with different sets of parameters
+  can be run on \code{n_cores} cores. This relies on forking with
+  \code{\link[parallel]{mclapply}} (specific to Unix systems).
 }
 \examples{
 \dontshow{

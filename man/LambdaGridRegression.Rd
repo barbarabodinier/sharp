@@ -22,11 +22,13 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{family}{type of regression model. If
 \code{implementation=PenalisedRegression}, this argument is defined as in
@@ -41,11 +43,12 @@ analysis).}
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
-the level of sparsity in the underlying algorithm.}
+the level of sparsity in the underlying algorithm. Only used if
+\code{Lambda=NULL}.}
 
 \item{check_input}{logical indicating if input values should be checked
 (recommended).}

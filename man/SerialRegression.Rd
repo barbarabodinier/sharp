@@ -33,7 +33,7 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
@@ -46,9 +46,11 @@ parameters.}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
@@ -62,11 +64,12 @@ analysis).}
 
 \item{implementation}{function to use for variable selection. By default,
 \code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
-for regularised regression. Other possible functions are: \code{SparsePLS},
-\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
-arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
-\code{...}, and returning a list of two matrices named \code{selected} and
-\code{beta_full} of the correct dimensions can be used.}
+for regularised regression. Other readily implemented functions are:
+\code{SparsePLS}, \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively,
+a function with arguments \code{xdata}, \code{ydata}, \code{Lambda},
+\code{family} and \code{...}, and returning a list of two matrices named
+\code{selected} and \code{beta_full} of the correct dimensions can be used
+(see example below for the group LASSO).}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -74,16 +77,15 @@ arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{cpss}{logical indicating if complementary pair stability selection
 should be done. For this, the algorithm is applied on two non-overlapping
 subsets of half of the observations. A feature is considered as selected if
 it is selected for both subsets. With this method, the data is split
-\code{K/2} times (\code{K} models are fitted). If \code{PFER_method="SS"},
-complementary pair stability selection is used (\code{cpss} is set to
-\code{TRUE}). Argument \code{tau} is ignored if \code{cpss=TRUE}.}
+\code{K/2} times (\code{K} models are fitted). Only used if
+\code{PFER_method="MB"}.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With
@@ -93,22 +95,22 @@ and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
 control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
-calibration is used.}
+calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used.}
+unconstrained calibration is used (the default).}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
-argument indicates the number of variables in each group. Only used with
-\code{implementation=SparseGroupPLS} or \code{implementation=GroupPLS}.}
+argument indicates the number of variables in each group. Only used for
+models with group penalisation (e.g. \code{implementation=GroupPLS} or
+\code{implementation=SparseGroupPLS}).}
 
 \item{group_penalisation}{logical indicating if a group penalisation should
-be considered in the stability score. An extra argument \code{group_x}, a
-vector encoding the number of variables in each group, must be provided if
-\code{group_penalisation=TRUE}. The use of \code{group_penalisation=TRUE}
-strictly applies to group (not sparse-group) penalisation.}
+be considered in the stability score. The use of
+\code{group_penalisation=TRUE} strictly applies to group (not sparse-group)
+penalisation.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

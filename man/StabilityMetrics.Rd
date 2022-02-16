@@ -59,11 +59,12 @@ calibrated and \code{FALSE} for other blocks). Other approaches with joint
 calibration of the blocks are allowed (all entries are set to \code{TRUE}).}
 
 \item{graph}{logical indicating if stability selection is performed in a
-regression (if \code{FALSE}) or graphical (if \code{TRUE}) framework.}
+regression (if \code{FALSE}) or graphical/clustering (if \code{TRUE})
+framework.}
 
 \item{group}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group and only needs to
-be provided for group penalisation (not sparse group).}
+be provided for group (but not sparse group) penalisation.}
 }
 \value{
 A list with: \item{S}{a matrix of the best (block-specific) stability
@@ -110,10 +111,10 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   in multi-block stability selection graphical modelling.}
 }
 \description{
-Computes the stability score and upper-bounds of the PFER and FDP from
-selection proportions of models with a given parameter controlling the
-sparsity of the underlying algorithm and for different thresholds in
-selection proportions.
+Computes the stability score (see \code{\link{StabilityScore}}) and
+upper-bounds of the \code{\link{PFER}} and \code{\link{FDP}} from selection
+proportions of models with a given parameter controlling the sparsity of the
+underlying algorithm and for different thresholds in selection proportions.
 }
 \examples{
 

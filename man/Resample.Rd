@@ -17,7 +17,8 @@ outcome data.}
 \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
 analysis).}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -25,8 +26,8 @@ analysis).}
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{...}{additional parameters passed to the function provided in
 \code{resampling}.}

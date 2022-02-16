@@ -29,15 +29,14 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
 With \code{implementation=PenalisedRegression}, \code{Lambda} contains
-penalty parameters. If \code{Lambda=NULL},
-\code{\link{LambdaGridRegression}} is used to define a relevant grid. If
-\code{implementation} is not set to \code{PenalisedRegression},
-\code{Lambda} must be provided.}
+penalty parameters. If \code{Lambda=NULL} and
+\code{implementation=PenalisedRegression},
+\code{\link{LambdaGridRegression}} is used to define a relevant grid.}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
 \code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
@@ -45,9 +44,11 @@ penalty parameters. If \code{Lambda=NULL},
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
@@ -61,11 +62,12 @@ analysis).}
 
 \item{implementation}{function to use for variable selection. By default,
 \code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
-for regularised regression. Other possible functions are: \code{SparsePLS},
-\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a function with
-arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
-\code{...}, and returning a list of two matrices named \code{selected} and
-\code{beta_full} of the correct dimensions can be used.}
+for regularised regression. Other readily implemented functions are:
+\code{SparsePLS}, \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively,
+a function with arguments \code{xdata}, \code{ydata}, \code{Lambda},
+\code{family} and \code{...}, and returning a list of two matrices named
+\code{selected} and \code{beta_full} of the correct dimensions can be used
+(see example below for the group LASSO).}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -73,8 +75,8 @@ arguments \code{xdata}, \code{ydata}, \code{Lambda}, \code{family} and
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With
@@ -84,15 +86,16 @@ and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
 control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
-calibration is used.}
+calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used.}
+unconstrained calibration is used (the default).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
-the level of sparsity in the underlying algorithm.}
+the level of sparsity in the underlying algorithm. Only used if
+\code{Lambda=NULL}.}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}

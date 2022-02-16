@@ -58,9 +58,11 @@ Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used with \code{resampling="subsampling"}.}
+\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
+\code{cpss=FALSE}.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
 Possible values are 2 or 3.}
@@ -92,8 +94,8 @@ used in the function provided in \code{implementation}.}
 replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
-\code{tau} and return IDs of observations to be included in the resampled
-dataset (see example in \code{\link{Resample}}).}
+\code{tau} and return the IDs of observations to be included in the
+resampled dataset (see \code{\link{Resample}}).}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). With
@@ -103,15 +105,16 @@ and Samworth (2013) under the assumption of unimodality is used.}
 
 \item{PFER_thr}{threshold in PFER for constrained calibration by error
 control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
-calibration is used.}
+calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
 features (or False Discovery Proportion, FDP) for constrained calibration
 by error control. With \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used.}
+unconstrained calibration is used (the default).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
-the level of sparsity in the underlying algorithm.}
+the level of sparsity in the underlying algorithm. Only used if
+\code{Lambda=NULL}.}
 
 \item{lambda_max}{optional maximum value for the grid in penalty parameters.
 If \code{lambda_max=NULL}, the maximum value is set to the maximum

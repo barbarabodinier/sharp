@@ -23,7 +23,7 @@ columns.}
 
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
-with character/numeric values, or a factor.}
+with character/numeric values or a factor.}
 
 \item{stability}{output of \code{\link{VariableSelection}}. With
 \code{stability=NULL} (the default), a model including all variables in

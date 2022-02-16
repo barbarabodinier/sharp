@@ -157,17 +157,19 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
   seed <- 1 # To keep to allow for reproducible parallelisation
   pi_list <- 0.75 # only used for screening
   verbose <- TRUE
+  tau_safecopy=tau # to allow for a tau of 1 for grid definition (e.g. use with glasso without stability)
 
   # Need to run to define some of the objects
   CheckInputGraphical(
     xdata = xdata, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
-    pi_list = pi_list, K = K, tau = tau, seed = seed, n_cat = n_cat,
+    pi_list = pi_list, K = K, tau = 0.5, seed = seed, n_cat = n_cat,
     implementation = implementation, start = start, scale = scale,
     resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
     Lambda_cardinal = Lambda_cardinal,
     lambda_max = lambda_max, lambda_path_factor = lambda_path_factor, max_density = max_density,
     verbose = verbose
   )
+  tau=tau_safecopy
   rm(Lambda)
 
   # Preparing lambda_dense
