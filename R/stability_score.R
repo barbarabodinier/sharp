@@ -20,9 +20,9 @@
 #'   features can be expressed as:
 #'
 #'   \eqn{L_{\lambda, \pi} = \prod_{j=1}^N [ P( H_{\lambda} (j) \geq K
-#'   \pi)^{1_{H_{\lambda} (j) \ge K \pi}} x P( (1-\pi) K < H_{\lambda} (j) < K
-#'   \pi )^{1_{ (1-\pi) K < H_{\lambda} (j) < K \pi }} x P( H_{\lambda} (j) \leq
-#'   K (1-\pi) )^{1_{ H_{\lambda} (j) \le K (1-\pi) }} ]}
+#'   \pi)^{1_{H_{\lambda} (j) \ge K \pi}} \times P( (1-\pi) K < H_{\lambda} (j)
+#'   < K \pi )^{1_{ (1-\pi) K < H_{\lambda} (j) < K \pi }} \times P( H_{\lambda}
+#'   (j) \leq K (1-\pi) )^{1_{ H_{\lambda} (j) \le K (1-\pi) }} ]}
 #'
 #'   where \eqn{H_{\lambda} (j)} is the selection count of feature \eqn{j}.
 #'

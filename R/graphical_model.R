@@ -16,11 +16,10 @@
 #'   selection is performed.
 #' @param Lambda matrix of parameters controlling the level of sparsity in the
 #'   underlying feature selection algorithm specified in \code{implementation}.
-#'   If \code{implementation=PenalisedGraphical}, \code{Lambda} contains penalty
-#'   parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
-#'   used to define a relevant grid. \code{Lambda} can be provided as a vector
-#'   or a matrix with \code{length(pk)} columns. If \code{implementation} is not
-#'   set to \code{PenalisedGraphical}, \code{Lambda} must be provided.
+#'   If \code{Lambda=NULL} and \code{implementation=PenalisedGraphical},
+#'   \code{\link{LambdaGridGraphical}} is used to define a relevant grid.
+#'   \code{Lambda} can be provided as a vector or a matrix with
+#'   \code{length(pk)} columns.
 #' @param lambda_other_blocks optional vector of parameters controlling the
 #'   level of sparsity in neighbour blocks for the multi-block procedure. To use
 #'   jointly a specific set of parameters for each block,
@@ -29,9 +28,8 @@
 #' @param implementation function to use for graphical modelling. If
 #'   \code{implementation=PenalisedGraphical}, the algorithm implemented in
 #'   \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
-#'   a conditional independence graph. Alternatively, a function taking
-#'   \code{xdata} and \code{Lambda} as arguments and returning a binary and
-#'   symmetric matrix for which diagonal elements are equal to zero can be used.
+#'   a conditional independence graph. Alternatively, a user-defined function
+#'   can be provided.
 #' @param start character string indicating if the algorithm should be
 #'   initialised at the estimated (inverse) covariance with previous penalty
 #'   parameters (\code{start="warm"}) or not (\code{start="cold"}). Using
@@ -62,11 +60,11 @@
 #'   selection model is controlled by the sparsity parameter(s) for the
 #'   underlying algorithm, and the threshold in selection proportion:
 #'
-#'   \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
-#'   
+#'   \eqn{V_{\lambda, \pi} = \{ j: p_{\lambda}(j) \ge \pi \} }
+#'
 #'   These parameters can be calibrated by maximisation of a stability score
-#'   derived from the likelihood under the assumption of uniform (uninformative)
-#'   selection:
+#'   (see \code{\link{StabilityScore}}) derived from the likelihood under the
+#'   assumption of uniform (uninformative) selection:
 #'
 #'   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
 #'

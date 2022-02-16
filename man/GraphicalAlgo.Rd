@@ -25,11 +25,10 @@ selection is performed.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-If \code{implementation=PenalisedGraphical}, \code{Lambda} contains penalty
-parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
-used to define a relevant grid. \code{Lambda} can be provided as a vector
-or a matrix with \code{length(pk)} columns. If \code{implementation} is not
-set to \code{PenalisedGraphical}, \code{Lambda} must be provided.}
+If \code{Lambda=NULL} and \code{implementation=PenalisedGraphical},
+\code{\link{LambdaGridGraphical}} is used to define a relevant grid.
+\code{Lambda} can be provided as a vector or a matrix with
+\code{length(pk)} columns.}
 
 \item{Sequential_template}{logical matrix encoding the type of procedure to
 use for data with multiple blocks in stability selection graphical
@@ -48,9 +47,8 @@ used in the function provided in \code{implementation}.}
 \item{implementation}{function to use for graphical modelling. If
 \code{implementation=PenalisedGraphical}, the algorithm implemented in
 \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
-a conditional independence graph. Alternatively, a function taking
-\code{xdata} and \code{Lambda} as arguments and returning a binary and
-symmetric matrix for which diagonal elements are equal to zero can be used.}
+a conditional independence graph. Alternatively, a user-defined function
+can be provided.}
 
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty

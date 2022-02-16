@@ -10,8 +10,7 @@ Split(data, family = NULL, tau = c(0.5, 0.25, 0.25))
 \item{data}{vector or matrix of data. In regression, this should be the
 outcome data.}
 
-\item{family}{type of regression model. If
-\code{implementation=PenalisedRegression}, this argument is defined as in
+\item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
 (linear regression), \code{"binomial"} (logistic regression),
 \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival

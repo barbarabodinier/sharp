@@ -201,7 +201,7 @@ In stability selection, a feature selection algorithm is fitted on
   \eqn{\lambda}) for the underlying algorithm, and the threshold in selection
   proportion:
 
-  \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
+  \eqn{V_{\lambda, \pi} = \{ j: p_{\lambda}(j) \ge \pi \} }
 
   For sparse and sparse group dimensionality reduction, "feature" refers to
   variable (variable selection model). For group PLS, "feature" refers to
@@ -210,8 +210,8 @@ In stability selection, a feature selection algorithm is fitted on
   \code{group_y}.
 
   These parameters can be calibrated by maximisation of a stability score
-  derived from the likelihood under the assumption of uniform (uninformative)
-  selection:
+  (see \code{\link{StabilityScore}}) derived from the likelihood under the
+  assumption of uniform (uninformative) selection:
 
   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
 

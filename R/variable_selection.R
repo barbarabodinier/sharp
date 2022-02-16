@@ -27,20 +27,15 @@
 #'   ensure reproducibility of the results (see \code{\link[base]{set.seed}}).
 #' @param n_cat number of categories used to compute the stability score.
 #'   Possible values are 2 or 3.
-#' @param family type of regression model. If
-#'   \code{implementation=PenalisedRegression}, this argument is defined as in
+#' @param family type of regression model. This argument is defined as in
 #'   \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
 #'   (linear regression), \code{"binomial"} (logistic regression),
 #'   \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
 #'   analysis).
-#' @param implementation function to use for variable selection. By default,
-#'   \code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
-#'   for regularised regression. Other readily implemented functions are:
-#'   \code{SparsePLS}, \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively,
-#'   a function with arguments \code{xdata}, \code{ydata}, \code{Lambda},
-#'   \code{family} and \code{...}, and returning a list of two matrices named
-#'   \code{selected} and \code{beta_full} of the correct dimensions can be used
-#'   (see example below for the group LASSO).
+#' @param implementation function to use for variable selection. Possible
+#'   functions are: \code{PenalisedRegression}, \code{SparsePLS},
+#'   \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a user-defined
+#'   function can be provided.
 #' @param resampling resampling approach. Possible values are:
 #'   \code{"subsampling"} for sampling without replacement of a proportion
 #'   \code{tau} of the observations, or \code{"bootstrap"} for sampling with
@@ -96,7 +91,7 @@
 #'   selection model is controlled by the sparsity parameter(s) for the
 #'   underlying algorithm, and the threshold in selection proportion:
 #'
-#'   \eqn{V_{\lambda, \pi} = {j: p_{\lambda}(j) \ge \pi}}
+#'   \eqn{V_{\lambda, \pi} = \{ j: p_{\lambda}(j) \ge \pi \} }
 #'
 #'   If argument \code{group_penalisation=FALSE}, "feature" refers to variable
 #'   (variable selection model). If argument \code{group_penalisation=TRUE},

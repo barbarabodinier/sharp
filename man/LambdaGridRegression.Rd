@@ -30,8 +30,7 @@ with character/numeric values or a factor.}
 \item{seed}{value of the seed to initialise the random number generator and
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
-\item{family}{type of regression model. If
-\code{implementation=PenalisedRegression}, this argument is defined as in
+\item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
 (linear regression), \code{"binomial"} (logistic regression),
 \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival

@@ -52,9 +52,8 @@ Possible values are 2 or 3.}
 \item{implementation}{function to use for graphical modelling. If
 \code{implementation=PenalisedGraphical}, the algorithm implemented in
 \code{\link[glassoFast]{glassoFast}} is used for regularised estimation of
-a conditional independence graph. Alternatively, a function taking
-\code{xdata} and \code{Lambda} as arguments and returning a binary and
-symmetric matrix for which diagonal elements are equal to zero can be used.}
+a conditional independence graph. Alternatively, a user-defined function
+can be provided.}
 
 \item{start}{character string indicating if the algorithm should be
 initialised at the estimated (inverse) covariance with previous penalty

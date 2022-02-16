@@ -25,11 +25,10 @@ selection is performed.}
 
 \item{Lambda}{matrix of parameters controlling the level of sparsity in the
 underlying feature selection algorithm specified in \code{implementation}.
-If \code{implementation=PenalisedGraphical}, \code{Lambda} contains penalty
-parameters. If \code{Lambda=NULL}, \code{\link{LambdaGridGraphical}} is
-used to define a relevant grid. \code{Lambda} can be provided as a vector
-or a matrix with \code{length(pk)} columns. If \code{implementation} is not
-set to \code{PenalisedGraphical}, \code{Lambda} must be provided.}
+If \code{Lambda=NULL} and \code{implementation=PenalisedGraphical},
+\code{\link{LambdaGridGraphical}} is used to define a relevant grid.
+\code{Lambda} can be provided as a vector or a matrix with
+\code{length(pk)} columns.}
 
 \item{Sequential_template}{logical matrix encoding the type of procedure to
 use for data with multiple blocks in stability selection graphical

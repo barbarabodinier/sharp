@@ -34,21 +34,16 @@ argument indicates the number of variables in each group. Only used for
 models with group penalisation (e.g. \code{implementation=GroupPLS} or
 \code{implementation=SparseGroupPLS}).}
 
-\item{family}{type of regression model. If
-\code{implementation=PenalisedRegression}, this argument is defined as in
+\item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
 (linear regression), \code{"binomial"} (logistic regression),
 \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
 analysis).}
 
-\item{implementation}{function to use for variable selection. By default,
-\code{PenalisedRegression}, based on \code{\link[glmnet]{glmnet}}, is used
-for regularised regression. Other readily implemented functions are:
-\code{SparsePLS}, \code{GroupPLS} and \code{SparseGroupPLS}. Alternatively,
-a function with arguments \code{xdata}, \code{ydata}, \code{Lambda},
-\code{family} and \code{...}, and returning a list of two matrices named
-\code{selected} and \code{beta_full} of the correct dimensions can be used
-(see example below for the group LASSO).}
+\item{implementation}{function to use for variable selection. Possible
+functions are: \code{PenalisedRegression}, \code{SparsePLS},
+\code{GroupPLS} and \code{SparseGroupPLS}. Alternatively, a user-defined
+function can be provided.}
 
 \item{...}{additional parameters passed to the function provided in
 \code{implementation}.}
