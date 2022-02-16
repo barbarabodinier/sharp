@@ -1344,7 +1344,7 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
   names(colours) <- 1:resolution
 
   # Re-formatting matrix
-  mat <- mat[, ncol(mat):1]
+  mat <- mat[, ncol(mat):1, drop = FALSE]
   vect <- as.vector(mat)
 
   # Defining extreme values
