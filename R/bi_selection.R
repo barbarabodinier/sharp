@@ -91,47 +91,55 @@
 #'   can be run on \code{n_cores} cores. This relies on forking with
 #'   \code{\link[parallel]{mclapply}} (specific to Unix systems).
 #'
-#' @return A list with: \item{summary}{a matrix of the best stability scores and
-#'   corresponding parameters controlling the level of sparsity in the
-#'   underlying algorithm for different numbers of components. Possible columns
-#'   include: \code{comp} (component ID), \code{nx} (number of predictors to
-#'   include, parameter of the underlying algorithm), \code{alphax} (sparsity
-#'   within the predictor groups, parameter of the underlying algorithm),
-#'   \code{pix} (threshold in selection proportion for predictors), \code{ny}
-#'   (number of outcomes to include, parameter of the underlying algorithm),
-#'   \code{alphay} (sparsity within the outcome groups, parameter of the
-#'   underlying algorithm), \code{piy} (threshold in selection proportion for
-#'   outcomes), \code{S} (stability score). Columns that are not relevant to the
-#'   model are not reported. For example, \code{alpha_x} and \code{alpha_y} are
-#'   not used in sparse PLS models.} \item{summary_full}{a matrix of the
-#'   stability scores for the visited combinations of parameters. Values are
-#'   reported for the calibrated threshold(s) in selection proportions.}
+#' @return An object of class \code{bi_selection}. A list with: \item{summary}{a
+#'   matrix of the best stability scores and corresponding parameters
+#'   controlling the level of sparsity in the underlying algorithm for different
+#'   numbers of components. Possible columns include: \code{comp} (component
+#'   index), \code{nx} (number of predictors to include, parameter of the
+#'   underlying algorithm), \code{alphax} (sparsity within the predictor groups,
+#'   parameter of the underlying algorithm), \code{pix} (threshold in selection
+#'   proportion for predictors), \code{ny} (number of outcomes to include,
+#'   parameter of the underlying algorithm), \code{alphay} (sparsity within the
+#'   outcome groups, parameter of the underlying algorithm), \code{piy}
+#'   (threshold in selection proportion for outcomes), \code{S} (stability
+#'   score). Columns that are not relevant to the model are not reported (e.g.
+#'   \code{alpha_x} and \code{alpha_y} are not returned in sparse PLS models).}
+#'   \item{summary_full}{a matrix of the best stability scores for different
+#'   combinations of parameters controlling the sparsity and components.}
 #'   \item{selectedX}{a binary matrix encoding stably selected predictors.}
-#'   \item{selpropX}{a matrix with the calibrated selection proportions of
+#'   \item{selpropX}{a matrix of calibrated selection proportions for
 #'   predictors.} \item{selectedY}{a binary matrix encoding stably selected
-#'   outcomes.} \item{selpropY}{a matrix with the calibrated selection
-#'   proportions of outcomes.} \item{selected}{a binary matrix encoding stable
-#'   relationships between predictor and outcome variables.}
+#'   outcomes. Only returned for PLS models.} \item{selpropY}{a matrix of
+#'   calibrated selection proportions for outcomes. Only returned for PLS
+#'   models.} \item{selected}{a binary matrix encoding stable relationships
+#'   between predictor and outcome variables. Only returned for PLS models.}
 #'   \item{selectedX_full}{a binary matrix encoding stably selected predictors.}
-#'   \item{selpropX_full}{a matrix with the selection proportions of
-#'   predictors.} \item{selectedY_full}{a binary matrix encoding stably selected
-#'   outcomes.} \item{selpropY_full}{a matrix with the selection proportions of
-#'   outcomes.} \item{coefX}{an array of loadings coefficients for the
-#'   predictors (columns) over the fitted components (rows) and across the
-#'   \code{K} resampling iterations (along the third dimension).}
-#'   \item{coefY}{an array of loadings coefficients for the outcomes (columns)
-#'   over the fitted components (rows) and across the \code{K} resampling
-#'   iterations (along the third dimension). Only returned for supervised
-#'   approaches (PLS).} \item{method}{a list with \code{type="bi_selection"},
-#'   \code{implementation}, \code{family}, \code{resampling} and
-#'   \code{PFER_method} values used for the run.} \item{params}{a list of input
-#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
-#'   also included if \code{output_data=TRUE}.} The rows of \code{selectedX},
-#'   \code{selectedY}, \code{selpropX} and \code{selpropY} correspond to the
-#'   different combinations of parameters listed in \code{summary}. The rows of
-#'   \code{selectedX_full}, \code{selectedY_full}, \code{selpropX_full} and
-#'   \code{selpropY_full} correspond to the different combinations of parameters
-#'   listed in \code{summary_full}.
+#'   \item{selpropX_full}{a matrix of selection proportions for predictors.}
+#'   \item{selectedY_full}{a binary matrix encoding stably selected outcomes.
+#'   Only returned for PLS models.} \item{selpropY_full}{a matrix of selection
+#'   proportions for outcomes. Only returned for PLS models.} \item{coefX}{an
+#'   array of estimated loadings coefficients for the different components
+#'   (rows), for the predictors (columns), as obtained across the \code{K}
+#'   visited models (along the third dimension).} \item{coefY}{an array of
+#'   estimated loadings coefficients for the different components (rows), for
+#'   the outcomes (columns), as obtained across the \code{K} visited models
+#'   (along the third dimension). Only returned for PLS models.} \item{method}{a
+#'   list with \code{type="bi_selection"} and values used for arguments
+#'   \code{implementation}, \code{family}, \code{scale}, \code{resampling},
+#'   \code{cpss} and \code{PFER_method}.} \item{params}{a list with values used
+#'   for arguments \code{K}, \code{group_x}, \code{group_y}, \code{LambdaX},
+#'   \code{LambdaY}, \code{AlphaX}, \code{AlphaY}, \code{pi_list}, \code{tau},
+#'   \code{n_cat}, \code{pk}, \code{n} (number of observations),
+#'   \code{PFER_thr}, \code{FDP_thr} and \code{seed}. The datasets \code{xdata}
+#'   and \code{ydata} are also included if \code{output_data=TRUE}.} The rows of
+#'   \code{summary} and columns of \code{selectedX}, \code{selectedY},
+#'   \code{selpropX}, \code{selpropY}, \code{selected}, \code{coefX} and
+#'   \code{coefY} are ordered in the same way and correspond to components and
+#'   parameter values stored in \code{summary}. The rows of \code{summary_full}
+#'   and columns of \code{selectedX_full}, \code{selectedY_full},
+#'   \code{selpropX_full} and \code{selpropY_full} are ordered in the same way
+#'   and correspond to components and parameter values stored in
+#'   \code{summary_full}.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}},

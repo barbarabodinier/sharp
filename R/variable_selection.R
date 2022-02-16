@@ -139,37 +139,42 @@
 #'   parameters equal. The results can then be combined using
 #'   \code{\link{Combine}}.
 #'
-#' @return A list with: \item{S}{a matrix of the best stability scores for
+#' @return An object of class \code{variable_selection}. A list with: \item{S}{a
+#'   matrix of the best stability scores for different parameters controlling
+#'   the level of sparsity in the underlying algorithm.} \item{Lambda}{a matrix
+#'   of parameters controlling the level of sparsity in the underlying
+#'   algorithm.} \item{Q}{a matrix of the average number of selected features by
+#'   the underlying algorithm with different parameters controlling the level of
+#'   sparsity.} \item{Q_s}{a matrix of the calibrated number of stably selected
+#'   features with different parameters controlling the level of sparsity.}
+#'   \item{P}{a matrix of calibrated thresholds in selection proportions for
 #'   different parameters controlling the level of sparsity in the underlying
-#'   algorithm.} \item{Lambda}{a matrix of parameters controlling the level of
-#'   sparsity in the underlying algorithm.} \item{Q}{a matrix of the average
-#'   number of selected features by underlying algorithm with different
-#'   parameters controlling the level of sparsity.} \item{Q_s}{a matrix of the
-#'   calibrated number of stably selected features with different parameters
-#'   controlling the level of sparsity.} \item{P}{a matrix of calibrated
-#'   thresholds in selection proportions for different parameters controlling
-#'   the level of sparsity in the underlying algorithm.} \item{PFER}{a matrix of
-#'   the upper-bounds in PFER of calibrated stability selection models with
-#'   different parameters controlling the level of sparsity.} \item{FDP}{a
-#'   matrix of the upper-bounds in FDP of calibrated stability selection models
-#'   with different parameters controlling the level of sparsity.} \item{S_2d}{a
-#'   matrix of stability scores obtained with different combinations of
-#'   parameters. Columns correspond to different tresholds in selection
-#'   proportions.} \item{selprop}{a matrix of selection proportions. Columns
-#'   correspond to predictors from \code{xdata}.} \item{Beta}{an array of model
-#'   coefficients. Columns correspond to predictors from \code{xdata}. Indices
-#'   along the third dimension correspond to different resampling iterations.
-#'   With multivariate outcomes, indices along the fourth dimension correspond
-#'   to outcome-specific coefficients.} \item{method}{a list with
-#'   \code{type="variable_selection"}, \code{implementation}, \code{family},
-#'   \code{resampling} and \code{PFER_method} values used for the run.}
-#'   \item{params}{a list with \code{K}, \code{pi_list}, \code{tau},
-#'   \code{n_cat}, \code{pk}, \code{n} (number of observations),
-#'   \code{PFER_thr}, \code{FDP_thr} and \code{seed} values used for the run.
+#'   algorithm.} \item{PFER}{a matrix of upper-bounds in PFER of calibrated
+#'   stability selection models with different parameters controlling the level
+#'   of sparsity.} \item{FDP}{a matrix of upper-bounds in FDP of calibrated
+#'   stability selection models with different parameters controlling the level
+#'   of sparsity.} \item{S_2d}{a matrix of stability scores obtained with
+#'   different combinations of parameters. Columns correspond to different
+#'   thresholds in selection proportions.} \item{PFER_2d}{a matrix of
+#'   upper-bounds in FDP obtained with different combinations of parameters.
+#'   Columns correspond to different thresholds in selection proportions.}
+#'   \item{FDP_2d}{a matrix of upper-bounds in PFER obtained with different
+#'   combinations of parameters. Columns correspond to different thresholds in
+#'   selection proportions.} \item{selprop}{a matrix of selection proportions.
+#'   Columns correspond to predictors from \code{xdata}.} \item{Beta}{an array
+#'   of model coefficients. Columns correspond to predictors from \code{xdata}.
+#'   Indices along the third dimension correspond to different resampling
+#'   iterations. With multivariate outcomes, indices along the fourth dimension
+#'   correspond to outcome-specific coefficients.} \item{method}{a list with
+#'   \code{type="variable_selection"} and values used for arguments
+#'   \code{implementation}, \code{family}, \code{resampling}, \code{cpss} and
+#'   \code{PFER_method}.} \item{params}{a list with values used for arguments
+#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
+#'   (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}.
 #'   The datasets \code{xdata} and \code{ydata} are also included if
-#'   \code{output_data=TRUE}.} For all objects except those stored in
-#'   \code{methods} or \code{params}, rows correspond to parameter values stored
-#'   in the output \code{Lambda}.
+#'   \code{output_data=TRUE}.} For all matrices and arrays returned, the rows
+#'   are ordered in the same way and correspond to parameter values stored in
+#'   \code{Lambda}.
 #'
 #' @family stability selection functions
 #' @seealso \code{\link{Recalibrate}}, \code{\link{ExplanatoryPerformance}},
@@ -481,32 +486,37 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 #'   different parameters controlling the level of sparsity in the underlying
 #'   algorithm.} \item{Lambda}{a matrix of parameters controlling the level of
 #'   sparsity in the underlying algorithm.} \item{Q}{a matrix of the average
-#'   number of selected features by underlying algorithm with different
+#'   number of selected features by the underlying algorithm with different
 #'   parameters controlling the level of sparsity.} \item{Q_s}{a matrix of the
 #'   calibrated number of stably selected features with different parameters
 #'   controlling the level of sparsity.} \item{P}{a matrix of calibrated
 #'   thresholds in selection proportions for different parameters controlling
 #'   the level of sparsity in the underlying algorithm.} \item{PFER}{a matrix of
-#'   the upper-bounds in PFER of calibrated stability selection models with
+#'   upper-bounds in PFER of calibrated stability selection models with
 #'   different parameters controlling the level of sparsity.} \item{FDP}{a
-#'   matrix of the upper-bounds in FDP of calibrated stability selection models
-#'   with different parameters controlling the level of sparsity.} \item{S_2d}{a
+#'   matrix of upper-bounds in FDP of calibrated stability selection models with
+#'   different parameters controlling the level of sparsity.} \item{S_2d}{a
 #'   matrix of stability scores obtained with different combinations of
-#'   parameters. Columns correspond to different tresholds in selection
-#'   proportions.} \item{selprop}{a matrix of selection proportions. Columns
-#'   correspond to predictors from \code{xdata}.} \item{Beta}{an array of model
-#'   coefficients. Columns correspond to predictors from \code{xdata}. Indices
-#'   along the third dimension correspond to different resampling iterations.
-#'   With multivariate outcomes, indices along the fourth dimension correspond
-#'   to outcome-specific coefficients.} \item{method}{a list of
-#'   \code{implementation}, \code{family}, \code{resampling} and
-#'   \code{PFER_method} values used for the run.} \item{param}{a list of
-#'   \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
-#'   (number of observations), \code{PFER_thr}, \code{FDP_thr} and \code{seed}
-#'   values used for the run. The datasets \code{xdata} and \code{ydata} are
-#'   also included if \code{output_data=TRUE}.} For all objects except those
-#'   stored in \code{methods} or \code{params}, rows correspond to parameter
-#'   values stored in the output \code{Lambda}.
+#'   parameters. Columns correspond to different thresholds in selection
+#'   proportions.} \item{PFER_2d}{a matrix of upper-bounds in FDP obtained with
+#'   different combinations of parameters. Columns correspond to different
+#'   thresholds in selection proportions.} \item{FDP_2d}{a matrix of
+#'   upper-bounds in PFER obtained with different combinations of parameters.
+#'   Columns correspond to different thresholds in selection proportions.}
+#'   \item{selprop}{a matrix of selection proportions. Columns correspond to
+#'   predictors from \code{xdata}.} \item{Beta}{an array of model coefficients.
+#'   Columns correspond to predictors from \code{xdata}. Indices along the third
+#'   dimension correspond to different resampling iterations. With multivariate
+#'   outcomes, indices along the fourth dimension correspond to outcome-specific
+#'   coefficients.} \item{method}{a list with \code{type="variable_selection"}
+#'   and values used for arguments \code{implementation}, \code{family},
+#'   \code{resampling}, \code{cpss} and \code{PFER_method}.} \item{params}{a
+#'   list with values used for arguments \code{K}, \code{pi_list}, \code{tau},
+#'   \code{n_cat}, \code{pk}, \code{n} (number of observations),
+#'   \code{PFER_thr}, \code{FDP_thr} and \code{seed}. The datasets \code{xdata}
+#'   and \code{ydata} are also included if \code{output_data=TRUE}.} For all
+#'   matrices and arrays returned, the rows are ordered in the same way and
+#'   correspond to parameter values stored in \code{Lambda}.
 #'
 #' @keywords internal
 SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9, by = 0.01),

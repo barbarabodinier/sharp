@@ -149,46 +149,47 @@ printed.}
 \code{implementation} or \code{resampling}.}
 }
 \value{
-A list with: \item{S}{a matrix of the best (block-specific) stability
-  scores for different (sets of) parameters controlling the level of sparsity
-  in the underlying algorithm. } \item{Lambda}{a matrix of (block-specific)
-  parameters controlling the level of sparsity. } \item{Q}{a matrix of
-  average numbers of (block-specific) edges selected by the underlying
-  algorihm for different (sets of) parameters controlling the level of
-  sparsity.} \item{Q_s}{a matrix of calibrated numbers of (block-specific)
-  stable edges for different (sets of) parameters controlling the level of
-  sparsity in the underlying algorithm. } \item{P}{a matrix of calibrated
-  (block-specific) thresholds in selection proportions for different (sets
-  of) parameters controlling the level of sparsity in the underlying
-  algorithm. } \item{PFER}{a matrix of the (block-specific) upper-bounds in
-  PFER of calibrated stability selection models with different (sets of)
-  parameters controlling the level of sparsity in the underlying algorithm.}
-  \item{FDP}{a matrix of the (block-specific) upper-bounds in FDP of
-  calibrated stability selection models with different (sets of) parameters
+An object of class \code{graphical_model}. A list with: \item{S}{a
+  matrix of the best stability scores for different (sets of) parameters
   controlling the level of sparsity in the underlying algorithm.}
-  \item{S_2d}{an array of (block-specific) stability scores obtained with
-  different combinations of parameters. Columns correspond to different
-  thresholds in selection proportions. In multi-block stability selection,
-  indices along the third dimension correspond to different blocks.}
-  \item{PFER_2d}{an array of computed upper-bounds of PFER obtained with
-  different combinations of parameters. Columns correspond to different
-  thresholds in selection proportions. Only available for single-block
-  stability selection.} \item{FDP_2d}{an array of computed upper-bounds of
-  FDP obtained with different combinations of parameters. Columns correspond
-  to different thresholds in selection proportions. Only available for
-  single-block stability selection.} \item{selprop}{an array of selection
-  proportions. Rows and columns correspond to nodes in the graph. Indices
-  along the third dimension correspond to different (sets of) parameters
-  controlling the level of sparsity in the underlying algorithm.}
-  \item{sign}{a matrix of signs of Pearson's correlations estimated from
-  \code{xdata}.} \item{method}{a list with \code{type="graphical_model"},
-  \code{implementation}, \code{start}, \code{resampling} and
-  \code{PFER_method} values used for the run.} \item{params}{a list with
-  values of other objects used for the run.} For all objects except
-  \code{selprop}, \code{sign} and those stored in \code{methods} or
-  \code{params}, rows correspond to parameter values stored in the output
-  \code{Lambda}. In multi-block stability selection, columns of these same
-  objects correspond to different blocks.
+  \item{Lambda}{a matrix of parameters controlling the level of sparsity in
+  the underlying algorithm.} \item{Q}{a matrix of the average number of
+  selected features by the underlying algorithm with different parameters
+  controlling the level of sparsity.} \item{Q_s}{a matrix of the calibrated
+  number of stably selected features with different parameters controlling
+  the level of sparsity.} \item{P}{a matrix of calibrated thresholds in
+  selection proportions for different parameters controlling the level of
+  sparsity in the underlying algorithm.} \item{PFER}{a matrix of upper-bounds
+  in PFER of calibrated stability selection models with different parameters
+  controlling the level of sparsity.} \item{FDP}{a matrix of upper-bounds in
+  FDP of calibrated stability selection models with different parameters
+  controlling the level of sparsity.} \item{S_2d}{a matrix of stability
+  scores obtained with different combinations of parameters. Columns
+  correspond to different thresholds in selection proportions.}
+  \item{PFER_2d}{a matrix of upper-bounds in FDP obtained with different
+  combinations of parameters. Columns correspond to different thresholds in
+  selection proportions. Only returned if \code{length(pk)=1}.}
+  \item{FDP_2d}{a matrix of upper-bounds in PFER obtained with different
+  combinations of parameters. Columns correspond to different thresholds in
+  selection proportions. Only returned if \code{length(pk)=1}.}
+  \item{selprop}{an array of selection proportions. Rows and columns
+  correspond to nodes in the graph. Indices along the third dimension
+  correspond to different parameters controlling the level of sparsity in the
+  underlying algorithm.} \item{sign}{a matrix of signs of Pearson's
+  correlations estimated from \code{xdata}.} \item{method}{a list with
+  \code{type="graphical_model"} and values used for arguments
+  \code{implementation}, \code{start}, \code{resampling}, \code{cpss} and
+  \code{PFER_method}.} \item{params}{a list with values used for arguments
+  \code{K}, \code{pi_list}, \code{tau}, \code{n_cat}, \code{pk}, \code{n}
+  (number of observations in \code{xdata}), \code{PFER_thr}, \code{FDP_thr},
+  \code{seed}, \code{lambda_other_blocks}, and \code{Sequential_template}.}
+  The rows of \code{S}, \code{Lambda}, \code{Q}, \code{Q_s}, \code{P},
+  \code{PFER}, \code{FDP}, \code{S_2d}, \code{PFER_2d} and \code{FDP_2d}, and
+  indices along the third dimension of \code{selprop} are ordered in the same
+  way and correspond to parameter values stored in \code{Lambda}. For
+  multi-block inference, the columns of \code{S}, \code{Lambda}, \code{Q},
+  \code{Q_s}, \code{P}, \code{PFER} and \code{FDP}, and indices along the
+  third dimension of \code{S_2d} correspond to the different blocks.
 }
 \description{
 Performs stability selection for graphical models. The underlying graphical
