@@ -845,10 +845,6 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #' par(mar = c(7, 5, 6, 6))
 #' CalibrationPlot(stab)
 #'
-#' # Calibration curve
-#' par(mar = c(7, 5, 6, 1))
-#' CalibrationPlot(stab, heatmap = FALSE)
-#'
 #' # User-defined colours
 #' par(mar = c(7, 5, 7, 6))
 #' CalibrationPlot(stab,
