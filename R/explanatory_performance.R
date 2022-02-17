@@ -139,8 +139,8 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' @param family type of regression model. Possible values include
 #'   \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
 #'   regression), \code{"multinomial"} (multinomial regression), and
-#'   \code{"cox"} (survival analysis). This argument must be consistent with
-#'   input \code{stability}, if provided.
+#'   \code{"cox"} (survival analysis). If provided, this argument must be
+#'   consistent with input \code{stability}.
 #' @param ... additional arguments to be passed to \code{\link[stats]{lm}}
 #'   (linear regression), \code{\link[survival]{coxph}} (Cox regression),
 #'   \code{\link[stats]{glm}} (logistic regression), or
@@ -154,8 +154,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   (\code{"binomial"} family).} \item{\code{\link[nnet]{multinom}}}{for
 #'   multinomial regression (\code{"multinomial"} family).}
 #'
-#' @seealso \code{\link{VariableSelection}},
-#'   \code{\link{ExplanatoryPerformance}}
+#' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -446,21 +445,23 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #' repeated \code{K} times (default \code{K=1}).
 #'
 #' @inheritParams Recalibrate
-#' @param K number of subsampling iterations.
+#' @param K number of training-test splits.
 #' @param tau proportion of observations used in the training set.
 #' @param seed value of the seed to ensure reproducibility of the results.
-#' @param n_thr number of thresholds to use to construct the ROC curve. For
-#'   faster computations on large data, values below \code{length(x)-1} can be
-#'   used. Only used for logistic regression.
+#' @param n_thr number of thresholds to use to construct the ROC curve. If
+#'   \code{n_thr=NULL}, all predicted probability values are iteratively used as
+#'   thresholds. For faster computations on large data, less thresholds can be
+#'   used. Only applicable to logistic regression.
 #' @param time numeric indicating the time for which the survival probabilities
-#'   are computed. Only used for Cox regression.
+#'   are computed. Only applicable to Cox regression.
 #' @param ij_method logical indicating if the analysis should be done for only
 #'   one recalibration/test split with variance of the concordance index should
 #'   be computed using the infinitesimal jackknife method as implemented in
 #'   \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 #'   default), the concordance indices computed for different recalibration/test
 #'   splits are reported. If \code{ij_method=TRUE}, the concordance index and
-#'   estimated confidence interval at level 0.05 are reported.
+#'   estimated confidence interval at level 0.05 are reported. Only applicable
+#'   to Cox regression.
 #'
 #' @details For a fair evaluation of the prediction performance, the data is
 #'   split into a training set (including a proportion \code{tau} of the
@@ -470,12 +471,16 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #'   outcomes.
 #'
 #'   For logistic regression, a Receiver Operating Characteristic (ROC) analysis
-#'   is performed: the True and False Positive Rates (TPR and FPR) are computed
-#'   for different thresholds in predicted probabilities.
+#'   is performed: the True and False Positive Rates (TPR and FPR), and Area
+#'   Under the Curve (AUC) are computed for different thresholds in predicted
+#'   probabilities.
 #'
 #'   For Cox regression, the Concordance Index (as implemented in
 #'   \code{\link[survival]{concordance}}) looking at survival probabilities up
 #'   to a specific \code{time} is computed.
+#'
+#'   For linear regression, the squared correlation between predicted and
+#'   observed outcome in the test set (Q-squared) is reported.
 #'
 #' @return A list with: \item{TPR}{True Positive Rate (for logistic regression
 #'   only).} \item{FPR}{False Positive Rate (for logistic regression only).}
@@ -773,11 +778,11 @@ ExplanatoryPerformance <- function(xdata, ydata,
 
 #' Incremental prediction performance in regression
 #'
-#' Computes the prediction performance for logistic or Cox regression models
-#' where predictors are sequentially added by order of decreasing selection
-#' proportion. This function can be used to evaluate the marginal contribution
-#' of each of the selected predictors over and above more stable predictors.
-#' Performances are evaluated as in \code{\link{ExplanatoryPerformance}}.
+#' Computes the prediction performance of regression models where predictors are
+#' sequentially added by order of decreasing selection proportion. This function
+#' can be used to evaluate the marginal contribution of each of the selected
+#' predictors over and above more stable predictors. Performances are evaluated
+#' as in \code{\link{ExplanatoryPerformance}}.
 #'
 #' @inheritParams ExplanatoryPerformance
 #' @param n_predictors number of predictors to consider.

@@ -31,7 +31,7 @@ PlotIncremental(
 
 \item{ylab}{label of the y-axis.}
 
-\item{pch}{type of point, as in \code{\link{points}}.}
+\item{pch}{type of point, as in \code{\link[graphics]{points}}.}
 
 \item{col}{vector of point colours.}
 
@@ -40,7 +40,7 @@ the colours provided in argument \code{col} are used.}
 
 \item{cex}{size of point.}
 
-\item{cex.lab}{size of label on the y-axis.}
+\item{cex.lab}{font size for labels.}
 
 \item{xcex.axis}{size of labels along the x-axis.}
 
@@ -54,15 +54,18 @@ the colours provided in argument \code{col} are used.}
 
 \item{sfrac}{size of the end bars, as in \code{\link[plotrix]{plotCI}}.}
 
-\item{ylim}{displayed range along the y-axis.}
+\item{ylim}{displayed range along the y-axis. Only used if \code{stability}
+is the output of \code{\link{BiSelection}}.}
 
 \item{bty}{character string indicating if the box around the plot should be
 drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \code{"n"} (no box).}
 
-\item{xgrid}{logical indicating if a vertical grid should be drawn.}
+\item{xgrid}{logical indicating if a vertical grid should be drawn. Only used
+if \code{stability} is the output of \code{\link{BiSelection}}.}
 
-\item{ygrid}{logical indicating if a horizontal grid should be drawn.}
+\item{ygrid}{logical indicating if a horizontal grid should be drawn. Only
+used if \code{stability} is the output of \code{\link{BiSelection}}.}
 }
 \value{
 A plot.

@@ -34,20 +34,21 @@ provided in this case.}
 \item{family}{type of regression model. Possible values include
 \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
 regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis). This argument must be consistent with
-input \code{stability}, if provided.}
+\code{"cox"} (survival analysis). If provided, this argument must be
+consistent with input \code{stability}.}
 
 \item{n_predictors}{number of predictors to consider.}
 
-\item{K}{number of subsampling iterations.}
+\item{K}{number of training-test splits.}
 
 \item{tau}{proportion of observations used in the training set.}
 
 \item{seed}{value of the seed to ensure reproducibility of the results.}
 
-\item{n_thr}{number of thresholds to use to construct the ROC curve. For
-faster computations on large data, values below \code{length(x)-1} can be
-used. Only used for logistic regression.}
+\item{n_thr}{number of thresholds to use to construct the ROC curve. If
+\code{n_thr=NULL}, all predicted probability values are iteratively used as
+thresholds. For faster computations on large data, less thresholds can be
+used. Only applicable to logistic regression.}
 
 \item{ij_method}{logical indicating if the analysis should be done for only
 one recalibration/test split with variance of the concordance index should
@@ -55,10 +56,11 @@ be computed using the infinitesimal jackknife method as implemented in
 \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 default), the concordance indices computed for different recalibration/test
 splits are reported. If \code{ij_method=TRUE}, the concordance index and
-estimated confidence interval at level 0.05 are reported.}
+estimated confidence interval at level 0.05 are reported. Only applicable
+to Cox regression.}
 
 \item{time}{numeric indicating the time for which the survival probabilities
-are computed. Only used for Cox regression.}
+are computed. Only applicable to Cox regression.}
 }
 \value{
 For logistic regression, a list with: \item{FPR}{A list with, for
@@ -85,11 +87,11 @@ For logistic regression, a list with: \item{FPR}{A list with, for
   inclusion.}
 }
 \description{
-Computes the prediction performance for logistic or Cox regression models
-where predictors are sequentially added by order of decreasing selection
-proportion. This function can be used to evaluate the marginal contribution
-of each of the selected predictors over and above more stable predictors.
-Performances are evaluated as in \code{\link{ExplanatoryPerformance}}.
+Computes the prediction performance of regression models where predictors are
+sequentially added by order of decreasing selection proportion. This function
+can be used to evaluate the marginal contribution of each of the selected
+predictors over and above more stable predictors. Performances are evaluated
+as in \code{\link{ExplanatoryPerformance}}.
 }
 \examples{
 \dontrun{

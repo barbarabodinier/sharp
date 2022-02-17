@@ -10,15 +10,15 @@ Adjacency(stability, argmax_id = NULL)
 \item{stability}{output of \code{\link{GraphicalModel}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated adjacency matrix is returned.}
+the calibrated model is used.}
 }
 \value{
 A binary and symmetric adjacency matrix encoding an undirected graph
   with no self-loops.
 }
 \description{
-Builds the adjacency matrix of the (calibrated) stability selection graphical
-model.
+Extracts the adjacency matrix of the (calibrated) stability selection
+graphical model.
 }
 \examples{
 \dontrun{

@@ -9,20 +9,19 @@ CLARAClustering(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...)
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
-\item{nc}{matrix of parameters controlling the number of clusters in the
-underlying algorithm specified in \code{implementation}. If \code{nc} is
-not provided, it is set to \code{seq(1, nrow(xdata))}.}
+\item{nc}{matrix of parameters controlling the number of clusters. If
+\code{nc} is not provided, it is set to \code{seq(1, nrow(xdata))}.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
 
-\item{rows}{logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
-should be inferred.}
+\item{rows}{logical indicating if clusters of rows (\code{TRUE}) or columns
+(\code{FALSE}) should be inferred.}
 
 \item{...}{additional parameters passed to \code{\link[cluster]{clara}}.}
 }
 \value{
-An array with binary and symmetric co-membership matrices.
+An array of binary and symmetric co-membership matrices.
 }
 \description{
 Runs Clustering Large Applications (CLARA) algorithm using implementation

@@ -14,24 +14,18 @@ or \code{\link{GraphicalModel}}.}
 or \code{\link{GraphicalModel}}.}
 
 \item{include_beta}{logical indicating if the beta coefficients of visited
-models should be concatenated.}
+models should be concatenated. Only applicable to variable selection.}
 }
 \value{
 A single output of the same format.
 }
 \description{
 Merges the outputs from \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}. This function can be used for parallelisation.
-}
-\details{
-The two runs must have been done using the same data, the same grids
-  of parameters, the same methods (arguments \code{implementation},
-  \code{resampling}, \code{PFER_method}, as well as \code{start} for
-  graphical models), the same \code{tau} and \code{pk} (graphical models
-  only), and the same thresholds in PFER and FDP, but with different seeds.
-  The combined output will be the equivalent of running the model for which
-  the number of iterations is the sum of the number of iterations used for
-  \code{stability1} and \code{stability2}.
+\code{\link{GraphicalModel}}. The two runs must have been done using the same
+\code{methods} and the same \code{params} but with different \code{seed}s.
+The combined output will contain results based on iterations from both
+\code{stability1} and \code{stability2}. This function can be used for
+parallelisation.
 }
 \examples{
 \dontrun{

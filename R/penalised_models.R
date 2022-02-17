@@ -149,14 +149,14 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 }
 
 
-#' GGM estimation algorithm
+#' Graphical LASSO
 #'
-#' Runs the algorithm for estimation of a Gaussian Graphical Model (GGM)
-#' specified in the argument \code{implementation} and returns the estimated
-#' adjacency matrix. This function is not using stability.
+#' Runs the graphical LASSO algorithm for estimation of a Gaussian Graphical
+#' Model (GGM). This function is not using stability.
 #'
 #' @inheritParams GraphicalModel
 #' @param xdata matrix with observations as rows and variables as columns.
+#' @param Lambda matrix of parameters controlling the level of sparsity.
 #' @param Sequential_template logical matrix encoding the type of procedure to
 #'   use for data with multiple blocks in stability selection graphical
 #'   modelling. For multi-block estimation, the stability selection model is

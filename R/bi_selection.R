@@ -17,7 +17,8 @@
 #'   \code{SparseGroupPLS}.
 #' @param group_y optional vector encoding the grouping structure among
 #'   outcomes. This argument indicates the number of variables in each group.
-#'   Only applicable to \code{implementation=SparseGroupPLS}.
+#'   Only used if \code{implementation=GroupPLS} or
+#'   \code{implementation=SparseGroupPLS}.
 #' @param LambdaX matrix of parameters controlling the number of selected
 #'   variables (for sparse PCA/PLS) or groups (for group and sparse group PLS)
 #'   in X.
@@ -25,11 +26,10 @@
 #'   variables (for sparse PLS) or groups (for group or sparse group PLS) in Y.
 #'   Only used if \code{family="gaussian"}.
 #' @param AlphaX matrix of parameters controlling the level of sparsity within
-#'   groups (sparse group PLS) in X. Only used if
-#'   \code{implementation=SparseGroupPLS}.
+#'   groups in X. Only used if \code{implementation=SparseGroupPLS}.
 #' @param AlphaY matrix of parameters controlling the level of sparsity within
-#'   groups (sparse group PLS) in X. Only used if
-#'   \code{implementation=SparseGroupPLS} and \code{family="gaussian"}.
+#'   groups in X. Only used if \code{implementation=SparseGroupPLS} and
+#'   \code{family="gaussian"}.
 #' @param ncomp number of components.
 #' @param scale logical indicating if the data should be scaled (i.e.
 #'   transformed so that all variables have a standard deviation of one).
@@ -85,7 +85,7 @@
 #'   in all subsamples or bootstrap samples are the same as in the full sample.
 #'
 #'   To ensure reproducibility of the results, the starting number of the random
-#'   number generator is fixed to \code{seed}.
+#'   number generator is set to \code{seed}.
 #'
 #'   For parallelisation, stability selection with different sets of parameters
 #'   can be run on \code{n_cores} cores. This relies on forking with
@@ -103,7 +103,7 @@
 #'   outcome groups, parameter of the underlying algorithm), \code{piy}
 #'   (threshold in selection proportion for outcomes), \code{S} (stability
 #'   score). Columns that are not relevant to the model are not reported (e.g.
-#'   \code{alpha_x} and \code{alpha_y} are not returned in sparse PLS models).}
+#'   \code{alpha_x} and \code{alpha_y} are not returned for sparse PLS models).}
 #'   \item{summary_full}{a matrix of the best stability scores for different
 #'   combinations of parameters controlling the sparsity and components.}
 #'   \item{selectedX}{a binary matrix encoding stably selected predictors.}
@@ -142,11 +142,18 @@
 #'   \code{summary_full}.
 #'
 #' @family stability selection functions
-#' @seealso \code{\link{SparsePLS}}, \code{\link{GroupPLS}},
-#'   \code{\link{SparseGroupPLS}}, \code{\link{Resample}},
+#' @seealso \code{\link{SparsePCA}}, \code{\link{SparsePLS}},
+#'   \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}},
+#'   \code{\link{VariableSelection}}, \code{\link{Resample}},
 #'   \code{\link{StabilityScore}}
 #'
-#' @references \insertRef{sparsegroupPLS}{focus}
+#' @references \insertRef{ourstabilityselection}{focus}
+#'
+#'   \insertRef{stabilityselectionSS}{focus}
+#'
+#'   \insertRef{stabilityselectionMB}{focus}
+#'
+#'   \insertRef{sparsegroupPLS}{focus}
 #'
 #'   \insertRef{sparsePLS}{focus}
 #'
@@ -154,11 +161,6 @@
 #'
 #'   \insertRef{sparsePCASVD}{focus}
 #'
-#'   \insertRef{stabilityselectionMB}{focus}
-#'
-#'   \insertRef{stabilityselectionSS}{focus}
-#'
-#'   \insertRef{ourstabilityselection}{focus}
 #'
 #' @examples
 #' \dontshow{

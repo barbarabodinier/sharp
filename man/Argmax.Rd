@@ -7,15 +7,18 @@
 Argmax(stability)
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}.}
+\item{stability}{output of \code{\link{VariableSelection}},
+\code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.}
 }
 \value{
-A matrix of parameter values. The first column (\code{lambda}])
-  denotes the calibrated hyper-parameter of the underlying algorithm. The
-  second column (\code{pi}) is the calibrated threshold in
-  selection/co-membership proportions. In multi-block graphical modelling,
-  rows correspond to different blocks.
+A matrix of parameter values. If applied to the output of
+  \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}, the first
+  column (\code{lambda}) denotes the calibrated hyper-parameter of the
+  underlying algorithm. The second column (\code{pi}) is the calibrated
+  threshold in selection/co-membership proportions. For multi-block graphical
+  models, rows correspond to different blocks. If applied to the output of
+  \code{\link{BiSelection}}, all columns are named as in object
+  \code{summary}.
 }
 \description{
 Extracts calibrated parameter values in stability selection.
@@ -33,12 +36,13 @@ simul <- SimulateGraphical(pk = 20)
 stab <- GraphicalModel(xdata = simul$data)
 
 # Extracting calibrated parameters
-args <- Argmax(stab)
+Argmax(stab)
 }
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
+  \code{\link{BiSelection}}
 
 Other calibration functions: 
 \code{\link{Adjacency}()},

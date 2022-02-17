@@ -16,3 +16,13 @@ A symmetric and binary matrix.
 Generates a symmetric and binary matrix indicating if a pair of features
 belongs to the same cluster.
 }
+\examples{
+\dontrun{
+# Simulated grouping structure
+mygroups <- c(rep(1, 3), rep(2, 5), rep(3, 2))
+
+# Co-membership matrix
+CoMembership(mygroups)
+}
+
+}

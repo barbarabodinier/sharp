@@ -10,7 +10,7 @@ SelectionProportionsRegression(stability, argmax_id = NULL)
 \item{stability}{output of \code{\link{VariableSelection}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated adjacency matrix is returned.}
+the calibrated model is used.}
 }
 \value{
 A vector of selection proportions.

@@ -66,9 +66,8 @@ An array with binary and symmetric adjacency matrices along the third
   dimension.
 }
 \description{
-Runs the algorithm for estimation of an undirected graph with no self-loops
-specified in the argument \code{implementation} and returns the estimated
-adjacency matrix. This function is not using stability.
+Runs the algorithm specified in the argument \code{implementation} and
+returns the estimated adjacency matrix. This function is not using stability.
 }
 \details{
 The use of the procedure from Equation (4) or (5) is controlled by
@@ -100,11 +99,9 @@ myglasso <- GraphicalAlgo(
 }
 }
 \seealso{
-\code{\link{GraphicalModel}}
+\code{\link{GraphicalModel}}, \code{\link{PenalisedGraphical}}
 
-Other underlying algorithm functions: 
-\code{\link{PenalisedGraphical}()},
-\code{\link{PenalisedRegression}()},
+Other wrapping functions: 
 \code{\link{SelectionAlgo}()}
 }
-\concept{underlying algorithm functions}
+\concept{wrapping functions}

@@ -55,8 +55,7 @@ A list with: \item{selected}{matrix of binary selection status. Rows
 }
 \description{
 Runs the variable selection algorithm specified in the argument
-\code{implementation} and returns matrices of model coefficients. This
-function is not using stability.
+\code{implementation}. This function is not using stability.
 }
 \examples{
 \dontrun{
@@ -85,11 +84,11 @@ str(mylasso)
 
 }
 \seealso{
-\code{\link{VariableSelection}}
+\code{\link{VariableSelection}}, \code{\link{PenalisedRegression}},
+  \code{\link{SparsePCA}}, \code{\link{SparsePLS}}, \code{\link{GroupPLS}},
+  \code{\link{SparseGroupPLS}}
 
-Other underlying algorithm functions: 
-\code{\link{GraphicalAlgo}()},
-\code{\link{PenalisedGraphical}()},
-\code{\link{PenalisedRegression}()}
+Other wrapping functions: 
+\code{\link{GraphicalAlgo}()}
 }
-\concept{underlying algorithm functions}
+\concept{wrapping functions}

@@ -1,8 +1,7 @@
 #' Variable selection algorithm
 #'
 #' Runs the variable selection algorithm specified in the argument
-#' \code{implementation} and returns matrices of model coefficients. This
-#' function is not using stability.
+#' \code{implementation}. This function is not using stability.
 #'
 #' @inheritParams VariableSelection
 #' @param ... additional parameters passed to the function provided in
@@ -14,8 +13,10 @@
 #'   to different model parameters. Columns correspond to predictors. Indices
 #'   along the third dimension correspond to outcome variable(s).}
 #'
-#' @family underlying algorithm functions
-#' @seealso \code{\link{VariableSelection}}
+#' @family wrapping functions
+#' @seealso \code{\link{VariableSelection}}, \code{\link{PenalisedRegression}},
+#'   \code{\link{SparsePCA}}, \code{\link{SparsePLS}}, \code{\link{GroupPLS}},
+#'   \code{\link{SparseGroupPLS}}
 #'
 #' @examples
 #' \dontrun{
@@ -86,9 +87,8 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 
 #' Graphical model algorithm
 #'
-#' Runs the algorithm for estimation of an undirected graph with no self-loops
-#' specified in the argument \code{implementation} and returns the estimated
-#' adjacency matrix. This function is not using stability.
+#' Runs the algorithm specified in the argument \code{implementation} and
+#' returns the estimated adjacency matrix. This function is not using stability.
 #'
 #' @inheritParams GraphicalModel
 #' @param xdata matrix with observations as rows and variables as columns.
@@ -105,8 +105,8 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #' @return An array with binary and symmetric adjacency matrices along the third
 #'   dimension.
 #'
-#' @family underlying algorithm functions
-#' @seealso \code{\link{GraphicalModel}}
+#' @family wrapping functions
+#' @seealso \code{\link{GraphicalModel}}, \code{\link{PenalisedGraphical}}
 #'
 #' @details The use of the procedure from Equation (4) or (5) is controlled by
 #'   the argument "Sequential_template".

@@ -10,22 +10,17 @@ SelectionPerformanceGraph(
   colours = c("tomato", "forestgreen", "navy"),
   lty = c(2, 3, 1),
   node_colour = NULL,
-  plot = FALSE,
   show_labels = TRUE,
-  filename = NULL,
-  fileformat = "pdf",
-  res = 500,
-  width = 7,
-  height = 7,
-  units = "in",
   ...
 )
 }
 \arguments{
-\item{theta}{binary adjacency matrix or output from \code{GraphicalModel}.}
+\item{theta}{binary adjacency matrix or output of
+\code{\link{GraphicalModel}}, \code{\link{VariableSelection}}, or
+\code{\link{BiSelection}}.}
 
-\item{theta_star}{true binary adjacency matrix or output from
-\code{SimulateGraphical}.}
+\item{theta_star}{true binary adjacency matrix or output of
+\code{\link{SimulateGraphical}} or \code{\link{SimulateRegression}}.}
 
 \item{colours}{vector of edge colours. The first entry of the vector defines
 the colour of False Positive edges, second entry is for True Negatives and
@@ -40,39 +35,15 @@ as many entries as there are rows/columns in the adjacency matrix and must
 be in the same order (the order is used to assign colours to nodes).
 Integers, named colours or RGB values can be used.}
 
-\item{plot}{logical indicating if the generated graph should be plotted.}
-
 \item{show_labels}{logical indicating if the node labels should be displayed.}
-
-\item{filename}{file path to saved figure. If \code{filename=NULL}, the plot
-is not saved.}
-
-\item{fileformat}{format of the saved figure. Possible values are
-\code{"pdf"} or \code{"png"}. Only used if argument \code{filename} is
-provided.}
-
-\item{res}{resolution of the png figure (see \code{\link[grDevices]{png}}).
-Only used if argument \code{filename} is provided and
-\code{fileformat="png"}.}
-
-\item{width}{width of the saved figure. Only used if argument \code{filename}
-is provided.}
-
-\item{height}{height of the saved figure. Only used if argument
-\code{filename} is provided.}
-
-\item{units}{units of width and height. Possible values are \code{"px"},
-\code{"in"}, \code{"cm"} and \code{"mm"} (see
-\code{\link[grDevices]{png}}). Only used if argument \code{filename} is
-provided and \code{fileformat="png"}.}
 
 \item{...}{additional arguments to be passed to \code{\link{Graph}}.}
 }
 \description{
 Generates an igraph object representing the True Positive, False Positive and
 False Negative edges by comparing the set of selected edges to the set of
-true edges. This function only applies to graphical models and can only be
-used in simulation studies (i.e. when the true model is known).
+true edges. This function can only be used in simulation studies (i.e. when
+the true model is known).
 }
 \examples{
 \dontrun{
@@ -87,25 +58,29 @@ stab <- GraphicalModel(xdata = simul$data, K = 10)
 # Performance graph
 perfgraph <- SelectionPerformanceGraph(
   theta = stab,
-  theta_star = simul, plot = TRUE
+  theta_star = simul
 )
+plot(perfgraph)
 
 # Alternative formulation
 perfgraph <- SelectionPerformanceGraph(
   theta = Adjacency(stab),
-  theta_star = simul$theta, plot = TRUE
+  theta_star = simul$theta
 )
+plot(perfgraph)
 
 # User-defined colours/shapes
 perfgraph <- SelectionPerformanceGraph(
-  theta = stab, theta_star = simul, plot = TRUE,
+  theta = stab, theta_star = simul,
   colours = c("forestgreen", "orange", "black"),
   node_colour = "red", node_shape = "star"
 )
+plot(perfgraph)
 perfgraph <- SelectionPerformanceGraph(
-  theta = stab, theta_star = simul, plot = TRUE,
+  theta = stab, theta_star = simul,
   colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
 )
+plot(perfgraph)
 
 # Using and re-formatting igraph object
 require(igraph)
@@ -117,7 +92,8 @@ set.seed(1)
 simul <- SimulateRegression(pk = 30)
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
+perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
+plot(perf_graph)
 
 # Sparse PLS model
 set.seed(1)
@@ -131,15 +107,18 @@ stab <- BiSelection(
   n_cat = 2
 )
 perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
+perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
+plot(perf_graph)
 }
 
 }
 \seealso{
-\code{\link{GraphicalModel}}, \code{\link{Graph}}
+\code{\link{SimulateGraphical}}, \code{\link{SimulateRegression}},
+  \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
+  \code{\link{BiSelection}}
 
-Other functions for evaluation of model performance: 
+Other functions for model performance: 
 \code{\link{ClusteringPerformance}()},
 \code{\link{SelectionPerformance}()}
 }
-\concept{functions for evaluation of model performance}
+\concept{functions for model performance}

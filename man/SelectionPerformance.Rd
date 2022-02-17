@@ -114,8 +114,8 @@ perf <- SelectionPerformance(
 
 }
 \seealso{
-Other functions for evaluation of model performance: 
+Other functions for model performance: 
 \code{\link{ClusteringPerformance}()},
 \code{\link{SelectionPerformanceGraph}()}
 }
-\concept{functions for evaluation of model performance}
+\concept{functions for model performance}

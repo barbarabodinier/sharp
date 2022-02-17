@@ -26,6 +26,15 @@ NAToNULL <- function(x) {
 #'
 #' @return A symmetric and binary matrix.
 #'
+#' @examples
+#' \dontrun{
+#' # Simulated grouping structure
+#' mygroups <- c(rep(1, 3), rep(2, 5), rep(3, 2))
+#'
+#' # Co-membership matrix
+#' CoMembership(mygroups)
+#' }
+#'
 #' @export
 CoMembership <- function(groups) {
   if (length(unique(groups)) > 1) {
@@ -54,6 +63,18 @@ CoMembership <- function(groups) {
 #'   columns).
 #'
 #' @return A symmetric adjacency matrix encoding a bipartite graph.
+#'
+#' @examples
+#' \dontrun{
+#' # Simulated links between two sets
+#' set.seed(1)
+#' mat <- matrix(sample(c(0, 1), size = 15, replace = TRUE),
+#'   nrow = 5, ncol = 3
+#' )
+#'
+#' # Adjacency matrix of a bipartite graph
+#' Square(mat)
+#' }
 #'
 #' @export
 Square <- function(x) {
@@ -84,6 +105,18 @@ Square <- function(x) {
 #' @param verbose logical indicating if messages should be printed.
 #'
 #' @return A single categorical variable (numeric).
+#'
+#' @examples
+#' \dontrun{
+#' # Simulated categorical variable
+#' cat <- c(rep(1, 3), rep(2, 5), rep(3, 2))
+#'
+#' # Dummy variables
+#' dummy <- as.matrix(model.matrix(~ as.factor(cat) - 1))
+#'
+#' # Back to categories
+#' DummyToCategories(dummy)
+#' }
 #'
 #' @export
 DummyToCategories <- function(x, verbose = FALSE) {

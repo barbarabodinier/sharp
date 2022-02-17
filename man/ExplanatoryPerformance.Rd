@@ -33,18 +33,19 @@ provided in this case.}
 \item{family}{type of regression model. Possible values include
 \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
 regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis). This argument must be consistent with
-input \code{stability}, if provided.}
+\code{"cox"} (survival analysis). If provided, this argument must be
+consistent with input \code{stability}.}
 
-\item{K}{number of subsampling iterations.}
+\item{K}{number of training-test splits.}
 
 \item{tau}{proportion of observations used in the training set.}
 
 \item{seed}{value of the seed to ensure reproducibility of the results.}
 
-\item{n_thr}{number of thresholds to use to construct the ROC curve. For
-faster computations on large data, values below \code{length(x)-1} can be
-used. Only used for logistic regression.}
+\item{n_thr}{number of thresholds to use to construct the ROC curve. If
+\code{n_thr=NULL}, all predicted probability values are iteratively used as
+thresholds. For faster computations on large data, less thresholds can be
+used. Only applicable to logistic regression.}
 
 \item{ij_method}{logical indicating if the analysis should be done for only
 one recalibration/test split with variance of the concordance index should
@@ -52,10 +53,11 @@ be computed using the infinitesimal jackknife method as implemented in
 \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 default), the concordance indices computed for different recalibration/test
 splits are reported. If \code{ij_method=TRUE}, the concordance index and
-estimated confidence interval at level 0.05 are reported.}
+estimated confidence interval at level 0.05 are reported. Only applicable
+to Cox regression.}
 
 \item{time}{numeric indicating the time for which the survival probabilities
-are computed. Only used for Cox regression.}
+are computed. Only applicable to Cox regression.}
 }
 \value{
 A list with: \item{TPR}{True Positive Rate (for logistic regression
@@ -88,12 +90,16 @@ For a fair evaluation of the prediction performance, the data is
   outcomes.
 
   For logistic regression, a Receiver Operating Characteristic (ROC) analysis
-  is performed: the True and False Positive Rates (TPR and FPR) are computed
-  for different thresholds in predicted probabilities.
+  is performed: the True and False Positive Rates (TPR and FPR), and Area
+  Under the Curve (AUC) are computed for different thresholds in predicted
+  probabilities.
 
   For Cox regression, the Concordance Index (as implemented in
   \code{\link[survival]{concordance}}) looking at survival probabilities up
   to a specific \code{time} is computed.
+
+  For linear regression, the squared correlation between predicted and
+  observed outcome in the test set (Q-squared) is reported.
 }
 \examples{
 \dontrun{

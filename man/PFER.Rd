@@ -22,7 +22,7 @@ number of False Positives (or Per Family Error Rate, PFER). If
 Samworth (2013) under the assumption of unimodality is used.}
 }
 \value{
-The PFER upper-bound.
+The estimated upper-bound in PFER.
 }
 \description{
 Computes the Per Family Error Rate upper-bound of a stability selection model

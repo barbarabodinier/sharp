@@ -2,7 +2,7 @@
 % Please edit documentation in R/calibration.R
 \name{AggregatedEffects}
 \alias{AggregatedEffects}
-\title{Average coefficients conditionally on selection}
+\title{Summarised coefficients conditionally on selection}
 \usage{
 AggregatedEffects(
   stability,
@@ -14,15 +14,16 @@ AggregatedEffects(
 )
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}}.}
+\item{stability}{output of \code{\link{VariableSelection}} or
+\code{\link{BiSelection}}.}
 
 \item{lambda_id}{parameter ID with respect to the grid \code{Lambda}. If
-\code{NULL}, average coefficients across the models run with the calibrated
-parameter are returned.}
+\code{NULL}, aggregated coefficients across the models run with the
+calibrated parameter are returned.}
 
-\item{side}{character string indicating if coefficients of the predictor
-(\code{side="X"}) or outcome (\code{side="Y"}) coefficients should be
-returned. Option \code{side="Y"} is only applicable to PLS models.}
+\item{side}{character string indicating if coefficients of predictors
+(\code{side="X"}) or outcomes (\code{side="Y"}) should be returned. Only
+applicable to PLS models.}
 
 \item{comp}{component ID. Only applicable to PLS models.}
 
@@ -33,13 +34,14 @@ resampling iterations. Recommended functions include
 \item{...}{additional arguments to be passed to \code{FUN}.}
 }
 \value{
-A matrix of average coefficients across resampling iterations.
+A matrix of summarised coefficients conditionally on selection across
+  resampling iterations. Missing values (\code{NA}) are returned for
+  variables that are never selected.
 }
 \description{
 Computes descriptive statistics (defined by \code{FUN}) for coefficients of
 the (calibrated) models conditionally on selection across resampling
-iterations. This function can be applied to the output of
-\code{\link{VariableSelection}}.
+iterations.
 }
 \examples{
 \dontrun{
@@ -84,5 +86,6 @@ dim(median_betas)
 }
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+\code{\link{VariableSelection}}, \code{\link{BiSelection}},
+  \code{\link{Recalibrate}}
 }

@@ -36,7 +36,7 @@
 #'   subsequent rows correspond to each of the blocks. The order of the blocks
 #'   is defined as in \code{\link{BlockStructure}}.
 #'
-#' @family functions for evaluation of model performance
+#' @family functions for model performance
 #'
 #' @examples
 #' \dontrun{
@@ -167,41 +167,29 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'
 #' Generates an igraph object representing the True Positive, False Positive and
 #' False Negative edges by comparing the set of selected edges to the set of
-#' true edges. This function only applies to graphical models and can only be
-#' used in simulation studies (i.e. when the true model is known).
+#' true edges. This function can only be used in simulation studies (i.e. when
+#' the true model is known).
 #'
 #' @inheritParams Graph
-#' @param theta binary adjacency matrix or output from \code{GraphicalModel}.
-#' @param theta_star true binary adjacency matrix or output from
-#'   \code{SimulateGraphical}.
+#' @param theta binary adjacency matrix or output of
+#'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}}, or
+#'   \code{\link{BiSelection}}.
+#' @param theta_star true binary adjacency matrix or output of
+#'   \code{\link{SimulateGraphical}} or \code{\link{SimulateRegression}}.
 #' @param colours vector of edge colours. The first entry of the vector defines
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
 #' @param lty vector of line types for edges. The first entry of the vector
 #'   defines the colour of False Positive edges, second entry is for True
 #'   Negatives and third entry is for True Positives.
-#' @param plot logical indicating if the generated graph should be plotted.
 #' @param show_labels logical indicating if the node labels should be displayed.
-#' @param filename file path to saved figure. If \code{filename=NULL}, the plot
-#'   is not saved.
-#' @param fileformat format of the saved figure. Possible values are
-#'   \code{"pdf"} or \code{"png"}. Only used if argument \code{filename} is
-#'   provided.
-#' @param res resolution of the png figure (see \code{\link[grDevices]{png}}).
-#'   Only used if argument \code{filename} is provided and
-#'   \code{fileformat="png"}.
-#' @param width width of the saved figure. Only used if argument \code{filename}
-#'   is provided.
-#' @param height height of the saved figure. Only used if argument
-#'   \code{filename} is provided.
-#' @param units units of width and height. Possible values are \code{"px"},
-#'   \code{"in"}, \code{"cm"} and \code{"mm"} (see
-#'   \code{\link[grDevices]{png}}). Only used if argument \code{filename} is
-#'   provided and \code{fileformat="png"}.
 #' @param ... additional arguments to be passed to \code{\link{Graph}}.
 #'
-#' @family functions for evaluation of model performance
-#' @seealso \code{\link{GraphicalModel}}, \code{\link{Graph}}
+#' @family functions for model performance
+#'
+#' @seealso \code{\link{SimulateGraphical}}, \code{\link{SimulateRegression}},
+#'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
+#'   \code{\link{BiSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -216,25 +204,29 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' # Performance graph
 #' perfgraph <- SelectionPerformanceGraph(
 #'   theta = stab,
-#'   theta_star = simul, plot = TRUE
+#'   theta_star = simul
 #' )
+#' plot(perfgraph)
 #'
 #' # Alternative formulation
 #' perfgraph <- SelectionPerformanceGraph(
 #'   theta = Adjacency(stab),
-#'   theta_star = simul$theta, plot = TRUE
+#'   theta_star = simul$theta
 #' )
+#' plot(perfgraph)
 #'
 #' # User-defined colours/shapes
 #' perfgraph <- SelectionPerformanceGraph(
-#'   theta = stab, theta_star = simul, plot = TRUE,
+#'   theta = stab, theta_star = simul,
 #'   colours = c("forestgreen", "orange", "black"),
 #'   node_colour = "red", node_shape = "star"
 #' )
+#' plot(perfgraph)
 #' perfgraph <- SelectionPerformanceGraph(
-#'   theta = stab, theta_star = simul, plot = TRUE,
+#'   theta = stab, theta_star = simul,
 #'   colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
 #' )
+#' plot(perfgraph)
 #'
 #' # Using and re-formatting igraph object
 #' require(igraph)
@@ -246,7 +238,8 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' simul <- SimulateRegression(pk = 30)
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
 #' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
+#' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
+#' plot(perf_graph)
 #'
 #' # Sparse PLS model
 #' set.seed(1)
@@ -260,7 +253,8 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   n_cat = 2
 #' )
 #' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul, plot = TRUE)
+#' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
+#' plot(perf_graph)
 #' }
 #'
 #' @export
@@ -268,9 +262,7 @@ SelectionPerformanceGraph <- function(theta, theta_star,
                                       colours = c("tomato", "forestgreen", "navy"),
                                       lty = c(2, 3, 1),
                                       node_colour = NULL,
-                                      plot = FALSE, show_labels = TRUE,
-                                      filename = NULL, fileformat = "pdf", res = 500,
-                                      width = 7, height = 7, units = "in", ...) {
+                                      show_labels = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -349,21 +341,6 @@ SelectionPerformanceGraph <- function(theta, theta_star,
   igraph::E(g)$color <- myedgecolour
   igraph::E(g)$width <- 1
   igraph::E(g)$lty <- myedgelty
-
-  # Plotting graph
-  if (plot | (!is.null(filename))) {
-    if (!is.null(filename)) {
-      if (fileformat == "pdf") {
-        grDevices::pdf(filename, width = width, height = height)
-      } else {
-        grDevices::png(filename, width = width, height = height, res = res, units = units)
-      }
-    }
-    igraph::plot.igraph(g, layout = igraph::layout_with_kk(g))
-    if (!is.null(filename)) {
-      grDevices::dev.off()
-    }
-  }
 
   # Returning output graph
   return(g)
@@ -467,11 +444,10 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #' predicted pairwise co-membership. This function can only be used in
 #' simulation studies (i.e. when the true cluster membership is known).
 #'
-#' @inheritParams GraphicalModel
-#' @param theta binary vector of selected variables (in variable selection) or
-#'   binary adjacency matrix (in graphical modelling).
-#' @param theta_star binary vector of true predictors (in variable selection) or
-#'   true binary adjacency matrix (in graphical modelling).
+#' @param theta vector of group membership, binary and symmetric matrix of
+#'   co-membership, or output of \code{\link{GraphicalModel}}.
+#' @param theta_star vector of group membership, or binary and symmetric matrix
+#'   of co-membership.
 #'
 #' @return A matrix of selection metrics including:
 #'
@@ -484,16 +460,11 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #'   \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)} \item{rand}{Rand index, i.e.
 #'   (TP+TN)/(TP+FP+TN+FN)}
 #'
-#'   Block-specific performances are reported if "pk" is not NULL. In this case,
-#'   the first row of the matrix corresponds to the overall performances, and
-#'   subsequent rows correspond to each of the blocks. The order of the blocks
-#'   is defined as in \code{\link{BlockStructure}}.
-#'
-#' @family functions for evaluation of model performance
+#' @family functions for model performance
 #'
 #' @examples
 #' \dontrun{
-# Simulation with 5 groups of correlated variables
+#' # Simulation with 5 groups of correlated variables
 #' set.seed(1)
 #' pk <- sample(1:10, size = 5, replace = TRUE)
 #' print(pk)
@@ -520,15 +491,22 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #' )
 #'
 #' # Clustering performance
-#' ClusteringPerformance(theta = stab, theta_star = Clusters(BlockDiagonal(pk)))
+#' ClusteringPerformance(
+#'   theta = stab,
+#'   theta_star = Clusters(BlockDiagonal(pk))
+#' )
 #' ClusteringPerformance(
 #'   theta = Clusters(stab),
 #'   theta_star = Clusters(BlockDiagonal(pk))
-#' ) # alternative formulation
+#' ) # alternative formulation with membership
+#' ClusteringPerformance(
+#'   theta = CoMembership(Clusters(stab)),
+#'   theta_star = Clusters(BlockDiagonal(pk))
+#' ) # alternative formulation with co-membership
 #' }
 #'
 #' @export
-ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
+ClusteringPerformance <- function(theta, theta_star) {
   # Re-formatting input theta
   if (any(class(theta) %in% c("graphical_model", "clustering"))) {
     theta <- Clusters(theta)
@@ -544,41 +522,18 @@ ClusteringPerformance <- function(theta, theta_star, pk = NULL) {
   thr <- 0.5
 
   # Computing co-membership matrices
-  theta <- CoMembership(theta)
-  theta_star <- CoMembership(theta_star)
+  if (!is.matrix(theta)) {
+    theta <- CoMembership(theta)
+  }
+  if (!is.matrix(theta_star)) {
+    theta_star <- CoMembership(theta_star)
+  }
 
   # Storing similarities/differences between estimated and true sets
   Asum <- theta + 2 * theta_star
 
-  # Extracting block-specific performances
-  if (is.null(pk)) {
-    tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
-    rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
-    tmp <- cbind(tmp, rand = rand)
-    return(tmp)
-  } else {
-    Asum_vect <- Asum[upper.tri(Asum)]
-    bigblocks <- BlockMatrix(pk)
-    bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-    if (!is.null(cor)) {
-      cor_vect <- cor[upper.tri(cor)]
-    } else {
-      cor_vect <- NULL
-    }
-
-    tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
-    rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
-    tmp <- cbind(tmp, rand = rand)
-    out <- tmp
-    for (k in sort(unique(bigblocks_vect))) {
-      tmp <- SelectionPerformanceSingle(Asum_vect[bigblocks_vect == k],
-        cor = cor_vect[bigblocks_vect == k], thr = thr
-      )
-      rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
-      tmp <- cbind(tmp, rand = rand)
-      out <- rbind(out, tmp)
-    }
-
-    return(out)
-  }
+  tmp <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
+  rand <- (tmp$TP + tmp$TN) / (tmp$TP + tmp$FP + tmp$TN + tmp$FN)
+  tmp <- cbind(tmp, rand = rand)
+  return(tmp)
 }

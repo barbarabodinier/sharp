@@ -11,7 +11,7 @@
 #' @param N total number of features.
 #' @param pi threshold in selection proportions.
 #'
-#' @return The PFER upper-bound.
+#' @return The estimated upper-bound in PFER.
 #'
 #' @references \insertRef{stabilityselectionMB}{focus}
 #'
@@ -79,7 +79,7 @@ PFER <- function(q, pi, N, K, PFER_method = "MB") {
 #' @param PFER Per Family Error Rate.
 #' @param pi threshold in selection proportions.
 #'
-#' @return The FDP (upper-bound).
+#' @return The estimated upper-bound in FDP.
 #'
 #' @family stability metric functions
 #'

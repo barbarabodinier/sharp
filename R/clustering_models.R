@@ -4,17 +4,16 @@
 #' \code{\link[stats]{hclust}}. This function is not using stability.
 #'
 #' @param xdata data matrix with observations as rows and variables as columns.
-#' @param nc matrix of parameters controlling the number of clusters in the
-#'   underlying algorithm specified in \code{implementation}. If \code{nc} is
-#'   not provided, it is set to \code{seq(1, nrow(xdata))}.
-#' @param rows logical indicating if clusters of rows (\code{TRUE}) or columns (\code{FALSE})
-#'   should be inferred.
+#' @param nc matrix of parameters controlling the number of clusters. If
+#'   \code{nc} is not provided, it is set to \code{seq(1, nrow(xdata))}.
+#' @param rows logical indicating if clusters of rows (\code{TRUE}) or columns
+#'   (\code{FALSE}) should be inferred.
 #' @param scale logical indicating if the data should be scaled to ensure that
 #'   all variables contribute equally to the clustering of the observations.
 #' @param ... additional parameters passed to \code{\link[stats]{dist}} or
 #'   \code{\link[stats]{hclust}}.
 #'
-#' @return An array with binary and symmetric co-membership matrices.
+#' @return An array of binary and symmetric co-membership matrices.
 #'
 #' @family clustering algorithms
 #'
@@ -88,7 +87,7 @@ HierarchicalClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, 
 #' @inheritParams HierarchicalClustering
 #' @param ... additional parameters passed to \code{\link[stats]{kmeans}}.
 #'
-#' @return An array with binary and symmetric co-membership matrices.
+#' @return An array of binary and symmetric co-membership matrices.
 #'
 #' @family clustering algorithms
 #'
@@ -156,7 +155,7 @@ KMeansClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #' @inheritParams HierarchicalClustering
 #' @param ... additional parameters passed to \code{\link[mclust]{Mclust}}.
 #'
-#' @return An array with binary and symmetric co-membership matrices.
+#' @return An array of binary and symmetric co-membership matrices.
 #'
 #' @family clustering algorithms
 #'
@@ -234,7 +233,7 @@ GMMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #' @details Faster implementations of the algorithm can be chosen via the
 #'   parameter \code{pamonce} (see \code{\link[cluster]{pam}}).
 #'
-#' @return An array with binary and symmetric co-membership matrices.
+#' @return An array of binary and symmetric co-membership matrices.
 #'
 #' @family clustering algorithms
 #'
@@ -335,7 +334,7 @@ PAMClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #' @inheritParams HierarchicalClustering
 #' @param ... additional parameters passed to \code{\link[cluster]{clara}}.
 #'
-#' @return An array with binary and symmetric co-membership matrices.
+#' @return An array of binary and symmetric co-membership matrices.
 #'
 #' @family clustering algorithms
 #'
@@ -411,7 +410,7 @@ CLARAClustering <- function(xdata, nc = NULL, scale = TRUE, rows = TRUE, ...) {
 #' @inheritParams HierarchicalClustering
 #' @param ... additional parameters passed to \code{\link[dbscan]{dbscan}}.
 #'
-#' @return An array with binary and symmetric co-membership matrices.
+#' @return An array of binary and symmetric co-membership matrices.
 #'
 #' @family clustering algorithms
 #'

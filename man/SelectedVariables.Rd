@@ -2,23 +2,23 @@
 % Please edit documentation in R/calibration.R
 \name{SelectedVariables}
 \alias{SelectedVariables}
-\title{Set of stably selected variables}
+\title{Stably selected variables}
 \usage{
 SelectedVariables(stability, argmax_id = NULL)
 }
 \arguments{
-\item{stability}{output of \code{\link{VariableSelection}},
-or \code{\link{BiSelection}}.}
+\item{stability}{output of \code{\link{VariableSelection}}, or
+\code{\link{BiSelection}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated adjacency matrix is returned.}
+the calibrated model is used.}
 }
 \value{
 A binary vector encoding the selection status of the variables
   (\code{1} if selected, \code{0} otherwise).
 }
 \description{
-Builds the (calibrated) set of stably selected variables.
+Extracts the (calibrated) set of stably selected variables.
 }
 \examples{
 \dontrun{

@@ -10,14 +10,14 @@ Clusters(adjacency = NULL, argmax_id = NULL)
 \item{adjacency}{adjacency matrix or output of \code{\link{GraphicalModel}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated adjacency matrix is returned.}
+the calibrated model is used.}
 }
 \value{
 A vector encoding the cluster membership.
 }
 \description{
-Builds the (calibrated) stable clusters as connected components of the graph
-defined from stable co-membership.
+Extracts (calibrated) stable clusters. These correspond to connected
+components of the graph defined from stable co-membership.
 }
 \examples{
 \dontrun{
@@ -45,7 +45,7 @@ plot(Graph(CoMembership(groups),
 }
 }
 \seealso{
-\code{\link{GraphicalModel}}
+\code{\link{BiSelection}}
 
 Other calibration functions: 
 \code{\link{Adjacency}()},

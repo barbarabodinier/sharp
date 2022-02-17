@@ -1,7 +1,7 @@
 #' Graph visualisation
 #'
-#' Produces an undirected \code{\link[igraph:igraph-package]{igraph}} object
-#' from an adjacency matrix.
+#' Produces an \code{\link[igraph:igraph-package]{igraph}} object from an
+#' adjacency matrix.
 #'
 #' @param adjacency adjacency matrix or output of \code{\link{GraphicalModel}}.
 #' @param node_label optional vector of node labels. This vector must contain as
@@ -16,14 +16,13 @@
 #'   in the same order (the order is used to assign shapes to nodes). Possible
 #'   values are \code{"circle"}, \code{"square"}, \code{"triangle"} or
 #'   \code{"star"}.
-#' @param edge_colour optional character string for edge colour. Integers,
-#'   named colours or RGB values can be used.
+#' @param edge_colour optional character string for edge colour. Integers, named
+#'   colours or RGB values can be used.
 #' @param label_colour optional character string for label colour. Integers,
 #'   named colours or RGB values can be used.
 #' @param mode character string indicating how the adjacency matrix should be
 #'   interpreted. Possible values include \code{"undirected"} or
-#'   \code{"directed"}. See \code{\link[igraph]{graph_from_adjacency_matrix}}
-#'   for more options.
+#'   \code{"directed"} (see \code{\link[igraph]{graph_from_adjacency_matrix}}).
 #' @param weighted indicating if entries of the adjacency matrix should define
 #'   edge width. If \code{weighted=FALSE}, an unweigthed igraph object is
 #'   created, all edges have the same width. If \code{weighted=TRUE}, edge width
@@ -54,6 +53,13 @@
 #'
 #' # Node colours and shapes
 #' plot(Graph(adjacency, weighted = TRUE, node_shape = "star", node_colour = "red"))
+#'
+#' # Applying some igraph functionalities
+#' mygraph <- Graph(adjacency)
+#' igraph::degree(mygraph)
+#' igraph::betweenness(mygraph)
+#' igraph::shortest_paths(mygraph, from = 1, to = 2)
+#' igraph::walktrap.community(mygraph)
 #'
 #'
 #' ## From stability selection outputs

@@ -93,7 +93,7 @@ replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
 \code{tau} and return the IDs of observations to be included in the
-resampled dataset (see \code{\link{Resample}}).}
+resampled dataset.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). If
@@ -106,9 +106,9 @@ control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
-features (or False Discovery Proportion, FDP) for constrained calibration
-by error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used (the default).}
+features (or False Discovery Proportion) for constrained calibration by
+error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+calibration is used (the default).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
 the level of sparsity in the underlying algorithm. Only used if

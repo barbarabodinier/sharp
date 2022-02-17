@@ -22,8 +22,8 @@ provided in this case.}
 \item{family}{type of regression model. Possible values include
 \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
 regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis). This argument must be consistent with
-input \code{stability}, if provided.}
+\code{"cox"} (survival analysis). If provided, this argument must be
+consistent with input \code{stability}.}
 
 \item{...}{additional arguments to be passed to \code{\link[stats]{lm}}
 (linear regression), \code{\link[survival]{coxph}} (Cox regression),
@@ -211,6 +211,5 @@ recalibrated$Cmat # recalibrated Y-weights
 
 }
 \seealso{
-\code{\link{VariableSelection}},
-  \code{\link{ExplanatoryPerformance}}
+\code{\link{VariableSelection}}
 }

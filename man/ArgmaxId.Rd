@@ -19,8 +19,8 @@ selection proportions. If \code{S=NULL}, argument \code{stability} must be
 provided.}
 }
 \value{
-A matrix of parameter indices. In multi-block graphical modelling,
-  rows correspond to different blocks.
+A matrix of parameter indices. For multi-block graphical models, rows
+  correspond to different blocks.
 }
 \description{
 Extracts the indices of calibrated parameters with respect to the grids

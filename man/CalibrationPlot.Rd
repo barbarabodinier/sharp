@@ -7,7 +7,6 @@
 CalibrationPlot(
   stability,
   block_id = NULL,
-  heatmap = TRUE,
   colours = NULL,
   pch = 19,
   cex = 0.7,
@@ -29,6 +28,7 @@ CalibrationPlot(
   zlab = expression(italic(q)),
   xlas = 2,
   ylas = 0,
+  zlas = 2,
   cex.lab = 1.5,
   cex.axis = 1,
   xgrid = FALSE,
@@ -44,67 +44,63 @@ CalibrationPlot(
 stability selection graphical models. If \code{block_id=NULL}, all blocks
 are represented in separate panels.}
 
-\item{heatmap}{logical indicating if results should be visualised as a
-heatmap. If \code{heatmap=TRUE}, the stability score is colour-coded and
-represented as a function of the parameter controlling the level of
-sparsity (x-axis) and threshold in selection proportions (y-axis). If
-\code{heatmap=FALSE}, the stability score (y-axis) is represented as a
-function of the parameter controlling the level of sparsity (x-axis). Only
-used if \code{stability} is of class \code{graphical_model} or
-\code{variable_selection}.}
-
 \item{colours}{vector of colours.}
 
-\item{pch}{type of point, as in \code{\link{points}}.}
+\item{pch}{type of point, as in \code{\link[graphics]{points}}.}
 
 \item{cex}{size of point.}
 
-\item{xlim}{displayed range along the x-axis.}
+\item{xlim}{displayed range along the x-axis. Only used if \code{stability}
+is the output of \code{\link{BiSelection}}.}
 
-\item{ylim}{displayed range along the y-axis.}
+\item{ylim}{displayed range along the y-axis. Only used if \code{stability}
+is the output of \code{\link{BiSelection}}.}
 
 \item{bty}{character string indicating if the box around the plot should be
 drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \code{"n"} (no box).}
 
-\item{lines}{logical indicating if the points should be linked by lines.}
+\item{lines}{logical indicating if the points should be linked by lines. Only
+used if \code{stability} is the output of \code{\link{BiSelection}}.}
 
-\item{lty}{line type for the point-wise median curve, as in
-\code{\link{par}}.}
+\item{lty}{line type, as in \code{\link[graphics]{par}}. Only used if
+\code{stability} is the output of \code{\link{BiSelection}}.}
 
-\item{lwd}{line width for the point-wise median curve, as in
-\code{\link{par}}.}
+\item{lwd}{line width, as in \code{\link[graphics]{par}}. Only used if
+\code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{show_argmax}{logical indicating if the calibrated parameter(s) should
 be indicated by lines.}
 
 \item{show_pix}{logical indicating if the calibrated threshold in selection
 proportion in \code{X} should be written for each point. Only used if
-\code{stability} is of class \code{bi_selection}.}
+\code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{show_piy}{logical indicating if the calibrated threshold in selection
 proportion in \code{Y} should be written for each point. Only used if
-\code{stability} is of class \code{bi_selection} with sparsity on a
-multivariate outcome.}
+\code{stability} is the output of \code{\link{BiSelection}} with
+penalisation of the outcomes.}
 
 \item{offset}{distance between the point and the text, as in
-\code{\link[graphics]{text}}.}
+\code{\link[graphics]{text}}. Only used if \code{show_pix=TRUE} or
+\code{show_piy=TRUE}.}
 
-\item{legend}{logical indicating if the legend should be included. Only used
-if \code{heatmap=TRUE} or with multiple components if \code{stability} is
-of class \code{bi_selection}.}
+\item{legend}{logical indicating if the legend should be included.}
 
-\item{legend_length}{length of the colour bar. Only used if
-\code{heatmap=TRUE}.}
+\item{legend_length}{length of the colour bar. Only used if \code{stability}
+is the output of \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}.}
 
-\item{legend_range}{range of the colour bar. Only used if
-\code{heatmap=TRUE}.}
+\item{legend_range}{range of the colour bar. Only used if \code{stability} is
+the output of \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}.}
 
 \item{xlab}{label of the x-axis.}
 
 \item{ylab}{label of the y-axis.}
 
-\item{zlab}{label of the z-axis.}
+\item{zlab}{label of the z-axis. Only used if \code{stability} is the output
+of \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.}
 
 \item{xlas}{orientation of labels on the x-axis, as \code{las} in
 \code{\link[graphics]{par}}.}
@@ -112,32 +108,36 @@ of class \code{bi_selection}.}
 \item{ylas}{orientation of labels on the y-axis, as \code{las} in
 \code{\link[graphics]{par}}.}
 
-\item{cex.lab}{size of label on the y-axis.}
+\item{zlas}{orientation of labels on the z-axis, as \code{las} in
+\code{\link[graphics]{par}}.}
 
-\item{cex.axis}{size of labels along the axes.}
+\item{cex.lab}{font size for labels.}
 
-\item{xgrid}{logical indicating if a vertical grid should be drawn.}
+\item{cex.axis}{font size for axes.}
 
-\item{ygrid}{logical indicating if a horizontal grid should be drawn.}
+\item{xgrid}{logical indicating if a vertical grid should be drawn. Only used
+if \code{stability} is the output of \code{\link{BiSelection}}.}
+
+\item{ygrid}{logical indicating if a horizontal grid should be drawn. Only
+used if \code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{params}{vector of possible parameters if \code{stability} is of class
 \code{bi_selection}. The order of these parameters defines the order in
-which they are represented.}
+which they are represented. Only used if \code{stability} is the output of
+\code{\link{BiSelection}}.}
 }
 \value{
 a calibration plot.
 }
 \description{
-Creates a plot showing the stability score as a function of the parameter
+Creates a plot showing the stability score as a function of the parameter(s)
 controlling the level of sparsity in the underlying feature selection
 algorithm and/or the threshold in selection proportions.
 }
-\details{
-When selecting a single parameter, each point represents the best
-  (maximum) stability score across all visited values of the other parameter.
-}
 \examples{
 \dontrun{
+
+## Regression model
 
 # Data simulation
 set.seed(1)
@@ -161,6 +161,31 @@ CalibrationPlot(stab,
   legend_length = 31,
   legend_range = c(0, 2500)
 )
+
+
+## Dimensionality reduction
+
+# Data simulation
+set.seed(1)
+simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
+
+# sPLS: sparsity on both X and Y
+stab <- BiSelection(
+  xdata = x, ydata = y,
+  family = "gaussian", ncomp = 3,
+  LambdaX = 1:(ncol(x) - 1),
+  LambdaY = 1:(ncol(y) - 1),
+  implementation = SparsePLS,
+  n_cat = 2
+)
+
+# Calibration plot
+CalibrationPlot(stab)
+
+# Other ordering of parameters
+CalibrationPlot(stab, params = c("nx", "ny"))
 }
 
 }

@@ -13,8 +13,8 @@
 #'   selection proportions. If \code{S=NULL}, argument \code{stability} must be
 #'   provided.
 #'
-#' @return A matrix of parameter indices. In multi-block graphical modelling,
-#'   rows correspond to different blocks.
+#' @return A matrix of parameter indices. For multi-block graphical models, rows
+#'   correspond to different blocks.
 #'
 #' @family calibration functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
@@ -115,17 +115,21 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' Extracts calibrated parameter values in stability selection.
 #'
-#' @param stability output of \code{\link{VariableSelection}} or
-#'   \code{\link{GraphicalModel}}.
+#' @param stability output of \code{\link{VariableSelection}},
+#'   \code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.
 #'
-#' @return A matrix of parameter values. The first column (\code{lambda}])
-#'   denotes the calibrated hyper-parameter of the underlying algorithm. The
-#'   second column (\code{pi}) is the calibrated threshold in
-#'   selection/co-membership proportions. In multi-block graphical modelling,
-#'   rows correspond to different blocks.
+#' @return A matrix of parameter values. If applied to the output of
+#'   \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}, the first
+#'   column (\code{lambda}) denotes the calibrated hyper-parameter of the
+#'   underlying algorithm. The second column (\code{pi}) is the calibrated
+#'   threshold in selection/co-membership proportions. For multi-block graphical
+#'   models, rows correspond to different blocks. If applied to the output of
+#'   \code{\link{BiSelection}}, all columns are named as in object
+#'   \code{summary}.
 #'
 #' @family calibration functions
-#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
+#'   \code{\link{BiSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -140,50 +144,56 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #' stab <- GraphicalModel(xdata = simul$data)
 #'
 #' # Extracting calibrated parameters
-#' args <- Argmax(stab)
+#' Argmax(stab)
 #' }
 #'
 #' @export
 Argmax <- function(stability) {
-  # To add to arguments for clustering (should work)
-  clustering <- FALSE
-
-  argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
-  if (clustering) {
-    id <- ArgmaxId(stability = stability)
-    argmax[, 1] <- stability$nc[id[1], 1]
-    argmax[, 2] <- stability$params$pi_list[id[2]]
+  if (class(stability) == "bi_selection") {
+    argmax <- stability$summary
+    argmax <- argmax[, colnames(argmax) != "S", drop = FALSE]
   } else {
-    if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
-      id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
-      argmax[, 1] <- stability$Lambda[id, ]
-      argmax[, 2] <- stability$P[id, ]
+    # To add to arguments for clustering (should work)
+    clustering <- FALSE
+
+    argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
+    if (clustering) {
+      id <- ArgmaxId(stability = stability)
+      argmax[, 1] <- stability$nc[id[1], 1]
+      argmax[, 2] <- stability$params$pi_list[id[2]]
     } else {
-      for (block_id in 1:ncol(stability$Lambda)) {
-        if (ncol(stability$Lambda) == 1) {
-          myS <- stability$S
-        } else {
-          myS <- stability$S[, block_id, drop = FALSE]
+      if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
+        id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
+        argmax[, 1] <- stability$Lambda[id, ]
+        argmax[, 2] <- stability$P[id, ]
+      } else {
+        for (block_id in 1:ncol(stability$Lambda)) {
+          if (ncol(stability$Lambda) == 1) {
+            myS <- stability$S
+          } else {
+            myS <- stability$S[, block_id, drop = FALSE]
+          }
+          myS[is.na(myS)] <- 0
+          myid <- which.max(myS[, 1])
+          argmax[block_id, ] <- c(stability$Lambda[myid, block_id], stability$P[myid, block_id])
         }
-        myS[is.na(myS)] <- 0
-        myid <- which.max(myS[, 1])
-        argmax[block_id, ] <- c(stability$Lambda[myid, block_id], stability$P[myid, block_id])
       }
     }
+    colnames(argmax) <- c("lambda", "pi")
   }
-  colnames(argmax) <- c("lambda", "pi")
+
   return(argmax)
 }
 
 
 #' Calibrated adjacency matrix
 #'
-#' Builds the adjacency matrix of the (calibrated) stability selection graphical
-#' model.
+#' Extracts the adjacency matrix of the (calibrated) stability selection
+#' graphical model.
 #'
 #' @param stability output of \code{\link{GraphicalModel}}.
 #' @param argmax_id optional matrix of parameter IDs. If \code{argmax_id=NULL},
-#'   the calibrated adjacency matrix is returned.
+#'   the calibrated model is used.
 #'
 #' @return A binary and symmetric adjacency matrix encoding an undirected graph
 #'   with no self-loops.
@@ -262,13 +272,13 @@ Adjacency <- function(stability, argmax_id = NULL) {
 }
 
 
-#' Set of stably selected variables
+#' Stably selected variables
 #'
-#' Builds the (calibrated) set of stably selected variables.
+#' Extracts the (calibrated) set of stably selected variables.
 #'
 #' @inheritParams Adjacency
-#' @param stability output of \code{\link{VariableSelection}},
-#'   or \code{\link{BiSelection}}.
+#' @param stability output of \code{\link{VariableSelection}}, or
+#'   \code{\link{BiSelection}}.
 #'
 #' @return A binary vector encoding the selection status of the variables
 #'   (\code{1} if selected, \code{0} otherwise).
@@ -345,8 +355,8 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 
 #' Stable cluster membership
 #'
-#' Builds the (calibrated) stable clusters as connected components of the graph
-#' defined from stable co-membership.
+#' Extracts (calibrated) stable clusters. These correspond to connected
+#' components of the graph defined from stable co-membership.
 #'
 #' @inheritParams Adjacency
 #' @param adjacency adjacency matrix or output of \code{\link{GraphicalModel}}.
@@ -354,7 +364,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' @return A vector encoding the cluster membership.
 #'
 #' @family calibration functions
-#' @seealso \code{\link{GraphicalModel}}
+#' @seealso \code{\link{BiSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -396,8 +406,7 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 
 #' Selection proportions
 #'
-#' Extracts the selection proportions of the (calibrated) stability selection
-#' model or co-membership proportions of the (calibrated) consensus clustering
+#' Extracts the selection (or co-membership) proportions of the (calibrated)
 #' model.
 #'
 #' @inheritParams Adjacency
@@ -408,7 +417,8 @@ Clusters <- function(adjacency = NULL, argmax_id = NULL) {
 #'   of selection proportions.
 #'
 #' @family calibration functions
-#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
+#'   \code{\link{BiSelection}}
 #'
 #' @examples
 #' \dontrun{
@@ -612,29 +622,32 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 }
 
 
-#' Average coefficients conditionally on selection
+#' Summarised coefficients conditionally on selection
 #'
 #' Computes descriptive statistics (defined by \code{FUN}) for coefficients of
 #' the (calibrated) models conditionally on selection across resampling
-#' iterations. This function can be applied to the output of
-#' \code{\link{VariableSelection}}.
+#' iterations.
 #'
-#' @param stability output of \code{\link{VariableSelection}}.
-#' @param side character string indicating if coefficients of the predictor
-#'   (\code{side="X"}) or outcome (\code{side="Y"}) coefficients should be
-#'   returned. Option \code{side="Y"} is only applicable to PLS models.
+#' @param stability output of \code{\link{VariableSelection}} or
+#'   \code{\link{BiSelection}}.
+#' @param side character string indicating if coefficients of predictors
+#'   (\code{side="X"}) or outcomes (\code{side="Y"}) should be returned. Only
+#'   applicable to PLS models.
 #' @param comp component ID. Only applicable to PLS models.
 #' @param lambda_id parameter ID with respect to the grid \code{Lambda}. If
-#'   \code{NULL}, average coefficients across the models run with the calibrated
-#'   parameter are returned.
+#'   \code{NULL}, aggregated coefficients across the models run with the
+#'   calibrated parameter are returned.
 #' @param FUN function to use to aggregate coefficients of visited models over
 #'   resampling iterations. Recommended functions include
 #'   \code{\link[stats]{median}} or \code{\link[base]{mean}}.
 #' @param ... additional arguments to be passed to \code{FUN}.
 #'
-#' @return A matrix of average coefficients across resampling iterations.
+#' @return A matrix of summarised coefficients conditionally on selection across
+#'   resampling iterations. Missing values (\code{NA}) are returned for
+#'   variables that are never selected.
 #'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}},
+#'   \code{\link{Recalibrate}}
 #'
 #' @examples
 #' \dontrun{
@@ -745,7 +758,7 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 
 #' Calibration plot
 #'
-#' Creates a plot showing the stability score as a function of the parameter
+#' Creates a plot showing the stability score as a function of the parameter(s)
 #' controlling the level of sparsity in the underlying feature selection
 #' algorithm and/or the threshold in selection proportions.
 #'
@@ -754,64 +767,63 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #' @param block_id ID of the block to visualise. Only used for multi-block
 #'   stability selection graphical models. If \code{block_id=NULL}, all blocks
 #'   are represented in separate panels.
-#' @param heatmap logical indicating if results should be visualised as a
-#'   heatmap. If \code{heatmap=TRUE}, the stability score is colour-coded and
-#'   represented as a function of the parameter controlling the level of
-#'   sparsity (x-axis) and threshold in selection proportions (y-axis). If
-#'   \code{heatmap=FALSE}, the stability score (y-axis) is represented as a
-#'   function of the parameter controlling the level of sparsity (x-axis). Only
-#'   used if \code{stability} is of class \code{graphical_model} or
-#'   \code{variable_selection}.
 #' @param colours vector of colours.
-#' @param pch type of point, as in \code{\link{points}}.
+#' @param pch type of point, as in \code{\link[graphics]{points}}.
 #' @param cex size of point.
-#' @param xlim displayed range along the x-axis.
-#' @param ylim displayed range along the y-axis.
+#' @param xlim displayed range along the x-axis. Only used if \code{stability}
+#'   is the output of \code{\link{BiSelection}}.
+#' @param ylim displayed range along the y-axis. Only used if \code{stability}
+#'   is the output of \code{\link{BiSelection}}.
 #' @param bty character string indicating if the box around the plot should be
 #'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 #'   \code{"n"} (no box).
-#' @param lines logical indicating if the points should be linked by lines.
-#' @param lty line type for the point-wise median curve, as in
-#'   \code{\link{par}}.
-#' @param lwd line width for the point-wise median curve, as in
-#'   \code{\link{par}}.
+#' @param lines logical indicating if the points should be linked by lines. Only
+#'   used if \code{stability} is the output of \code{\link{BiSelection}}.
+#' @param lty line type, as in \code{\link[graphics]{par}}. Only used if
+#'   \code{stability} is the output of \code{\link{BiSelection}}.
+#' @param lwd line width, as in \code{\link[graphics]{par}}. Only used if
+#'   \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param show_argmax logical indicating if the calibrated parameter(s) should
 #'   be indicated by lines.
 #' @param show_pix logical indicating if the calibrated threshold in selection
 #'   proportion in \code{X} should be written for each point. Only used if
-#'   \code{stability} is of class \code{bi_selection}.
+#'   \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param show_piy logical indicating if the calibrated threshold in selection
 #'   proportion in \code{Y} should be written for each point. Only used if
-#'   \code{stability} is of class \code{bi_selection} with sparsity on a
-#'   multivariate outcome.
+#'   \code{stability} is the output of \code{\link{BiSelection}} with
+#'   penalisation of the outcomes.
 #' @param offset distance between the point and the text, as in
-#'   \code{\link[graphics]{text}}.
-#' @param legend logical indicating if the legend should be included. Only used
-#'   if \code{heatmap=TRUE} or with multiple components if \code{stability} is
-#'   of class \code{bi_selection}.
-#' @param legend_length length of the colour bar. Only used if
-#'   \code{heatmap=TRUE}.
-#' @param legend_range range of the colour bar. Only used if
-#'   \code{heatmap=TRUE}.
+#'   \code{\link[graphics]{text}}. Only used if \code{show_pix=TRUE} or
+#'   \code{show_piy=TRUE}.
+#' @param legend logical indicating if the legend should be included.
+#' @param legend_length length of the colour bar. Only used if \code{stability}
+#'   is the output of \code{\link{VariableSelection}} or
+#'   \code{\link{GraphicalModel}}.
+#' @param legend_range range of the colour bar. Only used if \code{stability} is
+#'   the output of \code{\link{VariableSelection}} or
+#'   \code{\link{GraphicalModel}}.
 #' @param xlab label of the x-axis.
 #' @param ylab label of the y-axis.
-#' @param zlab label of the z-axis.
+#' @param zlab label of the z-axis. Only used if \code{stability} is the output
+#'   of \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.
 #' @param xlas orientation of labels on the x-axis, as \code{las} in
 #'   \code{\link[graphics]{par}}.
 #' @param ylas orientation of labels on the y-axis, as \code{las} in
 #'   \code{\link[graphics]{par}}.
-#' @param cex.lab size of label on the y-axis.
-#' @param cex.axis size of labels along the axes.
-#' @param xgrid logical indicating if a vertical grid should be drawn.
-#' @param ygrid logical indicating if a horizontal grid should be drawn.
+#' @param zlas orientation of labels on the z-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param cex.lab font size for labels.
+#' @param cex.axis font size for axes.
+#' @param xgrid logical indicating if a vertical grid should be drawn. Only used
+#'   if \code{stability} is the output of \code{\link{BiSelection}}.
+#' @param ygrid logical indicating if a horizontal grid should be drawn. Only
+#'   used if \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param params vector of possible parameters if \code{stability} is of class
 #'   \code{bi_selection}. The order of these parameters defines the order in
-#'   which they are represented.
+#'   which they are represented. Only used if \code{stability} is the output of
+#'   \code{\link{BiSelection}}.
 #'
 #' @return a calibration plot.
-#'
-#' @details When selecting a single parameter, each point represents the best
-#'   (maximum) stability score across all visited values of the other parameter.
 #'
 #' @family calibration functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
@@ -819,6 +831,8 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #'
 #' @examples
 #' \dontrun{
+#'
+#' ## Regression model
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -842,11 +856,36 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #'   legend_length = 31,
 #'   legend_range = c(0, 2500)
 #' )
+#'
+#'
+#' ## Dimensionality reduction
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' x <- simul$xdata
+#' y <- simul$ydata
+#'
+#' # sPLS: sparsity on both X and Y
+#' stab <- BiSelection(
+#'   xdata = x, ydata = y,
+#'   family = "gaussian", ncomp = 3,
+#'   LambdaX = 1:(ncol(x) - 1),
+#'   LambdaY = 1:(ncol(y) - 1),
+#'   implementation = SparsePLS,
+#'   n_cat = 2
+#' )
+#'
+#' # Calibration plot
+#' CalibrationPlot(stab)
+#'
+#' # Other ordering of parameters
+#' CalibrationPlot(stab, params = c("nx", "ny"))
 #' }
 #'
 #' @export
 CalibrationPlot <- function(stability, block_id = NULL,
-                            heatmap = TRUE, colours = NULL,
+                            colours = NULL,
                             pch = 19, cex = 0.7,
                             xlim = NULL, ylim = NULL, bty = "o",
                             lines = TRUE, lty = 3, lwd = 2,
@@ -854,11 +893,12 @@ CalibrationPlot <- function(stability, block_id = NULL,
                             show_pix = FALSE, show_piy = FALSE, offset = 0.3,
                             legend = TRUE, legend_length = 15, legend_range = NULL,
                             xlab = NULL, ylab = NULL, zlab = expression(italic(q)),
-                            xlas = 2, ylas = 0, cex.lab = 1.5, cex.axis = 1,
+                            xlas = 2, ylas = 0, zlas = 2, cex.lab = 1.5, cex.axis = 1,
                             xgrid = FALSE, ygrid = FALSE,
                             params = c("ny", "alphay", "nx", "alphax")) {
   # To deal with later: showing calibration of clustering or selection
   clustering <- FALSE
+  heatmap <- TRUE
 
   if (class(stability) == "bi_selection") {
     # Extracting summary information
@@ -866,11 +906,16 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
     # Checking input
     params <- unique(params)
-    if (any(!c("ny", "alphay", "nx", "alphax") %in% params)) {
-      params <- c("ny", "alphay", "nx", "alphax")
-      warning("Invalid input for argument 'params'. Please provide a vector with all the following: 'ny', 'alphay', 'nx', 'alphax'.")
+    all_params <- colnames(stability$summary)
+    all_params <- all_params[!all_params %in% c("comp", "S", "pix", "piy")]
+    if (any(!all_params %in% params)) {
+      params <- all_params
+      warning(paste0(
+        "Invalid input for argument 'params'. Please provide a vector with all the following: ",
+        paste(all_params, collapse = ", "), "."
+      ))
     }
-    params <- params[params %in% c("ny", "alphay", "nx", "alphax")]
+    params <- params[params %in% all_params]
 
     # Identifying parameters
     params <- params[params %in% colnames(x)]
@@ -1174,17 +1219,17 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
         # Including axes
         graphics::axis(
-          side = 2, at = (1:ncol(mat)) - 0.5, las = 2, cex.axis = cex.axis,
+          side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
           labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2)
         )
         if (grepl("penalised", tolower(stability$methods$implementation))) {
           graphics::axis(
-            side = 3, at = (1:nrow(mat)) - 0.5, las = 2, cex.axis = cex.axis,
+            side = 3, at = (1:nrow(mat)) - 0.5, las = zlas, cex.axis = cex.axis,
             labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0))
           )
-          graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = 2, labels = rev(rownames(mat)), cex.axis = cex.axis)
+          graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
         } else {
-          graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = 2, labels = rev(rownames(mat)), cex.axis = cex.axis)
+          graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
         }
 
         # Including axis labels
@@ -1329,7 +1374,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #'
 #' @export
 Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"),
-                    resolution = 10000, bty = "o", axes = TRUE, cex.axis = 1,
+                    resolution = 10000, bty = "o", axes = TRUE, cex.axis = 1, xlas = 2, ylas = 2,
                     legend = TRUE, legend_length = NULL, legend_range = NULL) {
   # Transposing the input matrix so that rows are rows
   mat <- t(mat)
@@ -1377,10 +1422,10 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
   }
   if (axes) {
     if (!is.null(rownames(mat))) {
-      graphics::axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = 2, cex.axis = cex.axis)
+      graphics::axis(side = 1, at = 1:nrow(mat) - 0.5, labels = rownames(mat), las = xlas, cex.axis = cex.axis)
     }
     if (!is.null(colnames(mat))) {
-      graphics::axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = 2, cex.axis = cex.axis)
+      graphics::axis(side = 2, at = 1:ncol(mat) - 0.5, labels = colnames(mat), las = ylas, cex.axis = cex.axis)
     }
   }
   if (bty == "o") {

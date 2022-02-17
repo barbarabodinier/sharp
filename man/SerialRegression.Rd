@@ -73,12 +73,12 @@ replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
 \code{tau} and return the IDs of observations to be included in the
-resampled dataset (see \code{\link{Resample}}).}
+resampled dataset.}
 
 \item{cpss}{logical indicating if complementary pair stability selection
 should be done. For this, the algorithm is applied on two non-overlapping
 subsets of half of the observations. A feature is considered as selected if
-it is selected for both subsets. With this method, the data is split
+it is selected for both subsamples. With this method, the data is split
 \code{K/2} times (\code{K} models are fitted). Only used if
 \code{PFER_method="MB"}.}
 
@@ -93,9 +93,9 @@ control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
-features (or False Discovery Proportion, FDP) for constrained calibration
-by error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used (the default).}
+features (or False Discovery Proportion) for constrained calibration by
+error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+calibration is used (the default).}
 
 \item{group_x}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group. Only used for

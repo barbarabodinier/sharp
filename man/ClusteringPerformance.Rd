@@ -4,19 +4,14 @@
 \alias{ClusteringPerformance}
 \title{Clustering performance}
 \usage{
-ClusteringPerformance(theta, theta_star, pk = NULL)
+ClusteringPerformance(theta, theta_star)
 }
 \arguments{
-\item{theta}{binary vector of selected variables (in variable selection) or
-binary adjacency matrix (in graphical modelling).}
+\item{theta}{vector of group membership, binary and symmetric matrix of
+co-membership, or output of \code{\link{GraphicalModel}}.}
 
-\item{theta_star}{binary vector of true predictors (in variable selection) or
-true binary adjacency matrix (in graphical modelling).}
-
-\item{pk}{optional vector encoding the grouping structure. Only used for
-multi-block stability selection where \code{pk} indicates the number of
-variables in each group. If \code{pk=NULL}, single-block stability
-selection is performed.}
+\item{theta_star}{vector of group membership, or binary and symmetric matrix
+of co-membership.}
 }
 \value{
 A matrix of selection metrics including:
@@ -29,11 +24,6 @@ A matrix of selection metrics including:
   TP/(TP+FP)} \item{recall}{recall (r), i.e. TP/(TP+FN)}
   \item{F1_score}{F1-score, i.e. 2*p*r/(p+r)} \item{rand}{Rand index, i.e.
   (TP+TN)/(TP+FP+TN+FN)}
-
-  Block-specific performances are reported if "pk" is not NULL. In this case,
-  the first row of the matrix corresponds to the overall performances, and
-  subsequent rows correspond to each of the blocks. The order of the blocks
-  is defined as in \code{\link{BlockStructure}}.
 }
 \description{
 Computes different metrics of clustering performance by comparing true and
@@ -42,6 +32,7 @@ simulation studies (i.e. when the true cluster membership is known).
 }
 \examples{
 \dontrun{
+# Simulation with 5 groups of correlated variables
 set.seed(1)
 pk <- sample(1:10, size = 5, replace = TRUE)
 print(pk)
@@ -68,17 +59,24 @@ stab <- GraphicalModel(
 )
 
 # Clustering performance
-ClusteringPerformance(theta = stab, theta_star = Clusters(BlockDiagonal(pk)))
+ClusteringPerformance(
+  theta = stab,
+  theta_star = Clusters(BlockDiagonal(pk))
+)
 ClusteringPerformance(
   theta = Clusters(stab),
   theta_star = Clusters(BlockDiagonal(pk))
-) # alternative formulation
+) # alternative formulation with membership
+ClusteringPerformance(
+  theta = CoMembership(Clusters(stab)),
+  theta_star = Clusters(BlockDiagonal(pk))
+) # alternative formulation with co-membership
 }
 
 }
 \seealso{
-Other functions for evaluation of model performance: 
+Other functions for model performance: 
 \code{\link{SelectionPerformanceGraph}()},
 \code{\link{SelectionPerformance}()}
 }
-\concept{functions for evaluation of model performance}
+\concept{functions for model performance}

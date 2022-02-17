@@ -49,15 +49,16 @@ A list with: \item{omega}{positive definite matrix.} \item{u}{value
 \description{
 Determines the diagonal entries of a symmetric matrix to ensure it is
 positive definite. For this, diagonal entries of the matrix are defined to be
-higher than (i) the sum of entries on the corresponding rows, which ensure it
+higher than (i) the sum of entries on the corresponding row, which ensure it
 is diagonally dominant, or (ii) the absolute value of the smallest eigenvalue
 of the same matrix with a diagonal of zeros. The magnitude of (standardised)
 values in the inverse matrix is tuned by adding a constant u to the diagonal
 entries. Considering the matrix to make positive definite is a precision
-matrix, the constant u is chosen to (i) maximise the contrast of the
-corresponding correlation matrix, or (ii) tune the proportion of explained
-variance by the first Principal Component (i.e. largest eigenvalue of the
-covariance/correlation matrix divided by the sum of eigenvalues).
+matrix, the constant u is chosen to (i) maximise the \code{\link{Contrast}}
+of the corresponding correlation matrix, or (ii) tune the proportion of
+explained variance by the first Principal Component \code{ev_xx} (i.e.
+largest eigenvalue of the covariance/correlation matrix divided by the sum of
+eigenvalues).
 }
 \examples{
 \dontrun{

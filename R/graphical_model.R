@@ -90,7 +90,7 @@
 #'   iteration if it is selected in the two complementary subsamples.
 #'
 #'   To ensure reproducibility of the results, the starting number of the random
-#'   number generator is fixed to \code{seed}.
+#'   number generator is set to \code{seed}.
 #'
 #'   For parallelisation, stability selection with different sets of parameters
 #'   can be run on \code{n_cores} cores. This relies on forking with
@@ -148,10 +148,9 @@
 #'   third dimension of \code{S_2d} correspond to the different blocks.
 #'
 #' @family stability selection functions
-#' @seealso \code{\link{Graph}}, \code{\link{Adjacency}},
+#' @seealso \code{\link{PenalisedGraphical}}, \code{\link{GraphicalAlgo}},
 #'   \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
-#'   \code{\link{GraphicalAlgo}}, \code{\link{Combine}},
-#'   \code{\link{StabilityScore}}
+#'   \code{\link{StabilityScore}} \code{\link{Graph}}, \code{\link{Adjacency}},
 #'
 #' @examples
 #' \dontshow{

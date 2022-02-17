@@ -4,6 +4,8 @@
 #' regression using the implementation in \code{\link[glmnet]{glmnet}}.
 #'
 #' @inheritParams VariableSelection
+#' @param Lambda_cardinal number of values in the grid of parameters controlling
+#'   the level of sparsity in the underlying algorithm.
 #' @param check_input logical indicating if input values should be checked
 #'   (recommended).
 #'
@@ -89,6 +91,12 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #' models.
 #'
 #' @inheritParams GraphicalModel
+#' @param Lambda_cardinal number of values in the grid of parameters controlling
+#'   the level of sparsity in the underlying algorithm.
+#' @param lambda_max optional maximum value for the grid in penalty parameters.
+#'   If \code{lambda_max=NULL}, the maximum value is set to the maximum
+#'   covariance in absolute value. Only used if
+#'   \code{implementation=PenalisedGraphical}.
 #'
 #' @return A matrix of lambda values with \code{length(pk)} columns and
 #'   \code{Lambda_cardinal} rows.

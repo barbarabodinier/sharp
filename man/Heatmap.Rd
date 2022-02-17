@@ -11,6 +11,8 @@ Heatmap(
   bty = "o",
   axes = TRUE,
   cex.axis = 1,
+  xlas = 2,
+  ylas = 2,
   legend = TRUE,
   legend_length = NULL,
   legend_range = NULL
@@ -30,7 +32,13 @@ drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \item{axes}{logical indicating if the row and column names of \code{mat}
 should be displayed.}
 
-\item{cex.axis}{size of labels along the axes.}
+\item{cex.axis}{font size for axes.}
+
+\item{xlas}{orientation of labels on the x-axis, as \code{las} in
+\code{\link[graphics]{par}}.}
+
+\item{ylas}{orientation of labels on the y-axis, as \code{las} in
+\code{\link[graphics]{par}}.}
 
 \item{legend}{logical indicating if the colour bar should be included.}
 

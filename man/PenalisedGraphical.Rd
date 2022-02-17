@@ -2,7 +2,7 @@
 % Please edit documentation in R/penalised_models.R
 \name{PenalisedGraphical}
 \alias{PenalisedGraphical}
-\title{GGM estimation algorithm}
+\title{Graphical LASSO}
 \usage{
 PenalisedGraphical(
   xdata,
@@ -23,12 +23,7 @@ multi-block stability selection where \code{pk} indicates the number of
 variables in each group. If \code{pk=NULL}, single-block stability
 selection is performed.}
 
-\item{Lambda}{matrix of parameters controlling the level of sparsity in the
-underlying feature selection algorithm specified in \code{implementation}.
-If \code{Lambda=NULL} and \code{implementation=PenalisedGraphical},
-\code{\link{LambdaGridGraphical}} is used to define a relevant grid.
-\code{Lambda} can be provided as a vector or a matrix with
-\code{length(pk)} columns.}
+\item{Lambda}{matrix of parameters controlling the level of sparsity.}
 
 \item{Sequential_template}{logical matrix encoding the type of procedure to
 use for data with multiple blocks in stability selection graphical
@@ -63,9 +58,8 @@ An array with binary and symmetric adjacency matrices along the third
   dimension.
 }
 \description{
-Runs the algorithm for estimation of a Gaussian Graphical Model (GGM)
-specified in the argument \code{implementation} and returns the estimated
-adjacency matrix. This function is not using stability.
+Runs the graphical LASSO algorithm for estimation of a Gaussian Graphical
+Model (GGM). This function is not using stability.
 }
 \details{
 The use of the procedure from Equation (4) or (5) is controlled by
@@ -96,8 +90,6 @@ myglasso <- PenalisedGraphical(
 \code{\link{GraphicalModel}}
 
 Other underlying algorithm functions: 
-\code{\link{GraphicalAlgo}()},
-\code{\link{PenalisedRegression}()},
-\code{\link{SelectionAlgo}()}
+\code{\link{PenalisedRegression}()}
 }
 \concept{underlying algorithm functions}

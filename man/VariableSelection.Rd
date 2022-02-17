@@ -75,12 +75,12 @@ replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
 \code{tau} and return the IDs of observations to be included in the
-resampled dataset (see \code{\link{Resample}}).}
+resampled dataset.}
 
 \item{cpss}{logical indicating if complementary pair stability selection
 should be done. For this, the algorithm is applied on two non-overlapping
 subsets of half of the observations. A feature is considered as selected if
-it is selected for both subsets. With this method, the data is split
+it is selected for both subsamples. With this method, the data is split
 \code{K/2} times (\code{K} models are fitted). Only used if
 \code{PFER_method="MB"}.}
 
@@ -95,9 +95,9 @@ control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 calibration is used (the default).}
 
 \item{FDP_thr}{threshold in the expected proportion of falsely selected
-features (or False Discovery Proportion, FDP) for constrained calibration
-by error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf},
-unconstrained calibration is used (the default).}
+features (or False Discovery Proportion) for constrained calibration by
+error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
+calibration is used (the default).}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
 the level of sparsity in the underlying algorithm. Only used if
@@ -113,8 +113,8 @@ be considered in the stability score. The use of
 \code{group_penalisation=TRUE} strictly applies to group (not sparse-group)
 penalisation.}
 
-\item{n_cores}{number of cores to use for parallel computing. Only available
-on Unix systems.}
+\item{n_cores}{number of cores to use for parallel computing (see
+\code{\link[parallel]{mclapply}}). Only available on Unix systems.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}
@@ -221,7 +221,7 @@ In stability selection, a feature selection algorithm is fitted on
   are the same as in the full sample.
 
   To ensure reproducibility of the results, the starting number of the random
-  number generator is fixed to \code{seed}.
+  number generator is set to \code{seed}.
 
   For parallelisation, stability selection with different sets of parameters
   can be run on \code{n_cores} cores. This relies on forking with
@@ -421,11 +421,11 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   \insertRef{stabilityselectionSS}{focus}
 }
 \seealso{
-\code{\link{Recalibrate}}, \code{\link{ExplanatoryPerformance}},
-  \code{\link{PlotROC}}, \code{\link{Incremental}},
-  \code{\link{PlotIncremental}}, \code{\link{Combine}},
+\code{\link{PenalisedRegression}}, \code{\link{SelectionAlgo}},
   \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-  \code{\link{StabilityScore}}
+  \code{\link{StabilityScore}} \code{\link{Recalibrate}},
+  \code{\link{ExplanatoryPerformance}}, \code{\link{PlotROC}},
+  \code{\link{Incremental}}, \code{\link{PlotIncremental}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},

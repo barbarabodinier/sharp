@@ -11,15 +11,14 @@ SelectionProportions(stability, argmax_id = NULL)
 \code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated adjacency matrix is returned.}
+the calibrated model is used.}
 }
 \value{
 A symmetric matrix (graphical model) or vector (variable selection)
   of selection proportions.
 }
 \description{
-Extracts the selection proportions of the (calibrated) stability selection
-model or co-membership proportions of the (calibrated) consensus clustering
+Extracts the selection (or co-membership) proportions of the (calibrated)
 model.
 }
 \examples{
@@ -83,7 +82,8 @@ prop <- SelectionProportions(stab)
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
+\code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
+  \code{\link{BiSelection}}
 
 Other calibration functions: 
 \code{\link{Adjacency}()},

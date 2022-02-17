@@ -43,11 +43,10 @@ replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
 \code{tau} and return the IDs of observations to be included in the
-resampled dataset (see \code{\link{Resample}}).}
+resampled dataset.}
 
 \item{Lambda_cardinal}{number of values in the grid of parameters controlling
-the level of sparsity in the underlying algorithm. Only used if
-\code{Lambda=NULL}.}
+the level of sparsity in the underlying algorithm.}
 
 \item{check_input}{logical indicating if input values should be checked
 (recommended).}

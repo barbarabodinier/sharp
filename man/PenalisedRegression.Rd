@@ -62,8 +62,6 @@ mylasso$beta_full
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 
 Other underlying algorithm functions: 
-\code{\link{GraphicalAlgo}()},
-\code{\link{PenalisedGraphical}()},
-\code{\link{SelectionAlgo}()}
+\code{\link{PenalisedGraphical}()}
 }
 \concept{underlying algorithm functions}

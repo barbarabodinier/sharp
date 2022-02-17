@@ -26,7 +26,7 @@ replacement generating a resampled dataset with as many observations as in
 the full sample. Alternatively, this argument can be a function to use for
 resampling. This function must use arguments named \code{data} and
 \code{tau} and return the IDs of observations to be included in the
-resampled dataset (see \code{\link{Resample}}).}
+resampled dataset.}
 
 \item{...}{additional parameters passed to the function provided in
 \code{resampling}.}

@@ -112,8 +112,8 @@ BlockStructure <- function(pk) {
 #'   penalty parameters and columns correspond to different blocks.}
 #'   \item{Sequential_template}{logical matrix encoding the type of procedure
 #'   for data with multiple blocks in stability selection graphical modelling.
-#'   For multi-block estimation, the procedure is separately calibrating each
-#'   block while the others are weakly penalised (\code{TRUE} only for the block
+#'   For multi-block estimation, each block is calibrated separately while
+#'   others blocks are weakly penalised (\code{TRUE} only for the block
 #'   currently being calibrated and \code{FALSE} for other blocks). Other
 #'   approaches with joint calibration of the blocks are allowed (all entries
 #'   are set to \code{TRUE}).}

@@ -31,11 +31,11 @@ PlotROC(
 
 \item{alpha}{level of opacity for the band.}
 
-\item{lwd}{line width for the point-wise median curve, as in
-\code{\link{par}}.}
+\item{lwd}{line width, as in \code{\link[graphics]{par}}. Only used if
+\code{stability} is the output of \code{\link{BiSelection}}.}
 
-\item{lty}{line type for the point-wise median curve, as in
-\code{\link{par}}.}
+\item{lty}{line type, as in \code{\link[graphics]{par}}. Only used if
+\code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{quantiles}{point-wise quantiles of the performances defining the band.}
 

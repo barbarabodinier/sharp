@@ -14,7 +14,7 @@ FDP(selprop, PFER, pi)
 \item{pi}{threshold in selection proportions.}
 }
 \value{
-The FDP (upper-bound).
+The estimated upper-bound in FDP.
 }
 \description{
 Computes the False Discovery Proportion (upper-bound) as a ratio of the PFER
