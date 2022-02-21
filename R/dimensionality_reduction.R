@@ -274,19 +274,9 @@ PLS <- function(xdata, ydata,
 #' implemented in \code{\link[mixOmics]{predict.pls}}.
 #'
 #' @inheritParams SelectionAlgo
-#' @param pls output of \code{\link{PLS}}.
+#' @param model output of \code{\link{PLS}}.
 #'
-#' @return A list with: \item{Wmat}{matrix of X-weights.} \item{Wstar}{matrix of
-#'   transformed X-weights.} \item{Pmat}{matrix of X-loadings.}
-#'   \item{Tmat}{matrix of X-scores.} \item{Umat}{matrix of Y-scores.}
-#'   \item{Qmat}{matrix needed for predictions.} \item{Rmat}{matrix needed for
-#'   predictions.} \item{meansX}{vector used for centering of predictors, needed
-#'   for predictions.} \item{sigmaX}{vector used for scaling of predictors,
-#'   needed for predictions.} \item{meansY}{vector used for centering of
-#'   outcomes, needed for predictions.} \item{sigmaY}{vector used for scaling of
-#'   outcomes, needed for predictions.} \item{methods}{a list with \code{family}
-#'   and \code{scale} values used for the run.} \item{params}{a list with
-#'   \code{selectedX} and \code{selectedY} values used for the run.}
+#' @return An array of predicted values.
 #'
 #' @seealso \code{\link{PLS}}
 #'
@@ -301,41 +291,49 @@ PLS <- function(xdata, ydata,
 #' mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
 #'
 #' # Predicted values
-#' predicted <- PredictPLS(xdata = x, pls = mypls)
+#' predicted <- PredictPLS(xdata = x, model = mypls)
 #' @export
-PredictPLS <- function(xdata, pls) {
+PredictPLS <- function(xdata, model) {
   # Extracting arguments
-  family <- pls$methods$family
-  ncomp <- ncol(pls$Wmat)
+  family <- model$methods$family
+  ncomp <- ncol(model$Wmat)
 
   # Checking arguments
   if (!family %in% c("gaussian")) {
     stop("Invalid input for argument 'family'. Only 'gaussian' family is supported.")
   }
 
+  # Extracting relevant variables
+  xdata <- xdata[, rownames(model$Wmat), drop = FALSE]
+
   # Re-scaling data
-  newdata <- t(apply(xdata, 1, FUN = function(x) {
-    (x - pls$meansX) / pls$sigmaX
-  }))
+  if (ncol(xdata) == 1) {
+    newdata <- matrix(sapply(xdata, FUN = function(x) {
+      (x - model$meansX) / model$sigmaX
+    }), ncol = 1)
+  } else {
+    newdata <- t(apply(xdata, 1, FUN = function(x) {
+      (x - model$meansX) / model$sigmaX
+    }))
+  }
 
   # Initialising empty object
   out <- array(NA,
-    dim = c(nrow(newdata), nrow(pls$Rmat), ncomp),
-    dimnames = list(rownames(newdata), rownames(pls$Rmat), colnames(pls$Rmat))
+    dim = c(nrow(newdata), nrow(model$Rmat), ncomp),
+    dimnames = list(rownames(newdata), rownames(model$Rmat), colnames(model$Rmat))
   )
 
   # Loop over the components
   for (comp in 1:ncomp) {
     # Computing predicted values
-    Ypred <- newdata %*% pls$Wmat[, 1:comp] %*% solve(t(pls$Qmat[, 1:comp]) %*% pls$Wmat[, 1:comp]) %*% t(pls$Rmat)[1:comp, ]
+    Ypred <- newdata %*% model$Wmat[, 1:comp, drop = FALSE] %*% solve(t(model$Qmat[, 1:comp, drop = FALSE]) %*% model$Wmat[, 1:comp, drop = FALSE]) %*% t(model$Rmat)[1:comp, , drop = FALSE]
 
     # Re-scaling
     Ypred <- t(apply(Ypred, 1, FUN = function(y) {
-      y * pls$sigmaY + pls$meansY
+      y * model$sigmaY + model$meansY
     }))
 
     # Storing in the output
-    print(dim(Ypred))
     out[, , comp] <- Ypred
   }
 

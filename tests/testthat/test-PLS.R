@@ -34,7 +34,7 @@ test_that("PLS 'a la carte' is consistent with mixOmics", {
 
     # Predicting values
     predicted1 <- predict(mypls1, newdata = newdata)$predict
-    predicted2 <- PredictPLS(xdata = newdata, pls = mypls2)
+    predicted2 <- PredictPLS(xdata = newdata, model = mypls2)
 
     # Checking consistency in predictions
     for (comp in 1:ncomp) {

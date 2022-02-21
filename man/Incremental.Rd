@@ -9,6 +9,8 @@ Incremental(
   ydata,
   stability = NULL,
   family = NULL,
+  implementation = NULL,
+  prediction = NULL,
   n_predictors = NULL,
   K = 100,
   tau = 0.8,
@@ -36,6 +38,16 @@ provided in this case.}
 regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis). If provided, this argument must be
 consistent with input \code{stability}.}
+
+\item{implementation}{optional function to recalibrate the model. If
+\code{implementation=NULL} and \code{stability} is the output of
+\code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
+regression), \code{\link[survival]{coxph}} (Cox regression),
+\code{\link[stats]{glm}} (logistic regression), or
+\code{\link[nnet]{multinom}} (multinomial regression) is used.}
+
+\item{prediction}{optional function to compute predicted values from the
+model recalibrated with \code{implementation}.}
 
 \item{n_predictors}{number of predictors to consider.}
 
@@ -74,25 +86,25 @@ For logistic regression, a list with: \item{FPR}{A list with, for
   regression coefficients from visited models.} \item{names}{Names of the
   predictors by order of inclusion.}
 
-  For Cox models, a list with: \item{concordance}{If \code{ij_method=FALSE},
-  a list with, for each of the models (sequentially added predictors), a
-  vector of concordance indices obtained with different data splits. If
-  \code{ij_method=TRUE}, a vector of concordance indices for each of the
-  models (sequentially added predictors).} \item{lower}{A vector of the lower
+  For Cox regression, a list with: \item{concordance}{If
+  \code{ij_method=FALSE}, a list with, for each of the models (sequentially
+  added predictors), a vector of concordance indices obtained with different
+  data splits. If \code{ij_method=TRUE}, a vector of concordance indices for
+  each of the models (sequentially added predictors).} \item{lower}{A vector
+  of the lower bound of the confidence interval at level 0.05 for concordance
+  indices for each of the models (sequentially added predictors). Only
+  returned if \code{ij_method=TRUE}.} \item{upper}{A vector of the upper
   bound of the confidence interval at level 0.05 for concordance indices for
   each of the models (sequentially added predictors). Only returned if
-  \code{ij_method=TRUE}.} \item{upper}{A vector of the upper bound of the
-  confidence interval at level 0.05 for concordance indices for each of the
-  models (sequentially added predictors). Only returned if
   \code{ij_method=TRUE}.} \item{Beta}{Estimated regression coefficients from
   visited models.} \item{names}{Names of the predictors by order of
   inclusion.}
 
-  For linear models, a list with: \item{Q_squared}{A list with, for each of
-  the models (sequentially added predictors), a vector of Q-squared obtained
-  with different data splits.} \item{Beta}{Estimated regression coefficients
-  from visited models.} \item{names}{Names of the predictors by order of
-  inclusion.}
+  For linear regression, a list with: \item{Q_squared}{A list with, for each
+  of the models (sequentially added predictors), a vector of Q-squared
+  obtained with different data splits.} \item{Beta}{Estimated regression
+  coefficients from visited models.} \item{names}{Names of the predictors by
+  order of inclusion.}
 }
 \description{
 Computes the prediction performance of regression models where predictors are
@@ -125,6 +137,37 @@ stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 # Evaluating marginal contribution of the predictors
 perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
 PlotIncremental(perf)
+
+
+## Partial Least Squares (single component)
+
+# Stability selection
+stab <- VariableSelection(
+  xdata = xtrain, ydata = ytrain,
+  implementation = SparsePLS,
+  family = "binomial"
+)
+print(SelectedVariables(stab))
+
+# Defining wrapping functions for PLS-DA
+PLSDA <- function(xdata, ydata, family = "binomial") {
+  model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
+  return(model)
+}
+PredictPLSDA <- function(xdata, model) {
+  xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
+  predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
+  return(predicted)
+}
+
+# Evaluation of the performances on recalibrated models (K=1)
+incremental <- Incremental(
+  xdata = xtest, ydata = ytest,
+  stability = stab,
+  implementation = PLSDA, prediction = PredictPLSDA,
+  K = 10
+)
+PlotIncremental(incremental)
 
 
 ## Cox regression
@@ -181,6 +224,26 @@ stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
 # Evaluating marginal contribution of the predictors
 perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
 PlotIncremental(perf)
+
+
+## Partial Least Squares (single component)
+
+# Stability selection
+stab <- VariableSelection(
+  xdata = xtrain, ydata = ytrain,
+  implementation = SparsePLS,
+  family = "gaussian"
+)
+print(SelectedVariables(stab))
+
+# Evaluation of the performances on recalibrated models (K=1)
+incremental <- Incremental(
+  xdata = xtest, ydata = ytest,
+  stability = stab,
+  implementation = PLS, prediction = PredictPLS,
+  K = 10
+)
+PlotIncremental(incremental)
 }
 
 }

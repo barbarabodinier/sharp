@@ -141,10 +141,15 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   regression), \code{"multinomial"} (multinomial regression), and
 #'   \code{"cox"} (survival analysis). If provided, this argument must be
 #'   consistent with input \code{stability}.
-#' @param ... additional arguments to be passed to \code{\link[stats]{lm}}
-#'   (linear regression), \code{\link[survival]{coxph}} (Cox regression),
+#' @param implementation optional function to recalibrate the model. If
+#'   \code{implementation=NULL} and \code{stability} is the output of
+#'   \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
+#'   regression), \code{\link[survival]{coxph}} (Cox regression),
 #'   \code{\link[stats]{glm}} (logistic regression), or
-#'   \code{\link[nnet]{multinom}} (multinomial regression).
+#'   \code{\link[nnet]{multinom}} (multinomial regression) is used. The function
+#'   \code{\link{PLS}} is used for the output of \code{\link{BiSelection}}.
+#' @param ... additional arguments to be passed to the recalibration function
+#'   (see \code{implementation}).
 #'
 #'
 #' @return The output as obtained from: \item{\code{\link[stats]{lm}}}{for
@@ -287,7 +292,41 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' head(recalibrated$fitted.values) # recalibrated predicted probabilities
 #'
 #'
-#' ## Partial Least Squares
+#' ## Partial Least Squares (single component)
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+#'
+#' # Data split
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "gaussian"
+#' )
+#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
+#' ytrain <- simul$ydata[ids_train, , drop = FALSE]
+#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = xtrain, ydata = ytrain,
+#'   implementation = SparsePLS,
+#'   family = "gaussian"
+#' )
+#' print(SelectedVariables(stab))
+#'
+#' # Recalibrating the model
+#' recalibrated <- Recalibrate(
+#'   xdata = xrecalib, ydata = yrecalib,
+#'   implementation = PLS,
+#'   stability = stab
+#' )
+#' recalibrated$Wmat # recalibrated X-weights
+#' head(recalibrated$Tmat) # recalibrated X-scores
+#'
+#'
+#' ## Partial Least Squares (multiple components)
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -323,7 +362,8 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' }
 #'
 #' @export
-Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
+Recalibrate <- function(xdata, ydata, stability = NULL,
+                        family = NULL, implementation = NULL, ...) {
   # Defining the type of model (PLS vs regression)
   use_pls <- FALSE
 
@@ -396,38 +436,43 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
       colnames(xdata)[!colnames(xdata) %in% names(selected)]
     )
 
-    # Writing model formula
-    ids <- gsub("`", "", ids)
-    colnames(xdata) <- gsub("`", "", colnames(xdata))
-    if (length(ids) == 0) {
-      message("No stably selected variables. Running a model with intercept only.")
-      myformula <- stats::as.formula("ydata ~ 1")
+    if (is.null(implementation)) {
+      # Writing model formula
+      ids <- gsub("`", "", ids)
+      colnames(xdata) <- gsub("`", "", colnames(xdata))
+      if (length(ids) == 0) {
+        message("No stably selected variables. Running a model with intercept only.")
+        myformula <- stats::as.formula("ydata ~ 1")
+      } else {
+        myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
+      }
+
+      # Recalibration for linear regression
+      if (family == "gaussian") {
+        mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
+      }
+
+      # Recalibration for Cox regression
+      if (family == "cox") {
+        ydata <- survival::Surv(ydata[, "time"], ydata[, "case"])
+        mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
+      }
+
+      # Recalibration for logistic regression
+      if (family == "binomial") {
+        mymodel <- stats::glm(myformula,
+          data = as.data.frame(xdata),
+          family = stats::binomial(link = "logit", ...)
+        )
+      }
+
+      # Recalibration for multinomial regression
+      if (family == "multinomial") {
+        mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), ...)
+      }
     } else {
-      myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
-    }
-
-    # Recalibration for linear regression
-    if (family == "gaussian") {
-      mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
-    }
-
-    # Recalibration for Cox regression
-    if (family == "cox") {
-      ydata <- survival::Surv(ydata[, "time"], ydata[, "case"])
-      mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
-    }
-
-    # Recalibration for logistic regression
-    if (family == "binomial") {
-      mymodel <- stats::glm(myformula,
-        data = as.data.frame(xdata),
-        family = stats::binomial(link = "logit", ...)
-      )
-    }
-
-    # Recalibration for multinomial regression
-    if (family == "multinomial") {
-      mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), ...)
+      xdata <- xdata[, ids, drop = FALSE]
+      mymodel <- do.call(implementation, args = list(xdata = xdata, ydata = ydata, family = family, ...))
     }
   }
 
@@ -445,6 +490,18 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #' repeated \code{K} times (default \code{K=1}).
 #'
 #' @inheritParams Recalibrate
+#' @param stability output of \code{\link{VariableSelection}}. If
+#'   \code{stability=NULL} (the default), a model including all variables in
+#'   \code{xdata} as predictors is fitted. Argument \code{family} must be
+#'   provided in this case.
+#' @param implementation optional function to recalibrate the model. If
+#'   \code{implementation=NULL} and \code{stability} is the output of
+#'   \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
+#'   regression), \code{\link[survival]{coxph}} (Cox regression),
+#'   \code{\link[stats]{glm}} (logistic regression), or
+#'   \code{\link[nnet]{multinom}} (multinomial regression) is used.
+#' @param prediction optional function to compute predicted values from the
+#'   model recalibrated with \code{implementation}.
 #' @param K number of training-test splits.
 #' @param tau proportion of observations used in the training set.
 #' @param seed value of the seed to ensure reproducibility of the results.
@@ -543,6 +600,36 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #' PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
 #'
 #'
+#' ## Partial Least Squares (single component)
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = xtrain, ydata = ytrain,
+#'   implementation = SparsePLS,
+#'   family = "binomial"
+#' )
+#' print(SelectedVariables(stab))
+#'
+#' # Defining wrapping functions for PLS-DA
+#' PLSDA <- function(xdata, ydata, family = "binomial") {
+#'   model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
+#'   return(model)
+#' }
+#' PredictPLSDA <- function(xdata, model) {
+#'   xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
+#'   predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
+#'   return(predicted)
+#' }
+#'
+#' # Evaluation of the performances on recalibrated models (K=1)
+#' roc <- ExplanatoryPerformance(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab,
+#'   implementation = PLSDA, prediction = PredictPLSDA
+#' )
+#' PlotROC(roc)
+#'
+#'
 #' ## Cox regression
 #'
 #' # Data simulation
@@ -605,11 +692,32 @@ Recalibrate <- function(xdata, ydata, stability = NULL, family = NULL, ...) {
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab
 #' )
+#' print(perf)
+#'
+#'
+#' ## Partial Least Squares (single component)
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = xtrain, ydata = ytrain,
+#'   implementation = SparsePLS,
+#'   family = "gaussian"
+#' )
+#' print(SelectedVariables(stab))
+#'
+#' # Evaluation of the performances on recalibrated models (K=1)
+#' perf <- ExplanatoryPerformance(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab,
+#'   implementation = PLS, prediction = PredictPLS
+#' )
+#' print(perf)
 #' }
 #'
 #' @export
 ExplanatoryPerformance <- function(xdata, ydata,
                                    stability = NULL, family = NULL,
+                                   implementation = NULL, prediction = NULL,
                                    K = 1, tau = 0.8, seed = 1,
                                    n_thr = NULL,
                                    ij_method = FALSE, time = 1000) {
@@ -679,26 +787,47 @@ ExplanatoryPerformance <- function(xdata, ydata,
       ytest <- ydata[ids_test, , drop = FALSE]
 
       # Recalibration from stability selection model
-      recalibrated <- Recalibrate(xdata = xtrain, ydata = ytrain, stability = stability, family = family)
+      recalibrated <- Recalibrate(
+        xdata = xtrain, ydata = ytrain,
+        stability = stability,
+        implementation = implementation,
+        family = family
+      )
 
-      # Initialising matrix of beta coefficients
-      if (iter == 1) {
-        if (family %in% c("gaussian", "binomial", "cox")) {
-          Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(recalibrated)))
-          colnames(Beta) <- names(stats::coef(recalibrated))
-          rownames(Beta) <- paste0("iter", 1:K)
+      if (is.null(implementation)) {
+        # Initialising matrix of beta coefficients
+        if (iter == 1) {
+          if (family %in% c("gaussian", "binomial", "cox")) {
+            Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(recalibrated)))
+            colnames(Beta) <- names(stats::coef(recalibrated))
+            rownames(Beta) <- paste0("iter", 1:K)
+          }
         }
-      }
 
-      # Storing beta coefficients
-      if (family %in% c("gaussian", "binomial", "cox")) {
-        Beta[iter, ] <- stats::coef(recalibrated)
-      }
+        # Storing beta coefficients
+        if (family %in% c("gaussian", "binomial", "cox")) {
+          Beta[iter, ] <- stats::coef(recalibrated)
+        }
 
+        # Predictions from logistic models
+        if (tolower(metric) == "roc") {
+          predicted <- stats::predict.glm(recalibrated, newdata = as.data.frame(xtest), type = "response")
+        }
+
+
+        # Predictions from linear models
+        if (tolower(metric) == "q2") {
+          predicted <- stats::predict.lm(recalibrated, newdata = as.data.frame(xtest))
+        }
+      } else {
+        if (is.null(prediction)) {
+          stop("Argument 'prediction' has to be provided if 'implementation' is provided. It must be a function that takes the output of 'implementation' as argument.")
+        }
+        predicted <- do.call(prediction, args = list(xdata = xtest, model = recalibrated)) # XXX TODO check the dots
+      }
       # Performing ROC analyses
       if (tolower(metric) == "roc") {
         # ROC analysis
-        predicted <- stats::predict.glm(recalibrated, newdata = as.data.frame(xtest), type = "response")
         roc <- ROC(predicted = predicted, observed = ytest, n_thr = n_thr)
 
         # Initialisation of the object
@@ -712,6 +841,17 @@ ExplanatoryPerformance <- function(xdata, ydata,
         FPR[iter, ] <- roc$FPR
         TPR[iter, ] <- roc$TPR
         AUC[iter] <- roc$AUC
+      }
+
+      # Performing Q-squared analyses
+      if (tolower(metric) == "q2") {
+        # Initialisation of the object
+        if (iter == 1) {
+          Q_squared <- rep(NA, K * n_folds)
+        }
+
+        # Computing the Q-squared
+        Q_squared[iter] <- stats::cor(predicted, ytest)^2
       }
 
       # Performing concordance analyses
@@ -736,20 +876,6 @@ ExplanatoryPerformance <- function(xdata, ydata,
           cindex[iter] <- cstat$concordance
         }
       }
-
-      # Performing Q-squared analyses
-      if (tolower(metric) == "q2") {
-        # Computing predicted values using the recalibrated model
-        predicted <- stats::predict.lm(recalibrated, newdata = as.data.frame(xtest))
-
-        # Initialisation of the object
-        if (iter == 1) {
-          Q_squared <- rep(NA, K * n_folds)
-        }
-
-        # Computing the Q-squared
-        Q_squared[iter] <- stats::cor(predicted, ytest)^2
-      }
     }
   }
 
@@ -770,7 +896,9 @@ ExplanatoryPerformance <- function(xdata, ydata,
     out <- list(Q_squared = Q_squared)
   }
 
-  out <- c(out, Beta = list(Beta))
+  if (is.null(implementation)) {
+    out <- c(out, Beta = list(Beta))
+  }
 
   return(out)
 }
@@ -848,6 +976,37 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' PlotIncremental(perf)
 #'
 #'
+#' ## Partial Least Squares (single component)
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = xtrain, ydata = ytrain,
+#'   implementation = SparsePLS,
+#'   family = "binomial"
+#' )
+#' print(SelectedVariables(stab))
+#'
+#' # Defining wrapping functions for PLS-DA
+#' PLSDA <- function(xdata, ydata, family = "binomial") {
+#'   model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
+#'   return(model)
+#' }
+#' PredictPLSDA <- function(xdata, model) {
+#'   xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
+#'   predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
+#'   return(predicted)
+#' }
+#'
+#' # Evaluation of the performances on recalibrated models (K=1)
+#' incremental <- Incremental(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab,
+#'   implementation = PLSDA, prediction = PredictPLSDA,
+#'   K = 10
+#' )
+#' PlotIncremental(incremental)
+#'
+#'
 #' ## Cox regression
 #'
 #' # Data simulation
@@ -902,11 +1061,32 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' # Evaluating marginal contribution of the predictors
 #' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
 #' PlotIncremental(perf)
+#'
+#'
+#' ## Partial Least Squares (single component)
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = xtrain, ydata = ytrain,
+#'   implementation = SparsePLS,
+#'   family = "gaussian"
+#' )
+#' print(SelectedVariables(stab))
+#'
+#' # Evaluation of the performances on recalibrated models (K=1)
+#' incremental <- Incremental(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab,
+#'   implementation = PLS, prediction = PredictPLS,
+#'   K = 10
+#' )
+#' PlotIncremental(incremental)
 #' }
 #'
 #' @export
 Incremental <- function(xdata, ydata,
                         stability = NULL, family = NULL,
+                        implementation = NULL, prediction = NULL,
                         n_predictors = NULL,
                         K = 100, tau = 0.8, seed = 1,
                         n_thr = NULL,
@@ -981,6 +1161,8 @@ Incremental <- function(xdata, ydata,
       ydata = ydata,
       stability = NULL,
       family = family,
+      implementation = implementation,
+      prediction = prediction,
       K = K, tau = tau, seed = seed,
       n_thr = n_thr,
       ij_method = ij_method, time = time
@@ -1021,7 +1203,9 @@ Incremental <- function(xdata, ydata,
   }
 
   # Adding beta coefficients
-  out <- c(out, list(Beta = Beta))
+  if (is.null(implementation)) {
+    out <- c(out, list(Beta = Beta))
+  }
 
   # Adding variable names
   out <- c(out, names = list(myorder[1:n_predictors]))
@@ -1034,13 +1218,13 @@ Incremental <- function(xdata, ydata,
 #'
 #' Plots the True Positive Rate (TPR) as a function of the False Positive Rate
 #' (FPR) for different thresholds in predicted probabilities. If the results
-#' from multiple ROC analyses are provided (e.g. output from
+#' from multiple ROC analyses are provided (e.g. output of
 #' \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
 #' median is represented and flanked by a transparent band defined by
 #' point-wise \code{quantiles}.
 #'
 #' @inheritParams CalibrationPlot
-#' @param roc output from \code{\link{ROC}} or
+#' @param roc output of \code{\link{ROC}} or
 #'   \code{\link{ExplanatoryPerformance}}.
 #' @param col colour of the point-wise median curve.
 #' @param col_band colour of the band defined by point-wise \code{quantiles}.
@@ -1154,7 +1338,7 @@ PlotROC <- function(roc,
 #' metric are reported.
 #'
 #' @inheritParams CalibrationPlot
-#' @param perf output from \code{\link{Incremental}}.
+#' @param perf output of \code{\link{Incremental}}.
 #' @param quantiles quantiles defining the lower and upper bounds.
 #' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
 #' @param col vector of point colours.

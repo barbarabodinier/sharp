@@ -4,26 +4,16 @@
 \alias{PredictPLS}
 \title{Partial Least Squares predictions}
 \usage{
-PredictPLS(xdata, pls)
+PredictPLS(xdata, model)
 }
 \arguments{
 \item{xdata}{matrix of predictors with observations as rows and variables as
 columns.}
 
-\item{pls}{output of \code{\link{PLS}}.}
+\item{model}{output of \code{\link{PLS}}.}
 }
 \value{
-A list with: \item{Wmat}{matrix of X-weights.} \item{Wstar}{matrix of
-  transformed X-weights.} \item{Pmat}{matrix of X-loadings.}
-  \item{Tmat}{matrix of X-scores.} \item{Umat}{matrix of Y-scores.}
-  \item{Qmat}{matrix needed for predictions.} \item{Rmat}{matrix needed for
-  predictions.} \item{meansX}{vector used for centering of predictors, needed
-  for predictions.} \item{sigmaX}{vector used for scaling of predictors,
-  needed for predictions.} \item{meansY}{vector used for centering of
-  outcomes, needed for predictions.} \item{sigmaY}{vector used for scaling of
-  outcomes, needed for predictions.} \item{methods}{a list with \code{family}
-  and \code{scale} values used for the run.} \item{params}{a list with
-  \code{selectedX} and \code{selectedY} values used for the run.}
+An array of predicted values.
 }
 \description{
 Computes predicted values from a Partial Least Squares (PLS) model in
@@ -41,7 +31,7 @@ y <- simul$ydata
 mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
 
 # Predicted values
-predicted <- PredictPLS(xdata = x, pls = mypls)
+predicted <- PredictPLS(xdata = x, model = mypls)
 }
 \seealso{
 \code{\link{PLS}}

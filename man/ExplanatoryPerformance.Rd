@@ -9,6 +9,8 @@ ExplanatoryPerformance(
   ydata,
   stability = NULL,
   family = NULL,
+  implementation = NULL,
+  prediction = NULL,
   K = 1,
   tau = 0.8,
   seed = 1,
@@ -35,6 +37,16 @@ provided in this case.}
 regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis). If provided, this argument must be
 consistent with input \code{stability}.}
+
+\item{implementation}{optional function to recalibrate the model. If
+\code{implementation=NULL} and \code{stability} is the output of
+\code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
+regression), \code{\link[survival]{coxph}} (Cox regression),
+\code{\link[stats]{glm}} (logistic regression), or
+\code{\link[nnet]{multinom}} (multinomial regression) is used.}
+
+\item{prediction}{optional function to compute predicted values from the
+model recalibrated with \code{implementation}.}
 
 \item{K}{number of training-test splits.}
 
@@ -145,6 +157,36 @@ roc <- ExplanatoryPerformance(
 PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
 
 
+## Partial Least Squares (single component)
+
+# Stability selection
+stab <- VariableSelection(
+  xdata = xtrain, ydata = ytrain,
+  implementation = SparsePLS,
+  family = "binomial"
+)
+print(SelectedVariables(stab))
+
+# Defining wrapping functions for PLS-DA
+PLSDA <- function(xdata, ydata, family = "binomial") {
+  model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
+  return(model)
+}
+PredictPLSDA <- function(xdata, model) {
+  xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
+  predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
+  return(predicted)
+}
+
+# Evaluation of the performances on recalibrated models (K=1)
+roc <- ExplanatoryPerformance(
+  xdata = xtest, ydata = ytest,
+  stability = stab,
+  implementation = PLSDA, prediction = PredictPLSDA
+)
+PlotROC(roc)
+
+
 ## Cox regression
 
 # Data simulation
@@ -207,6 +249,26 @@ perf <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab
 )
+print(perf)
+
+
+## Partial Least Squares (single component)
+
+# Stability selection
+stab <- VariableSelection(
+  xdata = xtrain, ydata = ytrain,
+  implementation = SparsePLS,
+  family = "gaussian"
+)
+print(SelectedVariables(stab))
+
+# Evaluation of the performances on recalibrated models (K=1)
+perf <- ExplanatoryPerformance(
+  xdata = xtest, ydata = ytest,
+  stability = stab,
+  implementation = PLS, prediction = PredictPLS
+)
+print(perf)
 }
 
 }

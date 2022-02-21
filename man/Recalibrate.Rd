@@ -4,7 +4,14 @@
 \alias{Recalibrate}
 \title{Regression model recalibration}
 \usage{
-Recalibrate(xdata, ydata, stability = NULL, family = NULL, ...)
+Recalibrate(
+  xdata,
+  ydata,
+  stability = NULL,
+  family = NULL,
+  implementation = NULL,
+  ...
+)
 }
 \arguments{
 \item{xdata}{matrix of predictors with observations as rows and variables as
@@ -14,10 +21,10 @@ columns.}
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
 with character/numeric values or a factor.}
 
-\item{stability}{output of \code{\link{VariableSelection}}. If
-\code{stability=NULL} (the default), a model including all variables in
-\code{xdata} as predictors is fitted. Argument \code{family} must be
-provided in this case.}
+\item{stability}{output of \code{\link{VariableSelection}} or
+\code{\link{BiSelection}}. If \code{stability=NULL} (the default), a model
+including all variables in \code{xdata} as predictors is fitted. Argument
+\code{family} must be provided in this case.}
 
 \item{family}{type of regression model. Possible values include
 \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
@@ -25,10 +32,16 @@ regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis). If provided, this argument must be
 consistent with input \code{stability}.}
 
-\item{...}{additional arguments to be passed to \code{\link[stats]{lm}}
-(linear regression), \code{\link[survival]{coxph}} (Cox regression),
+\item{implementation}{optional function to recalibrate the model. If
+\code{implementation=NULL} and \code{stability} is the output of
+\code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
+regression), \code{\link[survival]{coxph}} (Cox regression),
 \code{\link[stats]{glm}} (logistic regression), or
-\code{\link[nnet]{multinom}} (multinomial regression).}
+\code{\link[nnet]{multinom}} (multinomial regression) is used. The function
+\code{\link{PLS}} is used for the output of \code{\link{BiSelection}}.}
+
+\item{...}{additional arguments to be passed to the recalibration function
+(see \code{implementation}).}
 }
 \value{
 The output as obtained from: \item{\code{\link[stats]{lm}}}{for
@@ -174,7 +187,41 @@ summary(recalibrated) # recalibrated coefficients
 head(recalibrated$fitted.values) # recalibrated predicted probabilities
 
 
-## Partial Least Squares
+## Partial Least Squares (single component)
+
+# Data simulation
+set.seed(1)
+simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+
+# Data split
+ids_train <- Resample(
+  data = simul$ydata,
+  tau = 0.5, family = "gaussian"
+)
+xtrain <- simul$xdata[ids_train, , drop = FALSE]
+ytrain <- simul$ydata[ids_train, , drop = FALSE]
+xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
+yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+
+# Stability selection
+stab <- VariableSelection(
+  xdata = xtrain, ydata = ytrain,
+  implementation = SparsePLS,
+  family = "gaussian"
+)
+print(SelectedVariables(stab))
+
+# Recalibrating the model
+recalibrated <- Recalibrate(
+  xdata = xrecalib, ydata = yrecalib,
+  implementation = PLS,
+  stability = stab
+)
+recalibrated$Wmat # recalibrated X-weights
+head(recalibrated$Tmat) # recalibrated X-scores
+
+
+## Partial Least Squares (multiple components)
 
 # Data simulation
 set.seed(1)

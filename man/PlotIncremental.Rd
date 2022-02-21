@@ -25,7 +25,7 @@ PlotIncremental(
 )
 }
 \arguments{
-\item{perf}{output from \code{\link{Incremental}}.}
+\item{perf}{output of \code{\link{Incremental}}.}
 
 \item{quantiles}{quantiles defining the lower and upper bounds.}
 

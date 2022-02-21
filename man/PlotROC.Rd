@@ -18,7 +18,7 @@ PlotROC(
 )
 }
 \arguments{
-\item{roc}{output from \code{\link{ROC}} or
+\item{roc}{output of \code{\link{ROC}} or
 \code{\link{ExplanatoryPerformance}}.}
 
 \item{xlab}{label of the x-axis.}
@@ -48,7 +48,7 @@ A plot.
 \description{
 Plots the True Positive Rate (TPR) as a function of the False Positive Rate
 (FPR) for different thresholds in predicted probabilities. If the results
-from multiple ROC analyses are provided (e.g. output from
+from multiple ROC analyses are provided (e.g. output of
 \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
 median is represented and flanked by a transparent band defined by
 point-wise \code{quantiles}.
