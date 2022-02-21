@@ -70,8 +70,9 @@ For logistic regression, a list with: \item{FPR}{A list with, for
   predictors), the True Positive Rates for different thresholds (columns) and
   different data splits (rows).} \item{AUC}{A list with, for each of the
   models (sequentially added predictors), a vector of Area Under the Curve
-  (AUC) values obtained with different data splits.} \item{names}{Names of
-  the predictors by order of inclusion.}
+  (AUC) values obtained with different data splits.} \item{Beta}{Estimated
+  regression coefficients from visited models.} \item{names}{Names of the
+  predictors by order of inclusion.}
 
   For Cox models, a list with: \item{concordance}{If \code{ij_method=FALSE},
   a list with, for each of the models (sequentially added predictors), a
@@ -83,7 +84,14 @@ For logistic regression, a list with: \item{FPR}{A list with, for
   \code{ij_method=TRUE}.} \item{upper}{A vector of the upper bound of the
   confidence interval at level 0.05 for concordance indices for each of the
   models (sequentially added predictors). Only returned if
-  \code{ij_method=TRUE}.} \item{names}{Names of the predictors by order of
+  \code{ij_method=TRUE}.} \item{Beta}{Estimated regression coefficients from
+  visited models.} \item{names}{Names of the predictors by order of
+  inclusion.}
+
+  For linear models, a list with: \item{Q_squared}{A list with, for each of
+  the models (sequentially added predictors), a vector of Q-squared obtained
+  with different data splits.} \item{Beta}{Estimated regression coefficients
+  from visited models.} \item{names}{Names of the predictors by order of
   inclusion.}
 }
 \description{
