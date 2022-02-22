@@ -215,14 +215,14 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
 
   # Checking the inputs (PFER_thr)
   PFER_thr <- as.numeric(PFER_thr)
-  if ((length(PFER_thr) != 1) | is.na(PFER_thr) | (PFER_thr <= 0)) {
+  if ((length(PFER_thr) != 1) | any(is.na(PFER_thr)) | any(PFER_thr <= 0)) {
     warning("Invalid input for argument 'PFER_thr'. The threshold in the upper-bound of the expected number of False Positives 'PFER_thr' must be a single positive number (or Inf). The default value (Inf) was used.")
     PFER_thr <- Inf
   }
 
   # Checking the inputs (FDP_thr)
   FDP_thr <- as.numeric(FDP_thr)
-  if ((length(FDP_thr) != 1) | is.na(FDP_thr) | ((!is.infinite(FDP_thr)) & (FDP_thr <= 0)) | ((!is.infinite(FDP_thr)) & (FDP_thr > 1))) {
+  if ((length(FDP_thr) != 1) | any(is.na(FDP_thr)) | any((!is.infinite(FDP_thr)) & (FDP_thr <= 0)) | any((!is.infinite(FDP_thr)) & (FDP_thr > 1))) {
     warning("Invalid input for argument 'FDP_thr'. The threshold in the upper-bound of the False Discovery Proportion 'FDP_thr' must be a single number between 0 and 1 (or Inf to deactivate). The default value (Inf) was used.")
     FDP_thr <- Inf
   }
@@ -484,7 +484,7 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
 
   # Checking the inputs (PFER_thr)
   PFER_thr <- as.numeric(PFER_thr)
-  if ((!length(PFER_thr) %in% c(1, nblocks)) | is.na(PFER_thr) | (PFER_thr <= 0)) {
+  if ((!length(PFER_thr) %in% c(1, nblocks)) | any(is.na(PFER_thr)) | any(PFER_thr <= 0)) {
     warning("Invalid input for argument 'PFER_thr'. The threshold in the upper-bound of the expected number of False Positives 'PFER_thr' must be a vector with positive numbers (or Inf). The default value (Inf) was used.")
     PFER_thr <- Inf
   }
@@ -492,7 +492,7 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
   # Checking the inputs (FDP_thr)
   FDP_thr <- as.numeric(FDP_thr)
   if (length(pk) == 1) {
-    if ((!length(PFER_thr) %in% c(1, nblocks)) | is.na(FDP_thr) | ((!is.infinite(FDP_thr)) & (FDP_thr <= 0)) | ((!is.infinite(FDP_thr)) & (FDP_thr > 1))) {
+    if ((!length(PFER_thr) %in% c(1, nblocks)) | any(is.na(FDP_thr)) | any((!is.infinite(FDP_thr)) & (FDP_thr <= 0)) | any((!is.infinite(FDP_thr)) & (FDP_thr > 1))) {
       warning("Invalid input for argument 'FDP_thr'. The threshold in the upper-bound of the False Discovery Proportion 'FDP_thr' must be a vector with numbers between 0 and 1 (or Inf to deactivate). The default value (Inf) was used.")
       FDP_thr <- Inf
     }
