@@ -61,6 +61,16 @@ An igraph object.
 Produces an \code{\link[igraph:igraph-package]{igraph}} object from an
 adjacency matrix.
 }
+\details{
+All functionalities implemented in
+  \code{\link[igraph:igraph-package]{igraph}} can be used on the output.
+  These include cosmetic changes for the visualisation, but also various
+  tools for network analysis (including topological properties and community
+  detection).
+
+  For Cytoscape users, the \code{\link[RCy3:RCy3]{RCy3}} package can be used
+  to open the network in Cytoscape.
+}
 \examples{
 \dontrun{
 
@@ -85,6 +95,11 @@ igraph::betweenness(mygraph)
 igraph::shortest_paths(mygraph, from = 1, to = 2)
 igraph::walktrap.community(mygraph)
 
+# Opening in Cytoscape using RCy3
+if (requireNamespace("RCy3", quietly = TRUE)) {
+  # Make sure that Cytoscape is open
+  RCy3::createNetworkFromIgraph(mygraph)
+}
 
 ## From stability selection outputs
 
@@ -109,5 +124,6 @@ plot(Graph(stab))
 }
 \seealso{
 \code{\link{Adjacency}}, \code{\link{GraphicalModel}},
-  \href{https://igraph.org/r/}{igraph manual}
+  \href{https://igraph.org/r/}{igraph manual},
+  \href{https://cytoscape.org}{Cytoscape}
 }
