@@ -57,6 +57,7 @@ recalibrated <- Recalibrate(xdata = xrecalib, ydata = yrecalib, stability = stab
 predicted <- predict(recalibrated, newdata = as.data.frame(xtest))
 roc <- ROC(predicted = predicted, observed = ytest)
 PlotROC(roc)
+plot(roc) # alternative formulation
 }
 
 }

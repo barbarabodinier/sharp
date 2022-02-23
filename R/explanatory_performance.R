@@ -79,6 +79,7 @@ Rates <- function(observed, predicted, thr) {
 #' predicted <- predict(recalibrated, newdata = as.data.frame(xtest))
 #' roc <- ROC(predicted = predicted, observed = ytest)
 #' PlotROC(roc)
+#' plot(roc) # alternative formulation
 #' }
 #'
 #' @export
@@ -121,7 +122,13 @@ ROC <- function(predicted, observed, n_thr = NULL) {
     AUC <- abs(sum(diff(FPR) * tmp))
   }
 
-  return(list(FPR = rbind(FPR), TPR = rbind(TPR), AUC = AUC))
+  # Preparing output
+  out <- list(FPR = rbind(FPR), TPR = rbind(TPR), AUC = AUC)
+
+  # Defining class
+  class(out) <- "roc_curve"
+
+  return(out)
 }
 
 
@@ -915,9 +922,11 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' @inheritParams ExplanatoryPerformance
 #' @param n_predictors number of predictors to consider.
 #'
-#' @return For logistic regression, a list with: \item{FPR}{A list with, for
-#'   each of the models (sequentially added predictors), the False Positive
-#'   Rates for different thresholds (columns) and different data splits (rows).}
+#' @return An object of class \code{incremental}.
+#'
+#'   For logistic regression, a list with: \item{FPR}{A list with, for each of
+#'   the models (sequentially added predictors), the False Positive Rates for
+#'   different thresholds (columns) and different data splits (rows).}
 #'   \item{TPR}{A list with, for each of the models (sequentially added
 #'   predictors), the True Positive Rates for different thresholds (columns) and
 #'   different data splits (rows).} \item{AUC}{A list with, for each of the
@@ -973,7 +982,11 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #'
 #' # Evaluating marginal contribution of the predictors
 #' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+#' summary(perf)
+#'
+#' # Visualisation
 #' PlotIncremental(perf)
+#' plot(perf) # alternative formulation
 #'
 #'
 #' ## Partial Least Squares (single component)
@@ -1210,6 +1223,9 @@ Incremental <- function(xdata, ydata,
   # Adding variable names
   out <- c(out, names = list(myorder[1:n_predictors]))
 
+  # Defining class
+  class(out) <- "incremental"
+
   return(out)
 }
 
@@ -1346,6 +1362,8 @@ PlotROC <- function(roc,
 #'   the colours provided in argument \code{col} are used.
 #' @param xcex.axis size of labels along the x-axis.
 #' @param ycex.axis size of labels along the y-axis.
+#' @param output_data logical indicating if the median and quantiles should be
+#'   returned in a matrix.
 #'
 #' @return A plot.
 #'
@@ -1464,7 +1482,8 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
                             xlas = 2, ylas = 1,
                             sfrac = 0.005,
                             ylim = NULL, bty = "o",
-                            xgrid = FALSE, ygrid = FALSE) {
+                            xgrid = FALSE, ygrid = FALSE,
+                            output_data = FALSE) {
   # Checking plotrix package is installed
   CheckPackageInstalled("plotrix")
 
@@ -1552,5 +1571,11 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
       col.axis = col.axis[k],
       las = xlas, cex.axis = xcex.axis
     )
+  }
+
+  if (output_data) {
+    mat <- rbind(x, xlower, xupper)
+    colnames(mat) <- perf$names
+    return(mat)
   }
 }

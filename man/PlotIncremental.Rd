@@ -21,7 +21,8 @@ PlotIncremental(
   ylim = NULL,
   bty = "o",
   xgrid = FALSE,
-  ygrid = FALSE
+  ygrid = FALSE,
+  output_data = FALSE
 )
 }
 \arguments{
@@ -66,6 +67,9 @@ if \code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{ygrid}{logical indicating if a horizontal grid should be drawn. Only
 used if \code{stability} is the output of \code{\link{BiSelection}}.}
+
+\item{output_data}{logical indicating if the median and quantiles should be
+returned in a matrix.}
 }
 \value{
 A plot.

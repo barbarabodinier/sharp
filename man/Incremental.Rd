@@ -75,9 +75,11 @@ to Cox regression.}
 are computed. Only applicable to Cox regression.}
 }
 \value{
-For logistic regression, a list with: \item{FPR}{A list with, for
-  each of the models (sequentially added predictors), the False Positive
-  Rates for different thresholds (columns) and different data splits (rows).}
+An object of class \code{incremental}.
+
+  For logistic regression, a list with: \item{FPR}{A list with, for each of
+  the models (sequentially added predictors), the False Positive Rates for
+  different thresholds (columns) and different data splits (rows).}
   \item{TPR}{A list with, for each of the models (sequentially added
   predictors), the True Positive Rates for different thresholds (columns) and
   different data splits (rows).} \item{AUC}{A list with, for each of the
@@ -136,7 +138,11 @@ stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 
 # Evaluating marginal contribution of the predictors
 perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
+summary(perf)
+
+# Visualisation
 PlotIncremental(perf)
+plot(perf) # alternative formulation
 
 
 ## Partial Least Squares (single component)

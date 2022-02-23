@@ -376,3 +376,33 @@ plot.simulation_regression <- function(x, ...) {
     )
   ))
 }
+
+
+#' @export
+summary.incremental <- function(object, ...) {
+  cat(paste0("Performances of recalibrated models:"))
+  cat("\n")
+  cat("\n")
+  mat <- PlotIncremental(object, output_data = TRUE, ...)
+  for (i in 1:ncol(mat)) {
+    cat(paste0(
+      ifelse(i == 1, yes = "  ", no = "+ "),
+      colnames(mat)[i],
+      ": ",
+      formatC(mat[1, i], format = "f", digits = 3)
+    ))
+    cat("\n")
+  }
+}
+
+
+#' @export
+plot.incremental <- function(x, ...) {
+  PlotIncremental(x, ...)
+}
+
+
+#' @export
+plot.roc_curve <- function(x, ...) {
+  PlotROC(x, ...)
+}

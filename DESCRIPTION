@@ -30,6 +30,7 @@ Suggests:
     mixOmics,
     nnet,
     plotrix,
+    RCy3,
     rmarkdown,
     sgPLS,
     survival (>= 3.2.13),
