@@ -1,4 +1,4 @@
 library(testthat)
-library(focus)
+library(sharp)
 
-test_check("focus")
+test_check("sharp")
