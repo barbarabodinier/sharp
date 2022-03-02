@@ -13,27 +13,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-# focus: Feature selectiOn and Clustering Using Stability
+# sharp: Stability-enHanced Approaches using Resampling Procedures
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-Implementation of stability-enhanced models for variable selection in multivariate regression, graphical and clustering models. 
-These methods rely on resampling approaches to estimate selection (or co-membership) probability. 
-Calibration of the models is done via maximisation of a stability score measuring the likelihood of informative (non-uniform) selection procedure.
+Implementation of variable selection, graphical and clustering models based on stability. These models rely on resampling approaches to estimate selection (or co-membership) probabilities. Calibration of the hyper-parameters is done via maximisation of a stability score measuring the likelihood of informative (non-uniform) selection procedure. This package also includes tools to simulate multivariate Normal data with different (partial) correlation structures.
 
 ## Installation
 
-<!-- You can install the released version of focus from [CRAN](https://CRAN.R-project.org) with: -->
+<!-- You can install the released version of sharp from [CRAN](https://CRAN.R-project.org) with: -->
 
 <!-- ``` r -->
-<!-- install.packages("focus") # devtools::install_github("barbarabodinier/focus") -->
+<!-- install.packages("sharp") # devtools::install_github("barbarabodinier/sharp") -->
 <!-- ``` -->
 
 The development version can be downloaded from [GitHub](https://github.com/) and installed using the following command from a working directory containing the folder:
 
 ``` r
-devtools::install("focus", upgrade="always")
+devtools::install("sharp", upgrade="always")
 ```
 
 ## Variable selection
@@ -43,7 +41,7 @@ devtools::install("focus", upgrade="always")
 A dataset with n=100 observations for p=50 potential predictors and a continuous outcome is simulated:
 
 ```{r}
-library(focus)
+library(sharp)
 
 # Data simulation
 set.seed(1)

@@ -1,23 +1,24 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# focus: Feature selectiOn and Clustering Using Stability
+# sharp: Stability-enHanced Approaches using Resampling Procedures
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-Implementation of stability-enhanced models for variable selection in
-multivariate regression, graphical and clustering models. These methods
-rely on resampling approaches to estimate selection (or co-membership)
-probability. Calibration of the models is done via maximisation of a
-stability score measuring the likelihood of informative (non-uniform)
-selection procedure.
+Implementation of variable selection, graphical and clustering models
+based on stability. These models rely on resampling approaches to
+estimate selection (or co-membership) probabilities. Calibration of the
+hyper-parameters is done via maximisation of a stability score measuring
+the likelihood of informative (non-uniform) selection procedure. This
+package also includes tools to simulate multivariate Normal data with
+different (partial) correlation structures.
 
 ## Installation
 
-<!-- You can install the released version of focus from [CRAN](https://CRAN.R-project.org) with: -->
+<!-- You can install the released version of sharp from [CRAN](https://CRAN.R-project.org) with: -->
 <!-- ``` r -->
-<!-- install.packages("focus") # devtools::install_github("barbarabodinier/focus") -->
+<!-- install.packages("sharp") # devtools::install_github("barbarabodinier/sharp") -->
 <!-- ``` -->
 
 The development version can be downloaded from
@@ -25,7 +26,7 @@ The development version can be downloaded from
 from a working directory containing the folder:
 
 ``` r
-devtools::install("focus", upgrade="always")
+devtools::install("sharp", upgrade="always")
 ```
 
 ## Variable selection
@@ -36,7 +37,7 @@ A dataset with n=100 observations for p=50 potential predictors and a
 continuous outcome is simulated:
 
 ``` r
-library(focus)
+library(sharp)
 
 # Data simulation
 set.seed(1)
@@ -254,11 +255,11 @@ And converted to an igraph object using:
 ``` r
 mygraph=Graph(Adjacency(stab))
 mygraph
-#> IGRAPH 9fce7bd UN-- 10 9 -- 
+#> IGRAPH ffe413b UN-- 10 9 -- 
 #> + attr: name (v/c), size (v/n), label (v/c), color (v/c), shape (v/c),
 #> | frame.color (v/c), label.family (v/c), label.cex (v/n), label.color
 #> | (v/c), color (e/c), width (e/n)
-#> + edges from 9fce7bd (vertex names):
+#> + edges from ffe413b (vertex names):
 #> [1] var1--var9  var2--var4  var3--var9  var3--var10 var4--var5  var4--var7 
 #> [7] var4--var8  var6--var10 var8--var10
 set.seed(1)
