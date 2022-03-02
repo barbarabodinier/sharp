@@ -59,7 +59,7 @@ calibrated and \code{FALSE} for other blocks). Other approaches with joint
 calibration of the blocks are allowed (all entries are set to \code{TRUE}).}
 
 \item{graph}{logical indicating if stability selection is performed in a
-regression (if \code{FALSE}) or graphical/clustering (if \code{TRUE})
+regression (if \code{FALSE}) or graphical (if \code{TRUE})
 framework.}
 
 \item{group}{vector encoding the grouping structure among predictors. This

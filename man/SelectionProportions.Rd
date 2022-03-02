@@ -90,7 +90,6 @@ Other calibration functions:
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
-\code{\link{Clusters}()},
 \code{\link{SelectedVariables}()}
 }
 \concept{calibration functions}

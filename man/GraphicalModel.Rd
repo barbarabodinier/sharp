@@ -360,24 +360,6 @@ Heatmap(
   colours = c("navy", "white", "red"),
   legend_range = c(-1, 1)
 )
-
-# Stability-based clustering of variables
-stab <- GraphicalModel(
-  xdata = simul$data, Lambda = seq(2, ncol(simul$data)),
-  implementation = HierarchicalClustering
-)
-
-# Calibration heatmap
-CalibrationPlot(stab, xlab = "k")
-
-# Extraction of stable clusters
-Clusters(stab)
-
-# Clustering performance (for simulations only)
-ClusteringPerformance(
-  theta = Clusters(stab),
-  theta_star = simul$membership
-)
 }
 }
 \references{

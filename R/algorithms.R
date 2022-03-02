@@ -123,17 +123,6 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #'   xdata = simul$data,
 #'   Lambda = cbind(c(0.1, 0.2))
 #' )
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateClustering(n = c(10, 10), pk = 50)
-#'
-#' # Running graphical LASSO
-#' myglasso <- GraphicalAlgo(
-#'   xdata = t(simul$data),
-#'   Lambda = cbind(c(2, 3)),
-#'   implementation = HierarchicalClustering
-#' )
 #' }
 #' @export
 GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,

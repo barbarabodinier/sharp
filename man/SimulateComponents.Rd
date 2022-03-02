@@ -163,7 +163,6 @@ plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
-\code{\link{SimulateClustering}()},
 \code{\link{SimulateGraphical}()},
 \code{\link{SimulateRegression}()}
 }

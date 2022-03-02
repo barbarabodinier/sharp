@@ -353,57 +353,6 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 }
 
 
-#' Stable cluster membership
-#'
-#' Extracts (calibrated) stable clusters. These correspond to connected
-#' components of the graph defined from stable co-membership.
-#'
-#' @inheritParams Adjacency
-#' @param adjacency adjacency matrix or output of \code{\link{GraphicalModel}}.
-#'
-#' @return A vector encoding the cluster membership.
-#'
-#' @family calibration functions
-#' @seealso \code{\link{BiSelection}}
-#'
-#' @examples
-#' \dontrun{
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = 50, n = 10)
-#'
-#' # Consensus clustering
-#' stab <- GraphicalModel(
-#'   xdata = simul$data,
-#'   Lambda = seq(2, ncol(simul$data)),
-#'   implementation = HierarchicalClustering
-#' )
-#'
-#' # Stable cluster membership
-#' groups <- Clusters(stab)
-#'
-#' # Network representation of stable co-membership
-#' set.seed(1)
-#' plot(Graph(CoMembership(groups),
-#'   satellites = TRUE,
-#'   node_colour = groups
-#' ))
-#' }
-#' @export
-Clusters <- function(adjacency = NULL, argmax_id = NULL) {
-  if (!is.matrix(adjacency)) {
-    # Computing stable co-membership matrix
-    adjacency <- Adjacency(stability = adjacency, argmax_id = argmax_id)
-  }
-
-  # Extracting stable connected components
-  mymembership <- igraph::components(Graph(adjacency, satellites = TRUE))$membership
-
-  return(mymembership)
-}
-
-
 #' Selection proportions
 #'
 #' Extracts the selection (or co-membership) proportions of the (calibrated)

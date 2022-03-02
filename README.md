@@ -6,13 +6,14 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Implementation of variable selection, graphical and clustering models
-based on stability. These models rely on resampling approaches to
-estimate selection (or co-membership) probabilities. Calibration of the
-hyper-parameters is done via maximisation of a stability score measuring
-the likelihood of informative (non-uniform) selection procedure. This
-package also includes tools to simulate multivariate Normal data with
-different (partial) correlation structures.
+Implementation of stability selection for graphical modelling and
+variable selection in regression and dimensionality reduction. These
+models rely on resampling approaches to estimate selection
+probabilities. Calibration of the hyper-parameters is done via
+maximisation of a stability score measuring the likelihood of
+informative (non-uniform) selection procedure. This package also
+includes tools to simulate multivariate Normal data with different
+(partial) correlation structures.
 
 ## Installation
 
@@ -255,11 +256,11 @@ And converted to an igraph object using:
 ``` r
 mygraph=Graph(Adjacency(stab))
 mygraph
-#> IGRAPH ffe413b UN-- 10 9 -- 
+#> IGRAPH 8cecd29 UN-- 10 9 -- 
 #> + attr: name (v/c), size (v/n), label (v/c), color (v/c), shape (v/c),
 #> | frame.color (v/c), label.family (v/c), label.cex (v/n), label.color
 #> | (v/c), color (e/c), width (e/n)
-#> + edges from ffe413b (vertex names):
+#> + edges from 8cecd29 (vertex names):
 #> [1] var1--var9  var2--var4  var3--var9  var3--var10 var4--var5  var4--var7 
 #> [7] var4--var8  var6--var10 var8--var10
 set.seed(1)

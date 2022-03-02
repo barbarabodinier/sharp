@@ -1,4 +1,5 @@
 test_that("PLS 'a la carte' is consistent with mixOmics", {
+  skip_on_cran()
   for (scale in c(TRUE, FALSE)) {
     # Data simulation
     set.seed(1)

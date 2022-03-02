@@ -56,7 +56,6 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
-\code{\link{Clusters}()},
 \code{\link{SelectedVariables}()},
 \code{\link{SelectionProportions}()}
 }

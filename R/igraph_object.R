@@ -73,8 +73,8 @@
 #'
 #' # Opening in Cytoscape using RCy3
 #' if (requireNamespace("RCy3", quietly = TRUE)) {
-#'   # Make sure that Cytoscape is open
-#'   RCy3::createNetworkFromIgraph(mygraph)
+#'   # Make sure that Cytoscape is open before running the following line
+#'   # RCy3::createNetworkFromIgraph(mygraph)
 #' }
 #'
 #' ## From stability selection outputs

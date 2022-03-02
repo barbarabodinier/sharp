@@ -237,7 +237,6 @@ apply(simul$ydata, 2, sum)
 
 Other simulation functions: 
 \code{\link{SimulateAdjacency}()},
-\code{\link{SimulateClustering}()},
 \code{\link{SimulateComponents}()},
 \code{\link{SimulateGraphical}()}
 }
