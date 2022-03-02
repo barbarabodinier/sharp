@@ -369,7 +369,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
   out$loadings <- round(eig$vectors, digits = 10)
   out$theta <- ifelse(out$loadings != 0, yes = 1, no = 0)
   rownames(out$theta) <- rownames(out$loadings) <- colnames(out$adjacency)
-  colnames(out$theta) <- colnames(out$loadings) <- paste0("PC", 1:ncol(out$theta))
+  colnames(out$theta) <- colnames(out$loadings) <- paste0("comp", 1:ncol(out$theta))
 
   # Definition of proportion of explained variance
   ev <- eig$values / sum(eig$values)

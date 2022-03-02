@@ -5,13 +5,14 @@
 #' be used in simulation studies (i.e. when the true model is known).
 #'
 #' @inheritParams GraphicalModel
-#' @param theta output from \code{VariableSelection} or \code{GraphicalModel}.
-#'   Alternatively, it can be a binary matrix of selected variables (in variable
-#'   selection) or a binary adjacency matrix (in graphical modelling)
-#' @param theta_star output from \code{SimulateRegression} or
-#'   \code{SimulateGraphical}. Alternatively, it can be a binary matrix of true
-#'   predictors (in variable selection) or the true binary adjacency matrix (in
-#'   graphical modelling).
+#' @param theta output from \code{\link{VariableSelection}},
+#'   \code{\link{BiSelection}}, or \code{\link{GraphicalModel}}. Alternatively,
+#'   it can be a binary matrix of selected variables (in variable selection) or
+#'   a binary adjacency matrix (in graphical modelling)
+#' @param theta_star output from \code{\link{SimulateRegression}},
+#'   \code{\link{SimulateComponents}}, or \code{\link{SimulateGraphical}}.
+#'   Alternatively, it can be a binary matrix of true predictors (in variable
+#'   selection) or the true binary adjacency matrix (in graphical modelling).
 #' @param cor optional correlation matrix. Only used in graphical modelling.
 #' @param thr optional threshold in correlation. Only used in graphical
 #'   modelling and when argument "cor" is not NULL.
@@ -109,17 +110,25 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
         theta <- SelectedVariables(theta)
         theta <- as.vector(theta)
       } else {
-        theta <- theta$selected
+        if ("selected" %in% names(theta)) {
+          theta <- theta$selected # PLS
+        } else {
+          theta <- theta$selectedX # PCA
+        }
       }
     }
   }
 
   # Re-formatting input theta_star
-  if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model"))) {
+  if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
     theta_star <- theta_star$theta
   }
   if (is.vector(theta)) {
     theta_star <- as.vector(theta_star)
+  } else {
+    if (ncol(theta) != ncol(theta_star)) {
+      theta_star <- theta_star[, 1:ncol(theta)]
+    }
   }
 
   # Storing similarities/differences between estimated and true sets
@@ -281,21 +290,26 @@ SelectionPerformanceGraph <- function(theta, theta_star,
       if (class(theta) == "graphical_model") {
         theta <- Adjacency(theta)
       } else {
+        if ("selected" %in% names(theta)) {
+          selected <- theta$selected # PLS
+        } else {
+          selected <- theta$selectedX # PCA
+        }
         # Relating predictors and outcomes (ignoring latent variables)
         if (is.null(node_colour)) {
           node_colour <- c(
-            rep("skyblue", nrow(theta$selected)),
-            rep("red", ncol(theta$selected))
+            rep("skyblue", nrow(selected)),
+            rep("red", ncol(selected))
           )
         }
-        theta <- Square(theta$selected)
+        theta <- Square(selected)
       }
     }
   }
 
   # Re-formatting input theta_star
-  if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model"))) {
-    if (class(theta_star) == "simulation_regression") {
+  if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
+    if (class(theta_star) %in% c("simulation_regression", "simulation_components")) {
       theta_star <- cbind(theta_star$theta)
       if (ncol(theta_star) == 1) {
         colnames(theta_star) <- "outcome"
@@ -314,6 +328,11 @@ SelectionPerformanceGraph <- function(theta, theta_star,
   # Checking input is a matrix
   if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
     stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
+  }
+
+  # Extracting the estimated edges only
+  if (ncol(theta) != ncol(theta_star)) {
+    theta_star <- theta_star[rownames(theta), colnames(theta)]
   }
 
   # Storing similarities/differences between estimated and true sets

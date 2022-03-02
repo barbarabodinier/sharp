@@ -7,14 +7,15 @@
 SelectionPerformance(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5)
 }
 \arguments{
-\item{theta}{output from \code{VariableSelection} or \code{GraphicalModel}.
-Alternatively, it can be a binary matrix of selected variables (in variable
-selection) or a binary adjacency matrix (in graphical modelling)}
+\item{theta}{output from \code{\link{VariableSelection}},
+\code{\link{BiSelection}}, or \code{\link{GraphicalModel}}. Alternatively,
+it can be a binary matrix of selected variables (in variable selection) or
+a binary adjacency matrix (in graphical modelling)}
 
-\item{theta_star}{output from \code{SimulateRegression} or
-\code{SimulateGraphical}. Alternatively, it can be a binary matrix of true
-predictors (in variable selection) or the true binary adjacency matrix (in
-graphical modelling).}
+\item{theta_star}{output from \code{\link{SimulateRegression}},
+\code{\link{SimulateComponents}}, or \code{\link{SimulateGraphical}}.
+Alternatively, it can be a binary matrix of true predictors (in variable
+selection) or the true binary adjacency matrix (in graphical modelling).}
 
 \item{pk}{optional vector encoding the grouping structure. Only used for
 multi-block stability selection where \code{pk} indicates the number of
