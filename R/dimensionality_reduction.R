@@ -43,7 +43,7 @@
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{PLS}{focus}
+#' @references \insertRef{PLS}{sharp}
 #'
 #' @examples
 #' \dontrun{
@@ -375,7 +375,7 @@ PredictPLS <- function(xdata, model) {
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{sparsePLS}{focus}
+#' @references \insertRef{sparsePLS}{sharp}
 #'
 #' @examples
 #' ## Sparse PLS
@@ -553,7 +553,7 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{sparsegroupPLS}{focus}
+#' @references \insertRef{sparsegroupPLS}{sharp}
 #'
 #' @examples
 #' ## Sparse group PLS
@@ -761,7 +761,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{sparsegroupPLS}{focus}
+#' @references \insertRef{sparsegroupPLS}{sharp}
 #'
 #' @examples
 #' ## Group PLS
@@ -963,9 +963,9 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' @family penalised dimensionality reduction functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
-#' @references \insertRef{sparsePCA}{focus}
+#' @references \insertRef{sparsePCA}{sharp}
 #'
-#'   \insertRef{sparsePCASVD}{focus}
+#'   \insertRef{sparsePCASVD}{sharp}
 #'
 #' @examples
 #' # Data simulation

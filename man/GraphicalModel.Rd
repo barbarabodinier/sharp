@@ -381,11 +381,11 @@ ClusteringPerformance(
 }
 }
 \references{
-\insertRef{ourstabilityselection}{focus}
+\insertRef{ourstabilityselection}{sharp}
 
-  \insertRef{stabilityselectionMB}{focus}
+  \insertRef{stabilityselectionMB}{sharp}
 
-  \insertRef{stabilityselectionSS}{focus}
+  \insertRef{stabilityselectionSS}{sharp}
 }
 \seealso{
 \code{\link{PenalisedGraphical}}, \code{\link{GraphicalAlgo}},

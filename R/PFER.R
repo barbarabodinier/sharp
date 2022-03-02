@@ -13,9 +13,9 @@
 #'
 #' @return The estimated upper-bound in PFER.
 #'
-#' @references \insertRef{stabilityselectionMB}{focus}
+#' @references \insertRef{stabilityselectionMB}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{sharp}
 #'
 #' @family stability metric functions
 #'

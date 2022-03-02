@@ -323,7 +323,7 @@ SelectionPerformanceGraph <- function(theta, theta_star,
   names(colours) <- names(lty) <- c("FP", "TN", "TP")
 
   # Extracting relevant extra arguments
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = focus::Graph)
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
 
   # Making consensus graph

@@ -76,7 +76,7 @@ selprop <- round(runif(n = 20), digits = 2)
 score <- StabilityScore(selprop, pi_list = c(0.6, 0.7, 0.8), K = 100)
 }
 \references{
-\insertRef{ourstabilityselection}{focus}
+\insertRef{ourstabilityselection}{sharp}
 }
 \seealso{
 Other stability metric functions: 

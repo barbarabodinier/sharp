@@ -425,19 +425,19 @@ summary(stab)
 }
 }
 \references{
-\insertRef{ourstabilityselection}{focus}
+\insertRef{ourstabilityselection}{sharp}
 
-  \insertRef{stabilityselectionSS}{focus}
+  \insertRef{stabilityselectionSS}{sharp}
 
-  \insertRef{stabilityselectionMB}{focus}
+  \insertRef{stabilityselectionMB}{sharp}
 
-  \insertRef{sparsegroupPLS}{focus}
+  \insertRef{sparsegroupPLS}{sharp}
 
-  \insertRef{sparsePLS}{focus}
+  \insertRef{sparsePLS}{sharp}
 
-  \insertRef{sparsePCA}{focus}
+  \insertRef{sparsePCA}{sharp}
 
-  \insertRef{sparsePCASVD}{focus}
+  \insertRef{sparsePCASVD}{sharp}
 }
 \seealso{
 \code{\link{SparsePCA}}, \code{\link{SparsePLS}},

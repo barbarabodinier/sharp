@@ -41,7 +41,7 @@
 #'
 #' @family stability metric functions
 #'
-#' @references \insertRef{ourstabilityselection}{focus}
+#' @references \insertRef{ourstabilityselection}{sharp}
 #'
 #' @examples
 #' # Simulating set of selection proportions

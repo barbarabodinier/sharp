@@ -183,11 +183,11 @@
 #'   \code{\link{ExplanatoryPerformance}}, \code{\link{PlotROC}},
 #'   \code{\link{Incremental}}, \code{\link{PlotIncremental}}
 #'
-#' @references \insertRef{ourstabilityselection}{focus}
+#' @references \insertRef{ourstabilityselection}{sharp}
 #'
-#'   \insertRef{stabilityselectionMB}{focus}
+#'   \insertRef{stabilityselectionMB}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{sharp}
 #'
 #' @examples
 #' \dontshow{

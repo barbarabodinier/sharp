@@ -149,11 +149,11 @@ metrics <- StabilityMetrics(
 )
 }
 \references{
-\insertRef{ourstabilityselection}{focus}
+\insertRef{ourstabilityselection}{sharp}
 
-  \insertRef{stabilityselectionMB}{focus}
+  \insertRef{stabilityselectionMB}{sharp}
 
-  \insertRef{stabilityselectionSS}{focus}
+  \insertRef{stabilityselectionSS}{sharp}
 }
 \seealso{
 Other stability metric functions: 

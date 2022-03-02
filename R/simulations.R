@@ -995,7 +995,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 #' \dontrun{
 #'
 #' # Simulation of a scale-free graph with 20 nodes
-#' adjacency <- focus:::HugeAdjacency(pk = 20, topology = "scale-free")
+#' adjacency <- sharp:::HugeAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
 #' }
 #'

@@ -103,7 +103,7 @@ mypls <- GroupPLS(
 )
 }
 \references{
-\insertRef{sparsegroupPLS}{focus}
+\insertRef{sparsegroupPLS}{sharp}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

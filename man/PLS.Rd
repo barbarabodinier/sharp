@@ -131,7 +131,7 @@ if (requireNamespace("mixOmics", quietly = TRUE)) {
 }
 }
 \references{
-\insertRef{PLS}{focus}
+\insertRef{PLS}{sharp}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

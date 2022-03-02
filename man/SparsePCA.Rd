@@ -65,9 +65,9 @@ mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, 
 mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD")
 }
 \references{
-\insertRef{sparsePCA}{focus}
+\insertRef{sparsePCA}{sharp}
 
-  \insertRef{sparsePCASVD}{focus}
+  \insertRef{sparsePCASVD}{sharp}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

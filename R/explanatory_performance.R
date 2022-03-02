@@ -830,7 +830,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
         if (is.null(prediction)) {
           stop("Argument 'prediction' has to be provided if 'implementation' is provided. It must be a function that takes the output of 'implementation' as argument.")
         }
-        predicted <- do.call(prediction, args = list(xdata = xtest, model = recalibrated)) # XXX TODO check the dots
+        predicted <- do.call(prediction, args = list(xdata = xtest, model = recalibrated))
       }
       # Performing ROC analyses
       if (tolower(metric) == "roc") {

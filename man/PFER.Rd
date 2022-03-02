@@ -37,9 +37,9 @@ pfer_mb <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "MB")
 pfer_ss <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "SS")
 }
 \references{
-\insertRef{stabilityselectionMB}{focus}
+\insertRef{stabilityselectionMB}{sharp}
 
-  \insertRef{stabilityselectionSS}{focus}
+  \insertRef{stabilityselectionSS}{sharp}
 }
 \seealso{
 Other stability metric functions: 

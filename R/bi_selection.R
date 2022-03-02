@@ -147,19 +147,19 @@
 #'   \code{\link{VariableSelection}}, \code{\link{Resample}},
 #'   \code{\link{StabilityScore}}
 #'
-#' @references \insertRef{ourstabilityselection}{focus}
+#' @references \insertRef{ourstabilityselection}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{sharp}
 #'
-#'   \insertRef{stabilityselectionMB}{focus}
+#'   \insertRef{stabilityselectionMB}{sharp}
 #'
-#'   \insertRef{sparsegroupPLS}{focus}
+#'   \insertRef{sparsegroupPLS}{sharp}
 #'
-#'   \insertRef{sparsePLS}{focus}
+#'   \insertRef{sparsePLS}{sharp}
 #'
-#'   \insertRef{sparsePCA}{focus}
+#'   \insertRef{sparsePCA}{sharp}
 #'
-#'   \insertRef{sparsePCASVD}{focus}
+#'   \insertRef{sparsePCASVD}{sharp}
 #'
 #'
 #' @examples

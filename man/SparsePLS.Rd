@@ -84,7 +84,7 @@ simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
 }
 \references{
-\insertRef{sparsePLS}{focus}
+\insertRef{sparsePLS}{sharp}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

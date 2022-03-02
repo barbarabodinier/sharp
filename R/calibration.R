@@ -580,11 +580,11 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 #'
 #' # Coefficients of visited models
-#' coefs <- focus:::Coefficients(stab)
+#' coefs <- sharp:::Coefficients(stab)
 #' dim(coefs)
 #'
 #' # Coefficients of the first fitted model
-#' coefs <- focus:::Coefficients(stab, iterations = 1)
+#' coefs <- sharp:::Coefficients(stab, iterations = 1)
 #' dim(coefs)
 #'
 #' # Stability selection
@@ -594,7 +594,7 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #' )
 #'
 #' # Coefficients of visited models
-#' coefs <- focus:::Coefficients(stab, side = "Y", )
+#' coefs <- sharp:::Coefficients(stab, side = "Y", )
 #' dim(coefs)
 #' }
 #'

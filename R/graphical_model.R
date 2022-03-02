@@ -99,11 +99,11 @@
 #'   parameters equal. The results can then be combined using
 #'   \code{\link{Combine}}.
 #'
-#' @references \insertRef{ourstabilityselection}{focus}
+#' @references \insertRef{ourstabilityselection}{sharp}
 #'
-#'   \insertRef{stabilityselectionMB}{focus}
+#'   \insertRef{stabilityselectionMB}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{sharp}
 #'
 #' @return An object of class \code{graphical_model}. A list with: \item{S}{a
 #'   matrix of the best stability scores for different (sets of) parameters

@@ -1,4 +1,4 @@
-#' focus: Feature selectiOn and Clustering Using Stability
+#' sharp: Stability-enHanced Approaches using Resampling Procedures
 #'
 #' Implementation of variable selection, graphical and clustering models based
 #' on stability. These models rely on resampling approaches to estimate
@@ -8,18 +8,18 @@
 #' also includes tools to simulate multivariate Normal data with different
 #' (partial) correlation structures.
 #'
-#' \tabular{ll}{ Package: \tab focus\cr Type: \tab Package\cr Version: \tab
+#' \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
 #' 0.1\cr Date: \tab 2021-04-30\cr License: \tab GPL (>= 3)\cr Maintainer: \tab
 #' Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
 #'
-#' @references \insertRef{ourstabilityselection}{focus}
+#' @references \insertRef{ourstabilityselection}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{focus}
+#'   \insertRef{stabilityselectionSS}{sharp}
 #'
-#'   \insertRef{stabilityselectionMB}{focus}
+#'   \insertRef{stabilityselectionMB}{sharp}
 #'
 #' @docType package
-#' @name focus-package
+#' @name sharp-package
 #'
 #' @importFrom Rdpack reprompt
 #' @importFrom mclust mclustBIC

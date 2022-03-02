@@ -34,7 +34,7 @@ no self-loops.
 \dontrun{
 
 # Simulation of a scale-free graph with 20 nodes
-adjacency <- focus:::HugeAdjacency(pk = 20, topology = "scale-free")
+adjacency <- sharp:::HugeAdjacency(pk = 20, topology = "scale-free")
 plot(Graph(adjacency))
 }
 
