@@ -17,6 +17,69 @@ NAToNULL <- function(x) {
 }
 
 
+#' Adjacency matrix from object
+#'
+#' Returns the adjacency matrix from an
+#' \code{\link[igraph:igraph-package]{igraph}} object or from the output of
+#' simulation or inference functions from the present package.
+#'
+#' @param object input object.
+#'
+#' @return A vector without missing values or NULL.
+#'
+#' @keywords internal
+AdjacencyFromObject <- function(object) {
+  if ("matrix" %in% class(object)) {
+    theta <- object
+  } else {
+    # From igraph object
+    if (class(object) == "igraph") {
+      theta <- as.matrix(igraph::get.adjacency(object))
+    }
+
+    # From output of VariableSelection()
+    if (class(object) == "variable_selection") {
+      theta <- cbind(SelectedVariables(object))
+      if (ncol(theta) == 1) {
+        colnames(theta) <- "outcome"
+      }
+      theta <- Square(theta)
+    }
+
+    # From output of GraphicalModel()
+    if (class(object) == "graphical_model") {
+      theta <- Adjacency(object)
+    }
+
+    # From output of BiSelection()
+    if (class(object) == "bi_selection") {
+      if ("selected" %in% names(object)) {
+        selected <- object$selected # PLS
+      } else {
+        selected <- object$selectedX # PCA
+      }
+      theta <- Square(selected)
+    }
+
+    # From output of SimulateRegression() or SimulateComponents()
+    if (class(object) %in% c("simulation_regression", "simulation_components")) {
+      theta <- cbind(object$theta)
+      if (ncol(theta) == 1) {
+        colnames(theta) <- "outcome"
+      }
+      theta <- Square(theta)
+    }
+
+    # From output of SimulateGraphical()
+    if (class(object) == "simulation_graphical_model") {
+      theta <- object$theta
+    }
+  }
+
+  return(theta)
+}
+
+
 #' Adjacency from bipartite
 #'
 #' Generates a symmetric adjacency matrix encoding a bipartite graph.

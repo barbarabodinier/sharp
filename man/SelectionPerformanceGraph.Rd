@@ -26,9 +26,8 @@ SelectionPerformanceGraph(
 the colour of False Positive edges, second entry is for True Negatives and
 third entry is for True Positives.}
 
-\item{lty}{vector of line types for edges. The first entry of the vector
-defines the colour of False Positive edges, second entry is for True
-Negatives and third entry is for True Positives.}
+\item{lty}{vector of line types for edges. The order is defined as for
+argument \code{colours}.}
 
 \item{node_colour}{optional vector of node colours. This vector must contain
 as many entries as there are rows/columns in the adjacency matrix and must

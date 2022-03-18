@@ -716,7 +716,7 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #' @param block_id ID of the block to visualise. Only used for multi-block
 #'   stability selection graphical models. If \code{block_id=NULL}, all blocks
 #'   are represented in separate panels.
-#' @param colours vector of colours.
+#' @param col vector of colours.
 #' @param pch type of point, as in \code{\link[graphics]{points}}.
 #' @param cex size of point.
 #' @param xlim displayed range along the x-axis. Only used if \code{stability}
@@ -797,7 +797,7 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #' # User-defined colours
 #' par(mar = c(7, 5, 7, 6))
 #' CalibrationPlot(stab,
-#'   colours = c("ivory", "blue", "black"),
+#'   col = c("ivory", "blue", "black"),
 #'   legend_length = 31,
 #'   legend_range = c(0, 2500)
 #' )
@@ -830,7 +830,7 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #'
 #' @export
 CalibrationPlot <- function(stability, block_id = NULL,
-                            colours = NULL,
+                            col = NULL,
                             pch = 19, cex = 0.7,
                             xlim = NULL, ylim = NULL, bty = "o",
                             lines = TRUE, lty = 3, lwd = 2,
@@ -878,10 +878,10 @@ CalibrationPlot <- function(stability, block_id = NULL,
       }
     }
 
-    if (is.null(colours)) {
-      colours <- grDevices::colorRampPalette(c("navy", "darkred"))(nrow(stability$summary))
+    if (is.null(col)) {
+      col <- grDevices::colorRampPalette(c("navy", "darkred"))(nrow(stability$summary))
     } else {
-      colours <- grDevices::colorRampPalette(colours)(nrow(stability$summary))
+      col <- grDevices::colorRampPalette(col)(nrow(stability$summary))
     }
 
     if (length(unique(x$comp)) == 1) {
@@ -987,7 +987,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
       # Adding calibrated lines
       if (show_argmax) {
         withr::local_par(list(xpd = FALSE))
-        graphics::abline(v = which.max(tmp$S), lty = 3, col = colours[comp_id])
+        graphics::abline(v = which.max(tmp$S), lty = 3, col = col[comp_id])
       }
 
       # Adding lines
@@ -996,14 +996,14 @@ CalibrationPlot <- function(stability, block_id = NULL,
         #   for (y_value in unique(tmp$ny)) {
         #     graphics::lines(which(tmp$ny == y_value),
         #                     tmp[which(tmp$ny == y_value), "S"],
-        #                     col = colours[comp_id],
+        #                     col = col[comp_id],
         #                     lty = lty, lwd = lwd
         #     )
         #   }
         # } else {
         graphics::lines(1:nrow(tmp),
           tmp$S,
-          col = colours[comp_id],
+          col = col[comp_id],
           lty = lty, lwd = lwd
         )
         # }
@@ -1012,7 +1012,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
       # Adding data points
       graphics::points(tmp$S,
         pch = pch,
-        col = colours[comp_id],
+        col = col[comp_id],
         cex = cex
       )
 
@@ -1020,7 +1020,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
       if ((show_pix) & (!show_piy)) {
         graphics::text(tmp$S,
           labels = tmp$pix,
-          col = colours[comp_id],
+          col = col[comp_id],
           cex = cex, pos = 3,
           offset = offset
         )
@@ -1029,7 +1029,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
       if ((!show_pix) & (show_piy)) {
         graphics::text(tmp$S,
           labels = tmp$piy,
-          col = colours[comp_id],
+          col = col[comp_id],
           cex = cex, pos = 3,
           offset = offset
         )
@@ -1039,7 +1039,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
         for (k in 1:nrow(tmp)) {
           graphics::text(k, tmp[k, "S"],
             labels = eval(parse(text = paste0("expression(pi[x]*' = ", tmp[k, "pix"], " ; '*pi[y]*' = ", tmp[k, "piy"], "')"))),
-            col = colours[comp_id],
+            col = col[comp_id],
             cex = cex, pos = 3,
             offset = offset
           )
@@ -1050,7 +1050,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
     # Adding legend
     if (legend) {
       graphics::legend("top",
-        col = colours, lty = lty, pch = pch, lwd = lwd,
+        col = col, lty = lty, pch = pch, lwd = lwd,
         legend = paste0("Component ", unique(x$comp)),
         horiz = TRUE, bg = "white"
       )
@@ -1059,16 +1059,16 @@ CalibrationPlot <- function(stability, block_id = NULL,
     # Defining default arguments
     if (heatmap) {
       metric <- "both"
-      if (is.null(colours)) {
-        colours <- c("ivory", "navajowhite", "tomato", "darkred")
+      if (is.null(col)) {
+        col <- c("ivory", "navajowhite", "tomato", "darkred")
       }
       if (is.null(ylab)) {
         ylab <- expression(pi)
       }
     } else {
       metric <- "lambda"
-      if (is.null(colours)) {
-        colours <- "navy"
+      if (is.null(col)) {
+        col <- "navy"
       }
       if (is.null(ylab)) {
         ylab <- "Stability Score"
@@ -1142,7 +1142,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
         # Heatmap representation
         Heatmap(t(mat[nrow(mat):1, ncol(mat):1]),
-          colours = colours, bty = bty, axes = FALSE,
+          col = col, bty = bty, axes = FALSE,
           legend = legend, legend_length = legend_length, legend_range = legend_range
         )
 
@@ -1245,17 +1245,17 @@ CalibrationPlot <- function(stability, block_id = NULL,
           # Adding calibrated lines
           if (show_argmax) {
             withr::local_par(list(xpd = FALSE))
-            graphics::abline(h = max(vect), lty = 3, col = colours[1])
-            graphics::abline(v = Lambda[which.max(vect)], lty = 3, col = colours[1])
+            graphics::abline(h = max(vect), lty = 3, col = col[1])
+            graphics::abline(v = Lambda[which.max(vect)], lty = 3, col = col[1])
           }
 
           # Adding lines
           if (lines) {
-            graphics::lines(Lambda, vect, col = colours[1], lty = lty, lwd = lwd)
+            graphics::lines(Lambda, vect, col = col[1], lty = lty, lwd = lwd)
           }
 
           # Adding data points
-          graphics::points(Lambda, vect, pch = pch, col = colours[1], cex = cex)
+          graphics::points(Lambda, vect, pch = pch, col = col[1], cex = cex)
 
           # Adding x-axis and z-axis and their labels
           lseq <- grDevices::axisTicks(range(Lambda, na.rm = TRUE), log = FALSE)
@@ -1312,13 +1312,13 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #' Heatmap(mat = mat)
 #' Heatmap(
 #'   mat = mat,
-#'   colours = c("lightgrey", "blue", "black"),
+#'   col = c("lightgrey", "blue", "black"),
 #'   legend = FALSE
 #' )
 #' }
 #'
 #' @export
-Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"),
+Heatmap <- function(mat, col = c("ivory", "navajowhite", "tomato", "darkred"),
                     resolution = 10000, bty = "o", axes = TRUE, cex.axis = 1, xlas = 2, ylas = 2,
                     legend = TRUE, legend_length = NULL, legend_range = NULL) {
   # Transposing the input matrix so that rows are rows
@@ -1330,8 +1330,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
   }
 
   # Preparing colours
-  colours <- grDevices::colorRampPalette(colours)(resolution)
-  names(colours) <- 1:resolution
+  col <- grDevices::colorRampPalette(col)(resolution)
+  names(col) <- 1:resolution
 
   # Re-formatting matrix
   mat <- mat[, ncol(mat):1, drop = FALSE]
@@ -1360,8 +1360,8 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
     for (j in 0:(ncol(mycol_mat) - 1)) {
       graphics::polygon(
         x = c(i, i + 1, i + 1, i), y = c(j, j, j + 1, j + 1),
-        col = colours[mycol_mat[i + 1, j + 1]],
-        border = colours[mycol_mat[i + 1, j + 1]]
+        col = col[mycol_mat[i + 1, j + 1]],
+        border = col[mycol_mat[i + 1, j + 1]]
       )
     }
   }
@@ -1388,20 +1388,20 @@ Heatmap <- function(mat, colours = c("ivory", "navajowhite", "tomato", "darkred"
     )))
     ypos <- ncol(mat)
     xpos <- nrow(mat) * 1.05
-    for (l in 1:length(colours)) {
+    for (l in 1:length(col)) {
       graphics::polygon(
         x = c(xpos, xpos * legend_width_factor, xpos * legend_width_factor, xpos),
         y = c(
-          ypos - legend_length + legend_length * l / length(colours),
-          ypos - legend_length + legend_length * l / length(colours),
-          ypos - legend_length + legend_length * (l + 1) / length(colours),
-          ypos - legend_length + legend_length * (l + 1) / length(colours)
+          ypos - legend_length + legend_length * l / length(col),
+          ypos - legend_length + legend_length * l / length(col),
+          ypos - legend_length + legend_length * (l + 1) / length(col),
+          ypos - legend_length + legend_length * (l + 1) / length(col)
         ),
-        col = colours[l], border = colours[l]
+        col = col[l], border = col[l]
       )
       if (l %in% mylegend_ids) {
         graphics::text(
-          x = xpos * legend_width_factor, y = ypos - legend_length + legend_length * (l + 0.5) / length(colours),
+          x = xpos * legend_width_factor, y = ypos - legend_length + legend_length * (l + 0.5) / length(col),
           labels = paste0("- ", mylegend_values[which(mylegend_ids == l)]), adj = c(0, 0.5)
         )
       }

@@ -7,7 +7,7 @@
 CalibrationPlot(
   stability,
   block_id = NULL,
-  colours = NULL,
+  col = NULL,
   pch = 19,
   cex = 0.7,
   xlim = NULL,
@@ -44,7 +44,7 @@ CalibrationPlot(
 stability selection graphical models. If \code{block_id=NULL}, all blocks
 are represented in separate panels.}
 
-\item{colours}{vector of colours.}
+\item{col}{vector of colours.}
 
 \item{pch}{type of point, as in \code{\link[graphics]{points}}.}
 
@@ -153,7 +153,7 @@ CalibrationPlot(stab)
 # User-defined colours
 par(mar = c(7, 5, 7, 6))
 CalibrationPlot(stab,
-  colours = c("ivory", "blue", "black"),
+  col = c("ivory", "blue", "black"),
   legend_length = 31,
   legend_range = c(0, 2500)
 )

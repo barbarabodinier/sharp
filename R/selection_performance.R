@@ -172,6 +172,129 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 }
 
 
+#' Edge-wise comparison of two graphs
+#'
+#' Generates an \code{\link[igraph:igraph-package]{igraph}} object representing
+#' the common and graph-specific edges.
+#'
+#' @inheritParams Graph
+#' @param graph1 first graph. Possible inputs are: adjacency matrix, or
+#'   \code{\link[igraph:igraph-package]{igraph}} object, or output of
+#'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
+#'   \code{\link{BiSelection}}, or output of \code{\link{SimulateGraphical}},
+#'   \code{\link{SimulateRegression}}.
+#' @param graph2 second graph.
+#' @param colours vector of edge colours. The first entry of the vector defines
+#'   the colour of edges in \code{graph1} only, second entry is for edges in
+#'   \code{graph2} only and third entry is for common edges.
+#' @param lty vector of line types for edges. The order is defined as for
+#'   argument \code{colours}.
+#' @param show_labels logical indicating if the node labels should be displayed.
+#' @param ... additional arguments to be passed to \code{\link{Graph}}.
+#'
+#' @seealso \code{\link{SelectionPerformanceGraph}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul1 <- SimulateGraphical(pk = 30)
+#' set.seed(2)
+#' simul2 <- SimulateGraphical(pk = 30)
+#'
+#' # Edge-wise comparison of the two graphs
+#' mygraph <- GraphComparison(
+#'   graph1 = simul1,
+#'   graph2 = simul2
+#' )
+#' plot(mygraph, layout = layout_with_kk(mygraph))
+#' }
+#'
+#' @export
+GraphComparison <- function(graph1, graph2,
+                            colours = c("tomato", "forestgreen", "navy"),
+                            lty = c(2, 3, 1),
+                            node_colour = NULL,
+                            show_labels = TRUE, ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Extracting the adjacency matrices
+  theta <- AdjacencyFromObject(graph1)
+  theta_star <- AdjacencyFromObject(graph2)
+
+  # Defining the vector of node colours
+  if (is.null(node_colour)) {
+    if (!"matrix" %in% class(graph1)) {
+      if (class(graph1) == "variable_selection") {
+        node_colour <- c(rep("skyblue", nrow(theta)), "red")
+      }
+      if (class(graph1) == "bi_selection") {
+        if ("selected" %in% names(theta)) {
+          selected <- theta$selected # PLS
+        } else {
+          selected <- theta$selectedX # PCA
+        }
+        node_colour <- c(
+          rep("skyblue", nrow(selected)),
+          rep("red", ncol(selected))
+        )
+      }
+    }
+    if (is.null(node_colour)) {
+      node_colour <- "skyblue"
+    }
+  }
+
+  # Checking input is a matrix
+  if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
+    stop("Invalid input. Please provide adjacency matrices, igraph or sharp objects.")
+  }
+
+  # Extracting the estimated edges only
+  if (ncol(theta) != ncol(theta_star)) {
+    theta_star <- theta_star[rownames(theta), colnames(theta)]
+  }
+
+  # Storing similarities/differences between estimated and true sets
+  Asum <- theta + 2 * theta_star
+
+  # Refining inputs
+  names(colours) <- names(lty) <- c("FP", "TN", "TP")
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
+
+  # Making consensus graph
+  # g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
+  g <- do.call(sharp::Graph, args = c(
+    list(
+      adjacency = ifelse(Asum != 0, yes = 1, no = 0),
+      node_colour = node_colour
+    ),
+    tmp_extra_args
+  ))
+
+  # Formatting vertices
+  igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
+  if (!show_labels) {
+    igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
+  }
+
+  # Formatting edges
+  myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
+  myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
+  igraph::E(g)$color <- myedgecolour
+  igraph::E(g)$width <- 1
+  igraph::E(g)$lty <- myedgelty
+
+  # Returning output graph
+  return(g)
+}
+
+
 #' Graph representation of selection performance
 #'
 #' Generates an igraph object representing the True Positive, False Positive and
@@ -179,7 +302,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' true edges. This function can only be used in simulation studies (i.e. when
 #' the true model is known).
 #'
-#' @inheritParams Graph
+#' @inheritParams GraphComparison
 #' @param theta binary adjacency matrix or output of
 #'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}}, or
 #'   \code{\link{BiSelection}}.
@@ -188,11 +311,6 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' @param colours vector of edge colours. The first entry of the vector defines
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
-#' @param lty vector of line types for edges. The first entry of the vector
-#'   defines the colour of False Positive edges, second entry is for True
-#'   Negatives and third entry is for True Positives.
-#' @param show_labels logical indicating if the node labels should be displayed.
-#' @param ... additional arguments to be passed to \code{\link{Graph}}.
 #'
 #' @family functions for model performance
 #'
@@ -275,91 +393,102 @@ SelectionPerformanceGraph <- function(theta, theta_star,
   # Storing extra arguments
   extra_args <- list(...)
 
-  # Re-formatting input theta
-  if (any(class(theta) %in% c("variable_selection", "graphical_model", "bi_selection"))) {
-    if (class(theta) == "variable_selection") {
-      theta <- cbind(SelectedVariables(theta))
-      if (is.null(node_colour)) {
-        node_colour <- c(rep("skyblue", nrow(theta)), "red")
-      }
-      if (ncol(theta) == 1) {
-        colnames(theta) <- "outcome"
-      }
-      theta <- Square(theta)
-    } else {
-      if (class(theta) == "graphical_model") {
-        theta <- Adjacency(theta)
-      } else {
-        if ("selected" %in% names(theta)) {
-          selected <- theta$selected # PLS
-        } else {
-          selected <- theta$selectedX # PCA
-        }
-        # Relating predictors and outcomes (ignoring latent variables)
-        if (is.null(node_colour)) {
-          node_colour <- c(
-            rep("skyblue", nrow(selected)),
-            rep("red", ncol(selected))
-          )
-        }
-        theta <- Square(selected)
-      }
-    }
-  }
-
-  # Re-formatting input theta_star
-  if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
-    if (class(theta_star) %in% c("simulation_regression", "simulation_components")) {
-      theta_star <- cbind(theta_star$theta)
-      if (ncol(theta_star) == 1) {
-        colnames(theta_star) <- "outcome"
-      }
-      theta_star <- Square(theta_star)
-    } else {
-      theta_star <- theta_star$theta
-    }
-  }
-
-  # Defining node colour if not done before
-  if (is.null(node_colour)) {
-    node_colour <- "skyblue"
-  }
-
-  # Checking input is a matrix
-  if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
-    stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
-  }
-
-  # Extracting the estimated edges only
-  if (ncol(theta) != ncol(theta_star)) {
-    theta_star <- theta_star[rownames(theta), colnames(theta)]
-  }
-
-  # Storing similarities/differences between estimated and true sets
-  Asum <- theta + 2 * theta_star
-
-  # Refining inputs
-  names(colours) <- names(lty) <- c("FP", "TN", "TP")
-
-  # Extracting relevant extra arguments
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
-
-  # Making consensus graph
-  g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
-
-  # Formatting vertices
-  igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
-  if (!show_labels) {
-    igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
-  }
-
-  # Formatting edges
-  myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
-  myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
-  igraph::E(g)$color <- myedgecolour
-  igraph::E(g)$width <- 1
-  igraph::E(g)$lty <- myedgelty
+  g <- GraphComparison(
+    graph1 = theta,
+    graph2 = theta_star,
+    colours = colours,
+    lty = lty,
+    node_colour = node_colour,
+    show_labels = show_labels,
+    ...
+  )
+  #
+  # # Re-formatting input theta
+  # if (any(class(theta) %in% c("variable_selection", "graphical_model", "bi_selection"))) {
+  #   if (class(theta) == "variable_selection") {
+  #     theta <- cbind(SelectedVariables(theta))
+  #     if (is.null(node_colour)) {
+  #       node_colour <- c(rep("skyblue", nrow(theta)), "red")
+  #     }
+  #     if (ncol(theta) == 1) {
+  #       colnames(theta) <- "outcome"
+  #     }
+  #     theta <- Square(theta)
+  #   } else {
+  #     if (class(theta) == "graphical_model") {
+  #       theta <- Adjacency(theta)
+  #     } else {
+  #       if ("selected" %in% names(theta)) {
+  #         selected <- theta$selected # PLS
+  #       } else {
+  #         selected <- theta$selectedX # PCA
+  #       }
+  #       # Relating predictors and outcomes (ignoring latent variables)
+  #       if (is.null(node_colour)) {
+  #         node_colour <- c(
+  #           rep("skyblue", nrow(selected)),
+  #           rep("red", ncol(selected))
+  #         )
+  #       }
+  #       theta <- Square(selected)
+  #     }
+  #   }
+  # }
+  #
+  # # Re-formatting input theta_star
+  # if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
+  #   if (class(theta_star) %in% c("simulation_regression", "simulation_components")) {
+  #     theta_star <- cbind(theta_star$theta)
+  #     if (ncol(theta_star) == 1) {
+  #       colnames(theta_star) <- "outcome"
+  #     }
+  #     theta_star <- Square(theta_star)
+  #   } else {
+  #     theta_star <- theta_star$theta
+  #   }
+  # }
+  #
+  # # Defining node colour if not done before
+  # if (is.null(node_colour)) {
+  #   node_colour <- "skyblue"
+  # }
+  #
+  # # Checking input is a matrix
+  # if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
+  #   stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
+  # }
+  #
+  # # Extracting the estimated edges only
+  # if (ncol(theta) != ncol(theta_star)) {
+  #   theta_star <- theta_star[rownames(theta), colnames(theta)]
+  # }
+  #
+  # # Storing similarities/differences between estimated and true sets
+  # Asum <- theta + 2 * theta_star
+  #
+  # # Refining inputs
+  # names(colours) <- names(lty) <- c("FP", "TN", "TP")
+  #
+  # # Extracting relevant extra arguments
+  # tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
+  # tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
+  #
+  # # Making consensus graph
+  # # g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
+  # g <- do.call(sharp::Graph, args = c(list(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour), tmp_extra_args))
+  #
+  # # Formatting vertices
+  # igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
+  # if (!show_labels) {
+  #   igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
+  # }
+  #
+  # # Formatting edges
+  # myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
+  # myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
+  # igraph::E(g)$color <- myedgecolour
+  # igraph::E(g)$width <- 1
+  # igraph::E(g)$lty <- myedgelty
 
   # Returning output graph
   return(g)

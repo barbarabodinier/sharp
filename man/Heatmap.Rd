@@ -6,7 +6,7 @@
 \usage{
 Heatmap(
   mat,
-  colours = c("ivory", "navajowhite", "tomato", "darkred"),
+  col = c("ivory", "navajowhite", "tomato", "darkred"),
   resolution = 10000,
   bty = "o",
   axes = TRUE,
@@ -21,7 +21,7 @@ Heatmap(
 \arguments{
 \item{mat}{data matrix.}
 
-\item{colours}{vector of colours.}
+\item{col}{vector of colours.}
 
 \item{resolution}{number of different colours to use.}
 
@@ -64,7 +64,7 @@ par(mar = c(1, 1, 1, 5))
 Heatmap(mat = mat)
 Heatmap(
   mat = mat,
-  colours = c("lightgrey", "blue", "black"),
+  col = c("lightgrey", "blue", "black"),
   legend = FALSE
 )
 }

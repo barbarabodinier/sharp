@@ -348,7 +348,7 @@ plot.simulation_clustering <- function(x, ...) {
   # Visualisation of Euclidian distances along the contributing variable
   Heatmap(
     mat = as.matrix(stats::dist(x$data[, which(x$theta_xc == 1), drop = FALSE])),
-    colours = c("navy", "white", "red")
+    col = c("navy", "white", "red")
   )
   graphics::title("Distances across variables contributing to clustering")
 }
@@ -358,7 +358,7 @@ plot.simulation_clustering <- function(x, ...) {
 plot.simulation_components <- function(x, ...) {
   Heatmap(
     mat = stats::cor(x$data),
-    colours = c("navy", "white", "red"),
+    col = c("navy", "white", "red"),
     legend_range = c(-1, 1)
   )
   graphics::title("Pearson's correlations")
