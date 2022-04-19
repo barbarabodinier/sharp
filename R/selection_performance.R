@@ -534,10 +534,10 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   }
 
   # Computing the numbers of True/False Positives/Negatives
-  TP <- sum(Asum == 3)
-  FN <- sum(Asum == 2)
-  FP <- sum(Asum == 1)
-  TN <- sum(Asum == 0)
+  TP <- as.numeric(sum(Asum == 3))
+  FN <- as.numeric(sum(Asum == 2))
+  FP <- as.numeric(sum(Asum == 1))
+  TN <- as.numeric(sum(Asum == 0))
 
   # Separation between correlated and independent features based on a threshold in correlation
   if (!is.null(cor)) {
