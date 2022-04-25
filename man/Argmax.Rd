@@ -8,7 +8,7 @@ Argmax(stability)
 }
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}},
-\code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.}
+\code{\link{BiSelection}} or \code{\link{GraphicalModel}}.}
 }
 \value{
 A matrix of parameter values. If applied to the output of

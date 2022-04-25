@@ -43,39 +43,24 @@
 #'
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
-  # To add to arguments for clustering (should work)
-  clustering <- FALSE
-  # @param clustering logical indicating whether indices of calibrated clustering
-  #   parameters (\code{clustering=TRUE}) or variable selection
-  #   (\code{clustering=FALSE}) should be extracted. This argument is only used
-  #   if \code{stability} is the output from \code{\link{Clustering}}.
-
   if ((is.null(stability)) & (is.null(S))) {
     stop("Invalid input. One of the two arguments has to be specified: 'stability' or 'S'.")
   }
-  if (clustering) {
-    if (!is.null(S)) {
-      stop("Invalid input. Argument 'stability' needs to be supplied with clustering = TRUE.")
-    }
-  }
+
+  clustering <- ifelse(class(stability) == "clustering", yes = TRUE, no = FALSE)
+
   if (is.null(S)) {
     if (clustering) {
-      if (length(unique(stability$Lambda)) > 1) {
-        # Identifying best number of contributing variables
-        lambda_hat <- stability$Lambda[which.max(stability$S), 1]
-        ids <- which(as.character(stability$Lambda) == lambda_hat)
-      } else {
-        ids <- 1:nrow(stability$Sc)
-      }
-      Sc <- stability$Sc[ids, 1]
-      Sc_2d <- stability$Sc_2d[ids, , drop = FALSE]
+      Sc <- round(stability$Sc, digits = 4)
+      argmax_id <- which(Sc == max(Sc, na.rm = TRUE))
+      argmax_id <- argmax_id[which(stability$nc[argmax_id] == max(stability$nc[argmax_id]))]
+      argmax_id <- max(argmax_id)
 
-      # Identifying best number of clusters
-      argmax_id <- matrix(NA, nrow = 1, ncol = 2)
-      id <- which.max(Sc)
-      argmax_id[, 1] <- ids[id]
-      tmpSc <- Sc_2d[id, ]
-      argmax_id[, 2] <- which.max(tmpSc)
+      if (any(!is.na(stability$S_2d[argmax_id, ]))) {
+        argmax_id <- matrix(c(argmax_id, which.max(stability$S_2d[argmax_id, ])), ncol = 2)
+      } else {
+        argmax_id <- matrix(c(argmax_id, NA), ncol = 2)
+      }
     } else {
       argmax_id <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
       if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
@@ -106,7 +91,11 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
     myid <- which.max(myS)
     argmax_id[1, ] <- c(myid, max(which(S[myid, ] == myS[myid])))
   }
-  colnames(argmax_id) <- c("lambda_id", "pi_id")
+  if (clustering) {
+    colnames(argmax_id) <- c("row_id", "pi_id")
+  } else {
+    colnames(argmax_id) <- c("lambda_id", "pi_id")
+  }
   return(argmax_id)
 }
 
@@ -116,7 +105,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #' Extracts calibrated parameter values in stability selection.
 #'
 #' @param stability output of \code{\link{VariableSelection}},
-#'   \code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.
+#'   \code{\link{BiSelection}} or \code{\link{GraphicalModel}}.
 #'
 #' @return A matrix of parameter values. If applied to the output of
 #'   \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}, the first
@@ -149,19 +138,32 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' @export
 Argmax <- function(stability) {
+  clustering <- ifelse(class(stability) == "clustering", yes = TRUE, no = FALSE)
   if (class(stability) == "bi_selection") {
     argmax <- stability$summary
     argmax <- argmax[, colnames(argmax) != "S", drop = FALSE]
   } else {
-    # To add to arguments for clustering (should work)
-    clustering <- FALSE
-
-    argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
     if (clustering) {
       id <- ArgmaxId(stability = stability)
-      argmax[, 1] <- stability$nc[id[1], 1]
-      argmax[, 2] <- stability$params$pi_list[id[2]]
+      if (!is.na(id[2])) {
+        argmax <- matrix(c(
+          stability$nc[id[1], 1],
+          stability$Lambda[id[1], 1],
+          stability$params$pi_list[id[2]]
+        ),
+        ncol = 3
+        )
+      } else {
+        argmax <- matrix(c(
+          stability$nc[id[1], 1],
+          NA,
+          NA
+        ),
+        ncol = 3
+        )
+      }
     } else {
+      argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
       if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
         id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
         argmax[, 1] <- stability$Lambda[id, ]
@@ -179,7 +181,11 @@ Argmax <- function(stability) {
         }
       }
     }
-    colnames(argmax) <- c("lambda", "pi")
+    if (clustering) {
+      colnames(argmax) <- c("nc", "lambda", "pi")
+    } else {
+      colnames(argmax) <- c("lambda", "pi")
+    }
   }
 
   return(argmax)
