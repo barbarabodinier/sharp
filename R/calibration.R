@@ -51,10 +51,12 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 
   if (is.null(S)) {
     if (clustering) {
+      # If multiple solutions, prioritising many clusters over small number of features
       Sc <- round(stability$Sc, digits = 4)
       argmax_id <- which(Sc == max(Sc, na.rm = TRUE))
       argmax_id <- argmax_id[which(stability$nc[argmax_id] == max(stability$nc[argmax_id]))]
-      argmax_id <- max(argmax_id)
+      argmax_id <- argmax_id[which(stability$Q[argmax_id] == min(stability$Q[argmax_id]))]
+      argmax_id <- min(argmax_id)
 
       if (any(!is.na(stability$S_2d[argmax_id, ]))) {
         argmax_id <- matrix(c(argmax_id, which.max(stability$S_2d[argmax_id, ])), ncol = 2)
@@ -156,7 +158,7 @@ Argmax <- function(stability) {
       } else {
         argmax <- matrix(c(
           stability$nc[id[1], 1],
-          NA,
+          stability$Lambda[id[1], 1],
           NA
         ),
         ncol = 3
@@ -243,13 +245,8 @@ Adjacency <- function(stability, argmax_id = NULL) {
     }
     bigblocks <- BlockMatrix(stability$params$pk)
     if (is.null(argmax_id)) {
-      if (class(stability) == "graphical_model") {
-        argmax_id <- ArgmaxId(stability)
-        argmax <- Argmax(stability)
-      } else {
-        argmax_id <- ArgmaxId(stability) # needs clustering = TRUE
-        argmax <- Argmax(stability) # needs clustering = TRUE
-      }
+      argmax_id <- ArgmaxId(stability)
+      argmax <- Argmax(stability)
     } else {
       argmax <- NULL
       for (block_id in 1:ncol(stability$Lambda)) {
@@ -265,8 +262,6 @@ Adjacency <- function(stability, argmax_id = NULL) {
       } else {
         A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
       }
-      # A_block[lower.tri(A_block)] <- 0
-      # A_block <- A_block + t(A_block) # for symmetry
       if (length(stability$params$pk) > 1) {
         A_block[bigblocks != block_id] <- 0
       }
@@ -842,14 +837,21 @@ CalibrationPlot <- function(stability, block_id = NULL,
                             lines = TRUE, lty = 3, lwd = 2,
                             show_argmax = TRUE,
                             show_pix = FALSE, show_piy = FALSE, offset = 0.3,
-                            legend = TRUE, legend_length = 15, legend_range = NULL,
+                            legend = TRUE, legend_length = NULL, legend_range = NULL,
                             xlab = NULL, ylab = NULL, zlab = expression(italic(q)),
-                            xlas = 2, ylas = 0, zlas = 2, cex.lab = 1.5, cex.axis = 1,
+                            xlas = 2, ylas = NULL, zlas = 2, cex.lab = 1.5, cex.axis = 1,
                             xgrid = FALSE, ygrid = FALSE,
                             params = c("ny", "alphay", "nx", "alphax")) {
   # To deal with later: showing calibration of clustering or selection
-  clustering <- FALSE
+  # clustering <- FALSE
+  clustering <- ifelse(class(stability) == "clustering", yes = TRUE, no = FALSE)
   heatmap <- TRUE
+
+  if (clustering) {
+    ylas <- 1
+  } else {
+    ylas <- 0
+  }
 
   if (class(stability) == "bi_selection") {
     # Extracting summary information
@@ -1069,7 +1071,11 @@ CalibrationPlot <- function(stability, block_id = NULL,
         col <- c("ivory", "navajowhite", "tomato", "darkred")
       }
       if (is.null(ylab)) {
-        ylab <- expression(pi)
+        if (clustering) {
+          ylab <- expression(n[c])
+        } else {
+          ylab <- expression(pi)
+        }
       }
     } else {
       metric <- "lambda"
@@ -1102,15 +1108,15 @@ CalibrationPlot <- function(stability, block_id = NULL,
       for (b in block_id) {
         # Extracting the stability scores
         if (clustering) {
-          mat <- stability$Sc_2d
-          if (length(unique(stability$Lambda)) > 1) {
-            # Identifying best number of contributing variables
-            lambda_hat <- stability$Lambda[which.max(stability$S), 1]
-            ids <- which(as.character(stability$Lambda) == lambda_hat)
-          } else {
-            ids <- 1:nrow(stability$Sc)
-          }
-          mat <- mat[ids, ]
+          mat <- matrix(stability$Sc, ncol = length(unique(stability$Lambda)))
+          rownames(mat) <- formatC(unique(stability$nc), format = "f", digits = 0)
+          colnames(mat) <- formatC(unique(stability$Lambda), format = "e", digits = 2)
+          mat <- t(mat)
+          mat <- mat[nrow(mat):1, ncol(mat):1]
+          ids <- which(apply(mat, 1, FUN = function(x) {
+            any(!is.na(x))
+          }))
+          mat <- mat[ids, , drop = FALSE]
         } else {
           if (length(stability$params$pk) == 1) {
             mat <- stability$S_2d
@@ -1125,16 +1131,9 @@ CalibrationPlot <- function(stability, block_id = NULL,
             }))
             mat <- mat[ids, , drop = FALSE]
           }
-        }
-        mat <- mat[, , drop = FALSE]
-        colnames(mat) <- stability$params$pi_list
-        if (stability$methods$type == "clustering") {
-          if (length(unique(stability$Lambda[, b])) > 1) {
-            rownames(mat) <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ids]
-          } else {
-            rownames(mat) <- (stability$nc[, b])[ids]
-          }
-        } else {
+
+          # Setting row and column names
+          colnames(mat) <- stability$params$pi_list
           if (grepl("penalised", tolower(stability$methods$implementation))) {
             rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
           } else {
@@ -1155,24 +1154,34 @@ CalibrationPlot <- function(stability, block_id = NULL,
         # Adding calibrated lines
         if (show_argmax) {
           withr::local_par(list(xpd = FALSE))
-          if (stability$methods$type == "clustering") {
-            if (clustering) {
-              graphics::abline(v = nrow(mat) - which(stability$nc[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
-            } else {
-              tmp <- paste0(stability$nc[, b], " - ", stability$Lambda[, b])[ArgmaxId(stability)[1, 1]]
-              graphics::abline(v = nrow(mat) - which(rownames(mat) == tmp) + 0.5, lty = 3)
-            }
+          if (clustering) {
+            myargmax <- Argmax(stability)
+            print(myargmax)
+            argmax_id <- c(
+              which(rownames(t(mat[nrow(mat):1, ncol(mat):1])) == formatC(myargmax[1], format = "f", digits = 0)),
+              which(colnames(t(mat[nrow(mat):1, ncol(mat):1])) == formatC(myargmax[2], format = "e", digits = 2))
+            )
+            print(argmax_id)
+            graphics::abline(h = ncol(mat) - argmax_id[1] + 0.5, lty = 3)
+            graphics::abline(v = argmax_id[2] - 0.5, lty = 3)
           } else {
             graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
+            graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
           }
-          graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
         }
 
         # Including axes
-        graphics::axis(
-          side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
-          labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2)
-        )
+        if (clustering) {
+          graphics::axis(
+            side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
+            labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 0)
+          )
+        } else {
+          graphics::axis(
+            side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
+            labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2)
+          )
+        }
         if (grepl("penalised", tolower(stability$methods$implementation))) {
           graphics::axis(
             side = 3, at = (1:nrow(mat)) - 0.5, las = zlas, cex.axis = cex.axis,
@@ -1185,11 +1194,9 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
         # Including axis labels
         graphics::mtext(text = ylab, side = 2, line = 3.5, cex = cex.lab)
+        graphics::mtext(text = xlab, side = 1, line = 5.2, cex = cex.lab)
         if (grepl("penalised", tolower(stability$methods$implementation))) {
-          graphics::mtext(text = xlab, side = 1, line = 5.2, cex = cex.lab)
           graphics::mtext(text = zlab, side = 3, line = 3.5, cex = cex.lab)
-        } else {
-          graphics::mtext(text = xlab, side = 1, line = 3.5, cex = cex.lab)
         }
       }
     } else {
