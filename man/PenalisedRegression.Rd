@@ -14,10 +14,7 @@ columns.}
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
 with character/numeric values or a factor.}
 
-\item{Lambda}{matrix of parameters controlling the level of sparsity in the
-underlying feature selection algorithm specified in \code{implementation}.
-If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
-\code{\link{LambdaGridRegression}} is used to define a relevant grid.}
+\item{Lambda}{matrix of parameters controlling the level of sparsity.}
 
 \item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}

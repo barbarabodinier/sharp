@@ -4,6 +4,7 @@
 #' \code{\link[glmnet]{glmnet}}. This function is not using stability.
 #'
 #' @inheritParams VariableSelection
+#' @param Lambda matrix of parameters controlling the level of sparsity.
 #' @param ... additional parameters passed to \code{\link[glmnet]{glmnet}}.
 #'
 #' @return A list with: \item{selected}{matrix of binary selection status. Rows
