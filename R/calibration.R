@@ -1402,7 +1402,7 @@ Heatmap <- function(mat, col = c("ivory", "navajowhite", "tomato", "darkred"),
       for (j in 1:ncol(mat)) {
         text(i - 0.5, j - 0.5,
           cex = cex,
-          labels = formatC(mat[nrow(mat) - i + 1, ncol(mat) - j + 1], format = "f", digits = digits)
+          labels = formatC(mat[i, j], format = "f", digits = digits)
         )
       }
     }
