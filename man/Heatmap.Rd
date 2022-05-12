@@ -13,6 +13,9 @@ Heatmap(
   cex.axis = 1,
   xlas = 2,
   ylas = 2,
+  text = FALSE,
+  cex = 1,
+  digits = 2,
   legend = TRUE,
   legend_length = NULL,
   legend_range = NULL
@@ -39,6 +42,12 @@ should be displayed.}
 
 \item{ylas}{orientation of labels on the y-axis, as \code{las} in
 \code{\link[graphics]{par}}.}
+
+\item{text}{logical indicating if numbers should be displayed.}
+
+\item{cex}{font size for numbers. Only used if \code{text=TRUE}.}
+
+\item{digits}{number of digits to show. Only used if \code{text=TRUE}.}
 
 \item{legend}{logical indicating if the colour bar should be included.}
 

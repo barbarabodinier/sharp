@@ -1148,6 +1148,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
         # Heatmap representation
         Heatmap(t(mat[nrow(mat):1, ncol(mat):1]),
           col = col, bty = bty, axes = FALSE,
+          text = FALSE, cex = 1, digits = 2,
           legend = legend, legend_length = legend_length, legend_range = legend_range
         )
 
@@ -1305,6 +1306,9 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #' @param resolution number of different colours to use.
 #' @param axes logical indicating if the row and column names of \code{mat}
 #'   should be displayed.
+#' @param text logical indicating if numbers should be displayed.
+#' @param cex font size for numbers. Only used if \code{text=TRUE}.
+#' @param digits number of digits to show. Only used if \code{text=TRUE}.
 #' @param legend logical indicating if the colour bar should be included.
 #' @param legend_length length of the colour bar.
 #' @param legend_range range of the colour bar.
@@ -1332,7 +1336,9 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #'
 #' @export
 Heatmap <- function(mat, col = c("ivory", "navajowhite", "tomato", "darkred"),
-                    resolution = 10000, bty = "o", axes = TRUE, cex.axis = 1, xlas = 2, ylas = 2,
+                    resolution = 10000, bty = "o",
+                    axes = TRUE, cex.axis = 1, xlas = 2, ylas = 2,
+                    text = FALSE, cex = 1, digits = 2,
                     legend = TRUE, legend_length = NULL, legend_range = NULL) {
   # Transposing the input matrix so that rows are rows
   mat <- t(mat)
@@ -1388,6 +1394,18 @@ Heatmap <- function(mat, col = c("ivory", "navajowhite", "tomato", "darkred"),
   }
   if (bty == "o") {
     graphics::box()
+  }
+
+  # Showing text
+  if (text) {
+    for (i in 1:nrow(mat)) {
+      for (j in 1:ncol(mat)) {
+        text(i - 0.5, j - 0.5,
+          cex = cex,
+          labels = formatC(mat[nrow(mat) - i + 1, ncol(mat) - j + 1], format = "f", digits = digits)
+        )
+      }
+    }
   }
 
   # Adding colour bar (legend)
