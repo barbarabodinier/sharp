@@ -45,6 +45,7 @@
 #'
 #' @examples
 #' # Simulating set of selection proportions
+#' set.seed(1)
 #' selprop <- round(runif(n = 20), digits = 2)
 #'
 #' # Computing stability scores for different thresholds
