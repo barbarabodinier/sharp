@@ -68,6 +68,12 @@ All functionalities implemented in
   tools for network analysis (including topological properties and community
   detection).
 
+  The R package \code{\link[visNetwork:visDocumentation]{visNetwork}} offers
+  interactive network visualisation tools. An
+  \code{\link[igraph:igraph-package]{igraph}} object can easily be converted
+  to a \code{\link[visNetwork:visDocumentation]{visNetwork}} object (see
+  example below).
+
   For Cytoscape users, the \code{\link[RCy3:RCy3]{RCy3}} package can be used
   to open the network in Cytoscape.
 }
@@ -88,18 +94,6 @@ plot(Graph(adjacency, weighted = TRUE))
 # Node colours and shapes
 plot(Graph(adjacency, weighted = TRUE, node_shape = "star", node_colour = "red"))
 
-# Applying some igraph functionalities
-mygraph <- Graph(adjacency)
-igraph::degree(mygraph)
-igraph::betweenness(mygraph)
-igraph::shortest_paths(mygraph, from = 1, to = 2)
-igraph::walktrap.community(mygraph)
-
-# Opening in Cytoscape using RCy3
-if (requireNamespace("RCy3", quietly = TRUE)) {
-  # Make sure that Cytoscape is open before running the following line
-  # RCy3::createNetworkFromIgraph(mygraph)
-}
 
 ## From stability selection outputs
 
@@ -119,11 +113,39 @@ stab <- BiSelection(
   implementation = SparsePLS
 )
 plot(Graph(stab))
+
+
+## Tools from other packages
+
+# Applying some igraph functionalities
+adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
+mygraph <- Graph(adjacency)
+igraph::degree(mygraph)
+igraph::betweenness(mygraph)
+igraph::shortest_paths(mygraph, from = 1, to = 2)
+igraph::walktrap.community(mygraph)
+
+# Interactive view using visNetwork
+if (requireNamespace("visNetwork", quietly = TRUE)) {
+  vgraph <- mygraph
+  igraph::V(vgraph)$shape <- rep("dot", length(igraph::V(vgraph)))
+  v <- visNetwork::visIgraph(vgraph)
+  mylayout <- as.matrix(v$x$nodes[, c("x", "y")])
+  mylayout[, 2] <- -mylayout[, 2]
+  igraph::plot(mygraph, layout = mylayout)
+}
+
+# Opening in Cytoscape using RCy3
+if (requireNamespace("RCy3", quietly = TRUE)) {
+  # Make sure that Cytoscape is open before running the following line
+  # RCy3::createNetworkFromIgraph(mygraph)
+}
 }
 
 }
 \seealso{
 \code{\link{Adjacency}}, \code{\link{GraphicalModel}},
   \href{https://igraph.org/r/}{igraph manual},
+  \href{http://datastorm-open.github.io/visNetwork/}{visNetwork manual},
   \href{https://cytoscape.org}{Cytoscape}
 }

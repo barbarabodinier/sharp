@@ -246,6 +246,12 @@ In stability selection, a feature selection algorithm is fitted on
   the function can be run manually with different \code{seed}s and all other
   parameters equal. The results can then be combined using
   \code{\link{Combine}}.
+
+  The generated network can be converted into
+  \code{\link[igraph:igraph-package]{igraph}} object using
+  \code{\link{Graph}}. The R package
+  \code{\link[visNetwork:visDocumentation]{visNetwork}} can be used for
+  interactive network visualisation (see examples in \code{\link{Graph}}).
 }
 \examples{
 \dontshow{

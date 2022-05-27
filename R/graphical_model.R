@@ -99,6 +99,12 @@
 #'   parameters equal. The results can then be combined using
 #'   \code{\link{Combine}}.
 #'
+#'   The generated network can be converted into
+#'   \code{\link[igraph:igraph-package]{igraph}} object using
+#'   \code{\link{Graph}}. The R package
+#'   \code{\link[visNetwork:visDocumentation]{visNetwork}} can be used for
+#'   interactive network visualisation (see examples in \code{\link{Graph}}).
+#'
 #' @references \insertRef{ourstabilityselection}{sharp}
 #'
 #'   \insertRef{stabilityselectionMB}{sharp}
