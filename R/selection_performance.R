@@ -102,11 +102,11 @@
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
   # Re-formatting input theta
-  if (any(class(theta) %in% c("variable_selection", "graphical_model", "bi_selection"))) {
-    if (class(theta) == "graphical_model") {
+  if (inherits(theta, c("variable_selection", "graphical_model", "bi_selection"))) {
+    if (inherits(theta, "graphical_model")) {
       theta <- Adjacency(theta)
     } else {
-      if (class(theta) == "variable_selection") {
+      if (inherits(theta, "variable_selection")) {
         theta <- SelectedVariables(theta)
         theta <- as.vector(theta)
       } else {
@@ -120,7 +120,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
   }
 
   # Re-formatting input theta_star
-  if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
+  if (inherits(theta_star, c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
     theta_star <- theta_star$theta
   }
   if (is.vector(theta)) {
@@ -226,12 +226,12 @@ GraphComparison <- function(graph1, graph2,
 
   # Defining the vector of node colours
   if (is.null(node_colour)) {
-    if (!"matrix" %in% class(graph1)) {
+    if (!inherits(graph1, "matrix")) {
       print(theta)
-      if (class(graph1) == "variable_selection") {
+      if (inherits(graph1, "variable_selection")) {
         node_colour <- c(rep("skyblue", nrow(theta) - 1), "red")
       }
-      if (class(graph1) == "bi_selection") {
+      if (inherits(graph1, "bi_selection")) {
         if ("selected" %in% names(graph1)) {
           selected <- graph1$selected # PLS
         } else {

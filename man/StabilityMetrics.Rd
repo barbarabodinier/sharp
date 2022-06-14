@@ -75,7 +75,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   multi-block stability selection, rows correspond to sets of penalty
   parameters and columns correspond to different blocks.} \item{Q}{a matrix
   of average numbers of (block-specific) edges selected by the underlying
-  algorihm for different (sets of) penalty parameters. In multi-block
+  algorithm for different (sets of) penalty parameters. In multi-block
   stability selection, rows correspond to different sets of penalty
   parameters, (values are stored in the output "Lambda") and columns
   correspond to different blocks.} \item{Q_s}{a matrix of calibrated numbers
@@ -98,7 +98,7 @@ A list with: \item{S}{a matrix of the best (block-specific) stability
   are stored in the output "Lambda") and columns correspond to different
   blocks.} \item{S_2d}{an array of (block-specific) stability scores obtained
   with different combinations of parameters. Rows correspond to different
-  (sets of) penalty parameters and columns correspond to different tresholds
+  (sets of) penalty parameters and columns correspond to different thresholds
   in selection proportions. In multi-block stability selection, indices along
   the third dimension correspond to different blocks.} \item{PFER_2d}{an
   array of computed upper-bounds of PFER obtained with different combinations

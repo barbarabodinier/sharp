@@ -376,10 +376,10 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 
   # Checking input
   if (!is.null(stability)) {
-    if (!class(stability) %in% c("variable_selection", "bi_selection")) {
+    if (!inherits(stability, c("variable_selection", "bi_selection"))) {
       stop("Argument 'stability' is not of class 'variable_selection' or 'bi_selection'. This function can only be applied on the output of (i) VariableSelection() or (ii) BiSelection() for PLS models.")
     }
-    if (class(stability) == "bi_selection") {
+    if (inherits(stability, "bi_selection")) {
       # Checking mixOmics package is installed
       CheckPackageInstalled("mixOmics")
       use_pls <- TRUE
@@ -730,7 +730,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
                                    ij_method = FALSE, time = 1000) {
   # Checking the inputs
   if (!is.null(stability)) {
-    if (class(stability) != "variable_selection") {
+    if (inherits(stability, "variable_selection")) {
       stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
     }
     if (!stability$methods$family %in% c("cox", "binomial", "gaussian")) {
@@ -1106,7 +1106,7 @@ Incremental <- function(xdata, ydata,
                         ij_method = FALSE, time = 1000) {
   # Checking the inputs
   if (!is.null(stability)) {
-    if (class(stability) != "variable_selection") {
+    if (!inherits(stability, "variable_selection")) {
       stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
     }
     if (!is.null(family)) {

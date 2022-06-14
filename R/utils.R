@@ -29,16 +29,16 @@ NAToNULL <- function(x) {
 #'
 #' @keywords internal
 AdjacencyFromObject <- function(object) {
-  if ("matrix" %in% class(object)) {
+  if (inherits(object, "matrix")) {
     theta <- object
   } else {
     # From igraph object
-    if (class(object) == "igraph") {
+    if (inherits(object, "igraph")) {
       theta <- as.matrix(igraph::get.adjacency(object))
     }
 
     # From output of VariableSelection()
-    if (class(object) == "variable_selection") {
+    if (inherits(object, "variable_selection")) {
       theta <- cbind(SelectedVariables(object))
       if (ncol(theta) == 1) {
         colnames(theta) <- "outcome"
@@ -47,12 +47,12 @@ AdjacencyFromObject <- function(object) {
     }
 
     # From output of GraphicalModel()
-    if (class(object) == "graphical_model") {
+    if (inherits(object, "graphical_model")) {
       theta <- Adjacency(object)
     }
 
     # From output of BiSelection()
-    if (class(object) == "bi_selection") {
+    if (inherits(object, "bi_selection")) {
       if ("selected" %in% names(object)) {
         selected <- object$selected # PLS
       } else {
@@ -62,7 +62,7 @@ AdjacencyFromObject <- function(object) {
     }
 
     # From output of SimulateRegression() or SimulateComponents()
-    if (class(object) %in% c("simulation_regression", "simulation_components")) {
+    if (inherits(object, c("simulation_regression", "simulation_components"))) {
       theta <- cbind(object$theta)
       if (ncol(theta) == 1) {
         colnames(theta) <- "outcome"
@@ -71,7 +71,7 @@ AdjacencyFromObject <- function(object) {
     }
 
     # From output of SimulateGraphical()
-    if (class(object) == "simulation_graphical_model") {
+    if (inherits(object, "simulation_graphical_model")) {
       theta <- object$theta
     }
   }

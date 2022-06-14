@@ -47,7 +47,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
     stop("Invalid input. One of the two arguments has to be specified: 'stability' or 'S'.")
   }
 
-  clustering <- ifelse(class(stability) == "clustering", yes = TRUE, no = FALSE)
+  clustering <- ifelse(inherits(stability, "clustering"), yes = TRUE, no = FALSE)
 
   if (is.null(S)) {
     if (clustering) {
@@ -140,8 +140,8 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'
 #' @export
 Argmax <- function(stability) {
-  clustering <- ifelse(class(stability) == "clustering", yes = TRUE, no = FALSE)
-  if (class(stability) == "bi_selection") {
+  clustering <- ifelse(inherits(stability, "clustering"), yes = TRUE, no = FALSE)
+  if (inherits(stability, "bi_selection")) {
     argmax <- stability$summary
     argmax <- argmax[, colnames(argmax) != "S", drop = FALSE]
   } else {
@@ -231,14 +231,14 @@ Argmax <- function(stability) {
 #'
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
-  if (class(stability) == "bi_selection") {
+  if (inherits(stability, "bi_selection")) {
     if ("selectedY" %in% names(stability)) {
       A <- Square(t(rbind(stability$selectedX, stability$selectedY)))
     } else {
       A <- Square(stability$selectedX)
     }
   } else {
-    if (class(stability) == "graphical_model") {
+    if (inherits(stability, "graphical_model")) {
       A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
     } else {
       A <- matrix(0, ncol = ncol(stability$coprop), nrow = nrow(stability$coprop))
@@ -257,7 +257,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
       }
     }
     for (block_id in 1:ncol(stability$Lambda)) {
-      if (class(stability) == "graphical_model") {
+      if (inherits(stability, "graphical_model")) {
         A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
       } else {
         A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
@@ -308,12 +308,12 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' }
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
-  if (!class(stability) %in% c("clustering", "variable_selection", "bi_selection")) {
+  if (!inherits(stability, c("clustering", "variable_selection", "bi_selection"))) {
     stop("Invalid input for argument 'stability'. This function only applies to outputs from VariableSelection() or BiSelection().")
   }
 
   # TODO: finish for clustering
-  if (class(stability) == "clustering") {
+  if (inherits(stability, "clustering")) {
     selprop <- SelectionProportions(stability, argmax_id = argmax_id)
     if (any(selprop != 1)) {
       score <- StabilityScore(
@@ -330,7 +330,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
     }
   }
 
-  if (class(stability) == "variable_selection") {
+  if (inherits(stability, "variable_selection")) {
     if (is.null(argmax_id)) {
       argmax_id <- ArgmaxId(stability)
       argmax <- Argmax(stability)
@@ -342,7 +342,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
     )
   }
 
-  if (class(stability) == "bi_selection") {
+  if (inherits(stability, "bi_selection")) {
     if (is.null(argmax_id)) {
       stability_selected <- stability$selectedX
     } else {
@@ -435,17 +435,17 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 SelectionProportions <- function(stability, argmax_id = NULL) {
   out <- NULL
 
-  if (class(stability) == "graphical_model") {
+  if (inherits(stability, "graphical_model")) {
     out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
   }
-  if (class(stability) == "variable_selection") {
+  if (inherits(stability, "variable_selection")) {
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
-  if (class(stability) == "clustering") {
+  if (inherits(stability, "clustering")) {
     argmax_id <- ArgmaxId(stability)
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
-  if (class(stability) == "bi_selection") {
+  if (inherits(stability, "bi_selection")) {
     out <- stability$selpropX
   }
 
@@ -647,11 +647,11 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' @export
 AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
                               FUN = stats::median, ...) {
-  if (!class(stability) %in% c("variable_selection", "bi_selection")) {
+  if (!inherits(stability, c("variable_selection", "bi_selection"))) {
     stop("Invalid input for argument 'stability'. This function only applies to the output of VariableSelection() or BiSelection().")
   }
 
-  if (class(stability) == "variable_selection") {
+  if (inherits(stability, "variable_selection")) {
     # Extracting corresponding betas over all iterations
     if (ncol(stability$Beta) == stability$params$pk) {
       if (is.null(lambda_id)) {
@@ -848,7 +848,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
                             params = c("ny", "alphay", "nx", "alphax")) {
   # To deal with later: showing calibration of clustering or selection
   # clustering <- FALSE
-  clustering <- ifelse(class(stability) == "clustering", yes = TRUE, no = FALSE)
+  clustering <- ifelse(inherits(stability, "clustering"), yes = TRUE, no = FALSE)
   heatmap <- TRUE
 
   if (clustering) {
@@ -857,7 +857,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
     ylas <- 0
   }
 
-  if (class(stability) == "bi_selection") {
+  if (inherits(stability, "bi_selection")) {
     # Extracting summary information
     x <- stability$summary_full
 

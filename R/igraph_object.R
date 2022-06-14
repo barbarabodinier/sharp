@@ -24,7 +24,7 @@
 #'   interpreted. Possible values include \code{"undirected"} or
 #'   \code{"directed"} (see \code{\link[igraph]{graph_from_adjacency_matrix}}).
 #' @param weighted indicating if entries of the adjacency matrix should define
-#'   edge width. If \code{weighted=FALSE}, an unweigthed igraph object is
+#'   edge width. If \code{weighted=FALSE}, an unweighted igraph object is
 #'   created, all edges have the same width. If \code{weighted=TRUE}, edge width
 #'   is defined by the corresponding value in the adjacency matrix. If
 #'   \code{weighted=NULL}, nodes are linked by as many edges as indicated in the
@@ -213,7 +213,7 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
   if (is.null(node_colour)) {
     node_colour <- rep("skyblue", ncol(adjacency))
     if (exists("stability")) {
-      if (class(stability) == "bi_selection") {
+      if (inherits(stability, "bi_selection")) {
         node_colour <- ifelse(grepl("comp", colnames(adjacency)),
           yes = "orange", no = "skyblue"
         )
