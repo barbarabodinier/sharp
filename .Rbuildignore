@@ -5,3 +5,5 @@
 ^README\.Rmd$
 ^\.github$
 ^\.Rproj\.user$
+^CRAN-SUBMISSION$
+^cran-comments.md

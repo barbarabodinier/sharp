@@ -82,7 +82,7 @@
 #'   Meinshausen and Bühlmann (2010) and Shah and Samworth (2013)).
 #'
 #'   Possible resampling procedures include defining (i) \code{K} subsamples of
-#'   a proportion \code{tau} of the observations, (ii) \code{K} boostrap samples
+#'   a proportion \code{tau} of the observations, (ii) \code{K} bootstrap samples
 #'   with the full sample size (obtained with replacement), and (iii) \code{K/2}
 #'   splits of the data in half for complementary pair stability selection (see
 #'   arguments \code{resampling} and \code{cpss}). In complementary pair

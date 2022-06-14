@@ -45,10 +45,11 @@ distributed outcomes are simulated. If \code{family="binomial"} or
 multinomial distribution where the probability is defined from a linear
 combination of normally distributed outcomes.}
 
-\item{ev_xz}{vector of the expected proportions of explained variances for each
-of the orthogonal latent variables. It must contain values in ]0,1[, and
-must be a vector of length \code{length(pk)} or a single value to generate
-latent variables with the same expected proportion of explained variance.}
+\item{ev_xz}{vector of the expected proportions of explained variances for
+each of the orthogonal latent variables. It must contain values in ]0,1[,
+and must be a vector of length \code{length(pk)} or a single value to
+generate latent variables with the same expected proportion of explained
+variance.}
 
 \item{adjacency_x}{optional matrix encoding the conditional independence
 structure between predictor variables in \code{xdata}. This argument must
@@ -74,7 +75,7 @@ outcomes from \code{ydata} (rows). This argument must be a square matrix of
 size \code{length(pk)}. If \code{theta_zy} is a diagonal matrix, each
 latent variable contributes to the definition of one observed outcome so
 that there is a one-to-one relationship between latent and observed
-outcomes (i.e. they are colinear). Nonzero off-diagonal elements in
+outcomes (i.e. they are collinear). Nonzero off-diagonal elements in
 \code{theta_zy} introduce some correlation between the observed outcomes by
 construction from linear combinations implicating common latent outcomes.
 This argument is only used if \code{eta} is not provided.}
@@ -159,7 +160,8 @@ A list with: \item{xdata}{simulated predictor data.}
   \code{zdata}.} \item{omega_xz}{precision matrix for variables in
   \code{xdata} and \code{zdata}.} \item{adjacency}{binary matrix encoding the
   conditional independence structure between variables from \code{xdata}
-  (var), \code{zdata} (latent) and \code{ydata} (outcome).}
+  (\code{var}), \code{zdata} (\code{latent}) and \code{ydata}
+  (\code{outcome}).}
 }
 \description{
 Simulates (i) a matrix \code{xdata} of \code{n} observations for

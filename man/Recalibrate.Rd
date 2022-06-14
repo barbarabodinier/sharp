@@ -52,9 +52,9 @@ The output as obtained from: \item{\code{\link[stats]{lm}}}{for
   multinomial regression (\code{"multinomial"} family).}
 }
 \description{
-Recalibrates the regression using an un-penalised model with stably selected
-variables as predictors. Variables in \code{xdata} not evaluated in the
-stability selection model will automatically be included as predictors.
+Recalibrates the regression model with stably selected variables as
+predictors (without penalisation). Variables in \code{xdata} not evaluated in
+the stability selection model will automatically be included as predictors.
 }
 \examples{
 \dontrun{

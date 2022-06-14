@@ -134,9 +134,9 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 
 #' Regression model recalibration
 #'
-#' Recalibrates the regression using an un-penalised model with stably selected
-#' variables as predictors. Variables in \code{xdata} not evaluated in the
-#' stability selection model will automatically be included as predictors.
+#' Recalibrates the regression model with stably selected variables as
+#' predictors (without penalisation). Variables in \code{xdata} not evaluated in
+#' the stability selection model will automatically be included as predictors.
 #'
 #' @inheritParams VariableSelection
 #' @param stability output of \code{\link{VariableSelection}} or
