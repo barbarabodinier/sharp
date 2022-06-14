@@ -298,12 +298,12 @@ stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 print(stab)
 
 # Calibration heatmap
-par(mar = rep(7, 4), mfrow = c(1, 3))
-CalibrationPlot(stab)
+par(mar = rep(7, 4))
+# par(mfrow = c(1, 3))
+CalibrationPlot(stab) # Producing three plots
 
 # Visualisation of the results
 summary(stab)
-par(mfrow = c(1, 1))
 plot(stab)
 
 # Multi-parameter stability selection (not recommended)
@@ -363,7 +363,7 @@ simul <- SimulateComponents(
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$data),
-  colours = c("navy", "white", "red"),
+  col = c("navy", "white", "red"),
   legend_range = c(-1, 1)
 )
 }

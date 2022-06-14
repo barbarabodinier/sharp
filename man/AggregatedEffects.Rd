@@ -73,6 +73,8 @@ dim(median_betas)
 # Sparse PLS with multivariate outcome
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
 stab <- BiSelection(
   xdata = x, ydata = y,
   family = "gaussian", ncomp = 3,

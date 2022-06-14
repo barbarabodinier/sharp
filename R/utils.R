@@ -131,19 +131,7 @@ Square <- function(x) {
 #'
 #' @return A single categorical variable (numeric).
 #'
-#' @examples
-#' \dontrun{
-#' # Simulated categorical variable
-#' cat <- c(rep(1, 3), rep(2, 5), rep(3, 2))
-#'
-#' # Dummy variables
-#' dummy <- as.matrix(model.matrix(~ as.factor(cat) - 1))
-#'
-#' # Back to categories
-#' DummyToCategories(dummy)
-#' }
-#'
-#' @export
+#' @keywords internal
 DummyToCategories <- function(x, verbose = FALSE) {
   x_original <- x
   x <- matrix(0, nrow = nrow(x_original), ncol = ncol(x_original))

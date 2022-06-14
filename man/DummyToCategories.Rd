@@ -17,16 +17,4 @@ A single categorical variable (numeric).
 \description{
 Generates a single categorical variable from corresponding dummy variables.
 }
-\examples{
-\dontrun{
-# Simulated categorical variable
-cat <- c(rep(1, 3), rep(2, 5), rep(3, 2))
-
-# Dummy variables
-dummy <- as.matrix(model.matrix(~ as.factor(cat) - 1))
-
-# Back to categories
-DummyToCategories(dummy)
-}
-
-}
+\keyword{internal}

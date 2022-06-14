@@ -7,7 +7,7 @@
 SelectionPerformanceGraph(
   theta,
   theta_star,
-  colours = c("tomato", "forestgreen", "navy"),
+  col = c("tomato", "forestgreen", "navy"),
   lty = c(2, 3, 1),
   node_colour = NULL,
   show_labels = TRUE,
@@ -22,12 +22,12 @@ SelectionPerformanceGraph(
 \item{theta_star}{true binary adjacency matrix or output of
 \code{\link{SimulateGraphical}} or \code{\link{SimulateRegression}}.}
 
-\item{colours}{vector of edge colours. The first entry of the vector defines
+\item{col}{vector of edge colours. The first entry of the vector defines
 the colour of False Positive edges, second entry is for True Negatives and
 third entry is for True Positives.}
 
 \item{lty}{vector of line types for edges. The order is defined as for
-argument \code{colours}.}
+argument \code{col}.}
 
 \item{node_colour}{optional vector of node colours. This vector must contain
 as many entries as there are rows/columns in the adjacency matrix and must
@@ -71,13 +71,13 @@ plot(perfgraph)
 # User-defined colours/shapes
 perfgraph <- SelectionPerformanceGraph(
   theta = stab, theta_star = simul,
-  colours = c("forestgreen", "orange", "black"),
+  col = c("forestgreen", "orange", "black"),
   node_colour = "red", node_shape = "star"
 )
 plot(perfgraph)
 perfgraph <- SelectionPerformanceGraph(
   theta = stab, theta_star = simul,
-  colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
+  col = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
 )
 plot(perfgraph)
 
@@ -97,6 +97,8 @@ plot(perf_graph)
 # Sparse PLS model
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
 stab <- BiSelection(
   xdata = simul$xdata, ydata = simul$ydata,
   family = "gaussian", ncomp = 3,

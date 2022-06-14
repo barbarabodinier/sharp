@@ -99,7 +99,7 @@ mypls <- PLS(
 )
 
 # Nonzero entries in weights are the same as in selectedX
-par(mfrow = c(2, 2))
+# par(mfrow = c(2, 2))
 Heatmap(stab$selectedX,
   legend = FALSE
 )

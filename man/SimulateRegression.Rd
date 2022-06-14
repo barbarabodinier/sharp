@@ -211,7 +211,7 @@ print(simul)
 par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$xdata),
-  colours = c("navy", "white", "red"),
+  col = c("navy", "white", "red"),
   legend_range = c(-1, 1)
 )
 plot(simul)

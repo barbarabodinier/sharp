@@ -130,7 +130,7 @@
 #' )
 #' mycor <- cor(simul$data)
 #' Heatmap(mycor,
-#'   colours = c("darkblue", "white", "firebrick3"),
+#'   col = c("darkblue", "white", "firebrick3"),
 #'   legend_range = c(-1, 1), legend_length = 50,
 #'   legend = FALSE, axes = FALSE
 #' )
@@ -176,7 +176,7 @@
 #' simul <- SimulateGraphical(n = 100, theta = mytheta, pk = c(2, 2))
 #' mycor <- cor(simul$data)
 #' Heatmap(mycor,
-#'   colours = c("darkblue", "white", "firebrick3"),
+#'   col = c("darkblue", "white", "firebrick3"),
 #'   legend_range = c(-1, 1), legend_length = 50, legend = FALSE
 #' )
 #' }
@@ -522,7 +522,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$xdata),
-#'   colours = c("navy", "white", "red"),
+#'   col = c("navy", "white", "red"),
 #'   legend_range = c(-1, 1)
 #' )
 #' plot(simul)

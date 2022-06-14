@@ -106,6 +106,8 @@ plot(Graph(stab))
 # Sparse PLS
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
 stab <- BiSelection(
   xdata = simul$xdata, ydata = simul$ydata,
   family = "gaussian", ncomp = 3,
@@ -132,7 +134,7 @@ if (requireNamespace("visNetwork", quietly = TRUE)) {
   v <- visNetwork::visIgraph(vgraph)
   mylayout <- as.matrix(v$x$nodes[, c("x", "y")])
   mylayout[, 2] <- -mylayout[, 2]
-  igraph::plot(mygraph, layout = mylayout)
+  plot(mygraph, layout = mylayout)
 }
 
 # Opening in Cytoscape using RCy3

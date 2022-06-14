@@ -184,11 +184,11 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   \code{\link{BiSelection}}, or output of \code{\link{SimulateGraphical}},
 #'   \code{\link{SimulateRegression}}.
 #' @param graph2 second graph.
-#' @param colours vector of edge colours. The first entry of the vector defines
+#' @param col vector of edge colours. The first entry of the vector defines
 #'   the colour of edges in \code{graph1} only, second entry is for edges in
 #'   \code{graph2} only and third entry is for common edges.
 #' @param lty vector of line types for edges. The order is defined as for
-#'   argument \code{colours}.
+#'   argument \code{col}.
 #' @param show_labels logical indicating if the node labels should be displayed.
 #' @param ... additional arguments to be passed to \code{\link{Graph}}.
 #'
@@ -213,7 +213,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'
 #' @export
 GraphComparison <- function(graph1, graph2,
-                            colours = c("tomato", "forestgreen", "navy"),
+                            col = c("tomato", "forestgreen", "navy"),
                             lty = c(2, 3, 1),
                             node_colour = NULL,
                             show_labels = TRUE, ...) {
@@ -227,14 +227,15 @@ GraphComparison <- function(graph1, graph2,
   # Defining the vector of node colours
   if (is.null(node_colour)) {
     if (!"matrix" %in% class(graph1)) {
+      print(theta)
       if (class(graph1) == "variable_selection") {
-        node_colour <- c(rep("skyblue", nrow(theta)), "red")
+        node_colour <- c(rep("skyblue", nrow(theta) - 1), "red")
       }
       if (class(graph1) == "bi_selection") {
-        if ("selected" %in% names(theta)) {
-          selected <- theta$selected # PLS
+        if ("selected" %in% names(graph1)) {
+          selected <- graph1$selected # PLS
         } else {
-          selected <- theta$selectedX # PCA
+          selected <- graph1$selectedX # PCA
         }
         node_colour <- c(
           rep("skyblue", nrow(selected)),
@@ -261,7 +262,7 @@ GraphComparison <- function(graph1, graph2,
   Asum <- theta + 2 * theta_star
 
   # Refining inputs
-  names(colours) <- names(lty) <- c("FP", "TN", "TP")
+  names(col) <- names(lty) <- c("FP", "TN", "TP")
 
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
@@ -284,7 +285,7 @@ GraphComparison <- function(graph1, graph2,
   }
 
   # Formatting edges
-  myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
+  myedgecolour <- col[Asum[igraph::get.edgelist(g)]]
   myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
   igraph::E(g)$color <- myedgecolour
   igraph::E(g)$width <- 1
@@ -308,7 +309,7 @@ GraphComparison <- function(graph1, graph2,
 #'   \code{\link{BiSelection}}.
 #' @param theta_star true binary adjacency matrix or output of
 #'   \code{\link{SimulateGraphical}} or \code{\link{SimulateRegression}}.
-#' @param colours vector of edge colours. The first entry of the vector defines
+#' @param col vector of edge colours. The first entry of the vector defines
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
 #'
@@ -345,13 +346,13 @@ GraphComparison <- function(graph1, graph2,
 #' # User-defined colours/shapes
 #' perfgraph <- SelectionPerformanceGraph(
 #'   theta = stab, theta_star = simul,
-#'   colours = c("forestgreen", "orange", "black"),
+#'   col = c("forestgreen", "orange", "black"),
 #'   node_colour = "red", node_shape = "star"
 #' )
 #' plot(perfgraph)
 #' perfgraph <- SelectionPerformanceGraph(
 #'   theta = stab, theta_star = simul,
-#'   colours = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
+#'   col = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
 #' )
 #' plot(perfgraph)
 #'
@@ -371,6 +372,8 @@ GraphComparison <- function(graph1, graph2,
 #' # Sparse PLS model
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' x <- simul$xdata
+#' y <- simul$ydata
 #' stab <- BiSelection(
 #'   xdata = simul$xdata, ydata = simul$ydata,
 #'   family = "gaussian", ncomp = 3,
@@ -386,7 +389,7 @@ GraphComparison <- function(graph1, graph2,
 #'
 #' @export
 SelectionPerformanceGraph <- function(theta, theta_star,
-                                      colours = c("tomato", "forestgreen", "navy"),
+                                      col = c("tomato", "forestgreen", "navy"),
                                       lty = c(2, 3, 1),
                                       node_colour = NULL,
                                       show_labels = TRUE, ...) {
@@ -396,99 +399,12 @@ SelectionPerformanceGraph <- function(theta, theta_star,
   g <- GraphComparison(
     graph1 = theta,
     graph2 = theta_star,
-    colours = colours,
+    col = col,
     lty = lty,
     node_colour = node_colour,
     show_labels = show_labels,
     ...
   )
-  #
-  # # Re-formatting input theta
-  # if (any(class(theta) %in% c("variable_selection", "graphical_model", "bi_selection"))) {
-  #   if (class(theta) == "variable_selection") {
-  #     theta <- cbind(SelectedVariables(theta))
-  #     if (is.null(node_colour)) {
-  #       node_colour <- c(rep("skyblue", nrow(theta)), "red")
-  #     }
-  #     if (ncol(theta) == 1) {
-  #       colnames(theta) <- "outcome"
-  #     }
-  #     theta <- Square(theta)
-  #   } else {
-  #     if (class(theta) == "graphical_model") {
-  #       theta <- Adjacency(theta)
-  #     } else {
-  #       if ("selected" %in% names(theta)) {
-  #         selected <- theta$selected # PLS
-  #       } else {
-  #         selected <- theta$selectedX # PCA
-  #       }
-  #       # Relating predictors and outcomes (ignoring latent variables)
-  #       if (is.null(node_colour)) {
-  #         node_colour <- c(
-  #           rep("skyblue", nrow(selected)),
-  #           rep("red", ncol(selected))
-  #         )
-  #       }
-  #       theta <- Square(selected)
-  #     }
-  #   }
-  # }
-  #
-  # # Re-formatting input theta_star
-  # if (any(class(theta_star) %in% c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
-  #   if (class(theta_star) %in% c("simulation_regression", "simulation_components")) {
-  #     theta_star <- cbind(theta_star$theta)
-  #     if (ncol(theta_star) == 1) {
-  #       colnames(theta_star) <- "outcome"
-  #     }
-  #     theta_star <- Square(theta_star)
-  #   } else {
-  #     theta_star <- theta_star$theta
-  #   }
-  # }
-  #
-  # # Defining node colour if not done before
-  # if (is.null(node_colour)) {
-  #   node_colour <- "skyblue"
-  # }
-  #
-  # # Checking input is a matrix
-  # if ((length(dim(theta)) != 2) | (length(dim(theta_star)) != 2)) {
-  #   stop("Arguments 'theta' and 'theta_star' must be adjacency matrices.")
-  # }
-  #
-  # # Extracting the estimated edges only
-  # if (ncol(theta) != ncol(theta_star)) {
-  #   theta_star <- theta_star[rownames(theta), colnames(theta)]
-  # }
-  #
-  # # Storing similarities/differences between estimated and true sets
-  # Asum <- theta + 2 * theta_star
-  #
-  # # Refining inputs
-  # names(colours) <- names(lty) <- c("FP", "TN", "TP")
-  #
-  # # Extracting relevant extra arguments
-  # tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
-  # tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
-  #
-  # # Making consensus graph
-  # # g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
-  # g <- do.call(sharp::Graph, args = c(list(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour), tmp_extra_args))
-  #
-  # # Formatting vertices
-  # igraph::V(g)$size <- igraph::V(g)$size / 3 + 1
-  # if (!show_labels) {
-  #   igraph::V(g)$label <- rep("", length(igraph::V(g)$label))
-  # }
-  #
-  # # Formatting edges
-  # myedgecolour <- colours[Asum[igraph::get.edgelist(g)]]
-  # myedgelty <- lty[Asum[igraph::get.edgelist(g)]]
-  # igraph::E(g)$color <- myedgecolour
-  # igraph::E(g)$width <- 1
-  # igraph::E(g)$lty <- myedgelty
 
   # Returning output graph
   return(g)

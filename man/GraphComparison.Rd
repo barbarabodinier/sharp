@@ -7,7 +7,7 @@
 GraphComparison(
   graph1,
   graph2,
-  colours = c("tomato", "forestgreen", "navy"),
+  col = c("tomato", "forestgreen", "navy"),
   lty = c(2, 3, 1),
   node_colour = NULL,
   show_labels = TRUE,
@@ -23,12 +23,12 @@ GraphComparison(
 
 \item{graph2}{second graph.}
 
-\item{colours}{vector of edge colours. The first entry of the vector defines
+\item{col}{vector of edge colours. The first entry of the vector defines
 the colour of edges in \code{graph1} only, second entry is for edges in
 \code{graph2} only and third entry is for common edges.}
 
 \item{lty}{vector of line types for edges. The order is defined as for
-argument \code{colours}.}
+argument \code{col}.}
 
 \item{node_colour}{optional vector of node colours. This vector must contain
 as many entries as there are rows/columns in the adjacency matrix and must
