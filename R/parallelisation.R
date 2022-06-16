@@ -19,7 +19,7 @@
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Variable selection
 #'
 #' # Data simulation

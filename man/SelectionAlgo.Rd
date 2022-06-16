@@ -58,8 +58,7 @@ Runs the variable selection algorithm specified in the argument
 \code{implementation}. This function is not using stability.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Data simulation (univariate outcome)
 set.seed(1)
 simul <- SimulateRegression(pk = 50)

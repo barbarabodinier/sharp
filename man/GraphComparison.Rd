@@ -39,13 +39,15 @@ Integers, named colours or RGB values can be used.}
 
 \item{...}{additional arguments to be passed to \code{\link{Graph}}.}
 }
+\value{
+An igraph object.
+}
 \description{
 Generates an \code{\link[igraph:igraph-package]{igraph}} object representing
 the common and graph-specific edges.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Data simulation
 set.seed(1)
 simul1 <- SimulateGraphical(pk = 30)
@@ -57,7 +59,7 @@ mygraph <- GraphComparison(
   graph1 = simul1,
   graph2 = simul2
 )
-plot(mygraph, layout = layout_with_kk(mygraph))
+plot(mygraph, layout = igraph::layout_with_kk(mygraph))
 }
 
 }

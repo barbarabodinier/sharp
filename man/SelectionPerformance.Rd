@@ -54,8 +54,7 @@ selected features to the set of true predictors/edges. This function can only
 be used in simulation studies (i.e. when the true model is known).
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Variable selection model
 set.seed(1)
 simul <- SimulateRegression(pk = 30)
@@ -98,6 +97,8 @@ perf <- SelectionPerformance(
 # Sparse PLS model
 set.seed(1)
 simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+x <- simul$xdata
+y <- simul$ydata
 stab <- BiSelection(
   xdata = simul$xdata, ydata = simul$ydata,
   family = "gaussian", ncomp = 3,

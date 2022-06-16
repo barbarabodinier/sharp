@@ -22,7 +22,7 @@ Extracts the selection (or co-membership) proportions of the (calibrated)
 model.
 }
 \examples{
-\dontrun{
+\donttest{
 
 ## Variable selection
 

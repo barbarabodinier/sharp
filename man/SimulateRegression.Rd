@@ -181,8 +181,7 @@ the variables in \code{xdata}, relevant predictors of the outcome variables
 in \code{ydata}.
 }
 \examples{
-\dontrun{
-
+\donttest{
 ## Continuous outcomes
 
 # Univariate outcome

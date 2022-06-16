@@ -57,8 +57,7 @@ predictors (without penalisation). Variables in \code{xdata} not evaluated in
 the stability selection model will automatically be included as predictors.
 }
 \examples{
-\dontrun{
-
+\donttest{
 ## Linear regression
 
 # Data simulation

@@ -40,8 +40,7 @@
 #' @family functions for model performance
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Variable selection model
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 30)
@@ -84,6 +83,8 @@
 #' # Sparse PLS model
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' x <- simul$xdata
+#' y <- simul$ydata
 #' stab <- BiSelection(
 #'   xdata = simul$xdata, ydata = simul$ydata,
 #'   family = "gaussian", ncomp = 3,
@@ -192,11 +193,12 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' @param show_labels logical indicating if the node labels should be displayed.
 #' @param ... additional arguments to be passed to \code{\link{Graph}}.
 #'
+#' @return An igraph object.
+#'
 #' @seealso \code{\link{SelectionPerformanceGraph}}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul1 <- SimulateGraphical(pk = 30)
@@ -208,7 +210,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   graph1 = simul1,
 #'   graph2 = simul2
 #' )
-#' plot(mygraph, layout = layout_with_kk(mygraph))
+#' plot(mygraph, layout = igraph::layout_with_kk(mygraph))
 #' }
 #'
 #' @export
@@ -312,6 +314,8 @@ GraphComparison <- function(graph1, graph2,
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
 #'
+#' @return An igraph object.
+#'
 #' @family functions for model performance
 #'
 #' @seealso \code{\link{SimulateGraphical}}, \code{\link{SimulateRegression}},
@@ -319,8 +323,7 @@ GraphComparison <- function(graph1, graph2,
 #'   \code{\link{BiSelection}}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 30)

@@ -25,36 +25,6 @@ Extracts the coefficients of visited models at different resampling
 iterations of a stability selection run. This function can be applied to the
 output of \code{\link{VariableSelection}}.
 }
-\examples{
-\dontrun{
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-
-# Stability selection
-stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
-
-# Coefficients of visited models
-coefs <- sharp:::Coefficients(stab)
-dim(coefs)
-
-# Coefficients of the first fitted model
-coefs <- sharp:::Coefficients(stab, iterations = 1)
-dim(coefs)
-
-# Stability selection
-stab <- VariableSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
-  implementation = SparsePLS, family = "gaussian"
-)
-
-# Coefficients of visited models
-coefs <- sharp:::Coefficients(stab, side = "Y", )
-dim(coefs)
-}
-
-}
 \seealso{
 \code{\link{VariableSelection}}
 }

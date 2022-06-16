@@ -16,7 +16,6 @@
 #'   that of the full sample.
 #'
 #' @examples
-#'
 #' ## Linear regression framework
 #' # Data simulation
 #' simul <- SimulateRegression()
@@ -150,7 +149,6 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
 #'   each of the folds is representative of that of the full sample.
 #'
 #' @examples
-#'
 #' # Splitting into 5 folds
 #' simul <- SimulateRegression()
 #' ids <- Folds(data = simul$ydata)
@@ -207,7 +205,6 @@ Folds <- function(data, family = NULL, n_folds = 5) {
 #'   each of the sets is representative of that of the full sample.
 #'
 #' @examples
-#'
 #' # Splitting into 3 sets
 #' simul <- SimulateRegression()
 #' ids <- Split(data = simul$ydata)

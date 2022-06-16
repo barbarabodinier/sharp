@@ -17,7 +17,6 @@ A symmetric adjacency matrix encoding a bipartite graph.
 Generates a symmetric adjacency matrix encoding a bipartite graph.
 }
 \examples{
-\dontrun{
 # Simulated links between two sets
 set.seed(1)
 mat <- matrix(sample(c(0, 1), size = 15, replace = TRUE),
@@ -26,6 +25,4 @@ mat <- matrix(sample(c(0, 1), size = 15, replace = TRUE),
 
 # Adjacency matrix of a bipartite graph
 Square(mat)
-}
-
 }

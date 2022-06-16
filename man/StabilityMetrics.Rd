@@ -117,7 +117,6 @@ proportions of models with a given parameter controlling the sparsity of the
 underlying algorithm and for different thresholds in selection proportions.
 }
 \examples{
-
 ## Sparse or sparse group penalisation
 
 # Simulating set of selection proportions

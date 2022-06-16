@@ -38,6 +38,9 @@ Integers, named colours or RGB values can be used.}
 
 \item{...}{additional arguments to be passed to \code{\link{Graph}}.}
 }
+\value{
+An igraph object.
+}
 \description{
 Generates an igraph object representing the True Positive, False Positive and
 False Negative edges by comparing the set of selected edges to the set of
@@ -45,8 +48,7 @@ true edges. This function can only be used in simulation studies (i.e. when
 the true model is known).
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 30)

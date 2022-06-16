@@ -6,12 +6,12 @@
 \title{sharp: Stability-enHanced Approaches using Resampling Procedures}
 \description{
 Implementation of stability selection for graphical modelling and variable
-selection in regression and dimensionality reduction. These models rely on
+selection in regression and dimensionality reduction. These models use on
 resampling approaches to estimate selection probabilities. Calibration of the
 hyper-parameters is done via maximisation of a stability score measuring the
-likelihood of informative (non-uniform) selection procedure. This package
-also includes tools to simulate multivariate Normal data with different
-(partial) correlation structures.
+likelihood of informative (non-uniform) selection. This package also includes
+tools to simulate multivariate Normal data with different (partial)
+correlation structures.
 }
 \details{
 \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
@@ -19,7 +19,7 @@ also includes tools to simulate multivariate Normal data with different
 Barbara Bodinier \email{b.bodinier@imperial.ac.uk}}
 }
 \examples{
-\dontrun{
+\donttest{
 par(mar = c(5, 5, 5, 5))
 
 

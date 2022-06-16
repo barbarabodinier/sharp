@@ -80,7 +80,6 @@
 #'   \insertRef{stabilityselectionSS}{sharp}
 #'
 #' @examples
-#'
 #' ## Sparse or sparse group penalisation
 #'
 #' # Simulating set of selection proportions

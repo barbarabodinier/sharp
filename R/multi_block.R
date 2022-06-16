@@ -119,8 +119,7 @@ BlockStructure <- function(pk) {
 #'   are set to \code{TRUE}).}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Multi-block grid
 #' Lambda <- matrix(c(
 #'   0.8, 0.6, 0.3,

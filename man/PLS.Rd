@@ -70,7 +70,7 @@ All matrices are defined as in (Wold et al. 2001). The weight matrix
   \code{variates$X} and \code{variates$Y} in \code{\link[mixOmics]{pls}}.
 }
 \examples{
-\dontrun{
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")

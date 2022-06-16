@@ -141,8 +141,7 @@ function can be used to evaluate the ability of a graphical model to identify
 edges of a conditional independence graph.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Simulation of random graph with 50 nodes
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)

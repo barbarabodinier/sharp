@@ -24,7 +24,7 @@ A matrix of parameter values. If applied to the output of
 Extracts calibrated parameter values in stability selection.
 }
 \examples{
-\dontrun{
+\donttest{
 
 ## Graphical modelling
 

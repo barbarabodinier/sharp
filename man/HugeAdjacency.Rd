@@ -30,13 +30,4 @@ A symmetric adjacency matrix encoding an unweighted, undirected graph
 Simulates the adjacency matrix encoding an unweighted, undirected graph with
 no self-loops.
 }
-\examples{
-\dontrun{
-
-# Simulation of a scale-free graph with 20 nodes
-adjacency <- sharp:::HugeAdjacency(pk = 20, topology = "scale-free")
-plot(Graph(adjacency))
-}
-
-}
 \keyword{internal}

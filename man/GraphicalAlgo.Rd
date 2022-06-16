@@ -74,7 +74,7 @@ The use of the procedure from Equation (4) or (5) is controlled by
   the argument "Sequential_template".
 }
 \examples{
-\dontrun{
+\donttest{
 
 # Data simulation
 set.seed(1)

@@ -44,7 +44,6 @@ With categorical outcomes (i.e. "family" argument is set to
   that of the full sample.
 }
 \examples{
-
 ## Linear regression framework
 # Data simulation
 simul <- SimulateRegression()

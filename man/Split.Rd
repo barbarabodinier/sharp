@@ -33,7 +33,6 @@ With categorical outcomes (i.e. \code{family} argument is set to
   each of the sets is representative of that of the full sample.
 }
 \examples{
-
 # Splitting into 3 sets
 simul <- SimulateRegression()
 ids <- Split(data = simul$ydata)

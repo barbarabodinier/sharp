@@ -21,7 +21,7 @@ Extracts the adjacency matrix of the (calibrated) stability selection
 graphical model.
 }
 \examples{
-\dontrun{
+\donttest{
 
 # Data simulation
 set.seed(1)

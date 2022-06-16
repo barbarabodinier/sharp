@@ -28,7 +28,7 @@ The combined output will contain results based on iterations from both
 parallelisation.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Variable selection
 
 # Data simulation

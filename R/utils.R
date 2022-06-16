@@ -90,7 +90,6 @@ AdjacencyFromObject <- function(object) {
 #' @return A symmetric adjacency matrix encoding a bipartite graph.
 #'
 #' @examples
-#' \dontrun{
 #' # Simulated links between two sets
 #' set.seed(1)
 #' mat <- matrix(sample(c(0, 1), size = 15, replace = TRUE),
@@ -99,8 +98,6 @@ AdjacencyFromObject <- function(object) {
 #'
 #' # Adjacency matrix of a bipartite graph
 #' Square(mat)
-#' }
-#'
 #' @export
 Square <- function(x) {
   # Assigning row and column names

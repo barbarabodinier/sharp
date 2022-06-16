@@ -159,16 +159,7 @@
 #'   \code{\link{StabilityScore}} \code{\link{Graph}}, \code{\link{Adjacency}},
 #'
 #' @examples
-#' \dontshow{
-#' # Single-block stability selection
-#' set.seed(1)
-#' simul <- SimulateGraphical(n = 50, pk = 30, nu_within = 0.05)
-#' stab <- GraphicalModel(xdata = simul$data, K = 5, verbose = FALSE)
-#' CalibrationPlot(stab)
-#' SelectionProportions(stab)
-#' }
-#' \dontrun{
-#'
+#' \donttest{
 #' ## Single-block stability selection
 #'
 #' # Data simulation

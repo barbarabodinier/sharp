@@ -54,7 +54,7 @@ median is represented and flanked by a transparent band defined by
 point-wise \code{quantiles}.
 }
 \examples{
-\dontrun{
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")

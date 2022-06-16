@@ -27,7 +27,7 @@ Extracts the indices of calibrated parameters with respect to the grids
 provided in \code{Lambda} and \code{pi_list} in \code{stability}.
 }
 \examples{
-\dontrun{
+\donttest{
 
 # Data simulation
 set.seed(1)

@@ -55,8 +55,7 @@
 #'   \href{https://cytoscape.org}{Cytoscape}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' ## From adjacency matrix
 #'
 #' # Un-weighted

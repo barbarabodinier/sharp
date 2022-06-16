@@ -119,8 +119,7 @@ Generates a relevant grid of penalty parameter values for penalised graphical
 models.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Single-block simulation
 set.seed(1)
 simul <- SimulateGraphical()

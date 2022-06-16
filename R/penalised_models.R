@@ -17,7 +17,6 @@
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 #'
 #' @examples
-#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
@@ -180,8 +179,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 #'   the argument "Sequential_template".
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical()

@@ -33,7 +33,6 @@ For categorical outcomes (i.e. \code{family} argument is set to
   each of the folds is representative of that of the full sample.
 }
 \examples{
-
 # Splitting into 5 folds
 simul <- SimulateRegression()
 ids <- Folds(data = simul$ydata)

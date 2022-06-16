@@ -93,8 +93,7 @@ user-defined proportion of explained variance by the first Principal
 Component (see \code{\link{MakePositiveDefinite}}).
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Simulation of an adjacency matrix
 theta <- SimulateAdjacency(pk = c(5, 5), nu_within = 0.7)
 print(theta)

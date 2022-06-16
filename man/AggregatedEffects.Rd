@@ -44,7 +44,7 @@ the (calibrated) models conditionally on selection across resampling
 iterations.
 }
 \examples{
-\dontrun{
+\donttest{
 
 # Example with univariate outcome
 set.seed(1)

@@ -19,8 +19,7 @@
 #'   \code{\link{SparseGroupPLS}}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Data simulation (univariate outcome)
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
@@ -112,7 +111,7 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #'   the argument "Sequential_template".
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Data simulation
 #' set.seed(1)

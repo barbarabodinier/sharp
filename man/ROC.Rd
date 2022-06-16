@@ -25,8 +25,7 @@ Area Under the Curve (AUC) by comparing the true (observed) and predicted
 status using a range of thresholds on the predicted score.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")

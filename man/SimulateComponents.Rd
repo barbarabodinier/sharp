@@ -133,7 +133,7 @@ The data is simulated from a centered multivariate Normal
   number of observations and is equal to \code{sum(pk)}.
 }
 \examples{
-\dontrun{
+\donttest{
 # Simulation of 3 components with high e.v.
 set.seed(1)
 simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.4)

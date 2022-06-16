@@ -60,8 +60,7 @@ self-loops, and with different densities in diagonal compared to off-diagonal
 blocks.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Simulation of a scale-free graph with 20 nodes
 adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 plot(Graph(adjacency))

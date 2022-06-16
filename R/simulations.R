@@ -100,8 +100,7 @@
 #'   \code{output_matrices=TRUE}.}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Simulation of random graph with 50 nodes
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
@@ -304,7 +303,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' @family simulation functions
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Simulation of 3 components with high e.v.
 #' set.seed(1)
 #' simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.4)
@@ -492,8 +491,7 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' ## Continuous outcomes
 #'
 #' # Univariate outcome
@@ -785,14 +783,6 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
 #' @return A symmetric adjacency matrix encoding an unweighted, undirected graph
 #'   with no self-loops.
 #'
-#' @examples
-#' \dontrun{
-#'
-#' # Simulation of a scale-free graph with 20 nodes
-#' adjacency <- sharp:::HugeAdjacency(pk = 20, topology = "scale-free")
-#' plot(Graph(adjacency))
-#' }
-#'
 #' @keywords internal
 HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
   # Storing extra arguments
@@ -835,8 +825,7 @@ HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #' @family simulation functions
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Simulation of a scale-free graph with 20 nodes
 #' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
@@ -1033,8 +1022,7 @@ SimulateSymmetricMatrix <- function(pk = 10,
 #'   positive definite.}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Simulation of an adjacency matrix
 #' theta <- SimulateAdjacency(pk = c(5, 5), nu_within = 0.7)
 #' print(theta)
@@ -1313,8 +1301,7 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #'   of the constant u.}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Simulation of a symmetric matrix
 #' p <- 5
 #' set.seed(1)

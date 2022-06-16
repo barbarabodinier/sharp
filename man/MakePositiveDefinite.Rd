@@ -61,8 +61,7 @@ largest eigenvalue of the covariance/correlation matrix divided by the sum of
 eigenvalues).
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Simulation of a symmetric matrix
 p <- 5
 set.seed(1)

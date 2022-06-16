@@ -1,3 +1,16 @@
+## Resubmission
+
+This is a resubmission. In this version I have: 
+
+* Added references in the Description field of the DESCRIPTION file.
+
+* Added missing \value to GraphComparison.Rd and SelectionPerformanceGraph.Rd.
+
+* Removed examples for unexported functions.
+
+* Removed or replaced by \donttest all instances of \dontrun.
+
+
 ## R CMD check results
 
 There were no ERRORs or WARNINGs.

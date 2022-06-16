@@ -20,7 +20,7 @@
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -123,7 +123,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 #'   \code{\link{BiSelection}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' ## Graphical modelling
 #'
@@ -210,7 +210,7 @@ Argmax <- function(stability) {
 #' @seealso \code{\link{GraphicalModel}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -288,7 +288,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Data simulation
 #' set.seed(1)
@@ -371,7 +371,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #'   \code{\link{BiSelection}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' ## Variable selection
 #'
@@ -521,35 +521,6 @@ SelectionProportionsRegression <- function(stability, argmax_id = NULL) {
 #'
 #' @seealso \code{\link{VariableSelection}}
 #'
-#' @examples
-#' \dontrun{
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
-#'
-#' # Coefficients of visited models
-#' coefs <- sharp:::Coefficients(stab)
-#' dim(coefs)
-#'
-#' # Coefficients of the first fitted model
-#' coefs <- sharp:::Coefficients(stab, iterations = 1)
-#' dim(coefs)
-#'
-#' # Stability selection
-#' stab <- VariableSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   implementation = SparsePLS, family = "gaussian"
-#' )
-#'
-#' # Coefficients of visited models
-#' coefs <- sharp:::Coefficients(stab, side = "Y", )
-#' dim(coefs)
-#' }
-#'
 #' @keywords internal
 Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
   if (is.null(iterations)) {
@@ -602,7 +573,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'   \code{\link{Recalibrate}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Example with univariate outcome
 #' set.seed(1)
@@ -784,7 +755,7 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #'   \code{\link{BiSelection}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' ## Regression model
 #'
@@ -1322,7 +1293,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #' @seealso \code{\link{CalibrationPlot}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' # Data simulation
 #' set.seed(1)

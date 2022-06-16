@@ -78,8 +78,7 @@ All functionalities implemented in
   to open the network in Cytoscape.
 }
 \examples{
-\dontrun{
-
+\donttest{
 ## From adjacency matrix
 
 # Un-weighted

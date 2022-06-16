@@ -81,7 +81,7 @@ predictors in a logistic or Cox regression model as produced by
 metric are reported.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Logistic regression
 
 # Data simulation

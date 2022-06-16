@@ -114,7 +114,7 @@ For a fair evaluation of the prediction performance, the data is
   observed outcome in the test set (Q-squared) is reported.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Logistic regression
 
 # Data simulation

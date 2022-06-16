@@ -116,7 +116,7 @@ predictors over and above more stable predictors. Performances are evaluated
 as in \code{\link{ExplanatoryPerformance}}.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Logistic regression
 
 # Data simulation

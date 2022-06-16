@@ -47,8 +47,7 @@ Rates <- function(observed, predicted, thr) {
 #' @family prediction performance functions
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")
@@ -169,8 +168,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' ## Linear regression
 #'
 #' # Data simulation
@@ -564,7 +562,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #' @family prediction performance functions
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Logistic regression
 #'
 #' # Data simulation
@@ -960,7 +958,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' @family prediction performance functions
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Logistic regression
 #'
 #' # Data simulation
@@ -1256,7 +1254,7 @@ Incremental <- function(xdata, ydata,
 #' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")
@@ -1372,7 +1370,7 @@ PlotROC <- function(roc,
 #' @family prediction performance functions
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Logistic regression
 #'
 #' # Data simulation

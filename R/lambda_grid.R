@@ -15,8 +15,7 @@
 #' @family lambda grid functions
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated data
@@ -104,8 +103,7 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
 #' @family lambda grid functions
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' # Single-block simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical()

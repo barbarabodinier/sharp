@@ -62,7 +62,7 @@ A heatmap.
 Produces a heatmap for visualisation of matrix entries.
 }
 \examples{
-\dontrun{
+\donttest{
 
 # Data simulation
 set.seed(1)

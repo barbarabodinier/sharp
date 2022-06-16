@@ -36,7 +36,6 @@ Runs penalised regression using implementation from
 \code{\link[glmnet]{glmnet}}. This function is not using stability.
 }
 \examples{
-
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(pk = 50)

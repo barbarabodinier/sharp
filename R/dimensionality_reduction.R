@@ -46,7 +46,7 @@
 #' @references \insertRef{PLS}{sharp}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")

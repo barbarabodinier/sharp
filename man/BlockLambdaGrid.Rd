@@ -29,8 +29,7 @@ Generates a matrix of parameters controlling the sparsity of the underlying
 selection algorithm for multi-block calibration.
 }
 \examples{
-\dontrun{
-
+\donttest{
 # Multi-block grid
 Lambda <- matrix(c(
   0.8, 0.6, 0.3,

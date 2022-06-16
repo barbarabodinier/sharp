@@ -190,17 +190,7 @@
 #'   \insertRef{stabilityselectionSS}{sharp}
 #'
 #' @examples
-#' \dontshow{
-#' # Linear regression
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = 10, family = "gaussian")
-#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian", K = 5, verbose = FALSE)
-#' CalibrationPlot(stab)
-#' myselected <- SelectedVariables(stab)
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' SelectionProportions(stab)
-#' }
-#' \dontrun{
+#' \donttest{
 #' par(mar = rep(7, 4))
 #'
 #' # Linear regression

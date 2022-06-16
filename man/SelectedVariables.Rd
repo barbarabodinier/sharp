@@ -21,7 +21,7 @@ A binary vector encoding the selection status of the variables
 Extracts the (calibrated) set of stably selected variables.
 }
 \examples{
-\dontrun{
+\donttest{
 
 # Data simulation
 set.seed(1)

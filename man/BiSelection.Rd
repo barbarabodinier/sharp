@@ -256,26 +256,8 @@ In stability selection, a feature selection algorithm is fitted on
   \code{\link[parallel]{mclapply}} (specific to Unix systems).
 }
 \examples{
-\dontshow{
-
-# Data simulation
-K <- 5
-set.seed(1)
-simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
-
-# sPLS: sparsity on both X and Y
-stab <- BiSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
-  family = "gaussian", K = K, ncomp = 2,
-  LambdaX = 1:2,
-  LambdaY = 1:2,
-  implementation = SparsePLS
-)
-}
-
-\dontrun{
+\donttest{
 par(mar = c(12, 5, 1, 1))
-
 
 ## Sparse Principal Component Analysis
 

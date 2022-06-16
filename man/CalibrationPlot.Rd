@@ -135,7 +135,7 @@ controlling the level of sparsity in the underlying feature selection
 algorithm and/or the threshold in selection proportions.
 }
 \examples{
-\dontrun{
+\donttest{
 
 ## Regression model
 
