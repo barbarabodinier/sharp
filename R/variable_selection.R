@@ -191,6 +191,7 @@
 #'
 #' @examples
 #' \donttest{
+#' oldpar <- par(no.readonly = TRUE)
 #' par(mar = rep(7, 4))
 #'
 #' # Linear regression
@@ -360,6 +361,8 @@
 #'   )
 #'   summary(stab)
 #' }
+#'
+#' par(oldpar)
 #' }
 #'
 #' @export

@@ -6,11 +6,13 @@ This is a resubmission. In this version I have:
 
 * Added missing \value to GraphComparison.Rd and SelectionPerformanceGraph.Rd.
 
-* Removed examples for unexported functions.
+* Removed examples for unexported functions. Affected functions are: Coefficients() and HugeAdjacency(). 
 
 * Removed or replaced by \donttest all instances of \dontrun.
 
-* Ensured that user's par are reset within functions with on.exit(). 
+* Ensured that user's par are reset to original values within functions with on.exit(). Affected functions are: Heatmap() and CalibrationPlot(). 
+
+* Ensured that user's par are reset to original values at the end of examples. Affected functions are: BiSelection(), CalibrationPlot(), GraphicalModel(), Heatmap(), PLS(), SimulateRegression() and VariableSelection(). 
 
 
 ## R CMD check results

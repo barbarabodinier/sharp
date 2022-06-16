@@ -62,6 +62,9 @@ A heatmap.
 Produces a heatmap for visualisation of matrix entries.
 }
 \examples{
+oldpar <- par(no.readonly = TRUE)
+par(mar = c(3, 3, 1, 5))
+
 # Data simulation
 set.seed(1)
 mat <- matrix(rnorm(200), ncol = 20)
@@ -75,6 +78,8 @@ Heatmap(
   col = c("lightgrey", "blue", "black"),
   legend = FALSE
 )
+
+par(oldpar)
 }
 \seealso{
 \code{\link{CalibrationPlot}}

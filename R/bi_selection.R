@@ -164,6 +164,7 @@
 #'
 #' @examples
 #' \donttest{
+#' oldpar <- par(no.readonly = TRUE)
 #' par(mar = c(12, 5, 1, 1))
 #'
 #' ## Sparse Principal Component Analysis
@@ -311,6 +312,8 @@
 #' )
 #' CalibrationPlot(stab)
 #' summary(stab)
+#'
+#' par(oldpar)
 #' }
 #' @export
 BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,

@@ -160,6 +160,9 @@
 #'
 #' @examples
 #' \donttest{
+#' oldpar <- par(no.readonly = TRUE)
+#' par(mar = rep(7, 4))
+#'
 #' ## Single-block stability selection
 #'
 #' # Data simulation
@@ -171,7 +174,6 @@
 #' print(stab)
 #'
 #' # Calibration heatmap
-#' par(mar = rep(7, 4))
 #' CalibrationPlot(stab)
 #'
 #' # Visualisation of the results
@@ -194,7 +196,6 @@
 #' print(stab)
 #'
 #' # Calibration heatmap
-#' par(mar = rep(7, 4))
 #' # par(mfrow = c(1, 3))
 #' CalibrationPlot(stab) # Producing three plots
 #'
@@ -256,12 +257,13 @@
 #' )
 #'
 #' # Data visualisation
-#' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$data),
 #'   col = c("navy", "white", "red"),
 #'   legend_range = c(-1, 1)
 #' )
+#'
+#' par(oldpar)
 #' }
 #' @export
 GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,

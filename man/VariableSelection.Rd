@@ -232,6 +232,7 @@ In stability selection, a feature selection algorithm is fitted on
 }
 \examples{
 \donttest{
+oldpar <- par(no.readonly = TRUE)
 par(mar = rep(7, 4))
 
 # Linear regression
@@ -401,6 +402,8 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   )
   summary(stab)
 }
+
+par(oldpar)
 }
 
 }

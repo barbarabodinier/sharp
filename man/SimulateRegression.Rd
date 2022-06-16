@@ -181,6 +181,9 @@ the variables in \code{xdata}, relevant predictors of the outcome variables
 in \code{ydata}.
 }
 \examples{
+oldpar <- par(no.readonly = TRUE)
+par(mar = c(5, 5, 5, 5))
+
 ## Continuous outcomes
 
 # Univariate outcome
@@ -208,7 +211,6 @@ simul <- SimulateRegression(
   v_within = c(0.5, 1), v_sign = -1, continuous = TRUE, pd_strategy = "min_eigenvalue"
 )
 print(simul)
-par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$xdata),
   col = c("navy", "white", "red"),
@@ -230,6 +232,8 @@ set.seed(1)
 simul <- SimulateRegression(pk = 20, family = "multinomial")
 print(simul)
 apply(simul$ydata, 2, sum)
+
+par(oldpar)
 }
 \seealso{
 \code{\link{VariableSelection}}

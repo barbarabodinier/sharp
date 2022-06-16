@@ -26,8 +26,8 @@
 #'
 #' @examples
 #' \donttest{
+#' oldpar <- par(no.readonly = TRUE)
 #' par(mar = c(5, 5, 5, 5))
-#'
 #'
 #' ## Regression models
 #' # Data simulation
@@ -84,5 +84,7 @@
 #' CalibrationPlot(stab)
 #' summary(stab)
 #' plot(stab)
+#'
+#' par(oldpar)
 #' }
 NULL

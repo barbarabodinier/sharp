@@ -136,6 +136,9 @@ algorithm and/or the threshold in selection proportions.
 }
 \examples{
 \donttest{
+oldpar <- par(no.readonly = TRUE)
+par(mar = c(7, 5, 7, 6))
+
 ## Regression model
 
 # Data simulation
@@ -146,11 +149,9 @@ simul <- SimulateGraphical(pk = 20, nu_within = 0.1)
 stab <- GraphicalModel(xdata = simul$data)
 
 # Calibration heatmap
-par(mar = c(7, 5, 6, 6))
 CalibrationPlot(stab)
 
 # User-defined colours
-par(mar = c(7, 5, 7, 6))
 CalibrationPlot(stab,
   col = c("ivory", "blue", "black"),
   legend_length = 31,
@@ -181,6 +182,8 @@ CalibrationPlot(stab)
 
 # Other ordering of parameters
 CalibrationPlot(stab, params = c("nx", "ny"))
+
+par(oldpar)
 }
 
 }

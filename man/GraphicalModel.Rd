@@ -255,6 +255,9 @@ In stability selection, a feature selection algorithm is fitted on
 }
 \examples{
 \donttest{
+oldpar <- par(no.readonly = TRUE)
+par(mar = rep(7, 4))
+
 ## Single-block stability selection
 
 # Data simulation
@@ -266,7 +269,6 @@ stab <- GraphicalModel(xdata = simul$data)
 print(stab)
 
 # Calibration heatmap
-par(mar = rep(7, 4))
 CalibrationPlot(stab)
 
 # Visualisation of the results
@@ -289,7 +291,6 @@ stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), Lambda_cardinal = 10)
 print(stab)
 
 # Calibration heatmap
-par(mar = rep(7, 4))
 # par(mfrow = c(1, 3))
 CalibrationPlot(stab) # Producing three plots
 
@@ -351,12 +352,13 @@ simul <- SimulateComponents(
 )
 
 # Data visualisation
-par(mar = c(5, 5, 5, 5))
 Heatmap(
   mat = cor(simul$data),
   col = c("navy", "white", "red"),
   legend_range = c(-1, 1)
 )
+
+par(oldpar)
 }
 }
 \references{

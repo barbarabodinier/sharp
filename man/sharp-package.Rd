@@ -20,8 +20,8 @@ Barbara Bodinier \email{b.bodinier@imperial.ac.uk}}
 }
 \examples{
 \donttest{
+oldpar <- par(no.readonly = TRUE)
 par(mar = c(5, 5, 5, 5))
-
 
 ## Regression models
 # Data simulation
@@ -78,6 +78,8 @@ stab <- BiSelection(
 CalibrationPlot(stab)
 summary(stab)
 plot(stab)
+
+par(oldpar)
 }
 }
 \references{

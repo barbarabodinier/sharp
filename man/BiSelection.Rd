@@ -257,6 +257,7 @@ In stability selection, a feature selection algorithm is fitted on
 }
 \examples{
 \donttest{
+oldpar <- par(no.readonly = TRUE)
 par(mar = c(12, 5, 1, 1))
 
 ## Sparse Principal Component Analysis
@@ -404,6 +405,8 @@ stab <- BiSelection(
 )
 CalibrationPlot(stab)
 summary(stab)
+
+par(oldpar)
 }
 }
 \references{

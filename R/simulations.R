@@ -487,6 +487,9 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
+#' oldpar <- par(no.readonly = TRUE)
+#' par(mar = c(5, 5, 5, 5))
+#'
 #' ## Continuous outcomes
 #'
 #' # Univariate outcome
@@ -514,7 +517,6 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #'   v_within = c(0.5, 1), v_sign = -1, continuous = TRUE, pd_strategy = "min_eigenvalue"
 #' )
 #' print(simul)
-#' par(mar = c(5, 5, 5, 5))
 #' Heatmap(
 #'   mat = cor(simul$xdata),
 #'   col = c("navy", "white", "red"),
@@ -536,6 +538,8 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' simul <- SimulateRegression(pk = 20, family = "multinomial")
 #' print(simul)
 #' apply(simul$ydata, 2, sum)
+#'
+#' par(oldpar)
 #' @export
 SimulateRegression <- function(n = 100, pk = 10, N = 3,
                                family = "gaussian", ev_xz = 0.8,

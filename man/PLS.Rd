@@ -71,6 +71,8 @@ All matrices are defined as in (Wold et al. 2001). The weight matrix
 }
 \examples{
 \donttest{
+oldpar <- par(no.readonly = TRUE)
+
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
@@ -99,7 +101,7 @@ mypls <- PLS(
 )
 
 # Nonzero entries in weights are the same as in selectedX
-# par(mfrow = c(2, 2))
+par(mfrow = c(2, 2))
 Heatmap(stab$selectedX,
   legend = FALSE
 )
@@ -128,6 +130,8 @@ if (requireNamespace("mixOmics", quietly = TRUE)) {
   # Running PLS on within-variability
   mypls <- PLS(xdata = x_within, ydata = y, ncomp = 3)
 }
+
+par(oldpar)
 }
 }
 \references{
