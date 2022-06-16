@@ -227,7 +227,6 @@ GraphComparison <- function(graph1, graph2,
   # Defining the vector of node colours
   if (is.null(node_colour)) {
     if (!inherits(graph1, "matrix")) {
-      print(theta)
       if (inherits(graph1, "variable_selection")) {
         node_colour <- c(rep("skyblue", nrow(theta) - 1), "red")
       }

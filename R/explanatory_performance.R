@@ -730,7 +730,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
                                    ij_method = FALSE, time = 1000) {
   # Checking the inputs
   if (!is.null(stability)) {
-    if (inherits(stability, "variable_selection")) {
+    if (!inherits(stability, "variable_selection")) {
       stop("Argument 'stability' is not of class 'variable_selection'. This function can only be applied on the output of VariableSelection().")
     }
     if (!stability$methods$family %in% c("cox", "binomial", "gaussian")) {
