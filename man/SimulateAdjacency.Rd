@@ -60,7 +60,6 @@ self-loops, and with different densities in diagonal compared to off-diagonal
 blocks.
 }
 \examples{
-\donttest{
 # Simulation of a scale-free graph with 20 nodes
 adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 plot(Graph(adjacency))
@@ -84,8 +83,6 @@ simul <- SimulateAdjacency(pk = 10, implementation = CentralNode)
 plot(Graph(simul)) # star
 simul <- SimulateAdjacency(pk = 10, implementation = CentralNode, hub = 2)
 plot(Graph(simul)) # variable 2 is the central node
-}
-
 }
 \seealso{
 Other simulation functions: 

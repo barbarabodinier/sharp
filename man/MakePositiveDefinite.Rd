@@ -61,7 +61,6 @@ largest eigenvalue of the covariance/correlation matrix divided by the sum of
 eigenvalues).
 }
 \examples{
-\donttest{
 # Simulation of a symmetric matrix
 p <- 5
 set.seed(1)
@@ -112,5 +111,4 @@ omega_pd <- MakePositiveDefinite(omega,
 )
 lambda_inv <- 1 / eigen(omega_pd$omega)$values
 max(lambda_inv) / sum(lambda_inv)
-}
 }

@@ -19,7 +19,6 @@
 #'   \code{\link{SparseGroupPLS}}
 #'
 #' @examples
-#' \donttest{
 #' # Data simulation (univariate outcome)
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
@@ -40,8 +39,6 @@
 #'   Lambda = c(0.1, 0.2), family = "mgaussian"
 #' )
 #' str(mylasso)
-#' }
-#'
 #' @export
 SelectionAlgo <- function(xdata, ydata = NULL,
                           Lambda, group_x = NULL,
@@ -111,8 +108,6 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #'   the argument "Sequential_template".
 #'
 #' @examples
-#' \donttest{
-#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical()
@@ -122,7 +117,6 @@ SelectionAlgo <- function(xdata, ydata = NULL,
 #'   xdata = simul$data,
 #'   Lambda = cbind(c(0.1, 0.2))
 #' )
-#' }
 #' @export
 GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
                           scale = TRUE, implementation = PenalisedGraphical, start = "cold", ...) {

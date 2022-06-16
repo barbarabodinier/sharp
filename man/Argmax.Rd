@@ -24,8 +24,6 @@ A matrix of parameter values. If applied to the output of
 Extracts calibrated parameter values in stability selection.
 }
 \examples{
-\donttest{
-
 ## Graphical modelling
 
 # Data simulation
@@ -37,8 +35,6 @@ stab <- GraphicalModel(xdata = simul$data)
 
 # Extracting calibrated parameters
 Argmax(stab)
-}
-
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},

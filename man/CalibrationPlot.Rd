@@ -136,7 +136,6 @@ algorithm and/or the threshold in selection proportions.
 }
 \examples{
 \donttest{
-
 ## Regression model
 
 # Data simulation

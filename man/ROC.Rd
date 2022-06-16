@@ -25,7 +25,6 @@ Area Under the Curve (AUC) by comparing the true (observed) and predicted
 status using a range of thresholds on the predicted score.
 }
 \examples{
-\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")
@@ -57,8 +56,6 @@ predicted <- predict(recalibrated, newdata = as.data.frame(xtest))
 roc <- ROC(predicted = predicted, observed = ytest)
 PlotROC(roc)
 plot(roc) # alternative formulation
-}
-
 }
 \seealso{
 Other prediction performance functions: 

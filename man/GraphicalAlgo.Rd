@@ -74,8 +74,6 @@ The use of the procedure from Equation (4) or (5) is controlled by
   the argument "Sequential_template".
 }
 \examples{
-\donttest{
-
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical()
@@ -85,7 +83,6 @@ myglasso <- GraphicalAlgo(
   xdata = simul$data,
   Lambda = cbind(c(0.1, 0.2))
 )
-}
 }
 \seealso{
 \code{\link{GraphicalModel}}, \code{\link{PenalisedGraphical}}

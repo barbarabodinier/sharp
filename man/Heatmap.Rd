@@ -62,22 +62,19 @@ A heatmap.
 Produces a heatmap for visualisation of matrix entries.
 }
 \examples{
-\donttest{
-
 # Data simulation
 set.seed(1)
 mat <- matrix(rnorm(200), ncol = 20)
+rownames(mat) <- paste0("r", 1:nrow(mat))
+colnames(mat) <- paste0("c", 1:ncol(mat))
 
 # Generating heatmaps
-par(mar = c(1, 1, 1, 5))
 Heatmap(mat = mat)
 Heatmap(
   mat = mat,
   col = c("lightgrey", "blue", "black"),
   legend = FALSE
 )
-}
-
 }
 \seealso{
 \code{\link{CalibrationPlot}}

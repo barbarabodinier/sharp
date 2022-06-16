@@ -10,6 +10,8 @@ This is a resubmission. In this version I have:
 
 * Removed or replaced by \donttest all instances of \dontrun.
 
+* Ensured that user's par are reset within functions with on.exit(). 
+
 
 ## R CMD check results
 

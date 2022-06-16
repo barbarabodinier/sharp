@@ -100,7 +100,6 @@
 #'   \code{output_matrices=TRUE}.}
 #'
 #' @examples
-#' \donttest{
 #' # Simulation of random graph with 50 nodes
 #' set.seed(1)
 #' simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
@@ -178,7 +177,6 @@
 #'   col = c("darkblue", "white", "firebrick3"),
 #'   legend_range = c(-1, 1), legend_length = 50, legend = FALSE
 #' )
-#' }
 #' @export
 SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               implementation = HugeAdjacency, topology = "random",
@@ -303,7 +301,6 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' @family simulation functions
 #'
 #' @examples
-#' \donttest{
 #' # Simulation of 3 components with high e.v.
 #' set.seed(1)
 #' simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.4)
@@ -326,7 +323,6 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 #' )
 #' plot(simul)
 #' plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
-#' }
 #' @export
 SimulateComponents <- function(n = 100, pk = c(10, 10),
                                adjacency = NULL, nu_within = 1,
@@ -491,7 +487,6 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' @seealso \code{\link{VariableSelection}}
 #'
 #' @examples
-#' \donttest{
 #' ## Continuous outcomes
 #'
 #' # Univariate outcome
@@ -541,7 +536,6 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #' simul <- SimulateRegression(pk = 20, family = "multinomial")
 #' print(simul)
 #' apply(simul$ydata, 2, sum)
-#' }
 #' @export
 SimulateRegression <- function(n = 100, pk = 10, N = 3,
                                family = "gaussian", ev_xz = 0.8,
@@ -825,7 +819,6 @@ HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #' @family simulation functions
 #'
 #' @examples
-#' \donttest{
 #' # Simulation of a scale-free graph with 20 nodes
 #' adjacency <- SimulateAdjacency(pk = 20, topology = "scale-free")
 #' plot(Graph(adjacency))
@@ -849,8 +842,6 @@ HugeAdjacency <- function(pk = 10, topology = "random", nu = 0.1, ...) {
 #' plot(Graph(simul)) # star
 #' simul <- SimulateAdjacency(pk = 10, implementation = CentralNode, hub = 2)
 #' plot(Graph(simul)) # variable 2 is the central node
-#' }
-#'
 #' @export
 SimulateAdjacency <- function(pk = 10,
                               implementation = HugeAdjacency, topology = "random",
@@ -1022,7 +1013,6 @@ SimulateSymmetricMatrix <- function(pk = 10,
 #'   positive definite.}
 #'
 #' @examples
-#' \donttest{
 #' # Simulation of an adjacency matrix
 #' theta <- SimulateAdjacency(pk = c(5, 5), nu_within = 0.7)
 #' print(theta)
@@ -1038,7 +1028,6 @@ SimulateSymmetricMatrix <- function(pk = 10,
 #'   ev_xx = 0.3, scale = TRUE
 #' )
 #' print(simul$omega)
-#' }
 #' @export
 SimulatePrecision <- function(pk = NULL, theta,
                               v_within = c(0.5, 1), v_between = c(0, 0.1),
@@ -1301,7 +1290,6 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #'   of the constant u.}
 #'
 #' @examples
-#' \donttest{
 #' # Simulation of a symmetric matrix
 #' p <- 5
 #' set.seed(1)
@@ -1352,7 +1340,6 @@ SamplePredictors <- function(pk, q = NULL, nu = 0.1, orthogonal = TRUE) {
 #' )
 #' lambda_inv <- 1 / eigen(omega_pd$omega)$values
 #' max(lambda_inv) / sum(lambda_inv)
-#' }
 #' @export
 MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
                                  ev_xx = NULL, scale = TRUE, u_list = c(1e-10, 1),

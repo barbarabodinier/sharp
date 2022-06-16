@@ -47,7 +47,6 @@ Rates <- function(observed, predicted, thr) {
 #' @family prediction performance functions
 #'
 #' @examples
-#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")
@@ -79,8 +78,6 @@ Rates <- function(observed, predicted, thr) {
 #' roc <- ROC(predicted = predicted, observed = ytest)
 #' PlotROC(roc)
 #' plot(roc) # alternative formulation
-#' }
-#'
 #' @export
 ROC <- function(predicted, observed, n_thr = NULL) {
   # Checking the inputs
@@ -1254,7 +1251,6 @@ Incremental <- function(xdata, ydata,
 #' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
 #'
 #' @examples
-#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")
@@ -1292,8 +1288,6 @@ Incremental <- function(xdata, ydata,
 #'   family = "binomial", K = 100
 #' )
 #' PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
-#' }
-#'
 #' @export
 PlotROC <- function(roc,
                     xlab = "False Positive Rate",

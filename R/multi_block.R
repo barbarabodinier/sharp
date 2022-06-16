@@ -119,7 +119,6 @@ BlockStructure <- function(pk) {
 #'   are set to \code{TRUE}).}
 #'
 #' @examples
-#' \donttest{
 #' # Multi-block grid
 #' Lambda <- matrix(c(
 #'   0.8, 0.6, 0.3,
@@ -139,8 +138,6 @@ BlockStructure <- function(pk) {
 #' ncol = 3, byrow = TRUE
 #' )
 #' mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
-#' }
-#'
 #' @export
 BlockLambdaGrid <- function(Lambda, lambda_other_blocks = NULL) {
   if ((length(lambda_other_blocks) == 1) & (!is.vector(Lambda))) {

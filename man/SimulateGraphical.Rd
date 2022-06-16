@@ -141,7 +141,6 @@ function can be used to evaluate the ability of a graphical model to identify
 edges of a conditional independence graph.
 }
 \examples{
-\donttest{
 # Simulation of random graph with 50 nodes
 set.seed(1)
 simul <- SimulateGraphical(n = 100, pk = 50, topology = "random", nu_within = 0.05)
@@ -219,7 +218,6 @@ Heatmap(mycor,
   col = c("darkblue", "white", "firebrick3"),
   legend_range = c(-1, 1), legend_length = 50, legend = FALSE
 )
-}
 }
 \seealso{
 \code{\link{SimulatePrecision}}, \code{\link{MakePositiveDefinite}},

@@ -15,7 +15,6 @@
 #' @family lambda grid functions
 #'
 #' @examples
-#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated data
@@ -32,7 +31,6 @@
 #'   family = "gaussian", Lambda = Lambda
 #' )
 #' print(SelectedVariables(stab))
-#' }
 #' @export
 LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
                                  family = "gaussian",

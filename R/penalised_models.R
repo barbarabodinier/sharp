@@ -179,7 +179,6 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 #'   the argument "Sequential_template".
 #'
 #' @examples
-#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical()
@@ -196,7 +195,6 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 #'   Lambda = matrix(c(0.1, 0.2), ncol = 1),
 #'   output_omega = TRUE
 #' )
-#' }
 #' @export
 PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
                                scale = TRUE, start = "cold", output_omega = FALSE, ...) {

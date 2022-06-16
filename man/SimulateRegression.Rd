@@ -181,7 +181,6 @@ the variables in \code{xdata}, relevant predictors of the outcome variables
 in \code{ydata}.
 }
 \examples{
-\donttest{
 ## Continuous outcomes
 
 # Univariate outcome
@@ -231,7 +230,6 @@ set.seed(1)
 simul <- SimulateRegression(pk = 20, family = "multinomial")
 print(simul)
 apply(simul$ydata, 2, sum)
-}
 }
 \seealso{
 \code{\link{VariableSelection}}

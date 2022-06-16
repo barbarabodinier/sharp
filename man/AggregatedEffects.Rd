@@ -45,7 +45,6 @@ iterations.
 }
 \examples{
 \donttest{
-
 # Example with univariate outcome
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -86,6 +85,7 @@ dim(median_betas)
 median_betas <- AggregatedEffects(stab, side = "Y")
 dim(median_betas)
 }
+
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}},

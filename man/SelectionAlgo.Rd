@@ -58,7 +58,6 @@ Runs the variable selection algorithm specified in the argument
 \code{implementation}. This function is not using stability.
 }
 \examples{
-\donttest{
 # Data simulation (univariate outcome)
 set.seed(1)
 simul <- SimulateRegression(pk = 50)
@@ -79,8 +78,6 @@ mylasso <- SelectionAlgo(
   Lambda = c(0.1, 0.2), family = "mgaussian"
 )
 str(mylasso)
-}
-
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{PenalisedRegression}},

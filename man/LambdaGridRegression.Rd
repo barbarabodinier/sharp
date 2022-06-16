@@ -63,7 +63,6 @@ Generates a relevant grid of penalty parameter values for penalised
 regression using the implementation in \code{\link[glmnet]{glmnet}}.
 }
 \examples{
-\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian") # simulated data
@@ -80,7 +79,6 @@ stab <- VariableSelection(
   family = "gaussian", Lambda = Lambda
 )
 print(SelectedVariables(stab))
-}
 }
 \seealso{
 Other lambda grid functions: 

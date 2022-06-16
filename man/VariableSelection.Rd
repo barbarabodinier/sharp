@@ -402,6 +402,7 @@ if (requireNamespace("gglasso", quietly = TRUE)) {
   summary(stab)
 }
 }
+
 }
 \references{
 \insertRef{ourstabilityselection}{sharp}

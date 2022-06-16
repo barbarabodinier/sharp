@@ -133,7 +133,6 @@ The data is simulated from a centered multivariate Normal
   number of observations and is equal to \code{sum(pk)}.
 }
 \examples{
-\donttest{
 # Simulation of 3 components with high e.v.
 set.seed(1)
 simul <- SimulateComponents(pk = c(5, 3, 4), ev_xx = 0.4)
@@ -156,7 +155,6 @@ simul <- SimulateComponents(
 )
 plot(simul)
 plot(cumsum(simul$ev), ylim = c(0, 1), las = 1)
-}
 }
 \seealso{
 \code{\link{MakePositiveDefinite}}, \code{\link{GraphicalModel}}

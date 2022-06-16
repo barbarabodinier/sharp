@@ -66,7 +66,6 @@ The use of the procedure from Equation (4) or (5) is controlled by
   the argument "Sequential_template".
 }
 \examples{
-\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical()
@@ -83,7 +82,6 @@ myglasso <- PenalisedGraphical(
   Lambda = matrix(c(0.1, 0.2), ncol = 1),
   output_omega = TRUE
 )
-}
 }
 \seealso{
 \code{\link{GraphicalModel}}

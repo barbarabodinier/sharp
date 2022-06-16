@@ -23,7 +23,6 @@ model.
 }
 \examples{
 \donttest{
-
 ## Variable selection
 
 # Data simulation

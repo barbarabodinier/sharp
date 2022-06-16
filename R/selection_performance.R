@@ -198,7 +198,6 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' @seealso \code{\link{SelectionPerformanceGraph}}
 #'
 #' @examples
-#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul1 <- SimulateGraphical(pk = 30)
@@ -211,8 +210,6 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #'   graph2 = simul2
 #' )
 #' plot(mygraph, layout = igraph::layout_with_kk(mygraph))
-#' }
-#'
 #' @export
 GraphComparison <- function(graph1, graph2,
                             col = c("tomato", "forestgreen", "navy"),

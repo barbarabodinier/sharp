@@ -29,7 +29,6 @@ Generates a matrix of parameters controlling the sparsity of the underlying
 selection algorithm for multi-block calibration.
 }
 \examples{
-\donttest{
 # Multi-block grid
 Lambda <- matrix(c(
   0.8, 0.6, 0.3,
@@ -49,8 +48,6 @@ Lambda <- matrix(c(
 ncol = 3, byrow = TRUE
 )
 mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
-}
-
 }
 \seealso{
 \code{\link{GraphicalModel}}

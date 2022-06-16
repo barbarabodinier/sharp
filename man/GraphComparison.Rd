@@ -47,7 +47,6 @@ Generates an \code{\link[igraph:igraph-package]{igraph}} object representing
 the common and graph-specific edges.
 }
 \examples{
-\donttest{
 # Data simulation
 set.seed(1)
 simul1 <- SimulateGraphical(pk = 30)
@@ -60,8 +59,6 @@ mygraph <- GraphComparison(
   graph2 = simul2
 )
 plot(mygraph, layout = igraph::layout_with_kk(mygraph))
-}
-
 }
 \seealso{
 \code{\link{SelectionPerformanceGraph}}

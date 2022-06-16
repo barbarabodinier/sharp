@@ -54,7 +54,6 @@ median is represented and flanked by a transparent band defined by
 point-wise \code{quantiles}.
 }
 \examples{
-\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")
@@ -92,8 +91,6 @@ roc <- ExplanatoryPerformance(
   family = "binomial", K = 100
 )
 PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
-}
-
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{Recalibrate}}

@@ -21,8 +21,6 @@ Extracts the adjacency matrix of the (calibrated) stability selection
 graphical model.
 }
 \examples{
-\donttest{
-
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
@@ -38,8 +36,6 @@ myids <- matrix(c(20, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 A <- Adjacency(stab, argmax_id = myids)
-}
-
 }
 \seealso{
 \code{\link{GraphicalModel}}

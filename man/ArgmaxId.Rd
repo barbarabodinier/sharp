@@ -27,8 +27,6 @@ Extracts the indices of calibrated parameters with respect to the grids
 provided in \code{Lambda} and \code{pi_list} in \code{stability}.
 }
 \examples{
-\donttest{
-
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
@@ -46,8 +44,6 @@ ids2 <- ArgmaxId(S = stab$S_2d)
 
 # Link with Argmax() function
 args <- Argmax(stab)
-}
-
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
