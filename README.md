@@ -8,14 +8,14 @@
 
 ## Description
 
-Implementation of stability selection for graphical modelling and
-variable selection in regression and dimensionality reduction. These
-models rely on resampling approaches to estimate selection
-probabilities. Calibration of the hyper-parameters is done via
-maximisation of a stability score measuring the likelihood of
-informative (non-uniform) selection procedure. This package also
-includes tools to simulate multivariate Normal data with different
-(partial) correlation structures.
+> Implementation of stability selection for graphical modelling and
+> variable selection in regression and dimensionality reduction. These
+> models rely on resampling approaches to estimate selection
+> probabilities. Calibration of the hyper-parameters is done via
+> maximisation of a stability score measuring the likelihood of
+> informative (non-uniform) selection procedure. This package also
+> includes tools to simulate multivariate Normal data with different
+> (partial) correlation structures.
 
 ## Installation
 
