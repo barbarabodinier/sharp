@@ -4,6 +4,8 @@
 # sharp: Stability-enHanced Approaches using Resampling Procedures
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/barbarabodinier/sharp/workflows/R-CMD-check/badge.svg)](https://github.com/barbarabodinier/sharp/actions)
 <!-- badges: end -->
 
 ## Description
