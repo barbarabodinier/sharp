@@ -5,11 +5,10 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/barbarabodinier/sharp/workflows/R-CMD-check/badge.svg)](https://github.com/barbarabodinier/sharp/actions)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/sharp)](https://CRAN.R-project.org/package=sharp)
 ![GitHub last
 commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=GitHub&style=flat-square)
-![GitHub all
-releases](https://img.shields.io/github/downloads/barbarabodinier/sharp/total?logo=GitHub&style=flat-square)
 <!-- badges: end -->
 
 ## Description
