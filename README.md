@@ -26,14 +26,15 @@ commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=Git
 
 ## Installation
 
-<!-- You can install the released version of sharp from [CRAN](https://CRAN.R-project.org) with: -->
-<!-- ``` r -->
-<!-- install.packages("sharp") # devtools::install_github("barbarabodinier/sharp") -->
-<!-- ``` -->
+The released version of the package can be installed from
+[CRAN](https://CRAN.R-project.org) with:
 
-The development version can be downloaded from
-[GitHub](https://github.com/) and installed using the following command
-from a working directory containing the folder:
+``` r
+install.packages("sharp")
+```
+
+The development version can be installed from
+[GitHub](https://github.com/):
 
 ``` r
 devtools::install_github("barbarabodinier/sharp")

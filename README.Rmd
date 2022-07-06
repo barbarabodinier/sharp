@@ -28,13 +28,13 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-<!-- You can install the released version of sharp from [CRAN](https://CRAN.R-project.org) with: -->
+The released version of the package can be installed from [CRAN](https://CRAN.R-project.org) with:
 
-<!-- ``` r -->
-<!-- install.packages("sharp") # devtools::install_github("barbarabodinier/sharp") -->
-<!-- ``` -->
+``` r
+install.packages("sharp")
+```
 
-The development version can be downloaded from [GitHub](https://github.com/) and installed using the following command from a working directory containing the folder:
+The development version can be installed from [GitHub](https://github.com/):
 
 ``` r
 devtools::install_github("barbarabodinier/sharp")
