@@ -322,7 +322,7 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
       xdata = xdata, pk = pk, Lambda = Lambda, lambda_other_blocks = lambda_other_blocks,
       pi_list = pi_list, K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       implementation = implementation, start = start, scale = scale,
-      resampling = resampling, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+      resampling = resampling, cpss = cpss, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       output_data = output_data, verbose = verbose, ...
     ))
   })
