@@ -106,13 +106,13 @@ using:
 ``` r
 # First few penalty parameters
 head(stab$Lambda)
-#>        [,1]
-#> s0 1.420237
-#> s1 1.307513
-#> s2 1.203736
-#> s3 1.108196
-#> s4 1.020239
-#> s5 0.939263
+#>         [,1]
+#> s0 1.3748144
+#> s1 1.2645070
+#> s2 1.1630501
+#> s3 1.0697335
+#> s4 0.9839041
+#> s5 0.9049612
 
 # Grid of thresholds in selection proportion
 stab$params$pi_list
@@ -150,9 +150,9 @@ quickly obtained with:
 
 ``` r
 summary(stab)
-#> Calibrated parameters: lambda = 0.348 and pi = 0.900
+#> Calibrated parameters: lambda = 0.305 and pi = 0.900
 #> 
-#> Maximum stability score: 694.140
+#> Maximum stability score: 736.982
 #> 
 #> Number of selected variable(s): 4
 ```
@@ -169,9 +169,9 @@ SelectedVariables(stab)
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
 #>     0     0     0     0     0     0     1     0     0     0     0     0     1 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>     0     0     0     0     0     0     0     1     0     0     0     0     0 
+#>     0     0     1     0     0     0     0     0     0     0     0     0     0 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>     0     0     1     0     0     0     0     0     0     0     0
+#>     0     0     0     0     0     0     0     0     0     1     0
 ```
 
 Stably selected variables are the ones with selection proportions above
@@ -188,13 +188,13 @@ Selection proportion values can be extracted using:
 ``` r
 SelectionProportions(stab)
 #>  var1  var2  var3  var4  var5  var6  var7  var8  var9 var10 var11 var12 var13 
-#>  0.00  0.02  0.00  0.00  0.35  0.00  0.00  0.05  0.01  0.01  0.00  0.02  0.00 
+#>  0.00  0.00  0.00  0.00  0.43  0.00  0.01  0.00  0.00  0.02  0.00  0.00  0.00 
 #> var14 var15 var16 var17 var18 var19 var20 var21 var22 var23 var24 var25 var26 
-#>  0.00  0.00  0.00  0.00  0.00  0.06  1.00  0.00  0.00  0.00  0.00  0.00  1.00 
+#>  0.00  0.03  0.00  0.01  0.00  0.00  0.98  0.00  0.00  0.01  0.00  0.00  1.00 
 #> var27 var28 var29 var30 var31 var32 var33 var34 var35 var36 var37 var38 var39 
-#>  0.18  0.00  0.51  0.01  0.00  0.00  0.00  0.97  0.00  0.00  0.03  0.01  0.00 
+#>  0.00  0.00  0.90  0.00  0.00  0.00  0.00  0.33  0.07  0.01  0.00  0.00  0.00 
 #> var40 var41 var42 var43 var44 var45 var46 var47 var48 var49 var50 
-#>  0.00  0.01  0.90  0.01  0.00  0.00  0.01  0.00  0.00  0.73  0.04
+#>  0.00  0.00  0.33  0.01  0.00  0.00  0.00  0.00  0.00  0.99  0.00
 ```
 
 ## Graphical modelling
@@ -274,11 +274,11 @@ viewed using:
 
 ``` r
 summary(stab)
-#> Calibrated parameters: lambda = 0.251 and pi = 0.900
+#> Calibrated parameters: lambda = 0.331 and pi = 0.900
 #> 
-#> Maximum stability score: 1102.130
+#> Maximum stability score: 1141.949
 #> 
-#> Number of selected edge(s): 9
+#> Number of selected edge(s): 10
 ```
 
 ### Outputs
@@ -303,9 +303,9 @@ Adjacency(stab)
 #> var3     0    0    0    0    0    0    0    0    1     1
 #> var4     0    1    0    0    1    0    1    1    0     0
 #> var5     0    0    0    1    0    0    0    0    0     0
-#> var6     0    0    0    0    0    0    0    0    0     1
+#> var6     0    0    0    0    0    0    0    1    0     1
 #> var7     0    0    0    1    0    0    0    0    0     0
-#> var8     0    0    0    1    0    0    0    0    0     1
+#> var8     0    0    0    1    0    1    0    0    0     1
 #> var9     1    0    1    0    0    0    0    0    0     0
 #> var10    0    0    1    0    0    1    0    1    0     0
 ```
@@ -313,7 +313,7 @@ Adjacency(stab)
 And converted to an igraph object using:
 
 ``` r
-mygraph=Graph(Adjacency(stab))
+mygraph <- Graph(Adjacency(stab))
 set.seed(1)
 plot(mygraph)
 ```

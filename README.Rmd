@@ -205,7 +205,7 @@ Adjacency(stab)
 And converted to an igraph object using:
 
 ```{r fig.height=9, fig.width=9, out.width="100%", fig.align="center"}
-mygraph=Graph(Adjacency(stab))
+mygraph <- Graph(Adjacency(stab))
 set.seed(1)
 plot(mygraph)
 ```
