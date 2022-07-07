@@ -1087,129 +1087,6 @@ SimulatePrecision <- function(pk = NULL, theta,
     ev_xx = ev_xx, scale = scale, u_list = u_list, tol = tol
   )
 
-  # # Preparing realistic diagonally dominant precision matrix
-  # if (pd_strategy == "diagonally_dominant") {
-  #   # Defining grid of u values if not provided
-  #   if (is.null(u)) {
-  #     u <- 10^-(seq(0, 5, by = 0.1))
-  #     refining_u_grid <- TRUE
-  #     niter_max <- 5
-  #     tolerance <- 10
-  #   } else {
-  #     refining_u_grid <- FALSE
-  #   }
-  #
-  #   # Filling off-diagonal entries of the precision matrix
-  #   omega <- theta * v
-  #
-  #   # Calibrate u based on contrasts of the correlation matrix
-  #   contrast <- NULL
-  #   for (u_value in u) {
-  #     omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-  #     C <- stats::cov2cor(solve(omega_tmp))
-  #     contrast <- c(contrast, Contrast(C))
-  #   }
-  #
-  #   # Avoiding extreme values in u grid if not provided by the user
-  #   if (refining_u_grid) {
-  #     stop <- 0
-  #     niter <- 1
-  #     while (stop == 0) {
-  #       niter <- niter + 1
-  #       if (niter == niter_max_u_grid) {
-  #         stop <- 1
-  #       }
-  #       # Satisfied with calibrated u if the argmax is not too close to the boundaries (as defined from tolerance_u_grid)
-  #       if (any(which(contrast == max(contrast)) %in% seq(tolerance_u_grid, length(u) - tolerance_u_grid) == TRUE)) {
-  #         stop <- 1
-  #       } else {
-  #         # Adding smaller values of u
-  #         if (any(which(contrast == max(contrast)) %in% seq(1, tolerance_u_grid) == TRUE)) {
-  #           u <- c(u, 10^-seq(min(-log10(u)) - u_delta, min(-log10(u)), by = 0.1))
-  #         }
-  #
-  #         # Adding larger values of u
-  #         if (any(which(contrast == max(contrast)) %in% seq(length(u) - tolerance_u_grid, length(u)) == TRUE)) {
-  #           u <- c(u, 10^-seq(max(-log10(u)), max(-log10(u) + u_delta), by = 0.1))
-  #         }
-  #
-  #         # Sorting values in u
-  #         u <- sort(u, decreasing = TRUE)
-  #
-  #         # Computing the contrast for all visited values of u
-  #         contrast <- NULL
-  #         for (u_value in u) {
-  #           omega_tmp <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-  #           C <- stats::cov2cor(solve(omega_tmp))
-  #           contrast <- c(contrast, Contrast(C))
-  #         }
-  #       }
-  #     }
-  #   }
-  #
-  #   # Computing calibrated precision matrix
-  #   if (length(u) > 1) {
-  #     u_value <- u[length(contrast) - which.max(rev(contrast)) + 1] # adding smallest possible u value to the diagonal
-  #     omega <- MakePositiveDefinite(omega = omega, u_value = u_value, pd_strategy = pd_strategy)
-  #   } else {
-  #     omega <- omega_tmp
-  #   }
-  # }
-  #
-  # # Allowing for higher correlations using smallest eigenvalue
-  # if (pd_strategy == "min_eigenvalue") {
-  #   # Defining a small constant
-  #   if (is.null(u)) {
-  #     u <- 1e-5
-  #   }
-  #
-  #   # Initialisation of full precision matrix
-  #   omega <- matrix(0, ncol = sum(pk), nrow = sum(pk))
-  #
-  #   # Creating matrix with block indices
-  #   bigblocks <- BlockMatrix(pk)
-  #
-  #   # Making positive definite diagonal blocks (Schur complement shows it is p.d.)
-  #   for (i in unique(diag(bigblocks))) {
-  #     # Filling off-diagonal entries of the precision matrix (for corresponding diagonal block)
-  #     omega_block <- matrix((theta * v)[which(bigblocks == i)], ncol = sum(diag(bigblocks) == i))
-  #
-  #     # # Computing the signed adjacency
-  #     # signed_theta <- sign(omega_block)
-  #
-  #     # Defining a positive definite precision matrix
-  #     omega_tmp <- MakePositiveDefinite(omega = omega_block, u_value = u, pd_strategy = pd_strategy)
-  #
-  #     # # Using sampled entries (need to be lower than or equal to 1 in absolute value)
-  #     # diag(omega_block) <- diag(omega_tmp)
-  #
-  #     # Filling full precision matrix
-  #     omega[which(bigblocks == i)] <- omega_tmp
-  #   }
-  #
-  #   # Accounting for off-diagonal blocks (sum of p.d. is p.d.)
-  #   if (length(pk) > 1) {
-  #     # Filling off-diagonal entries of the precision matrix (for off-diagonal blocks)
-  #     omega_block <- theta * v
-  #     omega_block[which(bigblocks %in% unique(diag(bigblocks)))] <- 0
-  #
-  #     # # Computing the signed adjacency
-  #     # signed_theta <- sign(omega_block)
-  #
-  #     # Defining a positive definite precision matrix
-  #     omega_tmp <- MakePositiveDefinite(omega = omega_block, u_value = u, pd_strategy = pd_strategy)
-  #
-  #     # # Using sampled entries (need to be lower than or equal to 1 in absolute value)
-  #     # diag(omega_block) <- diag(omega_tmp)
-  #
-  #     # Computing sum of the p.d. matrices
-  #     omega <- omega + omega_tmp
-  #   }
-  #
-  #   # Setting row and column names
-  #   rownames(omega) <- colnames(omega) <- colnames(theta)
-  # }
-
   # Returning the output
   return(omega_pd)
 }
@@ -1370,7 +1247,7 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
     # Finding u that maximises the contrast
     if (min(u_list) != max(u_list)) {
       argmax_u <- stats::optimise(MaxContrast,
-        omega = omega, maximum = TRUE, tol = 1,
+        omega = omega, maximum = TRUE, tol = tol,
         lower = min(u_list), upper = max(u_list)
       )
       u <- argmax_u$maximum
@@ -1450,7 +1327,7 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
 #' @keywords internal
 MaxContrast <- function(u, omega, digits = 3) {
   diag(omega) <- diag(omega) + u
-  return(Contrast(stats::cov2cor(omega), digits = digits))
+  return(Contrast(stats::cov2cor(solve(omega)), digits = digits))
 }
 
 
