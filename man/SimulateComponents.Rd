@@ -14,9 +14,10 @@ SimulateComponents(
   continuous = TRUE,
   pd_strategy = "min_eigenvalue",
   ev_xx = 0.1,
-  scale = TRUE,
+  scale_ev = TRUE,
   u_list = c(1e-10, 1),
   tol = .Machine$double.eps^0.25,
+  scale = TRUE,
   output_matrices = FALSE
 )
 }
@@ -74,14 +75,14 @@ zeros on the diagonal and a constant u.}
 
 \item{ev_xx}{expected proportion of explained variance by the first Principal
 Component (PC1) of a Principal Component Analysis. This is the largest
-eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
-\code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+eigenvalue of the correlation (if \code{scale_ev=TRUE}) or covariance (if
+\code{scale_ev=FALSE}) matrix divided by the sum of eigenvalues. If
 \code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 contrast of the correlation matrix.}
 
-\item{scale}{logical indicating if the proportion of explained variance by
-PC1 should be computed from the correlation (\code{scale=TRUE}) or
-covariance (\code{scale=FALSE}) matrix. If \code{scale=TRUE}, the
+\item{scale_ev}{logical indicating if the proportion of explained variance by
+PC1 should be computed from the correlation (\code{scale_ev=TRUE}) or
+covariance (\code{scale_ev=FALSE}) matrix. If \code{scale_ev=TRUE}, the
 correlation matrix is used as parameter of the multivariate normal
 distribution.}
 
@@ -90,6 +91,9 @@ explore for constant u.}
 
 \item{tol}{accuracy for the search of parameter u as defined in
 \code{\link[stats]{optimise}}.}
+
+\item{scale}{logical indicating if the simulated data should be standardised
+using \code{\link[base]{scale}}.}
 
 \item{output_matrices}{logical indicating if the true precision and (partial)
 correlation matrices should be included in the output.}

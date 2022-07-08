@@ -23,7 +23,7 @@ SimulateRegression(
   continuous = TRUE,
   pd_strategy = "diagonally_dominant",
   ev_xx = NULL,
-  scale = TRUE,
+  scale_ev = TRUE,
   u_list = c(1e-10, 1),
   tol = .Machine$double.eps^0.25
 )
@@ -120,14 +120,14 @@ zeros on the diagonal and a constant u.}
 
 \item{ev_xx}{expected proportion of explained variance by the first Principal
 Component (PC1) of a Principal Component Analysis. This is the largest
-eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
-\code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+eigenvalue of the correlation (if \code{scale_ev=TRUE}) or covariance (if
+\code{scale_ev=FALSE}) matrix divided by the sum of eigenvalues. If
 \code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 contrast of the correlation matrix.}
 
-\item{scale}{logical indicating if the proportion of explained variance by
-PC1 should be computed from the correlation (\code{scale=TRUE}) or
-covariance (\code{scale=FALSE}) matrix. If \code{scale=TRUE}, the
+\item{scale_ev}{logical indicating if the proportion of explained variance by
+PC1 should be computed from the correlation (\code{scale_ev=TRUE}) or
+covariance (\code{scale_ev=FALSE}) matrix. If \code{scale_ev=TRUE}, the
 correlation matrix is used as parameter of the multivariate normal
 distribution.}
 

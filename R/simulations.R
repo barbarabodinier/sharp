@@ -69,19 +69,21 @@
 #'   zeros on the diagonal and a constant u.
 #' @param ev_xx expected proportion of explained variance by the first Principal
 #'   Component (PC1) of a Principal Component Analysis. This is the largest
-#'   eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
-#'   \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+#'   eigenvalue of the correlation (if \code{scale_ev=TRUE}) or covariance (if
+#'   \code{scale_ev=FALSE}) matrix divided by the sum of eigenvalues. If
 #'   \code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 #'   contrast of the correlation matrix.
-#' @param scale logical indicating if the proportion of explained variance by
-#'   PC1 should be computed from the correlation (\code{scale=TRUE}) or
-#'   covariance (\code{scale=FALSE}) matrix. If \code{scale=TRUE}, the
+#' @param scale_ev logical indicating if the proportion of explained variance by
+#'   PC1 should be computed from the correlation (\code{scale_ev=TRUE}) or
+#'   covariance (\code{scale_ev=FALSE}) matrix. If \code{scale_ev=TRUE}, the
 #'   correlation matrix is used as parameter of the multivariate normal
 #'   distribution.
 #' @param u_list vector with two numeric values defining the range of values to
 #'   explore for constant u.
 #' @param tol accuracy for the search of parameter u as defined in
 #'   \code{\link[stats]{optimise}}.
+#' @param scale logical indicating if the simulated data should be standardised
+#'   using \code{\link[base]{scale}}.
 #' @param ... additional arguments passed to the graph simulation function
 #'   provided in \code{implementation}.
 #'
@@ -95,9 +97,8 @@
 #'   \code{output_matrices=TRUE}.} \item{phi}{simulated (true) partial
 #'   correlation matrix. Only returned if \code{output_matrices=TRUE}.}
 #'   \item{sigma}{ simulated (true) covariance matrix. Only returned if
-#'   \code{output_matrices=TRUE}.} \item{u}{value of
-#'   the constant u used for the simulation of \code{omega}. Only returned if
-#'   \code{output_matrices=TRUE}.}
+#'   \code{output_matrices=TRUE}.} \item{u}{value of the constant u used for the
+#'   simulation of \code{omega}. Only returned if \code{output_matrices=TRUE}.}
 #'
 #' @examples
 #' # Simulation of random graph with 50 nodes
@@ -183,9 +184,9 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
                               nu_within = 0.1, nu_between = NULL,
                               v_within = c(0.5, 1), v_between = c(0.1, 0.2),
                               v_sign = c(-1, 1), continuous = TRUE,
-                              pd_strategy = "diagonally_dominant", ev_xx = NULL, scale = TRUE,
+                              pd_strategy = "diagonally_dominant", ev_xx = NULL, scale_ev = TRUE,
                               u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25,
-                              output_matrices = FALSE, ...) {
+                              scale = TRUE, output_matrices = FALSE, ...) {
   # Defining number of nodes
   p <- sum(pk)
   if (!is.null(theta)) {
@@ -213,7 +214,7 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
     pk = pk, theta = theta,
     v_within = v_within, v_between = v_between,
     v_sign = v_sign, continuous = continuous,
-    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale,
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale_ev,
     u_list = u_list, tol = tol
   )
   omega <- out$omega
@@ -327,9 +328,9 @@ SimulateGraphical <- function(n = 100, pk = 10, theta = NULL,
 SimulateComponents <- function(n = 100, pk = c(10, 10),
                                adjacency = NULL, nu_within = 1,
                                v_within = c(0.5, 1), v_sign = -1, continuous = TRUE,
-                               pd_strategy = "min_eigenvalue", ev_xx = 0.1, scale = TRUE,
+                               pd_strategy = "min_eigenvalue", ev_xx = 0.1, scale_ev = TRUE,
                                u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25,
-                               output_matrices = FALSE) {
+                               scale = TRUE, output_matrices = FALSE) {
   # Using multi-block simulator with unconnected blocks
   out <- SimulateGraphical(
     n = n, pk = pk, theta = adjacency,
@@ -341,9 +342,9 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
     v_between = 0,
     v_sign = v_sign,
     continuous = continuous,
-    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale,
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale_ev = scale_ev,
     u_list = u_list, tol = tol,
-    output_matrices = TRUE
+    scale = scale, output_matrices = TRUE
   )
 
   # Eigendecomposition of the covariance
@@ -452,8 +453,8 @@ SimulateComponents <- function(n = 100, pk = c(10, 10),
 #'   sampled. This argument is only used if \code{eta} is not provided.
 #' @param ev_xx expected proportion of explained variance by the first Principal
 #'   Component (PC1) of a Principal Component Analysis. This is the largest
-#'   eigenvalue of the correlation (if \code{scale=TRUE}) or covariance (if
-#'   \code{scale=FALSE}) matrix divided by the sum of eigenvalues. If
+#'   eigenvalue of the correlation (if \code{scale_ev=TRUE}) or covariance (if
+#'   \code{scale_ev=FALSE}) matrix divided by the sum of eigenvalues. If
 #'   \code{ev_xx=NULL} (the default), the constant u is chosen by maximising the
 #'   contrast of the correlation matrix.
 #'
@@ -548,7 +549,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
                                theta_zy = NULL, nu_zy = 0.5,
                                eta = NULL, eta_set = c(-1, 1),
                                v_within = c(0.5, 1), v_sign = c(-1, 1), continuous = TRUE,
-                               pd_strategy = "diagonally_dominant", ev_xx = NULL, scale = TRUE,
+                               pd_strategy = "diagonally_dominant", ev_xx = NULL, scale_ev = TRUE,
                                u_list = c(1e-10, 1), tol = .Machine$double.eps^0.25) {
   # Checking the inputs
   if ((length(pk) > 1) & (family == "multinomial")) {
@@ -604,7 +605,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   out <- SimulatePrecision(
     theta = big_theta, v_within = v_within,
     v_sign = v_sign, continuous = continuous,
-    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale, u_list = u_list, tol = tol
+    pd_strategy = pd_strategy, ev_xx = ev_xx, scale = scale_ev, u_list = u_list, tol = tol
   )
   omega <- out$omega
 
