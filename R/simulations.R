@@ -616,7 +616,7 @@ SimulateRegression <- function(n = 100, pk = 10, N = 3,
   }
 
   # Checking positive definiteness (mostly for multinomial?)
-  eig <- eigen(omega)$values
+  eig <- eigen(omega, only.values = TRUE)$values
   if (any(eig <= 0)) {
     message("The requested proportion of explained variance could not be achieved.")
     ev_xz <- stats::optimise(TuneExplainedVarianceReg, interval = c(0, min(ev_xz)), omega = omega, q = q, p = p)$minimum
@@ -1231,12 +1231,12 @@ MakePositiveDefinite <- function(omega, pd_strategy = "diagonally_dominant",
   if (pd_strategy == "diagonally_dominant") {
     # Constructing the diagonal as the sum of entries
     diag(omega) <- apply(abs(omega), 1, sum)
-    lambda <- eigen(omega)$values
+    lambda <- eigen(omega, only.values = TRUE)$values
   }
   # Making positive definite using eigendecomposition
   if (pd_strategy == "min_eigenvalue") {
     # Extracting smallest eigenvalue of omega_tilde
-    lambda <- eigen(omega)$values
+    lambda <- eigen(omega, only.values = TRUE)$values
     lambda0 <- abs(min(lambda))
 
     # Making the precision matrix positive semidefinite
@@ -1433,5 +1433,5 @@ TuneExplainedVarianceReg <- function(ev_xz, omega, tol = 0.1, q, p) {
     pred_ids <- seq(q + 1, q + p)
     omega[j, j] <- omega[j, pred_ids, drop = FALSE] %*% solve(omega[pred_ids, pred_ids]) %*% t(omega[j, pred_ids, drop = FALSE]) * 1 / ev_xz[j]
   }
-  return(abs(min(eigen(omega)$values) - tol))
+  return(abs(min(eigen(omega, only.values = TRUE)$values) - tol))
 }

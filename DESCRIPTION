@@ -11,7 +11,7 @@ Description: Implementation of stability selection for graphical modelling and v
 License: GPL (>= 3)
 Language: en-GB
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports: 
     glassoFast (>= 1.0.0),
     glmnet,
