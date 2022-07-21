@@ -249,6 +249,77 @@ plot.bi_selection <- function(x, ...) {
 
 
 #' @export
+coef.variable_selection <- function(object, ...) {
+  # Checking inputs
+  if (!object$methods$family %in% c("gaussian", "binomial", "multinomial", "cox")) {
+    stop("This function can only be applied with the following families for regression models: 'gaussian', 'binomial', 'multinomial' or 'cox'.")
+  }
+
+  # Extracting index of calibrated parameter
+  argmax_id <- ArgmaxId(stability = object)[1]
+
+  # Extracting beta coefficients
+  if (object$methods$family %in% c("gaussian", "binomial", "cox")) {
+    beta <- t(object$Beta[argmax_id, , ])
+  }
+  if (object$methods$family == "multinomial") {
+    tmpbeta <- object$Beta[argmax_id, , , ]
+    beta <- array(NA, dim = c(dim(tmpbeta)[2], dim(tmpbeta)[1], dim(tmpbeta)[3]))
+    for (k in 1:dim(tmpbeta)[3]) {
+      beta[, , k] <- t(tmpbeta[, , k])
+    }
+  }
+  rownames(beta) <- paste0("iter", 1:nrow(beta))
+  # Intercept is not included but could be obtained from Ensemble() for "gaussian" or "binomial"
+
+  return(beta)
+}
+
+
+#' @export
+predict.variable_selection <- function(object, xdata, ydata, newdata = NULL, method = c("ensemble", "refit"), ...) {
+  # Checking inputs
+  if (!object$methods$family %in% c("gaussian", "binomial", "multinomial", "cox")) {
+    stop("This function can only be applied with the following families for regression models: 'gaussian', 'binomial', 'multinomial' or 'cox'.")
+  } else {
+    if (method[[1]] == "ensemble") {
+      if (!object$methods$family %in% c("gaussian", "binomial")) {
+        method <- "refit"
+        message("Predictions from ensemble models is only available for the following families for regression models: 'gaussian' or 'binomial'. Predicted values are obtained from refitting.")
+      }
+    }
+  }
+
+  # Using the same data if not provided
+  if (is.null(newdata)) {
+    newdata <- xdata
+  }
+
+  # Predictions from ensemble model
+  if (method[1] == "ensemble") {
+    ensemble <- Ensemble(
+      stability = object,
+      xdata = xdata,
+      ydata = ydata
+    )
+    yhat <- EnsemblePredictions(
+      ensemble = ensemble,
+      xdata = newdata,
+      ...
+    )
+  }
+
+  # Predictions from refitted model
+  if (method[1] == "refit") {
+    refitted <- Refit(xdata = xdata, ydata = ydata, stability = object)
+    yhat <- stats::predict(object = refitted, newdata = as.data.frame(xdata), ...)
+    yhat <- cbind(yhat)
+  }
+  return(yhat)
+}
+
+
+#' @export
 print.simulation_graphical_model <- function(x, ...) {
   cat(paste0("Multivariate Normal data with underlying structure of a graphical model."))
   cat("\n")

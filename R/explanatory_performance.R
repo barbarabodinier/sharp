@@ -464,13 +464,14 @@ Refit <- function(xdata, ydata, stability = NULL,
       if (family == "binomial") {
         mymodel <- stats::glm(myformula,
           data = as.data.frame(xdata),
-          family = stats::binomial(link = "logit", ...)
+          family = stats::binomial(link = "logit"),
+          ...
         )
       }
 
       # Recalibration for multinomial regression
       if (family == "multinomial") {
-        mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), ...)
+        mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), trace = FALSE, ...)
       }
     } else {
       xdata <- xdata[, ids, drop = FALSE]
