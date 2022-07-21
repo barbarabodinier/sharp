@@ -15,10 +15,10 @@ Heatmap(
   ylas = 2,
   text = FALSE,
   cex = 1,
-  digits = 2,
   legend = TRUE,
   legend_length = NULL,
-  legend_range = NULL
+  legend_range = NULL,
+  ...
 )
 }
 \arguments{
@@ -47,13 +47,14 @@ should be displayed.}
 
 \item{cex}{font size for numbers. Only used if \code{text=TRUE}.}
 
-\item{digits}{number of digits to show. Only used if \code{text=TRUE}.}
-
 \item{legend}{logical indicating if the colour bar should be included.}
 
 \item{legend_length}{length of the colour bar.}
 
 \item{legend_range}{range of the colour bar.}
+
+\item{...}{additional arguments passed to \code{\link[base]{formatC}} for
+number formatting. Only used if \code{text=TRUE}.}
 }
 \value{
 A heatmap.

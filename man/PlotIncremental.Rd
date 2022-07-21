@@ -183,7 +183,7 @@ PlotIncremental(perf, col = c(rep("red", N), rep("grey", 20 - N)))
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+\code{\link{VariableSelection}}, \code{\link{Refit}}
 
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},

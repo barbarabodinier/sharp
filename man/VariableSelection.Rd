@@ -417,7 +417,7 @@ par(oldpar)
 \seealso{
 \code{\link{PenalisedRegression}}, \code{\link{SelectionAlgo}},
   \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-  \code{\link{StabilityScore}} \code{\link{Recalibrate}},
+  \code{\link{StabilityScore}} \code{\link{Refit}},
   \code{\link{ExplanatoryPerformance}}, \code{\link{PlotROC}},
   \code{\link{Incremental}}, \code{\link{PlotIncremental}}
 

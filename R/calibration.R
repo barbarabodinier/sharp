@@ -554,7 +554,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'   variables that are never selected.
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}},
-#'   \code{\link{Recalibrate}}
+#'   \code{\link{Refit}}
 #'
 #' @examples
 #' \donttest{
@@ -564,10 +564,10 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
 #' median_betas <- AggregatedEffects(stab)
 #'
-#' # Comparison with recalibrated model
-#' recalibrated <- Recalibrate(xdata = simul$xdata, ydata = simul$ydata, stability = stab)
-#' recalib_betas <- recalibrated$coefficients[-1]
-#' plot(median_betas[names(recalib_betas), ], recalib_betas,
+#' # Comparison with refitted model
+#' refitted <- Refit(xdata = simul$xdata, ydata = simul$ydata, stability = stab)
+#' refitted_betas <- refitted$coefficients[-1]
+#' plot(median_betas[names(refitted_betas), ], refitted_betas,
 #'   panel.first = abline(0, 1, lty = 2)
 #' )
 #'
@@ -1272,10 +1272,11 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #'   should be displayed.
 #' @param text logical indicating if numbers should be displayed.
 #' @param cex font size for numbers. Only used if \code{text=TRUE}.
-#' @param digits number of digits to show. Only used if \code{text=TRUE}.
 #' @param legend logical indicating if the colour bar should be included.
 #' @param legend_length length of the colour bar.
 #' @param legend_range range of the colour bar.
+#' @param ... additional arguments passed to \code{\link[base]{formatC}} for
+#'   number formatting. Only used if \code{text=TRUE}.
 #'
 #' @return A heatmap.
 #'
@@ -1304,8 +1305,8 @@ CalibrationPlot <- function(stability, block_id = NULL,
 Heatmap <- function(mat, col = c("ivory", "navajowhite", "tomato", "darkred"),
                     resolution = 10000, bty = "o",
                     axes = TRUE, cex.axis = 1, xlas = 2, ylas = 2,
-                    text = FALSE, cex = 1, digits = 2,
-                    legend = TRUE, legend_length = NULL, legend_range = NULL) {
+                    text = FALSE, cex = 1,
+                    legend = TRUE, legend_length = NULL, legend_range = NULL, ...) {
   oldpar <- graphics::par("xpd", "xaxs", "yaxs", no.readonly = TRUE)
   on.exit(graphics::par(oldpar))
 
@@ -1371,7 +1372,7 @@ Heatmap <- function(mat, col = c("ivory", "navajowhite", "tomato", "darkred"),
       for (j in 1:ncol(mat)) {
         text(i - 0.5, j - 0.5,
           cex = cex,
-          labels = formatC(mat[i, j], format = "f", digits = digits)
+          labels = formatC(mat[i, j], ...)
         )
       }
     }

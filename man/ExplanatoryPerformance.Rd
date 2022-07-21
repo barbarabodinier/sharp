@@ -38,7 +38,7 @@ regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis). If provided, this argument must be
 consistent with input \code{stability}.}
 
-\item{implementation}{optional function to recalibrate the model. If
+\item{implementation}{optional function to refit the model. If
 \code{implementation=NULL} and \code{stability} is the output of
 \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
 regression), \code{\link[survival]{coxph}} (Cox regression),
@@ -46,7 +46,7 @@ regression), \code{\link[survival]{coxph}} (Cox regression),
 \code{\link[nnet]{multinom}} (multinomial regression) is used.}
 
 \item{prediction}{optional function to compute predicted values from the
-model recalibrated with \code{implementation}.}
+model refitted with \code{implementation}.}
 
 \item{K}{number of training-test splits.}
 
@@ -60,10 +60,10 @@ thresholds. For faster computations on large data, less thresholds can be
 used. Only applicable to logistic regression.}
 
 \item{ij_method}{logical indicating if the analysis should be done for only
-one recalibration/test split with variance of the concordance index should
+one refitting/test split with variance of the concordance index should
 be computed using the infinitesimal jackknife method as implemented in
 \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
-default), the concordance indices computed for different recalibration/test
+default), the concordance indices computed for different refitting/test
 splits are reported. If \code{ij_method=TRUE}, the concordance index and
 estimated confidence interval at level 0.05 are reported. Only applicable
 to Cox regression.}
@@ -87,7 +87,7 @@ A list with: \item{TPR}{True Positive Rate (for logistic regression
 }
 \description{
 Calculates model performance for linear (measured by Q-squared), logistic
-(AUC) or Cox (C-statistic) regression. This is done by (i) recalibrating the
+(AUC) or Cox (C-statistic) regression. This is done by (i) refitting the
 model on a training set including a proportion \code{tau} of the
 observations, and (ii) evaluating the performance on the remaining
 observations (test set). For more reliable results, the procedure can be
@@ -134,14 +134,14 @@ ytest <- simul$ydata[-ids_train, ]
 # Stability selection
 stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, n_thr = NULL
 )
 PlotROC(roc)
 
-# Using more recalibration/test splits
+# Using more refitting/test splits
 roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, K = 100
@@ -178,7 +178,7 @@ PredictPLSDA <- function(xdata, model) {
   return(predicted)
 }
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab,
@@ -210,14 +210,14 @@ ytest <- ydata[-ids_train, ]
 # Stability selection
 stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 perf <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, ij_method = TRUE
 )
 print(perf)
 
-# Using more recalibration/test splits
+# Using more refitting/test splits
 perf <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, K = 10, time = 1000
@@ -244,7 +244,7 @@ ytest <- simul$ydata[-ids_train, ]
 # Stability selection
 stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 perf <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab
@@ -262,7 +262,7 @@ stab <- VariableSelection(
 )
 print(SelectedVariables(stab))
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 perf <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab,
@@ -273,7 +273,7 @@ print(perf)
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+\code{\link{VariableSelection}}, \code{\link{Refit}}
 
 Other prediction performance functions: 
 \code{\link{Incremental}()},

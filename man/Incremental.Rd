@@ -39,7 +39,7 @@ regression), \code{"multinomial"} (multinomial regression), and
 \code{"cox"} (survival analysis). If provided, this argument must be
 consistent with input \code{stability}.}
 
-\item{implementation}{optional function to recalibrate the model. If
+\item{implementation}{optional function to refit the model. If
 \code{implementation=NULL} and \code{stability} is the output of
 \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
 regression), \code{\link[survival]{coxph}} (Cox regression),
@@ -47,7 +47,7 @@ regression), \code{\link[survival]{coxph}} (Cox regression),
 \code{\link[nnet]{multinom}} (multinomial regression) is used.}
 
 \item{prediction}{optional function to compute predicted values from the
-model recalibrated with \code{implementation}.}
+model refitted with \code{implementation}.}
 
 \item{n_predictors}{number of predictors to consider.}
 
@@ -63,10 +63,10 @@ thresholds. For faster computations on large data, less thresholds can be
 used. Only applicable to logistic regression.}
 
 \item{ij_method}{logical indicating if the analysis should be done for only
-one recalibration/test split with variance of the concordance index should
+one refitting/test split with variance of the concordance index should
 be computed using the infinitesimal jackknife method as implemented in
 \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
-default), the concordance indices computed for different recalibration/test
+default), the concordance indices computed for different refitting/test
 splits are reported. If \code{ij_method=TRUE}, the concordance index and
 estimated confidence interval at level 0.05 are reported. Only applicable
 to Cox regression.}
@@ -166,7 +166,7 @@ PredictPLSDA <- function(xdata, model) {
   return(predicted)
 }
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 incremental <- Incremental(
   xdata = xtest, ydata = ytest,
   stability = stab,
@@ -242,7 +242,7 @@ stab <- VariableSelection(
 )
 print(SelectedVariables(stab))
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 incremental <- Incremental(
   xdata = xtest, ydata = ytest,
   stability = stab,
@@ -254,7 +254,7 @@ PlotIncremental(incremental)
 
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+\code{\link{VariableSelection}}, \code{\link{Refit}}
 
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},

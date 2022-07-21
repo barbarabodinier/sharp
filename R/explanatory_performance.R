@@ -60,21 +60,21 @@ Rates <- function(observed, predicted, thr) {
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
 #' x2 <- simul$xdata[-ids_train, , drop = FALSE]
 #' y2 <- simul$ydata[-ids_train, , drop = FALSE]
-#' ids_recalib <- Resample(
+#' ids_refit <- Resample(
 #'   data = y2,
 #'   tau = 0.5, family = "binomial"
 #' )
-#' xrecalib <- x2[ids_recalib, , drop = FALSE]
-#' yrecalib <- y2[ids_recalib, , drop = FALSE]
-#' xtest <- x2[-ids_recalib, ]
-#' ytest <- y2[-ids_recalib, ]
+#' xrefit <- x2[ids_refit, , drop = FALSE]
+#' yrefit <- y2[ids_refit, , drop = FALSE]
+#' xtest <- x2[-ids_refit, ]
+#' ytest <- y2[-ids_refit, ]
 #'
-#' # Stability selection and recalibration
+#' # Stability selection and refitting
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-#' recalibrated <- Recalibrate(xdata = xrecalib, ydata = yrecalib, stability = stab)
+#' refitted <- Refit(xdata = xrefit, ydata = yrefit, stability = stab)
 #'
 #' # ROC analysis
-#' predicted <- predict(recalibrated, newdata = as.data.frame(xtest))
+#' predicted <- predict(refitted, newdata = as.data.frame(xtest))
 #' roc <- ROC(predicted = predicted, observed = ytest)
 #' PlotROC(roc)
 #' plot(roc) # alternative formulation
@@ -128,11 +128,11 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 }
 
 
-#' Regression model recalibration
+#' Regression model refitting
 #'
-#' Recalibrates the regression model with stably selected variables as
-#' predictors (without penalisation). Variables in \code{xdata} not evaluated in
-#' the stability selection model will automatically be included as predictors.
+#' Refits the regression model with stably selected variables as predictors
+#' (without penalisation). Variables in \code{xdata} not evaluated in the
+#' stability selection model will automatically be included as predictors.
 #'
 #' @inheritParams VariableSelection
 #' @param stability output of \code{\link{VariableSelection}} or
@@ -144,15 +144,15 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   regression), \code{"multinomial"} (multinomial regression), and
 #'   \code{"cox"} (survival analysis). If provided, this argument must be
 #'   consistent with input \code{stability}.
-#' @param implementation optional function to recalibrate the model. If
+#' @param implementation optional function to refit the model. If
 #'   \code{implementation=NULL} and \code{stability} is the output of
 #'   \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
 #'   regression), \code{\link[survival]{coxph}} (Cox regression),
 #'   \code{\link[stats]{glm}} (logistic regression), or
 #'   \code{\link[nnet]{multinom}} (multinomial regression) is used. The function
 #'   \code{\link{PLS}} is used for the output of \code{\link{BiSelection}}.
-#' @param ... additional arguments to be passed to the recalibration function
-#'   (see \code{implementation}).
+#' @param ... additional arguments to be passed to the function provided in
+#'   \code{implementation}.
 #'
 #'
 #' @return The output as obtained from: \item{\code{\link[stats]{lm}}}{for
@@ -179,27 +179,27 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
 #' print(SelectedVariables(stab))
 #'
-#' # Recalibrating the model
-#' recalibrated <- Recalibrate(
-#'   xdata = xrecalib, ydata = yrecalib,
+#' # Refitting the model
+#' refitted <- Refit(
+#'   xdata = xrefit, ydata = yrefit,
 #'   stability = stab
 #' )
-#' recalibrated$coefficients # recalibrated coefficients
-#' head(recalibrated$fitted.values) # recalibrated predicted values
+#' refitted$coefficients # refitted coefficients
+#' head(refitted$fitted.values) # refitted predicted values
 #'
 #' # Fitting the full model (including all possible predictors)
-#' recalibrated <- Recalibrate(
+#' refitted <- Refit(
 #'   xdata = simul$xdata, ydata = simul$ydata,
 #'   family = "gaussian"
 #' )
-#' recalibrated$coefficients # recalibrated coefficients
+#' refitted$coefficients # refitted coefficients
 #'
 #'
 #' ## Cox regression
@@ -219,20 +219,20 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- ydata[ids_train, , drop = FALSE]
-#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrecalib <- ydata[-ids_train, , drop = FALSE]
+#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrefit <- ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
 #' print(SelectedVariables(stab))
 #'
-#' # Recalibrating the model
-#' recalibrated <- Recalibrate(
-#'   xdata = xrecalib, ydata = yrecalib,
+#' # Refitting the model
+#' refitted <- Refit(
+#'   xdata = xrefit, ydata = yrefit,
 #'   stability = stab
 #' )
-#' recalibrated$coefficients # recalibrated coefficients
-#' head(recalibrated$linear.predictors) # recalibrated scores
+#' refitted$coefficients # refitted coefficients
+#' head(refitted$linear.predictors) # refitted scores
 #'
 #'
 #' ## Logistic regression
@@ -248,19 +248,19 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 #'
-#' # Recalibrating the model
-#' recalibrated <- Recalibrate(
-#'   xdata = xrecalib, ydata = yrecalib,
+#' # Refitting the model
+#' refitted <- Refit(
+#'   xdata = xrefit, ydata = yrefit,
 #'   stability = stab
 #' )
-#' recalibrated$coefficients # recalibrated coefficients
-#' head(recalibrated$fitted.values) # recalibrated predicted probabilities
+#' refitted$coefficients # refitted coefficients
+#' head(refitted$fitted.values) # refitted predicted probabilities
 #'
 #'
 #' ## Multinomial regression
@@ -276,8 +276,8 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(
@@ -285,13 +285,13 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'   family = "multinomial"
 #' )
 #'
-#' # Recalibrating the model
-#' recalibrated <- Recalibrate(
-#'   xdata = xrecalib, ydata = yrecalib,
+#' # Refitting the model
+#' refitted <- Refit(
+#'   xdata = xrefit, ydata = yrefit,
 #'   stability = stab
 #' )
-#' summary(recalibrated) # recalibrated coefficients
-#' head(recalibrated$fitted.values) # recalibrated predicted probabilities
+#' summary(refitted) # refitted coefficients
+#' head(refitted$fitted.values) # refitted predicted probabilities
 #'
 #'
 #' ## Partial Least Squares (single component)
@@ -307,8 +307,8 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(
@@ -318,14 +318,14 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' print(SelectedVariables(stab))
 #'
-#' # Recalibrating the model
-#' recalibrated <- Recalibrate(
-#'   xdata = xrecalib, ydata = yrecalib,
+#' # Refitting the model
+#' refitted <- Refit(
+#'   xdata = xrefit, ydata = yrefit,
 #'   implementation = PLS,
 #'   stability = stab
 #' )
-#' recalibrated$Wmat # recalibrated X-weights
-#' head(recalibrated$Tmat) # recalibrated X-scores
+#' refitted$Wmat # refitted X-weights
+#' head(refitted$Tmat) # refitted X-scores
 #'
 #'
 #' ## Partial Least Squares (multiple components)
@@ -341,8 +341,8 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' xtrain <- simul$xdata[ids_train, , drop = FALSE]
 #' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrecalib <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrecalib <- simul$ydata[-ids_train, , drop = FALSE]
+#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 #'
 #' # Stability selection
 #' stab <- BiSelection(
@@ -354,18 +354,18 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' )
 #' plot(stab)
 #'
-#' # Recalibrating the model
-#' recalibrated <- Recalibrate(
-#'   xdata = xrecalib, ydata = yrecalib,
+#' # Refitting the model
+#' refitted <- Refit(
+#'   xdata = xrefit, ydata = yrefit,
 #'   stability = stab
 #' )
-#' recalibrated$Wmat # recalibrated X-weights
-#' recalibrated$Cmat # recalibrated Y-weights
+#' refitted$Wmat # refitted X-weights
+#' refitted$Cmat # refitted Y-weights
 #' }
 #'
 #' @export
-Recalibrate <- function(xdata, ydata, stability = NULL,
-                        family = NULL, implementation = NULL, ...) {
+Refit <- function(xdata, ydata, stability = NULL,
+                  family = NULL, implementation = NULL, ...) {
   # Defining the type of model (PLS vs regression)
   use_pls <- FALSE
 
@@ -415,7 +415,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
   }
 
   if (use_pls) {
-    # Recalibrating the PLS model
+    # Refitting the PLS model
     mymodel <- PLS(
       xdata = xdata, ydata = ydata,
       selectedX = stability$selectedX,
@@ -482,28 +482,33 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 }
 
 
+#' @rdname Refit
+#' @export
+Recalibrate <- Refit
+
+
 #' Prediction performance in regression
 #'
 #' Calculates model performance for linear (measured by Q-squared), logistic
-#' (AUC) or Cox (C-statistic) regression. This is done by (i) recalibrating the
+#' (AUC) or Cox (C-statistic) regression. This is done by (i) refitting the
 #' model on a training set including a proportion \code{tau} of the
 #' observations, and (ii) evaluating the performance on the remaining
 #' observations (test set). For more reliable results, the procedure can be
 #' repeated \code{K} times (default \code{K=1}).
 #'
-#' @inheritParams Recalibrate
+#' @inheritParams Refit
 #' @param stability output of \code{\link{VariableSelection}}. If
 #'   \code{stability=NULL} (the default), a model including all variables in
 #'   \code{xdata} as predictors is fitted. Argument \code{family} must be
 #'   provided in this case.
-#' @param implementation optional function to recalibrate the model. If
+#' @param implementation optional function to refit the model. If
 #'   \code{implementation=NULL} and \code{stability} is the output of
 #'   \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
 #'   regression), \code{\link[survival]{coxph}} (Cox regression),
 #'   \code{\link[stats]{glm}} (logistic regression), or
 #'   \code{\link[nnet]{multinom}} (multinomial regression) is used.
 #' @param prediction optional function to compute predicted values from the
-#'   model recalibrated with \code{implementation}.
+#'   model refitted with \code{implementation}.
 #' @param K number of training-test splits.
 #' @param tau proportion of observations used in the training set.
 #' @param seed value of the seed to ensure reproducibility of the results.
@@ -514,10 +519,10 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #' @param time numeric indicating the time for which the survival probabilities
 #'   are computed. Only applicable to Cox regression.
 #' @param ij_method logical indicating if the analysis should be done for only
-#'   one recalibration/test split with variance of the concordance index should
+#'   one refitting/test split with variance of the concordance index should
 #'   be computed using the infinitesimal jackknife method as implemented in
 #'   \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
-#'   default), the concordance indices computed for different recalibration/test
+#'   default), the concordance indices computed for different refitting/test
 #'   splits are reported. If \code{ij_method=TRUE}, the concordance index and
 #'   estimated confidence interval at level 0.05 are reported. Only applicable
 #'   to Cox regression.
@@ -554,7 +559,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #'   across the \code{K} iterations. Coefficients are extracted using the
 #'   \code{\link[stats]{coef}} function.}
 #'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
 #'
 #' @family prediction performance functions
 #'
@@ -579,14 +584,14 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' roc <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, n_thr = NULL
 #' )
 #' PlotROC(roc)
 #'
-#' # Using more recalibration/test splits
+#' # Using more refitting/test splits
 #' roc <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, K = 100
@@ -623,7 +628,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #'   return(predicted)
 #' }
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' roc <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab,
@@ -655,14 +660,14 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' perf <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, ij_method = TRUE
 #' )
 #' print(perf)
 #'
-#' # Using more recalibration/test splits
+#' # Using more refitting/test splits
 #' perf <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, K = 10, time = 1000
@@ -689,7 +694,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' perf <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab
@@ -707,7 +712,7 @@ Recalibrate <- function(xdata, ydata, stability = NULL,
 #' )
 #' print(SelectedVariables(stab))
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' perf <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab,
@@ -789,7 +794,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
       ytest <- ydata[ids_test, , drop = FALSE]
 
       # Recalibration from stability selection model
-      recalibrated <- Recalibrate(
+      refitted <- Refit(
         xdata = xtrain, ydata = ytrain,
         stability = stability,
         implementation = implementation,
@@ -800,32 +805,32 @@ ExplanatoryPerformance <- function(xdata, ydata,
         # Initialising matrix of beta coefficients
         if (iter == 1) {
           if (family %in% c("gaussian", "binomial", "cox")) {
-            Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(recalibrated)))
-            colnames(Beta) <- names(stats::coef(recalibrated))
+            Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(refitted)))
+            colnames(Beta) <- names(stats::coef(refitted))
             rownames(Beta) <- paste0("iter", 1:K)
           }
         }
 
         # Storing beta coefficients
         if (family %in% c("gaussian", "binomial", "cox")) {
-          Beta[iter, ] <- stats::coef(recalibrated)
+          Beta[iter, ] <- stats::coef(refitted)
         }
 
         # Predictions from logistic models
         if (tolower(metric) == "roc") {
-          predicted <- stats::predict.glm(recalibrated, newdata = as.data.frame(xtest), type = "response")
+          predicted <- stats::predict.glm(refitted, newdata = as.data.frame(xtest), type = "response")
         }
 
 
         # Predictions from linear models
         if (tolower(metric) == "q2") {
-          predicted <- stats::predict.lm(recalibrated, newdata = as.data.frame(xtest))
+          predicted <- stats::predict.lm(refitted, newdata = as.data.frame(xtest))
         }
       } else {
         if (is.null(prediction)) {
           stop("Argument 'prediction' has to be provided if 'implementation' is provided. It must be a function that takes the output of 'implementation' as argument.")
         }
-        predicted <- do.call(prediction, args = list(xdata = xtest, model = recalibrated))
+        predicted <- do.call(prediction, args = list(xdata = xtest, model = refitted))
       }
       # Performing ROC analyses
       if (tolower(metric) == "roc") {
@@ -859,9 +864,9 @@ ExplanatoryPerformance <- function(xdata, ydata,
       # Performing concordance analyses
       if (tolower(metric) == "concordance") {
         # Computing the concordance index for given times
-        predicted <- stats::predict(recalibrated, newdata = as.data.frame(xtest), type = "lp")
+        predicted <- stats::predict(refitted, newdata = as.data.frame(xtest), type = "lp")
         survobject <- survival::Surv(ytest[, "time"], ytest[, "case"])
-        S0 <- summary(survival::survfit(recalibrated), times = time, extend = TRUE)$surv
+        S0 <- summary(survival::survfit(refitted), times = time, extend = TRUE)$surv
         S <- S0^exp(predicted)
         cstat <- survival::concordance(survobject ~ S)
 
@@ -950,7 +955,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #'   coefficients from visited models.} \item{names}{Names of the predictors by
 #'   order of inclusion.}
 #'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
 #'
 #' @family prediction performance functions
 #'
@@ -1005,7 +1010,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #'   return(predicted)
 #' }
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' incremental <- Incremental(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab,
@@ -1081,7 +1086,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' )
 #' print(SelectedVariables(stab))
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' incremental <- Incremental(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab,
@@ -1248,7 +1253,7 @@ Incremental <- function(xdata, ydata,
 #'
 #' @family prediction performance functions
 #'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
 #'
 #' @examples
 #' # Data simulation
@@ -1268,14 +1273,14 @@ Incremental <- function(xdata, ydata,
 #' # Stability selection
 #' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 #'
-#' # Evaluation of the performances on recalibrated models (K=1)
+#' # Evaluation of the performances on refitted models (K=1)
 #' roc <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, n_thr = NULL
 #' )
 #' PlotROC(roc)
 #'
-#' # Using more recalibration/test splits
+#' # Using more refitting/test splits
 #' roc <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, K = 100
@@ -1359,7 +1364,7 @@ PlotROC <- function(roc,
 #'
 #' @return A plot.
 #'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+#' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
 #'
 #' @family prediction performance functions
 #'

@@ -93,7 +93,7 @@ stab <- BiSelection(
 )
 plot(stab)
 
-# Recalibration of PLS model
+# Refitting of PLS model
 mypls <- PLS(
   xdata = x, ydata = y,
   selectedX = stab$selectedX,

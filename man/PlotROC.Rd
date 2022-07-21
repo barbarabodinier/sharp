@@ -71,14 +71,14 @@ ytest <- simul$ydata[-ids_train, ]
 # Stability selection
 stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
 
-# Evaluation of the performances on recalibrated models (K=1)
+# Evaluation of the performances on refitted models (K=1)
 roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, n_thr = NULL
 )
 PlotROC(roc)
 
-# Using more recalibration/test splits
+# Using more refitting/test splits
 roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, K = 100
@@ -93,7 +93,7 @@ roc <- ExplanatoryPerformance(
 PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
 }
 \seealso{
-\code{\link{VariableSelection}}, \code{\link{Recalibrate}}
+\code{\link{VariableSelection}}, \code{\link{Refit}}
 
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},
