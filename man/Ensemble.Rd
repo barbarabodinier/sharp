@@ -22,7 +22,7 @@ An object of class \code{ensemble_model}. A list with:
   calibrated models.} \item{beta}{a matrix of beta coefficients from the
   \code{K} calibrated models.} \item{models}{a list of \code{K} models that
   can be used for prediction. These models are of class \code{"lm"} if
-  \code{family="gaussian"} or of class \code{"glm"} if
+  \code{family="gaussian"} or \code{"glm"} if
   \code{family="binomial"}.} \item{family}{type of regression, extracted from
   \code{stability}. Possible values are \code{"gaussian"} or
   \code{"binomial"}.}
