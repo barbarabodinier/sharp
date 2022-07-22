@@ -11,7 +11,6 @@ status](https://www.r-pkg.org/badges/version/sharp)](https://CRAN.R-project.org/
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/sharp?color=blue)](https://r-pkg.org/pkg/sharp)
 ![GitHub last
 commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=GitHub&style=flat-square)
-[![R-CMD-check](https://github.com/barbarabodinier/sharp/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/barbarabodinier/sharp/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Description
@@ -38,6 +37,7 @@ The development version can be installed from
 [GitHub](https://github.com/):
 
 ``` r
+devtools::install_github("barbarabodinier/fake") # required dependency
 devtools::install_github("barbarabodinier/sharp")
 ```
 
@@ -238,7 +238,7 @@ simul$theta
 #> var9     1    0    1    0    0    0    0    0    0     0
 #> var10    0    0    1    0    0    1    0    1    0     0
 #> attr(,"class")
-#> [1] "adjacency_matrix"
+#> [1] "matrix"           "adjacency_matrix"
 ```
 
 ### Stability selection
