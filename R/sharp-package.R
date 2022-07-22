@@ -4,9 +4,7 @@
 #' selection in regression and dimensionality reduction. These models use on
 #' resampling approaches to estimate selection probabilities. Calibration of the
 #' hyper-parameters is done via maximisation of a stability score measuring the
-#' likelihood of informative (non-uniform) selection. This package also includes
-#' tools to simulate multivariate Normal data with different (partial)
-#' correlation structures.
+#' likelihood of informative (non-uniform) selection.
 #'
 #' \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
 #' 0.1\cr Date: \tab 2021-04-30\cr License: \tab GPL (>= 3)\cr Maintainer: \tab

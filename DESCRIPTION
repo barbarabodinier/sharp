@@ -7,11 +7,13 @@ Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
 URL: https://github.com/barbarabodinier/sharp
 BugReports: https://github.com/barbarabodinier/sharp/issues
-Description: Implementation of stability selection for graphical modelling and variable selection in regression and dimensionality reduction. These models use on resampling approaches to estimate selection probabilities (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>). Calibration of the hyper-parameters is done via maximisation of a stability score measuring the likelihood of informative (non-uniform) selection (B Bodinier, S Filippi, TH Nost, J Chiquet, M Chadeau-Hyam (2021) <arXiv:2106.02521>). This package also includes tools to simulate multivariate Normal data with different (partial) correlation structures.
+Description: Implementation of stability selection for graphical modelling and variable selection in regression and dimensionality reduction. These models use on resampling approaches to estimate selection probabilities (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>). Calibration of the hyper-parameters is done via maximisation of a stability score measuring the likelihood of informative (non-uniform) selection (B Bodinier, S Filippi, TH Nost, J Chiquet, M Chadeau-Hyam (2021) <arXiv:2106.02521>).
 License: GPL (>= 3)
 Language: en-GB
 Encoding: UTF-8
 RoxygenNote: 7.2.0
+Depends: 
+    fake
 Imports: 
     glassoFast (>= 1.0.0),
     glmnet,

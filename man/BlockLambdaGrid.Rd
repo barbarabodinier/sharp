@@ -51,9 +51,5 @@ mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
 }
 \seealso{
 \code{\link{GraphicalModel}}
-
-Other multi-block functions: 
-\code{\link{BlockMatrix}()},
-\code{\link{BlockStructure}()}
 }
 \concept{multi-block functions}

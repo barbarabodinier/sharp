@@ -189,6 +189,8 @@
 #'
 #'   \insertRef{stabilityselectionSS}{sharp}
 #'
+#' @import fake
+#'
 #' @examples
 #' \donttest{
 #' oldpar <- par(no.readonly = TRUE)

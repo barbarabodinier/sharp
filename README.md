@@ -11,6 +11,7 @@ status](https://www.r-pkg.org/badges/version/sharp)](https://CRAN.R-project.org/
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/sharp?color=blue)](https://r-pkg.org/pkg/sharp)
 ![GitHub last
 commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=GitHub&style=flat-square)
+[![R-CMD-check](https://github.com/barbarabodinier/sharp/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/barbarabodinier/sharp/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Description
@@ -44,12 +45,14 @@ devtools::install_github("barbarabodinier/sharp")
 
 ### Data simulation
 
-We simulate data with *p* = 50 predictors and one outcome obtained from
-a linear combination of a subset of the predictors and a normally
-distributed error term:
+We simulate data with
+![p = 50](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;p%20%3D%2050 "p = 50")
+predictors and one outcome obtained from a linear combination of a
+subset of the predictors and a normally distributed error term:
 
 ``` r
 library(sharp)
+#> Loading required package: fake
 
 # Data simulation
 set.seed(1)
@@ -203,9 +206,10 @@ SelectionProportions(stab)
 
 In Gaussian Graphical Modelling, the conditional independence structure
 between nodes is encoded in nonzero entries of the partial correlation
-matrix. We simulate data with *p* = 10 nodes that are connected in a
-scale-free network, where few nodes have a lot of edges and most nodes
-have a small number of edges.
+matrix. We simulate data with
+![p = 10](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;p%20%3D%2010 "p = 10")
+nodes that are connected in a scale-free network, where few nodes have a
+lot of edges and most nodes have a small number of edges.
 
 ``` r
 # Data simulation
@@ -233,6 +237,8 @@ simul$theta
 #> var8     0    0    0    1    0    0    0    0    0     1
 #> var9     1    0    1    0    0    0    0    0    0     0
 #> var10    0    0    1    0    0    1    0    1    0     0
+#> attr(,"class")
+#> [1] "adjacency_matrix"
 ```
 
 ### Stability selection
@@ -324,8 +330,11 @@ plot(mygraph)
 
 ### Data simulation
 
-We simulate data with *p* = 12 variables related to *N* = 3 latent
-variables:
+We simulate data with
+![p = 12](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;p%20%3D%2012 "p = 12")
+variables related to
+![N = 3](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;N%20%3D%203 "N = 3")
+latent variables:
 
 ``` r
 # Data simulation
@@ -413,8 +422,8 @@ The PC-specific calibrated parameters are reported in:
 stab$summary
 #>   comp nx  pix        S
 #> 1    1  5 0.90 454.4235
-#> 2    2  6 0.88 242.0888
-#> 3    3  3 0.84 272.4526
+#> 2    2  7 0.84 264.5631
+#> 3    3  4 0.87 256.4247
 ```
 
 ### Outputs
@@ -425,8 +434,8 @@ in:
 ``` r
 SelectedVariables(stab)
 #>       comp1 comp2 comp3
-#> var1      0     0     1
-#> var2      0     0     1
+#> var1      0     1     1
+#> var2      0     1     1
 #> var3      0     0     1
 #> var4      1     0     0
 #> var5      1     0     0
@@ -436,7 +445,7 @@ SelectedVariables(stab)
 #> var9      0     1     0
 #> var10     0     1     0
 #> var11     0     1     0
-#> var12     0     0     0
+#> var12     0     1     0
 ```
 
 This can be visualised in a network:
@@ -454,16 +463,16 @@ obtained from:
 ``` r
 SelectionProportions(stab)
 #>       comp1 comp2 comp3
-#> var1   0.08  0.76  0.84
-#> var2   0.05  0.68  0.86
-#> var3   0.00  0.42  0.87
-#> var4   0.91  0.09  0.01
-#> var5   0.91  0.09  0.00
-#> var6   0.92  0.10  0.01
-#> var7   0.91  0.11  0.00
-#> var8   0.93  0.21  0.00
-#> var9   0.08  0.91  0.07
-#> var10  0.08  0.88  0.06
-#> var11  0.07  0.90  0.13
-#> var12  0.06  0.85  0.15
+#> var1   0.07  0.84  0.87
+#> var2   0.04  0.85  0.89
+#> var3   0.00  0.77  0.89
+#> var4   0.94  0.09  0.08
+#> var5   0.94  0.11  0.00
+#> var6   0.93  0.14  0.02
+#> var7   0.93  0.16  0.04
+#> var8   0.91  0.31  0.10
+#> var9   0.06  0.93  0.45
+#> var10  0.05  0.93  0.17
+#> var11  0.07  0.93  0.20
+#> var12  0.06  0.94  0.29
 ```

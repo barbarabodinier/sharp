@@ -9,9 +9,7 @@ Implementation of stability selection for graphical modelling and variable
 selection in regression and dimensionality reduction. These models use on
 resampling approaches to estimate selection probabilities. Calibration of the
 hyper-parameters is done via maximisation of a stability score measuring the
-likelihood of informative (non-uniform) selection. This package also includes
-tools to simulate multivariate Normal data with different (partial)
-correlation structures.
+likelihood of informative (non-uniform) selection.
 }
 \details{
 \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
