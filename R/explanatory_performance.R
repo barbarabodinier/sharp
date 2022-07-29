@@ -1577,3 +1577,7 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
     return(mat)
   }
 }
+
+#' @rdname PlotIncremental
+#' @export
+IncrementalPlot <- PlotIncremental

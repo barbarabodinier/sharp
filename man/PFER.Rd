@@ -43,6 +43,7 @@ pfer_ss <- PFER(q = 10, pi = 0.8, N = 50, K = 100, PFER_method = "SS")
 }
 \seealso{
 Other stability metric functions: 
+\code{\link{ConsensusScore}()},
 \code{\link{FDP}()},
 \code{\link{StabilityMetrics}()},
 \code{\link{StabilityScore}()}

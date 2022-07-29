@@ -121,6 +121,7 @@ plot(perf_graph)
   \code{\link{BiSelection}}
 
 Other functions for model performance: 
+\code{\link{ClusteringPerformance}()},
 \code{\link{SelectionPerformance}()}
 }
 \concept{functions for model performance}

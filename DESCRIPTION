@@ -20,6 +20,7 @@ Imports:
     grDevices,
     huge,
     igraph,
+    impute,
     MASS,
     mclust,
     parallel,
@@ -36,7 +37,9 @@ Suggests:
     plotrix,
     RCy3,
     rmarkdown,
+    rCOSA,
     sgPLS,
+    sparcl,
     survival (>= 3.2.13),
     testthat (>= 3.0.0),
     visNetwork

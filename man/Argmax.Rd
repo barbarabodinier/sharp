@@ -44,7 +44,10 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
 \code{\link{CalibrationPlot}()},
+\code{\link{Clusters}()},
+\code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()}
+\code{\link{SelectionProportions}()},
+\code{\link{WeightBoxplot}()}
 }
 \concept{calibration functions}

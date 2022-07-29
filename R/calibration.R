@@ -51,14 +51,14 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
       Sc <- round(stability$Sc, digits = 4)
       argmax_id <- which(Sc == max(Sc, na.rm = TRUE))
       argmax_id <- argmax_id[which(stability$nc[argmax_id] == max(stability$nc[argmax_id]))]
-      argmax_id <- argmax_id[which(stability$Q[argmax_id] == min(stability$Q[argmax_id]))]
-      argmax_id <- min(argmax_id)
+      # argmax_id <- argmax_id[which(stability$Q[argmax_id] == min(stability$Q[argmax_id]))]
+      argmax_id <- cbind(min(argmax_id))
 
-      if (any(!is.na(stability$S_2d[argmax_id, ]))) {
-        argmax_id <- matrix(c(argmax_id, which.max(stability$S_2d[argmax_id, ])), ncol = 2)
-      } else {
-        argmax_id <- matrix(c(argmax_id, NA), ncol = 2)
-      }
+      # if (any(!is.na(stability$S_2d[argmax_id, ]))) {
+      #   argmax_id <- matrix(c(argmax_id, which.max(stability$S_2d[argmax_id, ])), ncol = 2)
+      # } else {
+      #   argmax_id <- matrix(c(argmax_id, NA), ncol = 2)
+      # }
     } else {
       argmax_id <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
       if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
@@ -90,7 +90,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
     argmax_id[1, ] <- c(myid, max(which(S[myid, ] == myS[myid])))
   }
   if (clustering) {
-    colnames(argmax_id) <- c("row_id", "pi_id")
+    colnames(argmax_id) <- c("row_id")
   } else {
     colnames(argmax_id) <- c("lambda_id", "pi_id")
   }
@@ -139,23 +139,12 @@ Argmax <- function(stability) {
   } else {
     if (clustering) {
       id <- ArgmaxId(stability = stability)
-      if (!is.na(id[2])) {
-        argmax <- matrix(c(
-          stability$nc[id[1], 1],
-          stability$Lambda[id[1], 1],
-          stability$params$pi_list[id[2]]
-        ),
-        ncol = 3
-        )
-      } else {
-        argmax <- matrix(c(
-          stability$nc[id[1], 1],
-          stability$Lambda[id[1], 1],
-          NA
-        ),
-        ncol = 3
-        )
-      }
+      argmax <- matrix(c(
+        stability$nc[id[1], 1],
+        stability$Lambda[id[1], 1]
+      ),
+      ncol = 2
+      )
     } else {
       argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
       if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
@@ -176,7 +165,7 @@ Argmax <- function(stability) {
       }
     }
     if (clustering) {
-      colnames(argmax) <- c("nc", "lambda", "pi")
+      colnames(argmax) <- c("nc", "lambda")
     } else {
       colnames(argmax) <- c("lambda", "pi")
     }
@@ -295,24 +284,6 @@ Adjacency <- function(stability, argmax_id = NULL) {
 SelectedVariables <- function(stability, argmax_id = NULL) {
   if (!inherits(stability, c("clustering", "variable_selection", "bi_selection"))) {
     stop("Invalid input for argument 'stability'. This function only applies to outputs from VariableSelection() or BiSelection().")
-  }
-
-  # TODO: finish for clustering
-  if (inherits(stability, "clustering")) {
-    selprop <- SelectionProportions(stability, argmax_id = argmax_id)
-    if (any(selprop != 1)) {
-      score <- StabilityScore(
-        selprop = selprop,
-        K = stability$params$K,
-        pi_list = stability$params$pi_list,
-        n_cat = stability$params$n_cat
-      )
-      stability_selected <- ifelse(selprop >= stability$params$pi_list[which.max(score)],
-        yes = 1, no = 0
-      )
-    } else {
-      stability_selected <- selprop
-    }
   }
 
   if (inherits(stability, "variable_selection")) {
@@ -665,6 +636,193 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 }
 
 
+#' Calibrated consensus matrix
+#'
+#' Extracts the (calibrated) consensus matrix. Entries indicate the proportion
+#' of subsampling iterations where the two items were in the same cluster, out
+#' of all iterations where both items were drawn in the subsample.
+#'
+#' @param stability output of \code{\link{Clustering}}.
+#' @param argmax_id optional matrix of parameter IDs. If \code{argmax_id=NULL},
+#'   the calibrated model is used.
+#'
+#' @return A consensus matrix.
+#'
+#' @family calibration functions
+#'
+#' @seealso \code{\link{Clustering}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Simulation of data with clusters
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(10, 30, 15),
+#'   pk = 10, nu_xc = 1,
+#'   ev_xc = 0.95
+#' )
+#'
+#' # Consensus clustering
+#' stab <- Clustering(xdata = x, implementation = HierarchicalClustering)
+#' ConsensusMatrix(stab)
+#' }
+#'
+#' @export
+ConsensusMatrix <- function(stability, argmax_id = NULL) {
+  if (class(stability) != "clustering") {
+    stop("Invalid input for argument 'stability'. Only applicable to an object of class 'clustering', i.e. to the output of Clustering().")
+  }
+
+  if (is.null(argmax_id)) {
+    argmax_id <- ArgmaxId(stability = stability)
+  }
+  mat <- stability$coprop[, , argmax_id[1]]
+
+  return(mat)
+}
+
+
+#' Stable cluster membership
+#'
+#' Generates the (calibrated) stable cluster memberships.
+#'
+#' @inheritParams Adjacency
+#' @param stability output of \code{\link{Clustering}}.
+#'
+#' @return A vector of cluster memberships.
+#'
+#' @family calibration functions
+#' @seealso \code{\link{BiSelection}}
+#'
+#' @examples
+#' \donttest{
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(30, 30, 30),
+#'   nu_xc = 1
+#' )
+#' plot(simul)
+#'
+#' # Consensus clustering
+#' stab <- Clustering(
+#'   xdata = simul$data
+#' )
+#' Clusters(stab)
+#' }
+#' @export
+Clusters <- function(stability, argmax_id = NULL) {
+  if (is.null(argmax_id)) {
+    argmax_id <- ArgmaxId(stability = stability)
+  }
+
+  # Calibrated consensus matrix
+  coprop <- ConsensusMatrix(stability = stability, argmax_id = argmax_id[1])
+
+  # Extracting stable clusters from hierarchical clustering
+  shclust <- stats::hclust(stats::as.dist(1 - coprop), method = stability$methods$linkage)
+  mymembership <- stats::cutree(shclust, k = stability$nc[argmax_id[1], 1])
+
+  return(mymembership)
+}
+
+
+#' Stable attribute weights
+#'
+#' Creates a boxplots of the distribution of (calibrated) median attribute
+#' weights obtained from the COSA algorithm across the subsampling iterations.
+#'
+#' @inheritParams Adjacency
+#' @param stability output of \code{\link{Clustering}}.
+#' @param at coordinates along the x-axis (more details in
+#'   \code{\link[graphics]{boxplot}}).
+#' @param col optional vector of colours.
+#' @param boxwex box width (more details in \code{\link[graphics]{boxplot}}).
+#' @param xlab label of the x-axis.
+#' @param ylab label of the y-axis.
+#' @param cex.lab font size for labels.
+#' @param las orientation of labels on the x-axis (see
+#'   \code{\link[graphics]{par}}).
+#' @param frame logical indicating if the box around the plot should be drawn
+#'   (more details in \code{\link[graphics]{boxplot}}).
+#' @param add logical indicating if the boxplot should be added to the current
+#'   plot.
+#' @param ... additional parameters passed to \code{\link[graphics]{boxplot}}).
+#'
+#' @return A boxplot.
+#'
+#' @family calibration functions
+
+#' @seealso \code{\link{Clustering}}
+#'
+#' @examples
+#' \donttest{
+#' # Data simulation
+#' set.seed(2)
+#' simul <- SimulateClustering(
+#'   n = c(30, 30, 30), pk = 15,
+#'   theta_xc = c(rep(1, 5), rep(0, 10)),
+#'   ev_xc = c(rep(0.95, 5), rep(0, 10)),
+#' )
+#' plot(simul)
+#'
+#' # Consensus weighted clustering
+#' stab <- Clustering(
+#'   xdata = simul$data, Lambda = 0.5
+#' )
+#' WeightBoxplot(stability = stab)
+#' }
+#'
+#' @export
+WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
+                          col = NULL, boxwex = 0.3,
+                          xlab = "", ylab = "Weight", cex.lab = 1.5,
+                          las = 3, frame = "F", add = FALSE, ...) {
+  # Checking input
+  if (all(is.na(stability$Lambda))) {
+    stop("Invalid input for argument 'stability'. This function can only be used for weighted clustering.")
+  }
+
+  # Defining default colours
+  if (is.null(col)) {
+    col <- "navy"
+  }
+
+  # Extracting ID of calibrated parameters
+  if (is.null(argmax_id)) {
+    argmax_id <- ArgmaxId(stability)
+  }
+
+  # Extracting weights
+  y <- stability$Beta[argmax_id[1], , ]
+
+  # Removing zero weights (for sparse methods)
+  y[which(y == 0)] <- NA
+
+  xaxt <- "s"
+  if (is.null(at)) {
+    x <- 1:nrow(y)
+  } else {
+    x <- at
+    xaxt <- "n"
+  }
+
+  # Showing the distribution over nonzero weights
+  graphics::boxplot(t(y),
+    at = x, xlim = range(x),
+    col = col, boxcol = col, whiskcol = col,
+    staplecol = col,
+    whisklty = 1, range = 0, las = las, add = add,
+    xlab = xlab, ylab = ylab, cex.lab = cex.lab, frame = frame,
+    boxwex = boxwex, xaxt = xaxt, ...
+  )
+  if (!is.null(at)) {
+    graphics::axis(side = 1, at = graphics::axTicks(side = 1))
+  }
+}
+
+
 #' Calibration plot
 #'
 #' Creates a plot showing the stability score as a function of the parameter(s)
@@ -711,6 +869,7 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #' @param legend_range range of the colour bar. Only used if \code{stability} is
 #'   the output of \code{\link{VariableSelection}} or
 #'   \code{\link{GraphicalModel}}.
+#' @param ncol integer indicating the number of columns in the legend.
 #' @param xlab label of the x-axis.
 #' @param ylab label of the y-axis.
 #' @param zlab label of the z-axis. Only used if \code{stability} is the output
@@ -798,7 +957,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
                             lines = TRUE, lty = 3, lwd = 2,
                             show_argmax = TRUE,
                             show_pix = FALSE, show_piy = FALSE, offset = 0.3,
-                            legend = TRUE, legend_length = NULL, legend_range = NULL,
+                            legend = TRUE, legend_length = NULL, legend_range = NULL, ncol = 1,
                             xlab = NULL, ylab = NULL, zlab = expression(italic(q)),
                             xlas = 2, ylas = NULL, zlas = 2, cex.lab = 1.5, cex.axis = 1,
                             xgrid = FALSE, ygrid = FALSE,
@@ -813,406 +972,90 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
   if (clustering) {
     ylas <- 1
+    CalibrationCurve(stability = stability, bty = bty, xlab = xlab, ylab = ylab, col = col, legend = legend, ncol = ncol)
   } else {
     ylas <- 0
-  }
 
-  if (inherits(stability, "bi_selection")) {
-    # Extracting summary information
-    x <- stability$summary_full
+    if (inherits(stability, "bi_selection")) {
+      # Extracting summary information
+      x <- stability$summary_full
 
-    # Checking input
-    params <- unique(params)
-    all_params <- colnames(stability$summary)
-    all_params <- all_params[!all_params %in% c("comp", "S", "pix", "piy")]
-    if (any(!all_params %in% params)) {
-      params <- all_params
-      warning(paste0(
-        "Invalid input for argument 'params'. Please provide a vector with all the following: ",
-        paste(all_params, collapse = ", "), "."
-      ))
-    }
-    params <- params[params %in% all_params]
-
-    # Identifying parameters
-    params <- params[params %in% colnames(x)]
-
-    # Defining default arguments
-    if (is.null(ylab)) {
-      ylab <- "Stability Score"
-    }
-
-    if (is.null(xlab)) {
-      if (length(params) > 1) {
-        xlab <- ""
-      } else {
-        xlab <- expression(n[X])
+      # Checking input
+      params <- unique(params)
+      all_params <- colnames(stability$summary)
+      all_params <- all_params[!all_params %in% c("comp", "S", "pix", "piy")]
+      if (any(!all_params %in% params)) {
+        params <- all_params
+        warning(paste0(
+          "Invalid input for argument 'params'. Please provide a vector with all the following: ",
+          paste(all_params, collapse = ", "), "."
+        ))
       }
-    }
+      params <- params[params %in% all_params]
 
-    if (is.null(col)) {
-      col <- grDevices::colorRampPalette(c("navy", "darkred"))(nrow(stability$summary))
-    } else {
-      col <- grDevices::colorRampPalette(col)(nrow(stability$summary))
-    }
+      # Identifying parameters
+      params <- params[params %in% colnames(x)]
 
-    if (length(unique(x$comp)) == 1) {
-      legend <- FALSE
-    }
-
-    if (is.null(xlim)) {
-      xlim <- c(0.5, max(sapply(split(x, f = x$comp), nrow)) + 0.5)
-    }
-
-    if (is.null(ylim)) {
-      ylim <- range(x$S)
-      if (legend) {
-        ylim[2] <- ylim[2] + diff(ylim) * 0.15
-      }
-    }
-
-    # Drawing one set of points per component
-    for (comp_id in unique(x$comp)) {
-      tmp <- x[which(x$comp == comp_id), ]
-
-      # Ensuring increasing ny
-      tmp <- tmp[do.call(order, tmp[, params, drop = FALSE]), ]
-      # if ("ny" %in% colnames(tmp)) {
-      #   tmp=tmp[order(tmp$ny, tmp$nx), ]
-      # }
-      # tmp=tmp[order(lapply(params, FUN=function(param_id){with(tmp, eval(parse(text=param_id)))})),]
-      # if ("alphax" %in% colnames(tmp))
-
-      if (comp_id == min(x$comp)) {
-        # Initialising the plot
-        plot(NA,
-          xlim = xlim, ylim = ylim, bty = bty,
-          xlab = xlab, ylab = ylab, cex.lab = cex.lab,
-          cex.axis = cex.axis,
-          xaxt = "n", las = ylas
-        )
-
-        # Defining vertical grid
-        if (xgrid) {
-          withr::local_par(list(xpd = FALSE))
-          graphics::abline(v = 1:nrow(tmp), lty = 3, col = "grey")
-        }
-
-        # Defining horizontal grid
-        if (ygrid) {
-          withr::local_par(list(xpd = FALSE))
-          graphics::abline(h = graphics::axTicks(side = 2), lty = 3, col = "grey")
-        }
-
-        # Adding x-axes
-        for (param_id in 1:length(params)) {
-          if (param_id == 1) {
-            graphics::axis(
-              side = 1, at = 1:nrow(tmp),
-              labels = tmp[, rev(params)[param_id]],
-              cex.axis = cex.axis, las = xlas
-            )
-          } else {
-            ids <- c(1, which(diff(tmp[, rev(params)[param_id]]) != 0) + 1)
-            ids <- c(ids - 0.5, nrow(tmp) + 0.5)
-            graphics::axis(side = 1, at = ids, labels = NA, line = (param_id - 1) * 3)
-            withr::local_par(list(xpd = FALSE))
-            graphics::abline(v = ids, lty = 2)
-            ids <- apply(rbind(ids[-1], ids[-length(ids)]), 2, mean)
-            graphics::axis(
-              side = 1, at = ids, labels = tmp[ids, rev(params)[param_id]],
-              line = (param_id - 1) * 3, tick = FALSE, cex.axis = cex.axis, las = xlas
-            )
-          }
-        }
-        # graphics::axis(side = 1, at = 1:nrow(tmp), labels = tmp$nx, cex.axis = cex.axis, las = xlas)
-        # if ("ny" %in% colnames(tmp)) {
-        #   ids <- c(which(!duplicated(tmp$ny)) - 0.5, nrow(tmp) + 0.5)
-        #   graphics::axis(side = 1, at = ids, labels = NA, line = 3)
-        #   withr::local_par(list(xpd = FALSE))
-        #   graphics::abline(v = ids, lty = 2)
-        #   ids <- apply(rbind(ids[-1], ids[-length(ids)]), 2, mean)
-        #   graphics::axis(side = 1, at = ids, labels = unique(tmp$ny), line = 3, tick = FALSE, cex.axis = cex.axis, las = xlas)
-        # }
-
-        # Adding x-labels
-        if (length(params) > 1) {
-          for (param_id in 1:length(params)) {
-            if (rev(params)[param_id] == "nx") {
-              graphics::mtext(text = expression(n[X]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
-            }
-            if (rev(params)[param_id] == "alphax") {
-              graphics::mtext(text = expression(alpha[X]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
-            }
-            if (rev(params)[param_id] == "ny") {
-              graphics::mtext(text = expression(n[Y]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
-            }
-            if (rev(params)[param_id] == "alphay") {
-              graphics::mtext(text = expression(alpha[Y]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
-            }
-          }
-          # graphics::mtext(text = expression(n[X]), side = 1, at = -nrow(tmp) * 0.06, line = 1, cex = cex.lab)
-          # graphics::mtext(text = expression(n[Y]), side = 1, at = -nrow(tmp) * 0.06, line = 4, cex = cex.lab)
-        }
-      }
-
-      # Adding calibrated lines
-      if (show_argmax) {
-        withr::local_par(list(xpd = FALSE))
-        graphics::abline(v = which.max(tmp$S), lty = 3, col = col[comp_id])
-      }
-
-      # Adding lines
-      if (lines) {
-        # if ("ny" %in% colnames(tmp)) {
-        #   for (y_value in unique(tmp$ny)) {
-        #     graphics::lines(which(tmp$ny == y_value),
-        #                     tmp[which(tmp$ny == y_value), "S"],
-        #                     col = col[comp_id],
-        #                     lty = lty, lwd = lwd
-        #     )
-        #   }
-        # } else {
-        graphics::lines(1:nrow(tmp),
-          tmp$S,
-          col = col[comp_id],
-          lty = lty, lwd = lwd
-        )
-        # }
-      }
-
-      # Adding data points
-      graphics::points(tmp$S,
-        pch = pch,
-        col = col[comp_id],
-        cex = cex
-      )
-
-      # Adding pi values
-      if ((show_pix) & (!show_piy)) {
-        graphics::text(tmp$S,
-          labels = tmp$pix,
-          col = col[comp_id],
-          cex = cex, pos = 3,
-          offset = offset
-        )
-      }
-
-      if ((!show_pix) & (show_piy)) {
-        graphics::text(tmp$S,
-          labels = tmp$piy,
-          col = col[comp_id],
-          cex = cex, pos = 3,
-          offset = offset
-        )
-      }
-
-      if ((show_pix) & (show_piy)) {
-        for (k in 1:nrow(tmp)) {
-          graphics::text(k, tmp[k, "S"],
-            labels = eval(parse(text = paste0("expression(pi[x]*' = ", tmp[k, "pix"], " ; '*pi[y]*' = ", tmp[k, "piy"], "')"))),
-            col = col[comp_id],
-            cex = cex, pos = 3,
-            offset = offset
-          )
-        }
-      }
-    }
-
-    # Adding legend
-    if (legend) {
-      graphics::legend("top",
-        col = col, lty = lty, pch = pch, lwd = lwd,
-        legend = paste0("Component ", unique(x$comp)),
-        horiz = TRUE, bg = "white"
-      )
-    }
-  } else {
-    # Defining default arguments
-    if (heatmap) {
-      metric <- "both"
-      if (is.null(col)) {
-        col <- c("ivory", "navajowhite", "tomato", "darkred")
-      }
-      if (is.null(ylab)) {
-        if (clustering) {
-          ylab <- expression(n[c])
-        } else {
-          ylab <- expression(pi)
-        }
-      }
-    } else {
-      metric <- "lambda"
-      if (is.null(col)) {
-        col <- "navy"
-      }
+      # Defining default arguments
       if (is.null(ylab)) {
         ylab <- "Stability Score"
       }
-    }
-    if (is.null(xlab)) {
-      xlab <- expression(lambda)
-    }
 
-    # Extracting the number of blocks/components
-    if ((stability$methods$type == "graphical_model") & (is.null(block_id))) {
-      bigblocks <- BlockMatrix(stability$params$pk)
-      bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
-      N_blocks <- unname(table(bigblocks_vect))
-      blocks <- unique(as.vector(bigblocks_vect))
-      names(N_blocks) <- blocks
-      nblocks <- max(blocks)
-      block_id <- 1:nblocks
-    } else {
-      block_id <- 1
-    }
-    nblocks <- length(block_id)
-
-    if (metric == "both") {
-      for (b in block_id) {
-        # Extracting the stability scores
-        if (clustering) {
-          mat <- matrix(stability$Sc, ncol = length(unique(stability$Lambda)))
-          rownames(mat) <- formatC(unique(stability$nc), format = "f", digits = 0)
-          colnames(mat) <- formatC(unique(stability$Lambda), format = "e", digits = 2)
-          mat <- t(mat)
-          mat <- mat[nrow(mat):1, ncol(mat):1]
-          ids <- which(apply(mat, 1, FUN = function(x) {
-            any(!is.na(x))
-          }))
-          mat <- mat[ids, , drop = FALSE]
+      if (is.null(xlab)) {
+        if (length(params) > 1) {
+          xlab <- ""
         } else {
-          if (length(stability$params$pk) == 1) {
-            mat <- stability$S_2d
-            ids <- which(apply(mat, 1, FUN = function(x) {
-              any(!is.na(x))
-            }))
-            mat <- mat[ids, , drop = FALSE]
-          } else {
-            mat <- stability$S_2d[, , b]
-            ids <- which(apply(mat, 1, FUN = function(x) {
-              any(!is.na(x))
-            }))
-            mat <- mat[ids, , drop = FALSE]
-          }
-
-          # Setting row and column names
-          colnames(mat) <- stability$params$pi_list
-          if (grepl("penalised", tolower(stability$methods$implementation))) {
-            rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
-          } else {
-            rownames(mat) <- (stability$Lambda[, b])[ids]
-          }
-        }
-
-        # Extracting corresponding numbers of selected variables (q)
-        Q <- stability$Q[, b]
-        Q <- Q[ids]
-
-        # Heatmap representation
-        Heatmap(t(mat[nrow(mat):1, ncol(mat):1]),
-          col = col, bty = bty, axes = FALSE,
-          text = FALSE, cex = 1, digits = 2,
-          legend = legend, legend_length = legend_length, legend_range = legend_range
-        )
-
-        # Adding calibrated lines
-        if (show_argmax) {
-          withr::local_par(list(xpd = FALSE))
-          if (clustering) {
-            myargmax <- Argmax(stability)
-            print(myargmax)
-            argmax_id <- c(
-              which(rownames(t(mat[nrow(mat):1, ncol(mat):1])) == formatC(myargmax[1], format = "f", digits = 0)),
-              which(colnames(t(mat[nrow(mat):1, ncol(mat):1])) == formatC(myargmax[2], format = "e", digits = 2))
-            )
-            print(argmax_id)
-            graphics::abline(h = ncol(mat) - argmax_id[1] + 0.5, lty = 3)
-            graphics::abline(v = argmax_id[2] - 0.5, lty = 3)
-          } else {
-            graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
-            graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
-          }
-        }
-
-        # Including axes
-        if (clustering) {
-          graphics::axis(
-            side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
-            labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 0)
-          )
-        } else {
-          graphics::axis(
-            side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
-            labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2)
-          )
-        }
-        if (grepl("penalised", tolower(stability$methods$implementation))) {
-          graphics::axis(
-            side = 3, at = (1:nrow(mat)) - 0.5, las = zlas, cex.axis = cex.axis,
-            labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0))
-          )
-          graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
-        } else {
-          graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
-        }
-
-        # Including axis labels
-        graphics::mtext(text = ylab, side = 2, line = 3.5, cex = cex.lab)
-        graphics::mtext(text = xlab, side = 1, line = 5.2, cex = cex.lab)
-        if (grepl("penalised", tolower(stability$methods$implementation))) {
-          graphics::mtext(text = zlab, side = 3, line = 3.5, cex = cex.lab)
+          xlab <- expression(n[X])
         }
       }
-    } else {
-      if (metric == "lambda") {
-        for (b in block_id) {
-          # Extracting the stability scores
-          if (length(stability$params$pk) == 1) {
-            mat <- stability$S_2d
-            ids <- which(apply(mat, 1, FUN = function(x) {
-              any(!is.na(x))
-            }))
-            mat <- mat[ids, , drop = FALSE]
-          } else {
-            mat <- stability$S_2d[, , b]
-            ids <- which(apply(mat, 1, FUN = function(x) {
-              any(!is.na(x))
-            }))
-            mat <- mat[ids, , drop = FALSE]
-          }
 
-          # Extracting the best stability score (with optimal pi) for each lambda value
-          vect <- apply(mat, 1, max, na.rm = TRUE)
+      if (is.null(col)) {
+        col <- grDevices::colorRampPalette(c("navy", "darkred"))(nrow(stability$summary))
+      } else {
+        col <- grDevices::colorRampPalette(col)(nrow(stability$summary))
+      }
 
-          # Extracting corresponding numbers of selected variables (q)
-          Q <- stability$Q[, b, drop = FALSE]
-          Q <- Q[ids]
+      if (length(unique(x$comp)) == 1) {
+        legend <- FALSE
+      }
 
-          # Extracting corresponding lambda values
-          Lambda <- stability$Lambda[ids, b, drop = FALSE]
+      if (is.null(xlim)) {
+        xlim <- c(0.5, max(sapply(split(x, f = x$comp), nrow)) + 0.5)
+      }
 
-          # Re-ordering by decreasing lambda
-          ids <- sort.list(Lambda, decreasing = TRUE)
-          Lambda <- Lambda[ids]
-          Q <- Q[ids]
-          vect <- vect[ids]
+      if (is.null(ylim)) {
+        ylim <- range(x$S)
+        if (legend) {
+          ylim[2] <- ylim[2] + diff(ylim) * 0.15
+        }
+      }
 
-          if (is.null(xlim)) {
-            xlim <- range(Lambda, na.rm = TRUE)
-          }
+      # Drawing one set of points per component
+      for (comp_id in unique(x$comp)) {
+        tmp <- x[which(x$comp == comp_id), ]
 
-          if (is.null(ylim)) {
-            ylim <- range(vect)
-          }
+        # Ensuring increasing ny
+        tmp <- tmp[do.call(order, tmp[, params, drop = FALSE]), ]
+        # if ("ny" %in% colnames(tmp)) {
+        #   tmp=tmp[order(tmp$ny, tmp$nx), ]
+        # }
+        # tmp=tmp[order(lapply(params, FUN=function(param_id){with(tmp, eval(parse(text=param_id)))})),]
+        # if ("alphax" %in% colnames(tmp))
 
+        if (comp_id == min(x$comp)) {
           # Initialising the plot
           plot(NA,
             xlim = xlim, ylim = ylim, bty = bty,
-            xlab = "", ylab = ylab, cex.lab = cex.lab,
+            xlab = xlab, ylab = ylab, cex.lab = cex.lab,
             cex.axis = cex.axis,
             xaxt = "n", las = ylas
           )
+
+          # Defining vertical grid
+          if (xgrid) {
+            withr::local_par(list(xpd = FALSE))
+            graphics::abline(v = 1:nrow(tmp), lty = 3, col = "grey")
+          }
 
           # Defining horizontal grid
           if (ygrid) {
@@ -1220,41 +1063,416 @@ CalibrationPlot <- function(stability, block_id = NULL,
             graphics::abline(h = graphics::axTicks(side = 2), lty = 3, col = "grey")
           }
 
+          # Adding x-axes
+          for (param_id in 1:length(params)) {
+            if (param_id == 1) {
+              graphics::axis(
+                side = 1, at = 1:nrow(tmp),
+                labels = tmp[, rev(params)[param_id]],
+                cex.axis = cex.axis, las = xlas
+              )
+            } else {
+              ids <- c(1, which(diff(tmp[, rev(params)[param_id]]) != 0) + 1)
+              ids <- c(ids - 0.5, nrow(tmp) + 0.5)
+              graphics::axis(side = 1, at = ids, labels = NA, line = (param_id - 1) * 3)
+              withr::local_par(list(xpd = FALSE))
+              graphics::abline(v = ids, lty = 2)
+              ids <- apply(rbind(ids[-1], ids[-length(ids)]), 2, mean)
+              graphics::axis(
+                side = 1, at = ids, labels = tmp[ids, rev(params)[param_id]],
+                line = (param_id - 1) * 3, tick = FALSE, cex.axis = cex.axis, las = xlas
+              )
+            }
+          }
+          # graphics::axis(side = 1, at = 1:nrow(tmp), labels = tmp$nx, cex.axis = cex.axis, las = xlas)
+          # if ("ny" %in% colnames(tmp)) {
+          #   ids <- c(which(!duplicated(tmp$ny)) - 0.5, nrow(tmp) + 0.5)
+          #   graphics::axis(side = 1, at = ids, labels = NA, line = 3)
+          #   withr::local_par(list(xpd = FALSE))
+          #   graphics::abline(v = ids, lty = 2)
+          #   ids <- apply(rbind(ids[-1], ids[-length(ids)]), 2, mean)
+          #   graphics::axis(side = 1, at = ids, labels = unique(tmp$ny), line = 3, tick = FALSE, cex.axis = cex.axis, las = xlas)
+          # }
+
+          # Adding x-labels
+          if (length(params) > 1) {
+            for (param_id in 1:length(params)) {
+              if (rev(params)[param_id] == "nx") {
+                graphics::mtext(text = expression(n[X]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
+              }
+              if (rev(params)[param_id] == "alphax") {
+                graphics::mtext(text = expression(alpha[X]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
+              }
+              if (rev(params)[param_id] == "ny") {
+                graphics::mtext(text = expression(n[Y]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
+              }
+              if (rev(params)[param_id] == "alphay") {
+                graphics::mtext(text = expression(alpha[Y]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
+              }
+            }
+            # graphics::mtext(text = expression(n[X]), side = 1, at = -nrow(tmp) * 0.06, line = 1, cex = cex.lab)
+            # graphics::mtext(text = expression(n[Y]), side = 1, at = -nrow(tmp) * 0.06, line = 4, cex = cex.lab)
+          }
+        }
+
+        # Adding calibrated lines
+        if (show_argmax) {
+          withr::local_par(list(xpd = FALSE))
+          graphics::abline(v = which.max(tmp$S), lty = 3, col = col[comp_id])
+        }
+
+        # Adding lines
+        if (lines) {
+          # if ("ny" %in% colnames(tmp)) {
+          #   for (y_value in unique(tmp$ny)) {
+          #     graphics::lines(which(tmp$ny == y_value),
+          #                     tmp[which(tmp$ny == y_value), "S"],
+          #                     col = col[comp_id],
+          #                     lty = lty, lwd = lwd
+          #     )
+          #   }
+          # } else {
+          graphics::lines(1:nrow(tmp),
+            tmp$S,
+            col = col[comp_id],
+            lty = lty, lwd = lwd
+          )
+          # }
+        }
+
+        # Adding data points
+        graphics::points(tmp$S,
+          pch = pch,
+          col = col[comp_id],
+          cex = cex
+        )
+
+        # Adding pi values
+        if ((show_pix) & (!show_piy)) {
+          graphics::text(tmp$S,
+            labels = tmp$pix,
+            col = col[comp_id],
+            cex = cex, pos = 3,
+            offset = offset
+          )
+        }
+
+        if ((!show_pix) & (show_piy)) {
+          graphics::text(tmp$S,
+            labels = tmp$piy,
+            col = col[comp_id],
+            cex = cex, pos = 3,
+            offset = offset
+          )
+        }
+
+        if ((show_pix) & (show_piy)) {
+          for (k in 1:nrow(tmp)) {
+            graphics::text(k, tmp[k, "S"],
+              labels = eval(parse(text = paste0("expression(pi[x]*' = ", tmp[k, "pix"], " ; '*pi[y]*' = ", tmp[k, "piy"], "')"))),
+              col = col[comp_id],
+              cex = cex, pos = 3,
+              offset = offset
+            )
+          }
+        }
+      }
+
+      # Adding legend
+      if (legend) {
+        graphics::legend("top",
+          col = col, lty = lty, pch = pch, lwd = lwd,
+          legend = paste0("Component ", unique(x$comp)),
+          horiz = TRUE, bg = "white"
+        )
+      }
+    } else {
+      # Defining default arguments
+      if (heatmap) {
+        metric <- "both"
+        if (is.null(col)) {
+          col <- c("ivory", "navajowhite", "tomato", "darkred")
+        }
+        if (is.null(ylab)) {
+          if (clustering) {
+            ylab <- expression(n[c])
+          } else {
+            ylab <- expression(pi)
+          }
+        }
+      } else {
+        metric <- "lambda"
+        if (is.null(col)) {
+          col <- "navy"
+        }
+        if (is.null(ylab)) {
+          ylab <- "Stability Score"
+        }
+      }
+      if (is.null(xlab)) {
+        xlab <- expression(lambda)
+      }
+
+      # Extracting the number of blocks/components
+      if ((stability$methods$type == "graphical_model") & (is.null(block_id))) {
+        bigblocks <- BlockMatrix(stability$params$pk)
+        bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+        N_blocks <- unname(table(bigblocks_vect))
+        blocks <- unique(as.vector(bigblocks_vect))
+        names(N_blocks) <- blocks
+        nblocks <- max(blocks)
+        block_id <- 1:nblocks
+      } else {
+        block_id <- 1
+      }
+      nblocks <- length(block_id)
+
+      if (metric == "both") {
+        for (b in block_id) {
+          # Extracting the stability scores
+          if (clustering) {
+            mat <- matrix(stability$Sc, ncol = length(unique(stability$Lambda)))
+            rownames(mat) <- formatC(unique(stability$nc), format = "f", digits = 0)
+            colnames(mat) <- formatC(unique(stability$Lambda), format = "e", digits = 2)
+            mat <- t(mat)
+            mat <- mat[nrow(mat):1, ncol(mat):1]
+            ids <- which(apply(mat, 1, FUN = function(x) {
+              any(!is.na(x))
+            }))
+            mat <- mat[ids, , drop = FALSE]
+          } else {
+            if (length(stability$params$pk) == 1) {
+              mat <- stability$S_2d
+              ids <- which(apply(mat, 1, FUN = function(x) {
+                any(!is.na(x))
+              }))
+              mat <- mat[ids, , drop = FALSE]
+            } else {
+              mat <- stability$S_2d[, , b]
+              ids <- which(apply(mat, 1, FUN = function(x) {
+                any(!is.na(x))
+              }))
+              mat <- mat[ids, , drop = FALSE]
+            }
+
+            # Setting row and column names
+            colnames(mat) <- stability$params$pi_list
+            if (grepl("penalised", tolower(stability$methods$implementation))) {
+              rownames(mat) <- formatC(stability$Lambda[, b], format = "e", digits = 2)[ids]
+            } else {
+              rownames(mat) <- (stability$Lambda[, b])[ids]
+            }
+          }
+
+          # Extracting corresponding numbers of selected variables (q)
+          Q <- stability$Q[, b]
+          Q <- Q[ids]
+
+          # Heatmap representation
+          Heatmap(t(mat[nrow(mat):1, ncol(mat):1]),
+            col = col, bty = bty, axes = FALSE,
+            text = FALSE, cex = 1, digits = 2,
+            legend = legend, legend_length = legend_length, legend_range = legend_range
+          )
+
           # Adding calibrated lines
           if (show_argmax) {
             withr::local_par(list(xpd = FALSE))
-            graphics::abline(h = max(vect), lty = 3, col = col[1])
-            graphics::abline(v = Lambda[which.max(vect)], lty = 3, col = col[1])
+            if (clustering) {
+              myargmax <- Argmax(stability)
+              print(myargmax)
+              argmax_id <- c(
+                which(rownames(t(mat[nrow(mat):1, ncol(mat):1])) == formatC(myargmax[1], format = "f", digits = 0)),
+                which(colnames(t(mat[nrow(mat):1, ncol(mat):1])) == formatC(myargmax[2], format = "e", digits = 2))
+              )
+              print(argmax_id)
+              graphics::abline(h = ncol(mat) - argmax_id[1] + 0.5, lty = 3)
+              graphics::abline(v = argmax_id[2] - 0.5, lty = 3)
+            } else {
+              graphics::abline(v = nrow(mat) - which(stability$Lambda[ids, b] == Argmax(stability)[b, 1]) + 0.5, lty = 3)
+              graphics::abline(h = which.min(abs(as.numeric(colnames(mat)) - Argmax(stability)[b, 2])) - 0.5, lty = 3)
+            }
           }
 
-          # Adding lines
-          if (lines) {
-            graphics::lines(Lambda, vect, col = col[1], lty = lty, lwd = lwd)
+          # Including axes
+          if (clustering) {
+            graphics::axis(
+              side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
+              labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 0)
+            )
+          } else {
+            graphics::axis(
+              side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
+              labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2)
+            )
+          }
+          if (grepl("penalised", tolower(stability$methods$implementation))) {
+            graphics::axis(
+              side = 3, at = (1:nrow(mat)) - 0.5, las = zlas, cex.axis = cex.axis,
+              labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0))
+            )
+            graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
+          } else {
+            graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
           }
 
-          # Adding data points
-          graphics::points(Lambda, vect, pch = pch, col = col[1], cex = cex)
-
-          # Adding x-axis and z-axis and their labels
-          lseq <- grDevices::axisTicks(range(Lambda, na.rm = TRUE), log = FALSE)
-          xseq <- 1
-          for (i in 1:length(lseq)) {
-            xseq <- c(xseq, which.min(abs(Lambda - lseq[i])))
-          }
-          xseq <- c(xseq, length(Lambda))
-          xseq <- unique(xseq)
-          if (xgrid) {
-            withr::local_par(list(xpd = FALSE))
-            graphics::abline(v = Lambda[xseq], lty = 3, col = "grey")
-          }
-          graphics::axis(side = 1, at = Lambda[xseq], labels = formatC(Lambda[xseq], format = "e", digits = 2), las = xlas, cex.axis = cex.axis)
-          graphics::axis(
-            side = 3, at = Lambda[xseq], las = xlas,
-            labels = formatC(Q[xseq], format = "f", big.mark = ",", digits = 0), cex.axis = cex.axis
-          )
+          # Including axis labels
+          graphics::mtext(text = ylab, side = 2, line = 3.5, cex = cex.lab)
           graphics::mtext(text = xlab, side = 1, line = 5.2, cex = cex.lab)
-          graphics::mtext(text = zlab, side = 3, line = 3.5, cex = cex.lab)
+          if (grepl("penalised", tolower(stability$methods$implementation))) {
+            graphics::mtext(text = zlab, side = 3, line = 3.5, cex = cex.lab)
+          }
         }
+      } else {
+        if (metric == "lambda") {
+          for (b in block_id) {
+            # Extracting the stability scores
+            if (length(stability$params$pk) == 1) {
+              mat <- stability$S_2d
+              ids <- which(apply(mat, 1, FUN = function(x) {
+                any(!is.na(x))
+              }))
+              mat <- mat[ids, , drop = FALSE]
+            } else {
+              mat <- stability$S_2d[, , b]
+              ids <- which(apply(mat, 1, FUN = function(x) {
+                any(!is.na(x))
+              }))
+              mat <- mat[ids, , drop = FALSE]
+            }
+
+            # Extracting the best stability score (with optimal pi) for each lambda value
+            vect <- apply(mat, 1, max, na.rm = TRUE)
+
+            # Extracting corresponding numbers of selected variables (q)
+            Q <- stability$Q[, b, drop = FALSE]
+            Q <- Q[ids]
+
+            # Extracting corresponding lambda values
+            Lambda <- stability$Lambda[ids, b, drop = FALSE]
+
+            # Re-ordering by decreasing lambda
+            ids <- sort.list(Lambda, decreasing = TRUE)
+            Lambda <- Lambda[ids]
+            Q <- Q[ids]
+            vect <- vect[ids]
+
+            if (is.null(xlim)) {
+              xlim <- range(Lambda, na.rm = TRUE)
+            }
+
+            if (is.null(ylim)) {
+              ylim <- range(vect)
+            }
+
+            # Initialising the plot
+            plot(NA,
+              xlim = xlim, ylim = ylim, bty = bty,
+              xlab = "", ylab = ylab, cex.lab = cex.lab,
+              cex.axis = cex.axis,
+              xaxt = "n", las = ylas
+            )
+
+            # Defining horizontal grid
+            if (ygrid) {
+              withr::local_par(list(xpd = FALSE))
+              graphics::abline(h = graphics::axTicks(side = 2), lty = 3, col = "grey")
+            }
+
+            # Adding calibrated lines
+            if (show_argmax) {
+              withr::local_par(list(xpd = FALSE))
+              graphics::abline(h = max(vect), lty = 3, col = col[1])
+              graphics::abline(v = Lambda[which.max(vect)], lty = 3, col = col[1])
+            }
+
+            # Adding lines
+            if (lines) {
+              graphics::lines(Lambda, vect, col = col[1], lty = lty, lwd = lwd)
+            }
+
+            # Adding data points
+            graphics::points(Lambda, vect, pch = pch, col = col[1], cex = cex)
+
+            # Adding x-axis and z-axis and their labels
+            lseq <- grDevices::axisTicks(range(Lambda, na.rm = TRUE), log = FALSE)
+            xseq <- 1
+            for (i in 1:length(lseq)) {
+              xseq <- c(xseq, which.min(abs(Lambda - lseq[i])))
+            }
+            xseq <- c(xseq, length(Lambda))
+            xseq <- unique(xseq)
+            if (xgrid) {
+              withr::local_par(list(xpd = FALSE))
+              graphics::abline(v = Lambda[xseq], lty = 3, col = "grey")
+            }
+            graphics::axis(side = 1, at = Lambda[xseq], labels = formatC(Lambda[xseq], format = "e", digits = 2), las = xlas, cex.axis = cex.axis)
+            graphics::axis(
+              side = 3, at = Lambda[xseq], las = xlas,
+              labels = formatC(Q[xseq], format = "f", big.mark = ",", digits = 0), cex.axis = cex.axis
+            )
+            graphics::mtext(text = xlab, side = 1, line = 5.2, cex = cex.lab)
+            graphics::mtext(text = zlab, side = 3, line = 3.5, cex = cex.lab)
+          }
+        }
+      }
+    }
+  }
+}
+
+
+#' Calibration curve (internal)
+#'
+#' Creates a calibration curve for consensus clustering.
+#'
+#' @inheritParams CalibrationPlot
+#'
+#' @return a calibration curve.
+#'
+#' @keywords internal
+CalibrationCurve <- function(stability,
+                             bty = "o",
+                             xlab = expression(n[C]),
+                             ylab = "Consensus score",
+                             col = c("navy", "forestgreen", "tomato"),
+                             legend = TRUE,
+                             ncol = 1) {
+  y <- stability$Sc
+  x <- stability$nc
+  if (any(!is.na(stability$Lambda))) {
+    z <- round(stability$Lambda, digits = 5)
+  } else {
+    z <- rep(0, length(stability$nc))
+  }
+
+  mycolours <- grDevices::colorRampPalette(col)(length(unique(z)))
+  names(mycolours) <- unique(z)
+  plot(NA,
+    xlim = c(0, max(stability$nc)), ylim = c(0, 1),
+    xlab = xlab, ylab = ylab,
+    las = 1, cex.lab = 1.5, bty = bty
+  )
+  for (lambda in unique(z)) {
+    ids <- which(z == lambda)
+    graphics::points(x[ids], y[ids], pch = 18, col = mycolours[as.character(lambda)])
+    graphics::lines(x[ids], y[ids], lty = 1, lwd = 0.5, col = mycolours[as.character(lambda)])
+  }
+  graphics::abline(v = Argmax(stability)[1], lty = 2, col = "darkred")
+  if (any(!is.na(stability$Lambda))) {
+    if (legend) {
+      if (length(unique(stability$Q)) == 1) {
+        legend("topright",
+          legend = unique(formatC(stability$Lambda, format = "f", digits = 2)),
+          pch = 15, col = mycolours, bty = "n", title = expression(lambda), ncol = ncol
+        )
+      } else {
+        legend("topright",
+          legend = paste0(
+            unique(formatC(stability$Lambda[, 1], format = "f", digits = 2)),
+            " (", unique(stability$Q[, 1]), ")"
+          ),
+          pch = 15, col = mycolours, bty = "n", title = expression(lambda), ncol = ncol
+        )
       }
     }
   }

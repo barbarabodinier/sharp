@@ -23,6 +23,7 @@ CalibrationPlot(
   legend = TRUE,
   legend_length = NULL,
   legend_range = NULL,
+  ncol = 1,
   xlab = NULL,
   ylab = NULL,
   zlab = expression(italic(q)),
@@ -94,6 +95,8 @@ is the output of \code{\link{VariableSelection}} or
 \item{legend_range}{range of the colour bar. Only used if \code{stability} is
 the output of \code{\link{VariableSelection}} or
 \code{\link{GraphicalModel}}.}
+
+\item{ncol}{integer indicating the number of columns in the legend.}
 
 \item{xlab}{label of the x-axis.}
 
@@ -195,7 +198,10 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
+\code{\link{Clusters}()},
+\code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()}
+\code{\link{SelectionProportions}()},
+\code{\link{WeightBoxplot}()}
 }
 \concept{calibration functions}
