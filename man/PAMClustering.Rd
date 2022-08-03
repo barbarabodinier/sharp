@@ -8,7 +8,6 @@ PAMClustering(
   xdata,
   nc = NULL,
   Lambda = NULL,
-  weighted = FALSE,
   distance = "euclidian",
   scale = TRUE,
   ...
@@ -23,10 +22,8 @@ underlying algorithm specified in \code{implementation}. If \code{nc} is
 not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 
 \item{Lambda}{vector of penalty parameters (see argument \code{lambda} from
-\code{\link[rCOSA]{cosa2}}). Only used in \code{weighted=TRUE}.}
-
-\item{weighted}{logical indicating if distances should be calculated using
-\code{\link[rCOSA]{cosa2}}.}
+\code{\link[rCOSA]{cosa2}}). Classical (unweighted) clustering is used if
+\code{Lambda=NULL}.}
 
 \item{distance}{character string indicating the type of distance to use. If
 \code{weighted=FALSE}, possible values include \code{"euclidian"},
@@ -54,11 +51,10 @@ A list with: \item{comembership}{an array of binary and symmetric
 \description{
 Runs Partitioning Around Medoids (PAM) clustering using implementation from
 \code{\link[cluster]{pam}}. This is also known as the k-medoids algorithm. If
-\code{weighted=TRUE}, clustering is applied on the weighted distance matrix
-calculated using the COSA algorithm as implemented in
-\code{\link[rCOSA]{cosa2}} is used. If \code{weighted=FALSE}, distances are
-calculated using \code{\link[stats]{dist}}. This function is not using
-stability.
+\code{Lambda} is provided, clustering is applied on the weighted distance
+matrix calculated using the COSA algorithm as implemented in
+\code{\link[rCOSA]{cosa2}}. Otherwise, distances are calculated using
+\code{\link[stats]{dist}}. This function is not using stability.
 }
 \examples{
 
@@ -75,7 +71,6 @@ myclust <- PAMClustering(
 # Weighted PAM clustering (using COSA)
 myclust <- PAMClustering(
   xdata = simul$data,
-  weighted = TRUE,
   nc = 1:20,
   Lambda = c(0.2, 0.5)
 )

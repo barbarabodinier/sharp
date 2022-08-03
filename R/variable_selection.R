@@ -755,5 +755,8 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     out$params <- c(out$params, list(xdata = xdata, ydata = ydata))
   }
 
+  # Defining the class
+  class(out) <- "variable_selection"
+
   return(out)
 }

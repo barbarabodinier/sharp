@@ -7,9 +7,11 @@
 CalibrationCurve(
   stability,
   bty = "o",
-  xlab = expression(n[C]),
-  ylab = "Consensus score",
-  col = c("navy", "forestgreen", "tomato"),
+  xlab = NULL,
+  ylab = NULL,
+  pch = 19,
+  lines = TRUE,
+  col = NULL,
   legend = TRUE,
   ncol = 1
 )
@@ -25,6 +27,12 @@ drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \item{xlab}{label of the x-axis.}
 
 \item{ylab}{label of the y-axis.}
+
+\item{pch}{type of point, as in \code{\link[graphics]{points}}.}
+
+\item{lines}{logical indicating if the points should be linked by lines. Only
+used if \code{stability} is the output of \code{\link{BiSelection}} or
+\code{\link{Clustering}}.}
 
 \item{col}{vector of colours.}
 

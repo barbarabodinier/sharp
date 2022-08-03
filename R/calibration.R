@@ -180,7 +180,8 @@ Argmax <- function(stability) {
 #' Extracts the adjacency matrix of the (calibrated) stability selection
 #' graphical model.
 #'
-#' @param stability output of \code{\link{GraphicalModel}}.
+#' @param stability output of \code{\link{GraphicalModel}},
+#'   \code{\link{BiSelection}}, or \code{\link{Clustering}}.
 #' @param argmax_id optional matrix of parameter IDs. If \code{argmax_id=NULL},
 #'   the calibrated model is used.
 #'
@@ -208,18 +209,20 @@ Argmax <- function(stability) {
 #' A <- Adjacency(stab, argmax_id = myids)
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
+  if (!inherits(stability, c("graphical_model", "bi_selection", "clustering"))) {
+    stop("Invalid input for argument 'stability'. This function only applies to outputs from GraphicalModel(), BiSelection() or Clustering().")
+  }
+
   if (inherits(stability, "bi_selection")) {
     if ("selectedY" %in% names(stability)) {
       A <- Square(t(rbind(stability$selectedX, stability$selectedY)))
     } else {
       A <- Square(stability$selectedX)
     }
-  } else {
-    if (inherits(stability, "graphical_model")) {
-      A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
-    } else {
-      A <- matrix(0, ncol = ncol(stability$coprop), nrow = nrow(stability$coprop))
-    }
+  }
+
+  if (inherits(stability, "graphical_model")) {
+    A <- matrix(0, ncol = ncol(stability$selprop), nrow = nrow(stability$selprop))
     bigblocks <- BlockMatrix(stability$params$pk)
     if (is.null(argmax_id)) {
       argmax_id <- ArgmaxId(stability)
@@ -234,17 +237,18 @@ Adjacency <- function(stability, argmax_id = NULL) {
       }
     }
     for (block_id in 1:ncol(stability$Lambda)) {
-      if (inherits(stability, "graphical_model")) {
-        A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
-      } else {
-        A_block <- ifelse(stability$coprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
-      }
+      A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
       if (length(stability$params$pk) > 1) {
         A_block[bigblocks != block_id] <- 0
       }
       A <- A + A_block
     }
   }
+
+  if (inherits(stability, "clustering")) {
+    A <- CoMembership(Clusters(stability = stability))
+  }
+
   A[is.na(A)] <- 0
   return(A)
 }
@@ -845,7 +849,8 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 #'   \code{"n"} (no box).
 #' @param lines logical indicating if the points should be linked by lines. Only
-#'   used if \code{stability} is the output of \code{\link{BiSelection}}.
+#'   used if \code{stability} is the output of \code{\link{BiSelection}} or
+#'   \code{\link{Clustering}}.
 #' @param lty line type, as in \code{\link[graphics]{par}}. Only used if
 #'   \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param lwd line width, as in \code{\link[graphics]{par}}. Only used if
@@ -972,7 +977,10 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
   if (clustering) {
     ylas <- 1
-    CalibrationCurve(stability = stability, bty = bty, xlab = xlab, ylab = ylab, col = col, legend = legend, ncol = ncol)
+    CalibrationCurve(
+      stability = stability, bty = bty, xlab = xlab, ylab = ylab,
+      pch = pch, lines = lines, col = col, legend = legend, ncol = ncol
+    )
   } else {
     ylas <- 0
 
@@ -1432,11 +1440,25 @@ CalibrationPlot <- function(stability, block_id = NULL,
 #' @keywords internal
 CalibrationCurve <- function(stability,
                              bty = "o",
-                             xlab = expression(n[C]),
-                             ylab = "Consensus score",
-                             col = c("navy", "forestgreen", "tomato"),
+                             xlab = NULL,
+                             ylab = NULL,
+                             pch = 19,
+                             lines = TRUE,
+                             col = NULL,
                              legend = TRUE,
                              ncol = 1) {
+  # Checking inputs
+  if (is.null(col)) {
+    col <- c("navy", "forestgreen", "tomato")
+  }
+  if (is.null(xlab)) {
+    xlab <- expression(n[C])
+  }
+  if (is.null(ylab)) {
+    ylab <- "Consensus score"
+  }
+
+  # Creating objects
   y <- stability$Sc
   x <- stability$nc
   if (any(!is.na(stability$Lambda))) {
@@ -1445,22 +1467,37 @@ CalibrationCurve <- function(stability,
     z <- rep(0, length(stability$nc))
   }
 
-  mycolours <- grDevices::colorRampPalette(col)(length(unique(z)))
+  # Preparing colours
+  if (length(unique(z)) > 1) {
+    mycolours <- grDevices::colorRampPalette(col)(length(unique(z)))
+  } else {
+    mycolours <- col[1]
+  }
   names(mycolours) <- unique(z)
+
+  # Initialising plot
   plot(NA,
     xlim = c(0, max(stability$nc)), ylim = c(0, 1),
     xlab = xlab, ylab = ylab,
     las = 1, cex.lab = 1.5, bty = bty
   )
+
+  # Adding lines
   for (lambda in unique(z)) {
     ids <- which(z == lambda)
     graphics::points(x[ids], y[ids], pch = 18, col = mycolours[as.character(lambda)])
-    graphics::lines(x[ids], y[ids], lty = 1, lwd = 0.5, col = mycolours[as.character(lambda)])
+    if (lines) {
+      graphics::lines(x[ids], y[ids], lty = 1, lwd = 0.5, col = mycolours[as.character(lambda)])
+    }
   }
+
+  # Identifying calibrated parameter(s)
   graphics::abline(v = Argmax(stability)[1], lty = 2, col = "darkred")
+
+  # Adding legend
   if (any(!is.na(stability$Lambda))) {
     if (legend) {
-      if (length(unique(stability$Q)) == 1) {
+      if (length(unique(stats::na.exclude(stability$Q))) == 1) {
         legend("topright",
           legend = unique(formatC(stability$Lambda, format = "f", digits = 2)),
           pch = 15, col = mycolours, bty = "n", title = expression(lambda), ncol = ncol

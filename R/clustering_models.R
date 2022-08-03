@@ -1,17 +1,16 @@
 #' (Weighted) hierarchical clustering
 #'
 #' Runs hierarchical clustering using implementation from
-#' \code{\link[stats]{hclust}}. If \code{weighted=TRUE}, clustering is applied
-#' on the weighted distance matrix calculated using the COSA algorithm as
-#' implemented in \code{\link[rCOSA]{cosa2}}. If \code{weighted=FALSE},
-#' distances are calculated using \code{\link[stats]{dist}}. This function is
-#' not using stability.
+#' \code{\link[stats]{hclust}}. If \code{Lambda} is provided, clustering is
+#' applied on the weighted distance matrix calculated using the COSA algorithm
+#' as implemented in \code{\link[rCOSA]{cosa2}}. Otherwise, distances are
+#' calculated using \code{\link[stats]{dist}}. This function is not using
+#' stability.
 #'
 #' @inheritParams Clustering
 #' @param Lambda vector of penalty parameters (see argument \code{lambda} from
-#'   \code{\link[rCOSA]{cosa2}}). Only used in \code{weighted=TRUE}.
-#' @param weighted logical indicating if distances should be calculated using
-#'   \code{\link[rCOSA]{cosa2}}.
+#'   \code{\link[rCOSA]{cosa2}}). Classical (unweighted) clustering is used if
+#'   \code{Lambda=NULL}.
 #' @param distance character string indicating the type of distance to use. If
 #'   \code{weighted=FALSE}, possible values include \code{"euclidian"},
 #'   \code{"maximum"}, \code{"canberra"}, \code{"binary"}, and
@@ -53,7 +52,7 @@
 #'   Lambda = c(0.2, 0.5)
 #' )
 #' @export
-HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL, weighted = FALSE,
+HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
                                    distance = "euclidian", linkage = "complete",
                                    scale = TRUE, ...) {
   # Storing extra arguments
@@ -66,7 +65,7 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL, weighted = F
     lX <- rep(1, ncol(xdata))
   }
 
-  # Checking consistency in the inputs
+  # Preparing binary indicator for weighted clustering
   if (is.null(Lambda)) {
     weighted <- FALSE
     Lambda <- 0
@@ -187,11 +186,10 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL, weighted = F
 #'
 #' Runs Partitioning Around Medoids (PAM) clustering using implementation from
 #' \code{\link[cluster]{pam}}. This is also known as the k-medoids algorithm. If
-#' \code{weighted=TRUE}, clustering is applied on the weighted distance matrix
-#' calculated using the COSA algorithm as implemented in
-#' \code{\link[rCOSA]{cosa2}} is used. If \code{weighted=FALSE}, distances are
-#' calculated using \code{\link[stats]{dist}}. This function is not using
-#' stability.
+#' \code{Lambda} is provided, clustering is applied on the weighted distance
+#' matrix calculated using the COSA algorithm as implemented in
+#' \code{\link[rCOSA]{cosa2}}. Otherwise, distances are calculated using
+#' \code{\link[stats]{dist}}. This function is not using stability.
 #'
 #' @inheritParams HierarchicalClustering
 #' @param ... additional parameters passed to \code{\link[cluster]{pam}},
@@ -224,12 +222,11 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL, weighted = F
 #' # Weighted PAM clustering (using COSA)
 #' myclust <- PAMClustering(
 #'   xdata = simul$data,
-#'   weighted = TRUE,
 #'   nc = 1:20,
 #'   Lambda = c(0.2, 0.5)
 #' )
 #' @export
-PAMClustering <- function(xdata, nc = NULL, Lambda = NULL, weighted = FALSE,
+PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
                           distance = "euclidian",
                           scale = TRUE, ...) {
   # Storing extra arguments
@@ -242,13 +239,12 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL, weighted = FALSE,
     lX <- rep(1, ncol(xdata))
   }
 
-  # Checking consistency in the inputs
+  # Preparing binary indicator for weighted clustering
   if (is.null(Lambda)) {
-    if (weighted) {
-      warning("Argument 'Lambda' has to be provided for weighted clustering. Unweighted clustering has been done.")
-      weighted <- FALSE
-    }
+    weighted <- FALSE
     Lambda <- 0
+  } else {
+    weighted <- TRUE
   }
 
   # Re-formatting Lambda

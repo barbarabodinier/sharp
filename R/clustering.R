@@ -341,23 +341,6 @@ SerialClustering <- function(xdata, nc, Lambda,
     }
   }
 
-  # Computing the selection proportions
-  if (!is.null(Lambda)) {
-    bigstab_var <- matrix(NA, nrow = nrow(Beta), ncol = ncol(Beta))
-    colnames(bigstab_var) <- colnames(Beta)
-    rownames(bigstab_var) <- rownames(Beta)
-    for (i in 1:nrow(Beta)) {
-      for (j in 1:ncol(Beta)) {
-        bigstab_var[i, j] <- sum(Beta[i, j, ] != 0) / K
-      }
-    }
-    Q <- cbind(round(apply(bigstab_var, 1, sum)))
-    rownames(Q) <- NULL
-  } else {
-    bigstab_var <- NULL
-    Q <- cbind(NA)
-  }
-
   # Computing the co-membership proportions
   for (i in 1:dim(bigstab_obs)[3]) {
     bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
@@ -393,6 +376,23 @@ SerialClustering <- function(xdata, nc, Lambda,
       K = K,
       linkage = linkage
     )
+  }
+
+  # Computing the selection proportions
+  if (!is.null(Lambda)) {
+    bigstab_var <- matrix(NA, nrow = nrow(Beta), ncol = ncol(Beta))
+    colnames(bigstab_var) <- colnames(Beta)
+    rownames(bigstab_var) <- rownames(Beta)
+    for (i in 1:nrow(Beta)) {
+      for (j in 1:ncol(Beta)) {
+        bigstab_var[i, j] <- sum(Beta[i, j, ] != 0) / K
+      }
+    }
+    Q <- cbind(round(apply(bigstab_var, 1, sum)))
+    rownames(Q) <- NULL
+  } else {
+    bigstab_var <- NULL
+    Q <- cbind(rep(ncol(xdata), length(nc_full)))
   }
 
   if (verbose) {
@@ -436,6 +436,9 @@ SerialClustering <- function(xdata, nc, Lambda,
   if (output_data) {
     out$params <- c(out$params, list(xdata = xdata))
   }
+
+  # Defining the class
+  class(out) <- "clustering"
 
   return(out)
 }

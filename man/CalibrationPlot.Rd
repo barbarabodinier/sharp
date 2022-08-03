@@ -62,7 +62,8 @@ drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \code{"n"} (no box).}
 
 \item{lines}{logical indicating if the points should be linked by lines. Only
-used if \code{stability} is the output of \code{\link{BiSelection}}.}
+used if \code{stability} is the output of \code{\link{BiSelection}} or
+\code{\link{Clustering}}.}
 
 \item{lty}{line type, as in \code{\link[graphics]{par}}. Only used if
 \code{stability} is the output of \code{\link{BiSelection}}.}
