@@ -9,6 +9,9 @@ CalibrationCurve(
   bty = "o",
   xlab = NULL,
   ylab = NULL,
+  cex.axis = 1,
+  cex.lab = 1.5,
+  cex.legend = 1.2,
   pch = 19,
   lines = TRUE,
   col = NULL,
@@ -27,6 +30,12 @@ drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \item{xlab}{label of the x-axis.}
 
 \item{ylab}{label of the y-axis.}
+
+\item{cex.axis}{font size for axes.}
+
+\item{cex.lab}{font size for labels.}
+
+\item{cex.legend}{font size for text legend entries.}
 
 \item{pch}{type of point, as in \code{\link[graphics]{points}}.}
 

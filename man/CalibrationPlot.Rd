@@ -32,6 +32,7 @@ CalibrationPlot(
   zlas = 2,
   cex.lab = 1.5,
   cex.axis = 1,
+  cex.legend = 1.2,
   xgrid = FALSE,
   ygrid = FALSE,
   params = c("ny", "alphay", "nx", "alphax")
@@ -118,6 +119,8 @@ of \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.}
 \item{cex.lab}{font size for labels.}
 
 \item{cex.axis}{font size for axes.}
+
+\item{cex.legend}{font size for text legend entries.}
 
 \item{xgrid}{logical indicating if a vertical grid should be drawn. Only used
 if \code{stability} is the output of \code{\link{BiSelection}}.}

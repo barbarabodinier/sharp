@@ -887,6 +887,7 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'   \code{\link[graphics]{par}}.
 #' @param cex.lab font size for labels.
 #' @param cex.axis font size for axes.
+#' @param cex.legend font size for text legend entries.
 #' @param xgrid logical indicating if a vertical grid should be drawn. Only used
 #'   if \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param ygrid logical indicating if a horizontal grid should be drawn. Only
@@ -964,7 +965,8 @@ CalibrationPlot <- function(stability, block_id = NULL,
                             show_pix = FALSE, show_piy = FALSE, offset = 0.3,
                             legend = TRUE, legend_length = NULL, legend_range = NULL, ncol = 1,
                             xlab = NULL, ylab = NULL, zlab = expression(italic(q)),
-                            xlas = 2, ylas = NULL, zlas = 2, cex.lab = 1.5, cex.axis = 1,
+                            xlas = 2, ylas = NULL, zlas = 2,
+                            cex.lab = 1.5, cex.axis = 1, cex.legend = 1.2,
                             xgrid = FALSE, ygrid = FALSE,
                             params = c("ny", "alphay", "nx", "alphax")) {
   oldpar <- graphics::par("xpd", "xaxs", "yaxs", no.readonly = TRUE)
@@ -979,6 +981,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
     ylas <- 1
     CalibrationCurve(
       stability = stability, bty = bty, xlab = xlab, ylab = ylab,
+      cex.lab = cex.lab, cex.axis = cex.axis, cex.legend = cex.legend,
       pch = pch, lines = lines, col = col, legend = legend, ncol = ncol
     )
   } else {
@@ -1191,7 +1194,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
         graphics::legend("top",
           col = col, lty = lty, pch = pch, lwd = lwd,
           legend = paste0("Component ", unique(x$comp)),
-          horiz = TRUE, bg = "white"
+          horiz = TRUE, bg = "white", cex = cex.legend
         )
       }
     } else {
@@ -1442,6 +1445,9 @@ CalibrationCurve <- function(stability,
                              bty = "o",
                              xlab = NULL,
                              ylab = NULL,
+                             cex.axis = 1,
+                             cex.lab = 1.5,
+                             cex.legend = 1.2,
                              pch = 19,
                              lines = TRUE,
                              col = NULL,
@@ -1478,8 +1484,8 @@ CalibrationCurve <- function(stability,
   # Initialising plot
   plot(NA,
     xlim = c(0, max(stability$nc)), ylim = c(0, 1),
-    xlab = xlab, ylab = ylab,
-    las = 1, cex.lab = 1.5, bty = bty
+    xlab = xlab, ylab = ylab, cex.axis = cex.axis,
+    las = 1, cex.lab = cex.lab, bty = bty
   )
 
   # Adding lines
@@ -1500,7 +1506,7 @@ CalibrationCurve <- function(stability,
       if (length(unique(stats::na.exclude(stability$Q))) == 1) {
         legend("topright",
           legend = unique(formatC(stability$Lambda, format = "f", digits = 2)),
-          pch = 15, col = mycolours, bty = "n", title = expression(lambda), ncol = ncol
+          pch = 15, col = mycolours, cex = cex.legend, bty = "n", title = expression(lambda), ncol = ncol
         )
       } else {
         legend("topright",
@@ -1508,7 +1514,7 @@ CalibrationCurve <- function(stability,
             unique(formatC(stability$Lambda[, 1], format = "f", digits = 2)),
             " (", unique(stability$Q[, 1]), ")"
           ),
-          pch = 15, col = mycolours, bty = "n", title = expression(lambda), ncol = ncol
+          pch = 15, col = mycolours, cex = cex.legend, bty = "n", title = expression(lambda), ncol = ncol
         )
       }
     }

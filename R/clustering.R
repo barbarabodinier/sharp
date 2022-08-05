@@ -206,7 +206,7 @@ Clustering <- function(xdata, nc = NULL, Lambda = NULL,
   out <- mypar[[1]]
   if (n_cores > 1) {
     for (i in 2:length(mypar)) {
-      out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[2]], graph = TRUE))
+      out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[2]], include_beta = TRUE))
     }
   }
 
