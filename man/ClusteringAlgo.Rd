@@ -6,8 +6,9 @@
 \usage{
 ClusteringAlgo(
   xdata,
-  Lambda = NULL,
   nc,
+  Lambda = NULL,
+  scale = TRUE,
   implementation = HierarchicalClustering,
   ...
 )
@@ -16,11 +17,14 @@ ClusteringAlgo(
 \item{xdata}{data matrix with items (to cluster) as rows and attributes as
 columns.}
 
-\item{Lambda}{vector of penalty parameters.}
-
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is
 not provided, it is set to \code{seq(1, nrow(xdata))}.}
+
+\item{Lambda}{vector of penalty parameters.}
+
+\item{scale}{logical indicating if the data should be scaled to ensure that
+all variables contribute equally to the clustering of the observations.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),

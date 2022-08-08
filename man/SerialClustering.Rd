@@ -13,6 +13,7 @@ SerialClustering(
   seed = 1,
   n_cat = 3,
   implementation = HierarchicalClustering,
+  scale = TRUE,
   linkage = "complete",
   output_data = FALSE,
   verbose = TRUE,
@@ -49,6 +50,9 @@ include \code{\link{HierarchicalClustering}} (hierarchical clustering),
 (Gaussian Mixture Models). Alternatively, a user-defined function taking
 \code{xdata} and \code{Lambda} as arguments and returning a binary and
 symmetric matrix for which diagonal elements are equal to zero can be used.}
+
+\item{scale}{logical indicating if the data should be scaled to ensure that
+all variables contribute equally to the clustering of the observations.}
 
 \item{linkage}{character string indicating the type of linkage used in
 hierarchical clustering to define the stable clusters. Possible values

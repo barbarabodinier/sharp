@@ -197,7 +197,7 @@ Clustering <- function(xdata, nc = NULL, Lambda = NULL,
     return(SerialClustering(
       xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc),
       pi_list = pi_list, K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
-      implementation = implementation, linkage = linkage,
+      implementation = implementation, scale = scale, linkage = linkage,
       output_data = output_data, verbose = verbose, ...
     ))
   }) # keep pk for correct number of blocks etc
@@ -266,7 +266,7 @@ Clustering <- function(xdata, nc = NULL, Lambda = NULL,
 SerialClustering <- function(xdata, nc, Lambda,
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              implementation = HierarchicalClustering,
-                             linkage = "complete",
+                             scale = TRUE, linkage = "complete",
                              output_data = FALSE, verbose = TRUE, ...) {
 
   # Defining resampling method (only subsampling is available as bootstrap would give distance of zero)
@@ -319,7 +319,7 @@ SerialClustering <- function(xdata, nc, Lambda,
     # Applying clustering algorithm
     mybeta <- ClusteringAlgo(
       xdata = Xsub,
-      Lambda = Lambda, nc = nc,
+      Lambda = Lambda, nc = nc, scale = scale,
       implementation = implementation, ...
     )
 

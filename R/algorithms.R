@@ -208,7 +208,9 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 #'
 #' @export
 ClusteringAlgo <- function(xdata,
-                           Lambda = NULL, nc,
+                           nc,
+                           Lambda = NULL,
+                           scale = TRUE,
                            implementation = HierarchicalClustering, ...) {
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
@@ -222,7 +224,13 @@ ClusteringAlgo <- function(xdata,
   }
 
   # Applying user-defined function for variable selection
-  out <- do.call(implementation, args = list(xdata = xdata, nc = nc, Lambda = Lambda, ...))
+  out <- do.call(implementation, args = list(
+    xdata = xdata,
+    nc = nc,
+    Lambda = Lambda,
+    scale = scale,
+    ...
+  ))
 
   if ("weight" %in% names(out)) {
     beta_full <- out$weight
