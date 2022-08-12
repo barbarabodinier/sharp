@@ -26,6 +26,7 @@ obtained for that observation over the \code{K} models fitted in calibrated
 stability selection.
 }
 \examples{
+\donttest{
 # Linear regression
 set.seed(1)
 simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
@@ -69,7 +70,7 @@ yhat <- EnsemblePredictions(
   xdata = simul$xdata[ids[[2]], ],
   type = "response"
 ) # predicted probabilities
-
+}
 }
 \seealso{
 Other ensemble model functions: 

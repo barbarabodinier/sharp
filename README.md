@@ -37,7 +37,6 @@ The development version can be installed from
 [GitHub](https://github.com/):
 
 ``` r
-devtools::install_github("barbarabodinier/fake") # required dependency
 devtools::install_github("barbarabodinier/sharp")
 ```
 
@@ -352,6 +351,7 @@ plot(simul)
 <img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
+
 # Relationships between variables and latent variables
 simul$theta
 #>       comp1 comp2 comp3 comp4 comp5 comp6 comp7 comp8 comp9 comp10 comp11
@@ -421,9 +421,9 @@ The PC-specific calibrated parameters are reported in:
 ``` r
 stab$summary
 #>   comp nx  pix        S
-#> 1    1  5 0.90 454.4235
-#> 2    2  7 0.84 264.5631
-#> 3    3  4 0.87 256.4247
+#> 1    1  5 0.90 427.8050
+#> 2    2  6 0.88 311.2570
+#> 3    3  3 0.73 161.7024
 ```
 
 ### Outputs
@@ -434,8 +434,8 @@ in:
 ``` r
 SelectedVariables(stab)
 #>       comp1 comp2 comp3
-#> var1      0     1     1
-#> var2      0     1     1
+#> var1      0     0     1
+#> var2      0     0     1
 #> var3      0     0     1
 #> var4      1     0     0
 #> var5      1     0     0
@@ -463,16 +463,16 @@ obtained from:
 ``` r
 SelectionProportions(stab)
 #>       comp1 comp2 comp3
-#> var1   0.07  0.84  0.87
-#> var2   0.04  0.85  0.89
-#> var3   0.00  0.77  0.89
-#> var4   0.94  0.09  0.08
-#> var5   0.94  0.11  0.00
-#> var6   0.93  0.14  0.02
-#> var7   0.93  0.16  0.04
-#> var8   0.91  0.31  0.10
-#> var9   0.06  0.93  0.45
-#> var10  0.05  0.93  0.17
-#> var11  0.07  0.93  0.20
-#> var12  0.06  0.94  0.29
+#> var1   0.00  0.73  0.75
+#> var2   0.00  0.38  0.77
+#> var3   0.00  0.69  0.73
+#> var4   0.94  0.09  0.03
+#> var5   1.00  0.06  0.00
+#> var6   0.95  0.08  0.00
+#> var7   0.97  0.12  0.00
+#> var8   1.00  0.02  0.00
+#> var9   0.14  0.98  0.11
+#> var10  0.00  1.00  0.14
+#> var11  0.00  0.91  0.25
+#> var12  0.00  0.94  0.22
 ```

@@ -21,6 +21,7 @@ A binary vector encoding the selection status of the variables
 Extracts the (calibrated) set of stably selected variables.
 }
 \examples{
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(pk = 50)
@@ -36,6 +37,7 @@ myids <- matrix(c(50, 10), nrow = 1)
 stab$Lambda[myids[1], 1] # corresponding penalty
 stab$params$pi_list[myids[2]] # corresponding threshold
 selected <- SelectedVariables(stab, argmax_id = myids)
+}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}}

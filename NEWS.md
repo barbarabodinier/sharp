@@ -1,6 +1,6 @@
 # sharp version 1.2.0
 
-* Added the function Ensemble() for predictions from an ensemble model from VariableSelection()
+* Added the functions Ensemble() and EnsemblePredictions() to build and predict from an ensemble model for VariableSelection()
 * Added S3 classes including coef() and predict() for VariableSelection()
 * Renamed Recalibrate() as Refit()
 * Fixed use of CPSS in GraphicalModel() 

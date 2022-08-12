@@ -19,6 +19,7 @@
 #' @family ensemble model functions
 #'
 #' @examples
+#' \donttest{
 #' # Linear regression
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -30,7 +31,7 @@
 #' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "binomial")
 #' ensemble <- Ensemble(stability = stab, xdata = simul$xdata, ydata = simul$ydata)
-#'
+#' }
 #' @export
 Ensemble <- function(stability, xdata, ydata) {
   # Checking family argument
@@ -144,6 +145,7 @@ Ensemble <- function(stability, xdata, ydata) {
 #' @family ensemble model functions
 #'
 #' @examples
+#' \donttest{
 #' # Linear regression
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
@@ -187,7 +189,7 @@ Ensemble <- function(stability, xdata, ydata) {
 #'   xdata = simul$xdata[ids[[2]], ],
 #'   type = "response"
 #' ) # predicted probabilities
-#'
+#' }
 #' @export
 EnsemblePredictions <- function(ensemble, xdata, ...) {
   # Checking family argument

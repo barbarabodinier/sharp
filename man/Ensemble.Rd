@@ -32,6 +32,7 @@ Creates an ensemble predictive model from \code{\link{VariableSelection}}
 outputs.
 }
 \examples{
+\donttest{
 # Linear regression
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
@@ -43,7 +44,7 @@ set.seed(1)
 simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "binomial")
 ensemble <- Ensemble(stability = stab, xdata = simul$xdata, ydata = simul$ydata)
-
+}
 }
 \seealso{
 Other ensemble model functions: 

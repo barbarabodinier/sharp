@@ -276,6 +276,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' @seealso \code{\link{VariableSelection}}, \code{\link{BiSelection}}
 #'
 #' @examples
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(pk = 50)
@@ -291,6 +292,7 @@ Adjacency <- function(stability, argmax_id = NULL) {
 #' stab$Lambda[myids[1], 1] # corresponding penalty
 #' stab$params$pi_list[myids[2]] # corresponding threshold
 #' selected <- SelectedVariables(stab, argmax_id = myids)
+#' }
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
   if (!inherits(stability, c("clustering", "variable_selection", "bi_selection"))) {

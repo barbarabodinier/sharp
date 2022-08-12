@@ -37,7 +37,6 @@ install.packages("sharp")
 The development version can be installed from [GitHub](https://github.com/):
 
 ``` r
-devtools::install_github("barbarabodinier/fake") # required dependency
 devtools::install_github("barbarabodinier/sharp")
 ```
 
