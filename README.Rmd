@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# sharp: Stability-enHanced Approaches using Resampling Procedures
+# sharp: Stability-enHanced Approaches using Resampling Procedures <img src="man/figures/logo.png" align="right" width="174" height="200"/>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/sharp)](https://CRAN.R-project.org/package=sharp)
