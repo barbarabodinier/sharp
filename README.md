@@ -17,12 +17,10 @@ commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=Git
 
 > Implementation of stability selection for graphical modelling and
 > variable selection in regression and dimensionality reduction. These
-> models rely on resampling approaches to estimate selection
+> models use on resampling approaches to estimate selection
 > probabilities. Calibration of the hyper-parameters is done via
 > maximisation of a stability score measuring the likelihood of
-> informative (non-uniform) selection procedure. This package also
-> includes tools to simulate multivariate Normal data with different
-> (partial) correlation structures.
+> informative (non-uniform) selection.
 
 ## Installation
 
