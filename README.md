@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# sharp: Stability-enHanced Approaches using Resampling Procedures
+# sharp: Stability-enHanced Approaches using Resampling Procedures <img src="man/figures/logo.png" align="right" width="174" height="200"/>
 
 <!-- badges: start -->
 
