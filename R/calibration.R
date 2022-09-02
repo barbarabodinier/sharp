@@ -726,7 +726,17 @@ Clusters <- function(stability, argmax_id = NULL) {
 
   # Extracting stable clusters from hierarchical clustering
   shclust <- stats::hclust(stats::as.dist(1 - coprop), method = stability$methods$linkage)
-  mymembership <- stats::cutree(shclust, k = stability$nc[argmax_id[1], 1])
+  mymembership <- stats::cutree(shclust, k = ceiling(stability$nc[argmax_id[1], 1]))
+
+  # Splitting noise clusters
+  if (any(!is.na(stability$bignoise))) {
+    noise_prop <- stability$bignoise[, argmax_id[1]]
+    if (any(noise_prop >= 0.5)) {
+      ids <- which(noise_prop >= 0.5)
+      mymembership[ids] <- max(mymembership) + seq(1, length(ids))
+      mymembership <- mymembership - min(mymembership) + 1
+    }
+  }
 
   return(mymembership)
 }

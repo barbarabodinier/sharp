@@ -7,8 +7,8 @@
 Clustering(
   xdata,
   nc = NULL,
+  eps = NULL,
   Lambda = NULL,
-  pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
   tau = 0.5,
   seed = 1,
@@ -30,13 +30,13 @@ columns.}
 underlying algorithm specified in \code{implementation}. If \code{nc} is
 not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 
+\item{eps}{radius in density-based clustering, see
+\code{\link[dbscan]{dbscan}}. Only used if
+\code{implementation=DBSCANClustering}.}
+
 \item{Lambda}{vector of penalty parameters. Only used if
 \code{implementation=HierarchicalClustering}
 or\code{implementation=PAMClustering}.}
-
-\item{pi_list}{vector of thresholds in selection proportions. If
-\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
-\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
@@ -146,7 +146,7 @@ In consensus clustering, a clustering algorithm is applied on
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(30, 30, 30), nu_xc = 1
+  n = c(30, 30, 30), nu_xc = 1, ev_xc = 0.7
 )
 plot(simul)
 
@@ -162,7 +162,7 @@ Clusters(stab)
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(
-  n = c(30, 30, 30),
+  n = c(30, 30, 30), pk = 20,
   theta_xc = c(rep(1, 10), rep(0, 10)),
   ev_xc = 0.9
 )

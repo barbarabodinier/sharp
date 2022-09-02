@@ -208,7 +208,8 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 #'
 #' @export
 ClusteringAlgo <- function(xdata,
-                           nc,
+                           nc = NULL,
+                           eps = NULL,
                            Lambda = NULL,
                            scale = TRUE,
                            implementation = HierarchicalClustering, ...) {
@@ -227,10 +228,29 @@ ClusteringAlgo <- function(xdata,
   out <- do.call(implementation, args = list(
     xdata = xdata,
     nc = nc,
+    eps = eps,
     Lambda = Lambda,
     scale = scale,
     ...
   ))
+
+  # Extracting the number of clusters
+  if ("nc" %in% names(out)) {
+    nc <- out$nc
+  } else {
+    if (is.null(Lambda)) {
+      nc <- nc
+    } else {
+      nc <- cbind(rep(nc, nrow(Lambda)))
+    }
+  }
+
+  # Extracting the noise status
+  if ("noise" %in% names(out)) {
+    noise <- out$noise
+  } else {
+    noise <- rep(NA, nrow(xdata))
+  }
 
   if ("weight" %in% names(out)) {
     beta_full <- out$weight
@@ -250,5 +270,5 @@ ClusteringAlgo <- function(xdata,
     colnames(beta_full) <- colnames(xdata)
   }
 
-  return(list(comembership = out$comembership, weight = beta_full))
+  return(list(comembership = out$comembership, weight = beta_full, nc = nc, noise = noise))
 }

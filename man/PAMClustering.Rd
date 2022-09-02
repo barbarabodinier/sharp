@@ -76,10 +76,13 @@ myclust <- PAMClustering(
 )
 }
 \references{
-\insertRef{SparseClustering}{sharp}
+\insertRef{COSA}{sharp}
+
+\insertRef{rCOSA}{sharp}
 }
 \seealso{
 Other clustering algorithms: 
+\code{\link{DBSCANClustering}()},
 \code{\link{GMMClustering}()},
 \code{\link{HierarchicalClustering}()},
 \code{\link{KMeansClustering}()}

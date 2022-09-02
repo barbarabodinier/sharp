@@ -6,7 +6,8 @@
 \usage{
 ClusteringAlgo(
   xdata,
-  nc,
+  nc = NULL,
+  eps = NULL,
   Lambda = NULL,
   scale = TRUE,
   implementation = HierarchicalClustering,
@@ -20,6 +21,10 @@ columns.}
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is
 not provided, it is set to \code{seq(1, nrow(xdata))}.}
+
+\item{eps}{radius in density-based clustering, see
+\code{\link[dbscan]{dbscan}}. Only used if
+\code{implementation=DBSCANClustering}.}
 
 \item{Lambda}{vector of penalty parameters.}
 

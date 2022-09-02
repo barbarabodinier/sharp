@@ -16,6 +16,9 @@
 #' @param nc matrix of parameters controlling the number of clusters in the
 #'   underlying algorithm specified in \code{implementation}. If \code{nc} is
 #'   not provided, it is set to \code{seq(1, tau*nrow(xdata))}.
+#' @param eps radius in density-based clustering, see
+#'   \code{\link[dbscan]{dbscan}}. Only used if
+#'   \code{implementation=DBSCANClustering}.
 #' @param implementation function to use for clustering. Possible functions
 #'   include \code{\link{HierarchicalClustering}} (hierarchical clustering),
 #'   \code{\link{PAMClustering}} (Partioning Around Medoids),
@@ -104,7 +107,7 @@
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(30, 30, 30), nu_xc = 1
+#'   n = c(30, 30, 30), nu_xc = 1, ev_xc = 0.7
 #' )
 #' plot(simul)
 #'
@@ -120,7 +123,7 @@
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(30, 30, 30),
+#'   n = c(30, 30, 30), pk = 20,
 #'   theta_xc = c(rep(1, 10), rep(0, 10)),
 #'   ev_xc = 0.9
 #' )
@@ -136,31 +139,35 @@
 #' WeightBoxplot(stab)
 #' }
 #' @export
-Clustering <- function(xdata, nc = NULL, Lambda = NULL,
-                       pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,
+Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
+                       K = 100, tau = 0.5, seed = 1, n_cat = 3,
                        implementation = HierarchicalClustering,
                        scale = TRUE,
                        linkage = "complete",
                        n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Visiting all possible numbers of clusters
-  if (is.null(nc)) {
-    nc <- cbind(seq(1, nrow(xdata) * tau * 0.5))
-  } else {
-    if (any(nc > (nrow(xdata) * tau))) {
-      nc <- nc[nc <= (nrow(xdata) * tau)]
-      if (length(nc) > 0) {
-        warning(paste0(
-          "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
-          nrow(xdata) * tau, ". Invalid values have been removed."
-        ))
-        nc <- cbind(nc)
-      } else {
-        stop(paste0(
-          "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
-          nrow(xdata) * tau, "."
-        ))
+  if (is.null(eps)) {
+    if (is.null(nc)) {
+      nc <- cbind(seq(1, nrow(xdata) * tau * 0.5))
+    } else {
+      if (any(nc > (nrow(xdata) * tau))) {
+        nc <- nc[nc <= (nrow(xdata) * tau)]
+        if (length(nc) > 0) {
+          warning(paste0(
+            "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
+            nrow(xdata) * tau, ". Invalid values have been removed."
+          ))
+          nc <- cbind(nc)
+        } else {
+          stop(paste0(
+            "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
+            nrow(xdata) * tau, "."
+          ))
+        }
       }
     }
+  } else {
+    nc <- cbind(rep(NA, length(eps)))
   }
 
   # Error and warning messages
@@ -175,6 +182,7 @@ Clustering <- function(xdata, nc = NULL, Lambda = NULL,
   lambda_max <- NULL
   lambda_path_factor <- 0.001
   max_density <- 0.5
+  pi_list <- seq(0.6, 0.9, by = 0.01)
   bigblocks <- bigblocks_vect <- blocks <- N_blocks <- nblocks <- PFER_thr_blocks <- FDP_thr_blocks <- NULL
   CheckInputClustering(
     xdata = xdata, Lambda = Lambda,
@@ -195,8 +203,8 @@ Clustering <- function(xdata, nc = NULL, Lambda = NULL,
   # Stability selection and score
   mypar <- parallel::mclapply(X = 1:n_cores, FUN = function(k) {
     return(SerialClustering(
-      xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc),
-      pi_list = pi_list, K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
+      xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
+      K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
       implementation = implementation, scale = scale, linkage = linkage,
       output_data = output_data, verbose = verbose, ...
     ))
@@ -263,11 +271,22 @@ Clustering <- function(xdata, nc = NULL, Lambda = NULL,
 #'   parameter values stored in \code{nc} and \code{Lambda}.
 #'
 #' @keywords internal
-SerialClustering <- function(xdata, nc, Lambda,
+SerialClustering <- function(xdata, nc, eps, Lambda,
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              implementation = HierarchicalClustering,
                              scale = TRUE, linkage = "complete",
                              output_data = FALSE, verbose = TRUE, ...) {
+  # Defining the full vectors of nc and Lambda
+  if (is.null(Lambda)) {
+    # nc_full <- cbind(nc)
+    nc_full <- cbind(rep(0, length(nc)))
+    Lambda_full <- cbind(rep(NA, nrow(nc)))
+  } else {
+    # nc_full <- cbind(rep(nc, nrow(Lambda)))
+    nc_full <- cbind(rep(0, length(nc) * nrow(Lambda)))
+    Lambda_full <- cbind(rep(Lambda[, 1], each = nrow(nc)))
+  }
+  rownames(Lambda_full) <- NULL
 
   # Defining resampling method (only subsampling is available as bootstrap would give distance of zero)
   resampling <- "subsampling"
@@ -302,6 +321,10 @@ SerialClustering <- function(xdata, nc, Lambda,
     Beta <- NULL
   }
 
+  # Initialising the proportion of noise variables
+  bignoise <- matrix(0, nrow = nrow(xdata), ncol = nrow(nc_full))
+  rownames(bignoise) <- rownames(xdata)
+
   # Setting seed for reproducibility
   withr::local_seed(seed)
 
@@ -319,9 +342,15 @@ SerialClustering <- function(xdata, nc, Lambda,
     # Applying clustering algorithm
     mybeta <- ClusteringAlgo(
       xdata = Xsub,
-      Lambda = Lambda, nc = nc, scale = scale,
+      Lambda = Lambda, eps = eps, nc = nc, scale = scale,
       implementation = implementation, ...
     )
+
+    # Summing the number of clusters
+    nc_full <- nc_full + mybeta$nc
+
+    # Summing noise variable status to get the number of iterations as noise
+    bignoise[rownames(mybeta$noise), ] <- bignoise[rownames(mybeta$noise), ] + mybeta$noise
 
     # Storing weights, used to define set of selected variables
     if (!is.null(Lambda)) {
@@ -341,11 +370,19 @@ SerialClustering <- function(xdata, nc, Lambda,
     }
   }
 
+  # Calculating the mean number of clusters over subsampling iterations
+  nc_full <- nc_full / K
+
   # Computing the co-membership proportions
   for (i in 1:dim(bigstab_obs)[3]) {
     bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
   }
   bigstab_obs[is.nan(bigstab_obs)] <- NA
+
+  # Computing the noise proportion
+  for (i in 1:nrow(bignoise)) {
+    bignoise[i, ] <- bignoise[i, ] / diag(sampled_pairs)[i]
+  }
 
   if (verbose) {
     cat("\n")
@@ -359,20 +396,12 @@ SerialClustering <- function(xdata, nc, Lambda,
     }
   }
 
-  # Calibration for stable clusters (consensus clustering)
-  if (is.null(Lambda)) {
-    nc_full <- cbind(nc)
-    Lambda_full <- cbind(rep(NA, nrow(nc)))
-  } else {
-    nc_full <- cbind(rep(nc, nrow(Lambda)))
-    Lambda_full <- cbind(rep(Lambda[, 1], each = nrow(nc)))
-  }
-  rownames(Lambda_full) <- NULL
+  # Calibration of consensus clustering
   metrics2 <- matrix(NA, ncol = 1, nrow = dim(bigstab_obs)[3])
   for (i in 1:dim(bigstab_obs)[3]) {
     metrics2[i] <- ConsensusScore(
       coprop = bigstab_obs[, , i],
-      nc = nc_full[i],
+      nc = ceiling(nc_full[i]),
       K = K,
       linkage = linkage
     )
@@ -415,6 +444,8 @@ SerialClustering <- function(xdata, nc, Lambda,
     coprop = bigstab_obs,
     Beta = Beta,
     selprop = bigstab_var,
+    sampled_pairs = sampled_pairs,
+    bignoise = bignoise,
     # Q_s = metrics1$Q_s, P = metrics1$P,
     # PFER = metrics1$PFER, FDP = metrics1$FDP,
     # S_2d = metrics1$S_2d, PFER_2d = metrics1$PFER_2d, FDP_2d = metrics1$FDP_2d,

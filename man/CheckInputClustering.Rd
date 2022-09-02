@@ -26,10 +26,6 @@ columns.}
 \code{implementation=HierarchicalClustering}
 or\code{implementation=PAMClustering}.}
 
-\item{pi_list}{vector of thresholds in selection proportions. If
-\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
-\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
-
 \item{K}{number of resampling iterations.}
 
 \item{tau}{subsample size. Only used if \code{resampling="subsampling"} and

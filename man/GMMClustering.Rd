@@ -39,6 +39,7 @@ mygmm <- GMMClustering(xdata = simul$data, nc = 1:30)
 }
 \seealso{
 Other clustering algorithms: 
+\code{\link{DBSCANClustering}()},
 \code{\link{HierarchicalClustering}()},
 \code{\link{KMeansClustering}()},
 \code{\link{PAMClustering}()}
