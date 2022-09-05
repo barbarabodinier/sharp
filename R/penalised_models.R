@@ -79,7 +79,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
       # Preparing the outputs
       beta_full <- mybeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
       if ("penalty.factor" %in% names(extra_args)) {
-        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor == 1)], drop = FALSE] != 0, yes = 1, no = 0)
+        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor != 0)], drop = FALSE] != 0, yes = 1, no = 0)
       } else {
         selected <- ifelse(mybeta[, colnames(xdata), drop = FALSE] != 0, yes = 1, no = 0)
       }
@@ -134,7 +134,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
 
       # Preparing the outputs
       if ("penalty.factor" %in% names(extra_args)) {
-        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor == 1)], 1, drop = FALSE] != 0, yes = 1, no = 0)
+        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor != 0)], 1, drop = FALSE] != 0, yes = 1, no = 0)
       } else {
         selected <- ifelse(mybeta[, , 1, drop = FALSE] != 0, yes = 1, no = 0)
       }
