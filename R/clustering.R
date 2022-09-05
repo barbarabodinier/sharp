@@ -8,8 +8,7 @@
 #' score.
 #'
 #' @inheritParams VariableSelection
-#' @param xdata data matrix with items (to cluster) as rows and attributes as
-#'   columns.
+#' @param xdata data matrix with observations as rows and variables as columns.
 #' @param Lambda vector of penalty parameters. Only used if
 #'   \code{implementation=HierarchicalClustering}
 #'   or\code{implementation=PAMClustering}.
@@ -33,13 +32,17 @@
 #'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
 #'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 #'   Only used if \code{implementation=HierarchicalClustering}.
+#' @param row logical indicating if rows (if \code{row=TRUE}) or columns (if
+#'   \code{row=FALSE}) contain the items to cluster.
 #'
 #' @details In consensus clustering, a clustering algorithm is applied on
-#'   \code{K} subsamples of the items with different numbers of clusters
-#'   provided in \code{nc}. For a given number of clusters, the consensus matrix
-#'   \code{coprop} stores the proportion of iterations where two items were in
-#'   the same estimated cluster, out of all iterations where both items were
-#'   drawn in the subsample.
+#'   \code{K} subsamples of the observations with different numbers of clusters
+#'   provided in \code{nc}. If \code{row=TRUE} (the default), the observations
+#'   (rows) are the items to cluster. If \code{row=FALSE}, the variables
+#'   (columns) are the items to cluster. For a given number of clusters, the
+#'   consensus matrix \code{coprop} stores the proportion of iterations where
+#'   two items were in the same estimated cluster, out of all iterations where
+#'   both items were drawn in the subsample.
 #'
 #'   Stable cluster membership is obtained by applying a distance-based
 #'   clustering method using \code{(1-coprop)} as distance (see
@@ -144,25 +147,32 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
                        implementation = HierarchicalClustering,
                        scale = TRUE,
                        linkage = "complete",
+                       row = TRUE,
                        n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Visiting all possible numbers of clusters
   if (is.null(eps)) {
     if (is.null(nc)) {
-      nc <- cbind(seq(1, nrow(xdata) * tau * 0.5))
+      if (row) {
+        nc <- cbind(seq(1, nrow(xdata) * tau * 0.5))
+      } else {
+        nc <- cbind(seq(1, ncol(xdata) * 0.5))
+      }
     } else {
-      if (any(nc > (nrow(xdata) * tau))) {
-        nc <- nc[nc <= (nrow(xdata) * tau)]
-        if (length(nc) > 0) {
-          warning(paste0(
-            "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
-            nrow(xdata) * tau, ". Invalid values have been removed."
-          ))
-          nc <- cbind(nc)
-        } else {
-          stop(paste0(
-            "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
-            nrow(xdata) * tau, "."
-          ))
+      if (row) {
+        if (any(nc > (nrow(xdata) * tau))) {
+          nc <- nc[nc <= (nrow(xdata) * tau)]
+          if (length(nc) > 0) {
+            warning(paste0(
+              "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
+              nrow(xdata) * tau, ". Invalid values have been removed."
+            ))
+            nc <- cbind(nc)
+          } else {
+            stop(paste0(
+              "Invalid input for argument 'nc'. The number of clusters can not exceed the subsample size: ",
+              nrow(xdata) * tau, "."
+            ))
+          }
         }
       }
     }
@@ -205,7 +215,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
     return(SerialClustering(
       xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
       K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
-      implementation = implementation, scale = scale, linkage = linkage,
+      implementation = implementation, scale = scale, linkage = linkage, row = row,
       output_data = output_data, verbose = verbose, ...
     ))
   }) # keep pk for correct number of blocks etc
@@ -274,7 +284,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 SerialClustering <- function(xdata, nc, eps, Lambda,
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              implementation = HierarchicalClustering,
-                             scale = TRUE, linkage = "complete",
+                             scale = TRUE, linkage = "complete", row = TRUE,
                              output_data = FALSE, verbose = TRUE, ...) {
   # Defining the full vectors of nc and Lambda
   if (is.null(Lambda)) {
@@ -297,18 +307,31 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   # Initialising objects to be filled
   N <- N_block <- ncol(xdata)
 
+  # Defining number of items
+  if (row) {
+    n_items <- nrow(xdata)
+    item_names <- rownames(xdata)
+    attribute_names <- colnames(xdata)
+  } else {
+    n_items <- ncol(xdata)
+    item_names <- colnames(xdata)
+    attribute_names <- rownames(xdata)
+  }
+
   # Initialising array of co-membership proportions
   if (!is.null(Lambda)) {
     bigstab_obs <- array(0,
-      dim = c(nrow(xdata), nrow(xdata), nrow(Lambda) * nrow(nc)),
-      dimnames = list(rownames(xdata), rownames(xdata), NULL)
+      dim = c(n_items, n_items, nrow(Lambda) * nrow(nc)),
+      dimnames = list(item_names, item_names, NULL)
     )
   } else {
     bigstab_obs <- array(0,
-      dim = c(nrow(xdata), nrow(xdata), nrow(nc)),
-      dimnames = list(rownames(xdata), rownames(xdata), NULL)
+      dim = c(n_items, n_items, nrow(nc)),
+      dimnames = list(item_names, item_names, NULL)
     )
   }
+
+  # Initialising for subsampling of the rows
   sampled_pairs <- matrix(0, nrow = nrow(xdata), ncol = nrow(xdata))
   rownames(sampled_pairs) <- colnames(sampled_pairs) <- rownames(xdata)
 
@@ -316,14 +339,14 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   if (!is.null(Lambda)) {
     Beta <- array(0, dim = c(nrow(Lambda) * nrow(nc), ncol(xdata), K))
     rownames(Beta) <- paste0("s", seq(0, nrow(Beta) - 1))
-    colnames(Beta) <- colnames(xdata)
+    colnames(Beta) <- attribute_names
   } else {
     Beta <- NULL
   }
 
   # Initialising the proportion of noise variables
-  bignoise <- matrix(0, nrow = nrow(xdata), ncol = nrow(nc_full))
-  rownames(bignoise) <- rownames(xdata)
+  bignoise <- matrix(0, nrow = n_items, ncol = nrow(nc_full))
+  rownames(bignoise) <- item_names
 
   # Setting seed for reproducibility
   withr::local_seed(seed)
@@ -342,7 +365,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
     # Applying clustering algorithm
     mybeta <- ClusteringAlgo(
       xdata = Xsub,
-      Lambda = Lambda, eps = eps, nc = nc, scale = scale,
+      Lambda = Lambda, eps = eps, nc = nc, scale = scale, row = row,
       implementation = implementation, ...
     )
 
@@ -359,7 +382,11 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
 
     # Storing co-membership status
     for (i in 1:dim(mybeta$comembership)[3]) {
-      bigstab_obs[s, s, i] <- bigstab_obs[s, s, i] + mybeta$comembership[, , i]
+      if (row) {
+        bigstab_obs[s, s, i] <- bigstab_obs[s, s, i] + mybeta$comembership[, , i]
+      } else {
+        bigstab_obs[, , i] <- bigstab_obs[, , i] + mybeta$comembership[, , i]
+      }
     }
 
     # Storing sampled pairs
@@ -375,13 +402,21 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
 
   # Computing the co-membership proportions
   for (i in 1:dim(bigstab_obs)[3]) {
-    bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
+    if (row) {
+      bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
+    } else {
+      bigstab_obs[, , i] <- bigstab_obs[, , i] / K
+    }
   }
   bigstab_obs[is.nan(bigstab_obs)] <- NA
 
   # Computing the noise proportion
   for (i in 1:nrow(bignoise)) {
-    bignoise[i, ] <- bignoise[i, ] / diag(sampled_pairs)[i]
+    if (row) {
+      bignoise[i, ] <- bignoise[i, ] / diag(sampled_pairs)[i]
+    } else {
+      bignoise[i, ] <- bignoise[i, ] / K
+    }
   }
 
   if (verbose) {

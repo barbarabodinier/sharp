@@ -212,6 +212,7 @@ ClusteringAlgo <- function(xdata,
                            eps = NULL,
                            Lambda = NULL,
                            scale = TRUE,
+                           row = TRUE,
                            implementation = HierarchicalClustering, ...) {
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
@@ -231,6 +232,7 @@ ClusteringAlgo <- function(xdata,
     eps = eps,
     Lambda = Lambda,
     scale = scale,
+    row = row,
     ...
   ))
 

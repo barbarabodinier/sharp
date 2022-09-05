@@ -16,14 +16,14 @@ SerialClustering(
   implementation = HierarchicalClustering,
   scale = TRUE,
   linkage = "complete",
+  row = TRUE,
   output_data = FALSE,
   verbose = TRUE,
   ...
 )
 }
 \arguments{
-\item{xdata}{data matrix with items (to cluster) as rows and attributes as
-columns.}
+\item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is
@@ -64,6 +64,9 @@ hierarchical clustering to define the stable clusters. Possible values
 include \code{"complete"}, \code{"single"} and \code{"average"} (see
 argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 Only used if \code{implementation=HierarchicalClustering}.}
+
+\item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
+\code{row=FALSE}) contain the items to cluster.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

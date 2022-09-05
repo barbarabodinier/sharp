@@ -16,6 +16,7 @@ Clustering(
   implementation = HierarchicalClustering,
   scale = TRUE,
   linkage = "complete",
+  row = TRUE,
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
@@ -23,8 +24,7 @@ Clustering(
 )
 }
 \arguments{
-\item{xdata}{data matrix with items (to cluster) as rows and attributes as
-columns.}
+\item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is
@@ -65,6 +65,9 @@ hierarchical clustering to define the stable clusters. Possible values
 include \code{"complete"}, \code{"single"} and \code{"average"} (see
 argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 Only used if \code{implementation=HierarchicalClustering}.}
+
+\item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
+\code{row=FALSE}) contain the items to cluster.}
 
 \item{n_cores}{number of cores to use for parallel computing (see
 \code{\link[parallel]{mclapply}}). Only available on Unix systems.}
@@ -110,11 +113,13 @@ score.
 }
 \details{
 In consensus clustering, a clustering algorithm is applied on
-  \code{K} subsamples of the items with different numbers of clusters
-  provided in \code{nc}. For a given number of clusters, the consensus matrix
-  \code{coprop} stores the proportion of iterations where two items were in
-  the same estimated cluster, out of all iterations where both items were
-  drawn in the subsample.
+  \code{K} subsamples of the observations with different numbers of clusters
+  provided in \code{nc}. If \code{row=TRUE} (the default), the observations
+  (rows) are the items to cluster. If \code{row=FALSE}, the variables
+  (columns) are the items to cluster. For a given number of clusters, the
+  consensus matrix \code{coprop} stores the proportion of iterations where
+  two items were in the same estimated cluster, out of all iterations where
+  both items were drawn in the subsample.
 
   Stable cluster membership is obtained by applying a distance-based
   clustering method using \code{(1-coprop)} as distance (see

@@ -7,8 +7,7 @@
 GMMClustering(xdata, nc = NULL, scale = TRUE, ...)
 }
 \arguments{
-\item{xdata}{data matrix with items (to cluster) as rows and attributes as
-columns.}
+\item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is

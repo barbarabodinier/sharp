@@ -19,8 +19,7 @@ CheckInputClustering(
 )
 }
 \arguments{
-\item{xdata}{data matrix with items (to cluster) as rows and attributes as
-columns.}
+\item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{Lambda}{vector of penalty parameters. Only used if
 \code{implementation=HierarchicalClustering}

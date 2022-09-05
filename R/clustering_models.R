@@ -56,7 +56,7 @@
 #' @export
 HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
                                    distance = "euclidian", linkage = "complete",
-                                   scale = TRUE, ...) {
+                                   scale = TRUE, row = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -95,13 +95,22 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
     xdata <- scale(xdata)
   }
 
+  # Transposing if clustering of columns
+  if (!row) {
+    xdata <- t(xdata)
+  }
+
   # Re-formatting nc
   if (!is.null(nc)) {
     if (is.vector(nc)) {
       nc <- cbind(nc)
     }
   } else {
-    nc <- cbind(seq(1, nrow(xdata)))
+    if (row) {
+      nc <- cbind(seq(1, nrow(xdata)))
+    } else {
+      nc <- cbind(seq(1, ncol(xdata)))
+    }
   }
 
   # Extracting relevant extra arguments (cosa2)

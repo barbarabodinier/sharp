@@ -11,12 +11,12 @@ HierarchicalClustering(
   distance = "euclidian",
   linkage = "complete",
   scale = TRUE,
+  row = TRUE,
   ...
 )
 }
 \arguments{
-\item{xdata}{data matrix with items (to cluster) as rows and attributes as
-columns.}
+\item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is
@@ -42,6 +42,9 @@ Only used if \code{implementation=HierarchicalClustering}.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
+
+\item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
+\code{row=FALSE}) contain the items to cluster.}
 
 \item{...}{additional parameters passed to \code{\link[stats]{hclust}},
 \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. Parameters
