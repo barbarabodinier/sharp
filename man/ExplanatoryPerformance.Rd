@@ -11,12 +11,14 @@ ExplanatoryPerformance(
   family = NULL,
   implementation = NULL,
   prediction = NULL,
+  resampling = "subsampling",
   K = 1,
   tau = 0.8,
   seed = 1,
   n_thr = NULL,
   ij_method = FALSE,
-  time = 1000
+  time = 1000,
+  ...
 )
 }
 \arguments{
@@ -48,6 +50,13 @@ regression), \code{\link[survival]{coxph}} (Cox regression),
 \item{prediction}{optional function to compute predicted values from the
 model refitted with \code{implementation}.}
 
+\item{resampling}{resampling approach to create the training set. The default
+is \code{"subsampling"} for sampling without replacement of a proportion
+\code{tau} of the observations. Alternatively, this argument can be a
+function to use for resampling. This function must use arguments named
+\code{data} and \code{tau} and return the IDs of observations to be
+included in the resampled dataset.}
+
 \item{K}{number of training-test splits.}
 
 \item{tau}{proportion of observations used in the training set.}
@@ -60,8 +69,8 @@ thresholds. For faster computations on large data, less thresholds can be
 used. Only applicable to logistic regression.}
 
 \item{ij_method}{logical indicating if the analysis should be done for only
-one refitting/test split with variance of the concordance index should
-be computed using the infinitesimal jackknife method as implemented in
+one refitting/test split with variance of the concordance index should be
+computed using the infinitesimal jackknife method as implemented in
 \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 default), the concordance indices computed for different refitting/test
 splits are reported. If \code{ij_method=TRUE}, the concordance index and
@@ -70,6 +79,9 @@ to Cox regression.}
 
 \item{time}{numeric indicating the time for which the survival probabilities
 are computed. Only applicable to Cox regression.}
+
+\item{...}{additional parameters passed to the function provided in
+\code{resampling}.}
 }
 \value{
 A list with: \item{TPR}{True Positive Rate (for logistic regression

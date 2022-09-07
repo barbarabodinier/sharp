@@ -522,13 +522,21 @@ Recalibrate <- Refit
 #' @param time numeric indicating the time for which the survival probabilities
 #'   are computed. Only applicable to Cox regression.
 #' @param ij_method logical indicating if the analysis should be done for only
-#'   one refitting/test split with variance of the concordance index should
-#'   be computed using the infinitesimal jackknife method as implemented in
+#'   one refitting/test split with variance of the concordance index should be
+#'   computed using the infinitesimal jackknife method as implemented in
 #'   \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 #'   default), the concordance indices computed for different refitting/test
 #'   splits are reported. If \code{ij_method=TRUE}, the concordance index and
 #'   estimated confidence interval at level 0.05 are reported. Only applicable
 #'   to Cox regression.
+#' @param resampling resampling approach to create the training set. The default
+#'   is \code{"subsampling"} for sampling without replacement of a proportion
+#'   \code{tau} of the observations. Alternatively, this argument can be a
+#'   function to use for resampling. This function must use arguments named
+#'   \code{data} and \code{tau} and return the IDs of observations to be
+#'   included in the resampled dataset.
+#' @param ... additional parameters passed to the function provided in
+#'   \code{resampling}.
 #'
 #' @details For a fair evaluation of the prediction performance, the data is
 #'   split into a training set (including a proportion \code{tau} of the
@@ -727,10 +735,10 @@ Recalibrate <- Refit
 #' @export
 ExplanatoryPerformance <- function(xdata, ydata,
                                    stability = NULL, family = NULL,
-                                   implementation = NULL, prediction = NULL,
+                                   implementation = NULL, prediction = NULL, resampling = "subsampling",
                                    K = 1, tau = 0.8, seed = 1,
                                    n_thr = NULL,
-                                   ij_method = FALSE, time = 1000) {
+                                   ij_method = FALSE, time = 1000, ...) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -784,7 +792,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
       iter <- iter + 1
       if (n_folds == 1) {
         # Balanced training/test split
-        ids_test <- Resample(data = ydata, tau = 1 - tau, family = family)
+        ids_test <- Resample(data = ydata, tau = 1 - tau, family = family, resampling = resampling, ...)
       } else {
         if (fold_id == 1) {
           ids_folds <- Folds(data = ydata, n_folds = n_folds)
@@ -1104,12 +1112,12 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' @export
 Incremental <- function(xdata, ydata,
                         stability = NULL, family = NULL,
-                        implementation = NULL, prediction = NULL,
+                        implementation = NULL, prediction = NULL, resampling = "subsampling",
                         n_predictors = NULL,
                         K = 100, tau = 0.8, seed = 1,
                         n_thr = NULL,
                         ij_method = FALSE, time = 1000,
-                        verbose = TRUE) {
+                        verbose = TRUE, ...) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -1186,9 +1194,11 @@ Incremental <- function(xdata, ydata,
       family = family,
       implementation = implementation,
       prediction = prediction,
+      resampling = resampling,
       K = K, tau = tau, seed = seed,
       n_thr = n_thr,
-      ij_method = ij_method, time = time
+      ij_method = ij_method, time = time,
+      ...
     )
     if (family == "binomial") {
       FPR <- c(FPR, list(perf$FPR))

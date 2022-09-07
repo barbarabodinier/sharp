@@ -11,6 +11,7 @@ Incremental(
   family = NULL,
   implementation = NULL,
   prediction = NULL,
+  resampling = "subsampling",
   n_predictors = NULL,
   K = 100,
   tau = 0.8,
@@ -18,7 +19,8 @@ Incremental(
   n_thr = NULL,
   ij_method = FALSE,
   time = 1000,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -50,6 +52,13 @@ regression), \code{\link[survival]{coxph}} (Cox regression),
 \item{prediction}{optional function to compute predicted values from the
 model refitted with \code{implementation}.}
 
+\item{resampling}{resampling approach to create the training set. The default
+is \code{"subsampling"} for sampling without replacement of a proportion
+\code{tau} of the observations. Alternatively, this argument can be a
+function to use for resampling. This function must use arguments named
+\code{data} and \code{tau} and return the IDs of observations to be
+included in the resampled dataset.}
+
 \item{n_predictors}{number of predictors to consider.}
 
 \item{K}{number of training-test splits.}
@@ -64,8 +73,8 @@ thresholds. For faster computations on large data, less thresholds can be
 used. Only applicable to logistic regression.}
 
 \item{ij_method}{logical indicating if the analysis should be done for only
-one refitting/test split with variance of the concordance index should
-be computed using the infinitesimal jackknife method as implemented in
+one refitting/test split with variance of the concordance index should be
+computed using the infinitesimal jackknife method as implemented in
 \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 default), the concordance indices computed for different refitting/test
 splits are reported. If \code{ij_method=TRUE}, the concordance index and
@@ -77,6 +86,9 @@ are computed. Only applicable to Cox regression.}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
+
+\item{...}{additional parameters passed to the function provided in
+\code{resampling}.}
 }
 \value{
 An object of class \code{incremental}.
