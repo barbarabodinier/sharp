@@ -68,9 +68,9 @@ Ensemble <- function(stability, xdata, ydata) {
     models <- list()
     for (k in 1:nrow(beta)) {
       # Calculating intercept for specific beta coefficients
-      b <- beta[k, ]
+      b <- cbind(beta[k, ])
       # a=mean(ydata)-apply(xdata, 2, mean)%*%b
-      tmpy <- ydata - xdata %*% b
+      tmpy <- ydata - as.matrix(xdata) %*% b
       a <- stats::coef(stats::lm(tmpy ~ 1))
       intercept[k] <- a
 
@@ -100,8 +100,8 @@ Ensemble <- function(stability, xdata, ydata) {
     models <- list()
     for (k in 1:nrow(beta)) {
       # Calculating intercept for specific beta coefficients
-      b <- beta[k, ]
-      tmp <- as.vector(xdata %*% b)
+      b <- cbind(beta[k, ])
+      tmp <- as.vector(as.matrix(xdata) %*% b)
       a <- unname(stats::coef(stats::glm(ydata ~ 1, offset = tmp, family = stats::binomial(link = "logit"))))
       intercept[k] <- a
 

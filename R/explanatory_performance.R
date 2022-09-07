@@ -409,6 +409,8 @@ Refit <- function(xdata, ydata, stability = NULL,
       if (!is.vector(ydata)) {
         if (ncol(ydata) != 1) {
           ydata <- DummyToCategories(ydata)
+        } else {
+          ydata <- as.numeric(ydata)
         }
       }
     }
@@ -922,6 +924,8 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #'
 #' @inheritParams ExplanatoryPerformance
 #' @param n_predictors number of predictors to consider.
+#' @param verbose logical indicating if a loading bar and messages should be
+#'   printed.
 #'
 #' @return An object of class \code{incremental}.
 #'
@@ -1104,7 +1108,8 @@ Incremental <- function(xdata, ydata,
                         n_predictors = NULL,
                         K = 100, tau = 0.8, seed = 1,
                         n_thr = NULL,
-                        ij_method = FALSE, time = 1000) {
+                        ij_method = FALSE, time = 1000,
+                        verbose = TRUE) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -1169,6 +1174,10 @@ Incremental <- function(xdata, ydata,
     Q_squared <- list()
   }
 
+  if (verbose) {
+    pb <- utils::txtProgressBar(style = 3)
+  }
+
   for (k in 1:n_predictors) {
     perf <- ExplanatoryPerformance(
       xdata = xdata[, myorder[1:k], drop = FALSE],
@@ -1199,6 +1208,10 @@ Incremental <- function(xdata, ydata,
       Q_squared <- c(Q_squared, list(perf$Q_squared))
     }
     Beta <- c(Beta, list(perf$Beta))
+
+    if (verbose) {
+      utils::setTxtProgressBar(pb, k / n_predictors)
+    }
   }
 
   # Preparing the output
@@ -1499,22 +1512,22 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
       xlower <- perf$lower
       xupper <- perf$upper
     } else {
-      x <- sapply(perf$concordance, stats::median)
-      xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1])
-      xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2])
+      x <- sapply(perf$concordance, stats::median, na.rm = TRUE)
+      xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1], na.rm = TRUE)
+      xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2], na.rm = TRUE)
     }
   }
 
   if ("AUC" %in% names(perf)) {
-    x <- sapply(perf$AUC, stats::median)
-    xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1])
-    xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2])
+    x <- sapply(perf$AUC, stats::median, na.rm = TRUE)
+    xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1], na.rm = TRUE)
+    xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
 
   if ("Q_squared" %in% names(perf)) {
-    x <- sapply(perf$Q_squared, stats::median)
-    xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1])
-    xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2])
+    x <- sapply(perf$Q_squared, stats::median, na.rm = TRUE)
+    xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1], na.rm = TRUE)
+    xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
   xseq <- 1:length(x)
 

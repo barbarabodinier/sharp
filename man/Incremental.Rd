@@ -17,7 +17,8 @@ Incremental(
   seed = 1,
   n_thr = NULL,
   ij_method = FALSE,
-  time = 1000
+  time = 1000,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -73,6 +74,9 @@ to Cox regression.}
 
 \item{time}{numeric indicating the time for which the survival probabilities
 are computed. Only applicable to Cox regression.}
+
+\item{verbose}{logical indicating if a loading bar and messages should be
+printed.}
 }
 \value{
 An object of class \code{incremental}.
