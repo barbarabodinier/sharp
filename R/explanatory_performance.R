@@ -91,7 +91,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
   # Defining the thresholds
   breaks <- sort(unique(predicted), decreasing = FALSE)
   if (length(breaks) <= 1) {
-    message("The predicted value is the same for all predictors.")
+    message("The predicted value is the same for all observations.")
     FPR <- TPR <- AUC <- NA
   } else {
     breaks <- breaks[-length(breaks)]
@@ -99,7 +99,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
       if (length(breaks) > n_thr) {
         breaks <- breaks[floor(seq(1, length(breaks), length.out = n_thr))]
       } else {
-        breaks <- seq(min(breaks), max(breaks), length.out = n_thr)
+        breaks <- sort(c(breaks, seq(min(breaks), max(breaks), length.out = n_thr - length(breaks))))
       }
     }
 
@@ -785,6 +785,11 @@ ExplanatoryPerformance <- function(xdata, ydata,
   # Setting seed for reproducibility
   withr::local_seed(seed)
 
+  # Defining the number of thresholds to use for AUC calculations
+  if (is.null(n_thr)) {
+    n_thr <- floor((1 - tau) * nrow(xdata))
+  }
+
   # Running the subsampling iterations
   iter <- 0
   for (k in 1:K) {
@@ -850,7 +855,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
 
         # Initialisation of the object
         if (iter == 1) {
-          n_thr <- length(roc$FPR) - 2
+          # n_thr <- length(roc$FPR) - 2
           FPR <- TPR <- matrix(NA, nrow = K * n_folds, ncol = length(roc$TPR))
           AUC <- rep(NA, K * n_folds)
         }
