@@ -560,7 +560,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
         dimnames = list(rownames(mybeta$beta_full), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
       )
     } else {
-      stop(paste0("Invalid output from the variable selection function: ", implementation, "(). The output 'beta_full' must be an array with 2 or 3 dimensions."))
+      stop(paste0("Invalid output from the variable selection function provided in 'implementation'. The output 'beta_full' must be an array with 2 or 3 dimensions."))
     }
   }
 
