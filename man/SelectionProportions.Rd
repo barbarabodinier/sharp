@@ -91,6 +91,9 @@ Other calibration functions:
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
-\code{\link{SelectedVariables}()}
+\code{\link{Clusters}()},
+\code{\link{ConsensusMatrix}()},
+\code{\link{SelectedVariables}()},
+\code{\link{WeightBoxplot}()}
 }
 \concept{calibration functions}

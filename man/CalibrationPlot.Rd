@@ -23,6 +23,7 @@ CalibrationPlot(
   legend = TRUE,
   legend_length = NULL,
   legend_range = NULL,
+  ncol = 1,
   xlab = NULL,
   ylab = NULL,
   zlab = expression(italic(q)),
@@ -31,6 +32,7 @@ CalibrationPlot(
   zlas = 2,
   cex.lab = 1.5,
   cex.axis = 1,
+  cex.legend = 1.2,
   xgrid = FALSE,
   ygrid = FALSE,
   params = c("ny", "alphay", "nx", "alphax")
@@ -61,7 +63,8 @@ drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \code{"n"} (no box).}
 
 \item{lines}{logical indicating if the points should be linked by lines. Only
-used if \code{stability} is the output of \code{\link{BiSelection}}.}
+used if \code{stability} is the output of \code{\link{BiSelection}} or
+\code{\link{Clustering}}.}
 
 \item{lty}{line type, as in \code{\link[graphics]{par}}. Only used if
 \code{stability} is the output of \code{\link{BiSelection}}.}
@@ -95,6 +98,8 @@ is the output of \code{\link{VariableSelection}} or
 the output of \code{\link{VariableSelection}} or
 \code{\link{GraphicalModel}}.}
 
+\item{ncol}{integer indicating the number of columns in the legend.}
+
 \item{xlab}{label of the x-axis.}
 
 \item{ylab}{label of the y-axis.}
@@ -114,6 +119,8 @@ of \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}.}
 \item{cex.lab}{font size for labels.}
 
 \item{cex.axis}{font size for axes.}
+
+\item{cex.legend}{font size for text legend entries.}
 
 \item{xgrid}{logical indicating if a vertical grid should be drawn. Only used
 if \code{stability} is the output of \code{\link{BiSelection}}.}
@@ -195,7 +202,10 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
+\code{\link{Clusters}()},
+\code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()}
+\code{\link{SelectionProportions}()},
+\code{\link{WeightBoxplot}()}
 }
 \concept{calibration functions}

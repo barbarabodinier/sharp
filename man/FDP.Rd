@@ -32,6 +32,7 @@ fdp <- FDP(PFER = 3, selprop = selprop, pi = 0.8)
 }
 \seealso{
 Other stability metric functions: 
+\code{\link{ConsensusScore}()},
 \code{\link{PFER}()},
 \code{\link{StabilityMetrics}()},
 \code{\link{StabilityScore}()}

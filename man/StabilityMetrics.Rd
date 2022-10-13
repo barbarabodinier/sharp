@@ -156,6 +156,7 @@ metrics <- StabilityMetrics(
 }
 \seealso{
 Other stability metric functions: 
+\code{\link{ConsensusScore}()},
 \code{\link{FDP}()},
 \code{\link{PFER}()},
 \code{\link{StabilityScore}()}

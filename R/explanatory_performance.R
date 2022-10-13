@@ -91,7 +91,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
   # Defining the thresholds
   breaks <- sort(unique(predicted), decreasing = FALSE)
   if (length(breaks) <= 1) {
-    message("The predicted value is the same for all predictors.")
+    message("The predicted value is the same for all observations.")
     FPR <- TPR <- AUC <- NA
   } else {
     breaks <- breaks[-length(breaks)]
@@ -99,7 +99,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
       if (length(breaks) > n_thr) {
         breaks <- breaks[floor(seq(1, length(breaks), length.out = n_thr))]
       } else {
-        breaks <- seq(min(breaks), max(breaks), length.out = n_thr)
+        breaks <- sort(c(breaks, seq(min(breaks), max(breaks), length.out = n_thr - length(breaks))))
       }
     }
 
@@ -409,6 +409,8 @@ Refit <- function(xdata, ydata, stability = NULL,
       if (!is.vector(ydata)) {
         if (ncol(ydata) != 1) {
           ydata <- DummyToCategories(ydata)
+        } else {
+          ydata <- as.numeric(ydata)
         }
       }
     }
@@ -520,13 +522,21 @@ Recalibrate <- Refit
 #' @param time numeric indicating the time for which the survival probabilities
 #'   are computed. Only applicable to Cox regression.
 #' @param ij_method logical indicating if the analysis should be done for only
-#'   one refitting/test split with variance of the concordance index should
-#'   be computed using the infinitesimal jackknife method as implemented in
+#'   one refitting/test split with variance of the concordance index should be
+#'   computed using the infinitesimal jackknife method as implemented in
 #'   \code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
 #'   default), the concordance indices computed for different refitting/test
 #'   splits are reported. If \code{ij_method=TRUE}, the concordance index and
 #'   estimated confidence interval at level 0.05 are reported. Only applicable
 #'   to Cox regression.
+#' @param resampling resampling approach to create the training set. The default
+#'   is \code{"subsampling"} for sampling without replacement of a proportion
+#'   \code{tau} of the observations. Alternatively, this argument can be a
+#'   function to use for resampling. This function must use arguments named
+#'   \code{data} and \code{tau} and return the IDs of observations to be
+#'   included in the resampled dataset.
+#' @param ... additional parameters passed to the function provided in
+#'   \code{resampling}.
 #'
 #' @details For a fair evaluation of the prediction performance, the data is
 #'   split into a training set (including a proportion \code{tau} of the
@@ -725,10 +735,10 @@ Recalibrate <- Refit
 #' @export
 ExplanatoryPerformance <- function(xdata, ydata,
                                    stability = NULL, family = NULL,
-                                   implementation = NULL, prediction = NULL,
+                                   implementation = NULL, prediction = NULL, resampling = "subsampling",
                                    K = 1, tau = 0.8, seed = 1,
                                    n_thr = NULL,
-                                   ij_method = FALSE, time = 1000) {
+                                   ij_method = FALSE, time = 1000, ...) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -775,6 +785,11 @@ ExplanatoryPerformance <- function(xdata, ydata,
   # Setting seed for reproducibility
   withr::local_seed(seed)
 
+  # Defining the number of thresholds to use for AUC calculations
+  if (is.null(n_thr)) {
+    n_thr <- floor((1 - tau) * nrow(xdata))
+  }
+
   # Running the subsampling iterations
   iter <- 0
   for (k in 1:K) {
@@ -782,7 +797,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
       iter <- iter + 1
       if (n_folds == 1) {
         # Balanced training/test split
-        ids_test <- Resample(data = ydata, tau = 1 - tau, family = family)
+        ids_test <- Resample(data = ydata, tau = 1 - tau, family = family, resampling = resampling, ...)
       } else {
         if (fold_id == 1) {
           ids_folds <- Folds(data = ydata, n_folds = n_folds)
@@ -840,7 +855,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
 
         # Initialisation of the object
         if (iter == 1) {
-          n_thr <- length(roc$FPR) - 2
+          # n_thr <- length(roc$FPR) - 2
           FPR <- TPR <- matrix(NA, nrow = K * n_folds, ncol = length(roc$TPR))
           AUC <- rep(NA, K * n_folds)
         }
@@ -922,6 +937,8 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #'
 #' @inheritParams ExplanatoryPerformance
 #' @param n_predictors number of predictors to consider.
+#' @param verbose logical indicating if a loading bar and messages should be
+#'   printed.
 #'
 #' @return An object of class \code{incremental}.
 #'
@@ -1100,11 +1117,12 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #' @export
 Incremental <- function(xdata, ydata,
                         stability = NULL, family = NULL,
-                        implementation = NULL, prediction = NULL,
+                        implementation = NULL, prediction = NULL, resampling = "subsampling",
                         n_predictors = NULL,
                         K = 100, tau = 0.8, seed = 1,
                         n_thr = NULL,
-                        ij_method = FALSE, time = 1000) {
+                        ij_method = FALSE, time = 1000,
+                        verbose = TRUE, ...) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -1169,6 +1187,10 @@ Incremental <- function(xdata, ydata,
     Q_squared <- list()
   }
 
+  if (verbose) {
+    pb <- utils::txtProgressBar(style = 3)
+  }
+
   for (k in 1:n_predictors) {
     perf <- ExplanatoryPerformance(
       xdata = xdata[, myorder[1:k], drop = FALSE],
@@ -1177,9 +1199,11 @@ Incremental <- function(xdata, ydata,
       family = family,
       implementation = implementation,
       prediction = prediction,
+      resampling = resampling,
       K = K, tau = tau, seed = seed,
       n_thr = n_thr,
-      ij_method = ij_method, time = time
+      ij_method = ij_method, time = time,
+      ...
     )
     if (family == "binomial") {
       FPR <- c(FPR, list(perf$FPR))
@@ -1199,6 +1223,10 @@ Incremental <- function(xdata, ydata,
       Q_squared <- c(Q_squared, list(perf$Q_squared))
     }
     Beta <- c(Beta, list(perf$Beta))
+
+    if (verbose) {
+      utils::setTxtProgressBar(pb, k / n_predictors)
+    }
   }
 
   # Preparing the output
@@ -1499,22 +1527,22 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
       xlower <- perf$lower
       xupper <- perf$upper
     } else {
-      x <- sapply(perf$concordance, stats::median)
-      xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1])
-      xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2])
+      x <- sapply(perf$concordance, stats::median, na.rm = TRUE)
+      xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1], na.rm = TRUE)
+      xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2], na.rm = TRUE)
     }
   }
 
   if ("AUC" %in% names(perf)) {
-    x <- sapply(perf$AUC, stats::median)
-    xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1])
-    xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2])
+    x <- sapply(perf$AUC, stats::median, na.rm = TRUE)
+    xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1], na.rm = TRUE)
+    xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
 
   if ("Q_squared" %in% names(perf)) {
-    x <- sapply(perf$Q_squared, stats::median)
-    xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1])
-    xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2])
+    x <- sapply(perf$Q_squared, stats::median, na.rm = TRUE)
+    xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1], na.rm = TRUE)
+    xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
   xseq <- 1:length(x)
 
@@ -1577,3 +1605,7 @@ PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
     return(mat)
   }
 }
+
+#' @rdname PlotIncremental
+#' @export
+IncrementalPlot <- PlotIncremental

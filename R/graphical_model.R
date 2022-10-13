@@ -608,5 +608,9 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
       out$params <- c(out$params, list(xdata = xdata))
     }
   }
+
+  # Defining the class
+  class(out) <- "graphical_model"
+
   return(out)
 }
