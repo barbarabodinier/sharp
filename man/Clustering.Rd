@@ -202,6 +202,7 @@ WeightBoxplot(stab)
 Other stability selection functions: 
 \code{\link{BiSelection}()},
 \code{\link{GraphicalModel}()},
+\code{\link{StructuralEquations}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability selection functions}

@@ -417,13 +417,14 @@ par(oldpar)
 \seealso{
 \code{\link{PenalisedRegression}}, \code{\link{SelectionAlgo}},
   \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
-  \code{\link{StabilityScore}} \code{\link{Refit}},
+  \code{\link{StabilityScore}}, \code{\link{Refit}},
   \code{\link{ExplanatoryPerformance}}, \code{\link{PlotROC}},
   \code{\link{Incremental}}, \code{\link{PlotIncremental}}
 
 Other stability selection functions: 
 \code{\link{BiSelection}()},
 \code{\link{Clustering}()},
-\code{\link{GraphicalModel}()}
+\code{\link{GraphicalModel}()},
+\code{\link{StructuralEquations}()}
 }
 \concept{stability selection functions}

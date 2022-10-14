@@ -21,10 +21,12 @@ Imports:
     huge,
     igraph,
     impute,
+    lavaan,
     MASS,
     mclust,
     parallel,
     Rdpack,
+    regsem,
     withr (>= 2.4.0)
 Suggests:
     cluster,

@@ -61,6 +61,14 @@ SelectionAlgo <- function(xdata, ydata = NULL,
   selected <- mybeta$selected
   beta_full <- mybeta$beta_full
 
+  # Checking row and column names
+  if (is.null(rownames(selected)) | is.null(rownames(beta_full))) {
+    rownames(selected) <- rownames(beta_full) <- paste0("s", seq(0, nrow(beta_full) - 1))
+  }
+  if (is.null(colnames(selected)) | is.null(colnames(beta_full))) {
+    colnames(selected) <- colnames(beta_full) <- paste0("coef", seq(1, ncol(beta_full)))
+  }
+
   # Setting the beta coefficient to zero for predictors with always the same value (null standard deviation)
   if (!is.infinite(selected[1])) {
     if (any(mysd == 0)) {
