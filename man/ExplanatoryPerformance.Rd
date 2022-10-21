@@ -18,6 +18,7 @@ ExplanatoryPerformance(
   n_thr = NULL,
   ij_method = FALSE,
   time = 1000,
+  verbose = TRUE,
   ...
 )
 }
@@ -79,6 +80,9 @@ to Cox regression.}
 
 \item{time}{numeric indicating the time for which the survival probabilities
 are computed. Only applicable to Cox regression.}
+
+\item{verbose}{logical indicating if a loading bar and messages should be
+printed.}
 
 \item{...}{additional parameters passed to the function provided in
 \code{resampling}.}

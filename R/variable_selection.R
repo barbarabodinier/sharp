@@ -386,14 +386,17 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
   }
 
   # Object preparation, error and warning messages
-  CheckInputRegression(
-    xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+  CheckParamRegression(
+    Lambda = Lambda, pi_list = pi_list,
     K = K, tau = tau, seed = seed, n_cat = n_cat,
     family = family, implementation = implementation,
     resampling = resampling, PFER_method = PFER_method,
     PFER_thr = PFER_thr, FDP_thr = FDP_thr,
     Lambda_cardinal = Lambda_cardinal,
     verbose = verbose
+  )
+  CheckDataRegression(
+    xdata = xdata, ydata = ydata, family = family, verbose = verbose
   )
 
   # Checking that group_x is provided for group penalisation

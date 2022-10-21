@@ -11,6 +11,7 @@ Refit(
   stability = NULL,
   family = NULL,
   implementation = NULL,
+  verbose = TRUE,
   ...
 )
 
@@ -20,6 +21,7 @@ Recalibrate(
   stability = NULL,
   family = NULL,
   implementation = NULL,
+  verbose = TRUE,
   ...
 )
 }
@@ -49,6 +51,9 @@ regression), \code{\link[survival]{coxph}} (Cox regression),
 \code{\link[stats]{glm}} (logistic regression), or
 \code{\link[nnet]{multinom}} (multinomial regression) is used. The function
 \code{\link{PLS}} is used for the output of \code{\link{BiSelection}}.}
+
+\item{verbose}{logical indicating if a loading bar and messages should be
+printed.}
 
 \item{...}{additional arguments to be passed to the function provided in
 \code{implementation}.}
@@ -169,7 +174,7 @@ head(refitted$fitted.values) # refitted predicted probabilities
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 200, pk = 15, family = "multinomial")
+simul <- SimulateRegression(n = 500, pk = 15, family = "multinomial")
 
 # Data split
 ids_train <- Resample(
@@ -234,7 +239,7 @@ head(refitted$Tmat) # refitted X-scores
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
+simul <- SimulateRegression(n = 500, pk = c(5, 5, 5), family = "gaussian")
 
 # Data split
 ids_train <- Resample(

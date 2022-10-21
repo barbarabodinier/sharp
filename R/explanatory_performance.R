@@ -267,7 +267,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 15, family = "multinomial")
+#' simul <- SimulateRegression(n = 500, pk = 15, family = "multinomial")
 #'
 #' # Data split
 #' ids_train <- Resample(
@@ -332,7 +332,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 500, pk = c(5, 5, 5), family = "gaussian")
 #'
 #' # Data split
 #' ids_train <- Resample(
@@ -365,7 +365,17 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'
 #' @export
 Refit <- function(xdata, ydata, stability = NULL,
-                  family = NULL, implementation = NULL, ...) {
+                  family = NULL, implementation = NULL,
+                  verbose = TRUE, ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+  if ("check_input" %in% names(extra_args)) {
+    check_input <- extra_args$check_input
+    extra_args <- extra_args[!names(extra_args) %in% "check_input"]
+  } else {
+    check_input <- TRUE
+  }
+
   # Defining the type of model (PLS vs regression)
   use_pls <- FALSE
 
@@ -399,22 +409,29 @@ Refit <- function(xdata, ydata, stability = NULL,
     }
   }
 
-  # Re-formatting the inputs
-  if (is.vector(xdata)) {
-    xdata <- cbind(xdata)
-    colnames(xdata) <- "var"
+  # Object preparation, error and warning messages
+  if (check_input) {
+    CheckDataRegression(
+      xdata = xdata, ydata = ydata, family = family, verbose = verbose
+    )
   }
-  if (family %in% c("binomial", "multinomial")) {
-    if (!is.factor(ydata)) {
-      if (!is.vector(ydata)) {
-        if (ncol(ydata) != 1) {
-          ydata <- DummyToCategories(ydata)
-        } else {
-          ydata <- as.numeric(ydata)
-        }
-      }
-    }
-  }
+
+  # # Re-formatting the inputs
+  # if (is.vector(xdata)) {
+  #   xdata <- cbind(xdata)
+  #   colnames(xdata) <- "var"
+  # }
+  # if (family %in% c("binomial", "multinomial")) {
+  #   if (!is.factor(ydata)) {
+  #     if (!is.vector(ydata)) {
+  #       if (ncol(ydata) != 1) {
+  #         ydata <- DummyToCategories(ydata)
+  #       } else {
+  #         ydata <- as.numeric(ydata)
+  #       }
+  #     }
+  #   }
+  # }
 
   if (use_pls) {
     # Refitting the PLS model
@@ -453,31 +470,77 @@ Refit <- function(xdata, ydata, stability = NULL,
 
       # Recalibration for linear regression
       if (family == "gaussian") {
-        mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
+        tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::lm)
+        tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data")]
+        mymodel <- do.call(stats::lm, args = c(
+          list(
+            formula = myformula,
+            data = as.data.frame(xdata)
+          ),
+          tmp_extra_args
+        ))
+        # mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
       }
 
       # Recalibration for Cox regression
       if (family == "cox") {
-        ydata <- survival::Surv(ydata[, "time"], ydata[, "case"])
-        mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
+        tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = survival::coxph)
+        tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data")]
+        ydata <- survival::Surv(time = ydata[, 1], event = ydata[, 2])
+        mymodel <- do.call(survival::coxph, args = c(
+          list(
+            formula = myformula,
+            data = as.data.frame(xdata)
+          ),
+          tmp_extra_args
+        ))
+        # mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
       }
 
       # Recalibration for logistic regression
       if (family == "binomial") {
-        mymodel <- stats::glm(myformula,
-          data = as.data.frame(xdata),
-          family = stats::binomial(link = "logit"),
-          ...
-        )
+        tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::glm)
+        tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data", "family")]
+        mymodel <- do.call(stats::glm, args = c(
+          list(
+            formula = myformula,
+            data = as.data.frame(xdata),
+            family = stats::binomial(link = "logit")
+          ),
+          tmp_extra_args
+        ))
+        # mymodel <- stats::glm(myformula,
+        #   data = as.data.frame(xdata),
+        #   family = stats::binomial(link = "logit"),
+        #   ...
+        # )
       }
 
       # Recalibration for multinomial regression
       if (family == "multinomial") {
-        mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), trace = FALSE, ...)
+        tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = nnet::multinom)
+        tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data", "trace")]
+        mymodel <- do.call(nnet::multinom, args = c(
+          list(
+            formula = myformula,
+            data = as.data.frame(xdata),
+            trace = FALSE
+          ),
+          tmp_extra_args
+        ))
+        # mymodel <- nnet::multinom(myformula, data = as.data.frame(xdata), trace = FALSE, ...)
       }
     } else {
+      tmp_extra_args <- extra_args[!names(extra_args) %in% c("xdata", "ydata", "family")]
       xdata <- xdata[, ids, drop = FALSE]
-      mymodel <- do.call(implementation, args = list(xdata = xdata, ydata = ydata, family = family, ...))
+      mymodel <- do.call(implementation, args = c(
+        list(
+          xdata = xdata,
+          ydata = ydata,
+          family = family
+        ),
+        tmp_extra_args
+      ))
     }
   }
 
@@ -738,7 +801,8 @@ ExplanatoryPerformance <- function(xdata, ydata,
                                    implementation = NULL, prediction = NULL, resampling = "subsampling",
                                    K = 1, tau = 0.8, seed = 1,
                                    n_thr = NULL,
-                                   ij_method = FALSE, time = 1000, ...) {
+                                   ij_method = FALSE, time = 1000,
+                                   verbose = TRUE, ...) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -759,10 +823,17 @@ ExplanatoryPerformance <- function(xdata, ydata,
     }
   }
 
-  # Re-formatting input data
-  if (is.vector(ydata)) {
-    ydata <- cbind(ydata)
-  }
+  # Object preparation, error and warning messages
+  CheckDataRegression(
+    xdata = xdata, ydata = ydata, family = family, verbose = verbose
+  )
+
+  # # Re-formatting input data
+  # if (is.vector(ydata)) {
+  #   ydata <- cbind(ydata)
+  # }
+
+  # Defining the metric to use
   if (ij_method) {
     K <- 1
   }
@@ -814,7 +885,9 @@ ExplanatoryPerformance <- function(xdata, ydata,
         xdata = xtrain, ydata = ytrain,
         stability = stability,
         implementation = implementation,
-        family = family
+        family = family,
+        check_input = FALSE,
+        ...
       )
 
       if (is.null(implementation)) {
@@ -881,7 +954,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
       if (tolower(metric) == "concordance") {
         # Computing the concordance index for given times
         predicted <- stats::predict(refitted, newdata = as.data.frame(xtest), type = "lp")
-        survobject <- survival::Surv(ytest[, "time"], ytest[, "case"])
+        survobject <- survival::Surv(time = ytest[, 1], event = ytest[, 2])
         S0 <- summary(survival::survfit(refitted), times = time, extend = TRUE)$surv
         S <- S0^exp(predicted)
         cstat <- survival::concordance(survobject ~ S)

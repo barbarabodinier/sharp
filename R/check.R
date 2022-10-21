@@ -7,7 +7,7 @@
 #' @inheritParams VariableSelection
 #'
 #' @keywords internal
-CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
+CheckParamRegression <- function(Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                                  K = 100, tau = 0.5, seed = 1, n_cat = 3,
                                  family = "gaussian", implementation = PenalisedRegression,
                                  resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
@@ -15,100 +15,11 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
                                  verbose = TRUE) {
   # List of arguments
   myargs <- c(
-    "xdata", "ydata", "Lambda", "pi_list", "K", "tau", "seed", "n_cat",
+    "Lambda", "pi_list", "K", "tau", "seed", "n_cat",
     "family",
     "PFER_method", "PFER_thr", "FDP_thr",
     "Lambda_cardinal", "verbose"
   )
-
-  # Checking the inputs (xdata and ydata)
-  xdata <- as.matrix(xdata)
-  if (!is.null(ydata)) {
-    if (sum(is.na(xdata)) > 0) {
-      stop("Invalid input for argument 'xdata'. Missing values are not allowed in 'xdata'.")
-    }
-    if (sum(is.na(ydata)) > 0) {
-      stop("Invalid input for argument 'ydata'. Missing values are not allowed in 'ydata'.")
-    }
-    if ((nrow(xdata) < 10) | (ncol(xdata) <= 1)) {
-      stop("Invalid input for argument 'xdata'. Not enough data.")
-    }
-  }
-
-  # Preparing xdata
-  if (is.null(colnames(xdata))) {
-    colnames(xdata) <- paste0("var", 1:ncol(xdata))
-  }
-
-  # Preparing ydata
-  if (!is.null(ydata)) {
-    if (is.vector(ydata) | is.factor(ydata)) {
-      ydata <- matrix(ydata, ncol = 1)
-    }
-  }
-
-  # Checking the inputs (xdata and ydata)
-  if (!is.null(ydata)) {
-    if (nrow(xdata) != nrow(ydata)) {
-      stop("Arguments 'xdata' and 'ydata' are not compatible. They have different numbers of observations.")
-    }
-  }
-
-  # Creating dummy ydata (for resampling in unsupervised models)
-  if (is.null(ydata)) {
-    ydata <- cbind(rep(0, nrow(xdata)))
-  }
-
-  # Naming rows of xdata and ydata
-  if (is.null(rownames(xdata)) & is.null(rownames(ydata))) {
-    rownames(xdata) <- paste0("obs", 1:nrow(xdata))
-    rownames(ydata) <- rownames(xdata)
-  } else {
-    if ((is.null(rownames(xdata))) & (!is.null(rownames(ydata)))) {
-      rownames(xdata) <- rownames(ydata)
-    }
-    if ((!is.null(rownames(xdata))) & (is.null(rownames(ydata)))) {
-      rownames(ydata) <- rownames(xdata)
-    }
-  }
-
-  # Re-ordering the datasets to ensure that subsamples will be the same regardless of the order of observations in the input
-  ids <- sort.list(rownames(xdata))
-  xdata <- xdata[ids, , drop = FALSE]
-  ydata <- ydata[ids, , drop = FALSE]
-
-  # Further checking/preparing ydata
-  if ((family == "cox")) {
-    if ((ncol(ydata) != 2) | (length(unique(ydata[, 2])) != 2)) {
-      stop("Invalid input for argument 'ydata'. For Cox regression using glmnet, the argument 'ydata' needs to be a matrix or data frame with two columns: the time to event and binary status.")
-    }
-    colnames(ydata) <- c("time", "status")
-    tmp <- as.factor(ydata[, 2])
-    if (verbose) {
-      message(paste0("Reference category: ", levels(tmp)[1]))
-      message(paste0("Other category: ", levels(tmp)[2]))
-    }
-    ydata[, 2] <- as.numeric(tmp) - 1
-    ydata <- as.matrix(ydata)
-  }
-  if ((family %in% c("binomial", "multinomial"))) {
-    if (ncol(ydata) > 1) {
-      ydata <- DummyToCategories(x = ydata, verbose = verbose)
-    } else {
-      ydata <- as.factor(ydata)
-      if (verbose) {
-        message(paste0("Reference category: ", levels(ydata)[1]))
-        message(paste0("Other categorie(s): ", paste(levels(ydata)[-1], collapse = ", ")))
-      }
-      ydata <- as.numeric(ydata) - 1
-    }
-    ydata <- matrix(ydata, ncol = 1)
-    rownames(ydata) <- rownames(xdata)
-    ytmp <- as.numeric(table(ydata))
-    if (any(ytmp == 1)) {
-      stop("At least one category in 'ydata' with only one observation.")
-    }
-  }
 
   # Checking the inputs (Lambda)
   if (!is.null(Lambda)) {
@@ -247,6 +158,124 @@ CheckInputRegression <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = s
   if ((length(verbose) != 1) | is.na(verbose)) {
     warning("Invalid input for argument 'verbose'. The argument 'verbose' must be logical (TRUE or FALSE). The default value (TRUE) was used.")
     verbose <- TRUE
+  }
+
+  # Assigning checked values to the parent function
+  for (i in 1:length(myargs)) {
+    if (!is.null(get(myargs[i]))) {
+      assign(myargs[i], get(myargs[i]), envir = parent.frame(n = 1))
+    }
+  }
+}
+
+
+#' Checking input data (regression model)
+#'
+#' Checks if input data formats are appropriate. For inappropriate inputs, this
+#' function (i) fixes the data format, or (ii) stops the run and generates an
+#' error message.
+#'
+#' @inheritParams VariableSelection
+#'
+#' @keywords internal
+CheckDataRegression <- function(xdata, ydata = NULL,
+                                family = "gaussian",
+                                verbose = TRUE) {
+  # List of arguments
+  myargs <- c(
+    "xdata", "ydata", "family"
+  )
+
+  # Checking the inputs (xdata and ydata)
+  xdata <- as.matrix(xdata)
+  if (!is.null(ydata)) {
+    if (sum(is.na(xdata)) > 0) {
+      stop("Invalid input for argument 'xdata'. Missing values are not allowed in 'xdata'.")
+    }
+    if (sum(is.na(ydata)) > 0) {
+      stop("Invalid input for argument 'ydata'. Missing values are not allowed in 'ydata'.")
+    }
+    if (nrow(xdata) < 10) {
+      stop("Invalid input for argument 'xdata'. Not enough data.")
+    }
+  }
+
+  # Preparing xdata
+  if (is.null(colnames(xdata))) {
+    colnames(xdata) <- paste0("var", 1:ncol(xdata))
+  }
+
+  # Preparing ydata
+  if (!is.null(ydata)) {
+    if (is.vector(ydata) | is.factor(ydata)) {
+      ydata <- matrix(ydata, ncol = 1)
+    }
+    if (is.data.frame(ydata)) {
+      ydata <- as.matrix(ydata)
+    }
+  }
+
+  # Checking the inputs (xdata and ydata)
+  if (!is.null(ydata)) {
+    if (nrow(xdata) != nrow(ydata)) {
+      stop("Arguments 'xdata' and 'ydata' are not compatible. They have different numbers of observations.")
+    }
+  }
+
+  # Creating dummy ydata (for resampling in unsupervised models)
+  if (is.null(ydata)) {
+    ydata <- cbind(rep(0, nrow(xdata)))
+  }
+
+  # Naming rows of xdata and ydata
+  if (is.null(rownames(xdata)) & is.null(rownames(ydata))) {
+    rownames(xdata) <- paste0("obs", 1:nrow(xdata))
+    rownames(ydata) <- rownames(xdata)
+  } else {
+    if ((is.null(rownames(xdata))) & (!is.null(rownames(ydata)))) {
+      rownames(xdata) <- rownames(ydata)
+    }
+    if ((!is.null(rownames(xdata))) & (is.null(rownames(ydata)))) {
+      rownames(ydata) <- rownames(xdata)
+    }
+  }
+
+  # Re-ordering the datasets to ensure that subsamples will be the same regardless of the order of observations in the input
+  ids <- sort.list(rownames(xdata))
+  xdata <- xdata[ids, , drop = FALSE]
+  ydata <- ydata[ids, , drop = FALSE]
+
+  # Further checking/preparing ydata
+  if ((family == "cox")) {
+    if ((ncol(ydata) != 2) | (length(unique(ydata[, 2])) != 2)) {
+      stop("Invalid input for argument 'ydata'. For Cox regression using glmnet, the argument 'ydata' needs to be a matrix or data frame with two columns: the time to event and binary status.")
+    }
+    colnames(ydata) <- c("time", "status")
+    tmp <- as.factor(ydata[, 2])
+    if (verbose) {
+      message(paste0("Reference category: ", levels(tmp)[1]))
+      message(paste0("Other category: ", levels(tmp)[2]))
+    }
+    ydata[, 2] <- as.numeric(tmp) - 1
+    ydata <- as.matrix(ydata)
+  }
+  if ((family %in% c("binomial", "multinomial"))) {
+    if (ncol(ydata) > 1) {
+      ydata <- DummyToCategories(x = ydata, verbose = verbose)
+    } else {
+      ydata <- as.factor(ydata)
+      if (verbose) {
+        message(paste0("Reference category: ", levels(ydata)[1]))
+        message(paste0("Other categorie(s): ", paste(levels(ydata)[-1], collapse = ", ")))
+      }
+      ydata <- as.numeric(ydata) - 1
+    }
+    ydata <- matrix(ydata, ncol = 1)
+    rownames(ydata) <- rownames(xdata)
+    ytmp <- as.numeric(table(ydata))
+    if (any(ytmp == 1)) {
+      stop("At least one category in 'ydata' with only one observation.")
+    }
   }
 
   # Assigning checked values to the parent function

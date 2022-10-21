@@ -49,14 +49,27 @@ LambdaGridRegression <- function(xdata, ydata, tau = 0.5, seed = 1,
   implementation <- PenalisedRegression
   # Checks are not re-run if coming from VariableSelection to avoid printing twice the same messages
   if (check_input) {
-    CheckInputRegression(
-      xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+    # CheckInputRegression(
+    #   xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+    #   K = K, tau = tau, seed = seed, n_cat = n_cat,
+    #   family = family, implementation = implementation,
+    #   resampling = resampling, PFER_method = PFER_method,
+    #   PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+    #   Lambda_cardinal = Lambda_cardinal,
+    #   verbose = verbose
+    # )
+    # Object preparation, error and warning messages
+    CheckParamRegression(
+      Lambda = Lambda, pi_list = pi_list,
       K = K, tau = tau, seed = seed, n_cat = n_cat,
       family = family, implementation = implementation,
       resampling = resampling, PFER_method = PFER_method,
       PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       Lambda_cardinal = Lambda_cardinal,
       verbose = verbose
+    )
+    CheckDataRegression(
+      xdata = xdata, ydata = ydata, family = family, verbose = verbose
     )
   }
   rm(n_cat)
