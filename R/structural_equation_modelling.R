@@ -143,7 +143,7 @@
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateSCM(n = 500, theta = theta)
+#' simul <- SimulateStructural(n = 500, theta = theta)
 #'
 #' # Stability selection
 #' stab <- StructuralEquations(

@@ -96,7 +96,7 @@ perf <- SelectionPerformance(
 
 # Sparse PLS model
 set.seed(1)
-simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
 x <- simul$xdata
 y <- simul$ydata
 stab <- BiSelection(

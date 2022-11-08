@@ -38,7 +38,7 @@ theta[2, 4] <- 0
 
 # Data simulation
 set.seed(1)
-simul <- SimulateSCM(theta = theta)
+simul <- SimulateStructural(theta = theta)
 
 # Running regularised SEM
 mysem <- PenalisedSEM(

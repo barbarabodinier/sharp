@@ -340,7 +340,7 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateSCM(theta = theta)
+#' simul <- SimulateStructural(theta = theta)
 #'
 #' # Running regularised SEM
 #' mysem <- PenalisedSEM(
@@ -569,7 +569,7 @@ LavaanModel <- function(adjacency, residual_covariance = NULL) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateSCM(theta = theta)
+#' simul <- SimulateStructural(theta = theta)
 #'
 #' # Running regularised SEM
 #' mysem <- PenalisedSEM(

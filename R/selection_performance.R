@@ -82,7 +82,7 @@
 #'
 #' # Sparse PLS model
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #' stab <- BiSelection(
@@ -140,7 +140,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
     if (is.vector(Asum)) {
       out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
     } else {
-      if (isSymmetric(theta_star)) {
+      if (ncol(theta_star) == nrow(theta_star)) {
         out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
       } else {
         out <- NULL
@@ -262,16 +262,28 @@ GraphComparison <- function(graph1, graph2,
   # Refining inputs
   names(col) <- names(lty) <- c("FP", "TN", "TP")
 
+  # Defining mode
+  if ("mode" %in% names(extra_args)) {
+    mode <- extra_args$mode
+  } else {
+    if (igraph::is.igraph(graph1)) {
+      mode <- ifelse(igraph::is.directed(graph1), yes = "directed", no = "undirected")
+    } else {
+      mode <- ifelse(isSymmetric(theta), yes = "undirected", no = "directed")
+    }
+  }
+
   # Extracting relevant extra arguments
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = Graph)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour", "mode")]
 
   # Making consensus graph
   # g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
-  g <- do.call(sharp::Graph, args = c(
+  g <- do.call(Graph, args = c(
     list(
       adjacency = ifelse(Asum != 0, yes = 1, no = 0),
-      node_colour = node_colour
+      node_colour = node_colour,
+      mode = mode
     ),
     tmp_extra_args
   ))
