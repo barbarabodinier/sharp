@@ -15,14 +15,11 @@ commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=Git
 
 ## Description
 
-> In stability selection (N Meinshausen, P Bühlmann (2010)
-> <doi:10.1111/j.1467-9868.2010.00740.x>) and consensus clustering (S
-> Monti et al (2003) <doi:10.1023/A:1023949509487>), resampling
-> techniques are used to enhance the reliability of the results. In this
-> package, hyper-parameters are calibrated by maximising model
-> stability, which is measured by the negative log-likelihood under the
-> null hypothesis that all selection (or co-membership) probabilities
-> are identical (B Bodinier et al (2021) \<arXiv:2106.02521\>).
+> In stability selection and consensus clustering, resampling techniques
+> are used to enhance the reliability of the results. In this package,
+> hyper-parameters are calibrated by maximising model stability, which
+> is measured by the negative log-likelihood under the null hypothesis
+> that all selection (or co-membership) probabilities are identical.
 > Functions are readily implemented for the use of LASSO regression,
 > sparse PCA, sparse (group) PLS or graphical LASSO in stability
 > selection, and hierarchical clustering, partitioning around medoids, K
