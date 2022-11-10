@@ -170,37 +170,6 @@ refitted$coefficients # refitted coefficients
 head(refitted$fitted.values) # refitted predicted probabilities
 
 
-## Multinomial regression
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 500, pk = 15, family = "multinomial")
-
-# Data split
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "multinomial"
-)
-xtrain <- simul$xdata[ids_train, , drop = FALSE]
-ytrain <- simul$ydata[ids_train, , drop = FALSE]
-xrefit <- simul$xdata[-ids_train, , drop = FALSE]
-yrefit <- simul$ydata[-ids_train, , drop = FALSE]
-
-# Stability selection
-stab <- VariableSelection(
-  xdata = xtrain, ydata = ytrain,
-  family = "multinomial"
-)
-
-# Refitting the model
-refitted <- Refit(
-  xdata = xrefit, ydata = yrefit,
-  stability = stab
-)
-summary(refitted) # refitted coefficients
-head(refitted$fitted.values) # refitted predicted probabilities
-
-
 ## Partial Least Squares (single component)
 
 # Data simulation
@@ -239,7 +208,7 @@ head(refitted$Tmat) # refitted X-scores
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 500, pk = c(5, 5, 5), family = "gaussian")
+simul <- SimulateRegression(n = 500, pk = 15, q = 3, family = "gaussian")
 
 # Data split
 ids_train <- Resample(

@@ -23,263 +23,97 @@ knitr::opts_chunk$set(
 
 ## Description
 
-> Implementation of stability selection for graphical modelling and variable selection in regression and dimensionality reduction. These models use on resampling approaches to estimate selection probabilities. Calibration of the hyper-parameters is done via maximisation of a stability score measuring the likelihood of informative (non-uniform) selection.
-
+> In stability selection (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>) and consensus clustering (S Monti et al (2003) <doi:10.1023/A:1023949509487>), resampling techniques are used to enhance the reliability of the results. In this package, hyper-parameters are calibrated by maximising model stability, which is measured by the negative log-likelihood under the null hypothesis that all selection (or co-membership) probabilities are identical (B Bodinier et al (2021) <arXiv:2106.02521>). Functions are readily implemented for the use of LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO in stability selection, and hierarchical clustering, partitioning around medoids, K means or Gaussian mixture models in consensus clustering. 
 
 ## Installation
 
 The released version of the package can be installed from [CRAN](https://CRAN.R-project.org) with:
 
-``` r
+```{r installation cran, eval=FALSE}
 install.packages("sharp")
 ```
 
 The development version can be installed from [GitHub](https://github.com/):
 
-``` r
-devtools::install_github("barbarabodinier/sharp")
+```{r installation github, eval=FALSE}
+remotes::install_github("barbarabodinier/sharp")
 ```
 
-## Variable selection
+## Example datasets
 
-### Data simulation 
+To illustrate the use of the main functions implemented in **sharp**, three artificial datasets are created:
 
-We simulate data with $p = 50$ predictors and one outcome obtained from a linear combination of a subset of the predictors and a normally distributed error term:
-
-```{r}
+```{r simulation, eval=FALSE}
 library(sharp)
 
-# Data simulation
+# Dataset for regression
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50)
+data_reg <- SimulateRegression(n = 200, pk = 10)
+x_reg <- data_reg$xdata
+y_reg <- data_reg$ydata
 
-# Predictors
-X <- simul$xdata
-dim(X)
-
-# Continuous outcome
-Y <- simul$ydata
-dim(Y)
-```
-
-The output includes a binary matrix encoding if the variable was used in the outcome definition:
-
-```{r}
-head(simul$theta)
-```
-
-
-### Stability selection
-
-Stability selection in a regression framework is implemented in the function `VariableSelection()`. The predictor and outcome datasets are provided as input:
-
-```{r results="hide"}
-stab <- VariableSelection(xdata = X, ydata = Y)
-```
-
-```{r}
-print(stab)
-```
-
-Stability selection models with different pairs of parameters λ (controlling the sparsity of the underlying algorithm) and π (threshold in selection proportions) are calculated. By default, stability selection is run in applied to LASSO regression, as implemented in `glmnet`. The grids of parameter values used in the run can be extracted using: 
-
-```{r}
-# First few penalty parameters
-head(stab$Lambda)
-
-# Grid of thresholds in selection proportion
-stab$params$pi_list
-
-# Number of model pairs (i.e. number of visited stability selection models)
-nrow(stab$Lambda) * length(stab$params$pi_list)
-```
-
-
-### Calibration 
-
-The two hyper-parameters are jointly calibrated by maximising the stability score, measuring how unlikely it is that features are uniformly selected:
-
-```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"}
-par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab)
-```
-
-Visited penalty parameters λ are represented on the x-axis. The corresponding average number of selected features by the underlying algorithm (here, LASSO regression) are reported on the z-axis and denoted by q. The different thresholds in selection proportions π are represented on the y-axis. The stability score obtained for different pairs of parameters (λ, π) are colour-coded. 
-
-The calibrated parameters and number of stably selected variables can be quickly obtained with:
-
-```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"}
-summary(stab)
-```
-
-
-### Outputs
-
-The stable selection status from the calibrated model can be obtained from:
-
-```{r}
-SelectedVariables(stab)
-```
-
-Stably selected variables are the ones with selection proportions above the calibrated threshold π:
-
-```{r fig.height=7, fig.width=12, out.width="100%", fig.align="center"}
-plot(stab)
-```
-
-Selection proportion values can be extracted using:
-
-```{r}
-SelectionProportions(stab)
-```
-
-
-## Graphical modelling
-
-### Data simulation
-
-In Gaussian Graphical Modelling, the conditional independence structure between nodes is encoded in nonzero entries of the partial correlation matrix. We simulate data with $p = 10$ nodes that are connected in a scale-free network, where few nodes have a lot of edges and most nodes have a small number of edges. 
-
-```{r}
-# Data simulation
+# Dataset for graphical modelling
 set.seed(1)
-simul <- SimulateGraphical(n = 100, pk = 10, topology = "scale-free")
+data_ggm <- SimulateGraphical(n = 200, pk = 20)
+x_ggm <- data_ggm$data
 
-# Nodes are the variables (columns)
-X <- simul$data
-dim(X)
-```
-
-The adjacency matrix of the simulated graph is included in the output:
-
-```{r}
-simul$theta
-```
-
-
-### Stability selection
-
-Stability selection for graphical modelling is implemented in `GraphicalModel()`. For sparser estimates, the model can be estimated under the constraint that the upper-bound of the expected number of falsely selected edges (PFER) is below a user-defined threshold:
-
-```{r results="hide"}
-stab <- GraphicalModel(xdata = X, PFER_thr = 10)
-```
-
-```{r}
-print(stab)
-```
-
-
-### Calibration 
-
-As in variable selection, parameters are jointly calibrated by maximising the stability score:
-
-```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"}
-par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab)
-```
-
-The effect of the constraint on the PFER can be visualised in this calibration plot. The white area corresponds to "forbidden" models, where the upper-bound of the expected number of parameters would exceed the value specified in PFER\_thr.
-
-Calibrated parameters and number of edges in the calibrated model can be viewed using:
-
-```{r}
-summary(stab)
-```
-
-### Outputs
-
-The calibrated graph can be visualised using:
-
-```{r fig.height=9, fig.width=9, out.width="100%", fig.align="center"}
+# Dataset for clustering
 set.seed(1)
-plot(stab)
+data_clust <- SimulateClustering(n = c(10, 10, 10))
+x_clust <- data_clust$data
 ```
 
-The adjacency matrix of the calibrated stability selection graphical model can be extracted using:
+Check out the R package [**fake**](https://github.com/barbarabodinier/fake) for more details on these data simulation models.
 
-```{r}
-Adjacency(stab)
+## Main functions
+
+### Variable selection
+
+In a regression context, stability selection is done using LASSO regression as implemented in the R package [**glmnet**](https://cran.r-project.org/web/packages/glmnet/index.html). 
+
+```{r variable selection, eval=FALSE}
+stab_reg <- VariableSelection(xdata = x_reg, ydata = y_reg)
+SelectedVariables(stab_reg)
 ```
 
-And converted to an igraph object using:
+### Graphical modelling
 
-```{r fig.height=9, fig.width=9, out.width="100%", fig.align="center"}
-mygraph <- Graph(Adjacency(stab))
-set.seed(1)
-plot(mygraph)
+In a graphical modelling context, stability selection is done using the graphical LASSO as implemented in the R package [**glassoFast**](https://cran.r-project.org/web/packages/glassoFast/index.html). 
+
+```{r graphical modelling, eval=FALSE}
+stab_ggm <- GraphicalModel(xdata = x_ggm)
+Adjacency(stab_ggm)
 ```
 
+### Clustering
 
-## Dimensionality reduction
+Consensus clustering is done using hierarchical clustering as implemented in the R package [**stats**](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html). 
 
-### Data simulation
-
-We simulate data with $p = 12$ variables related to $N = 3$ latent variables:
-
-```{r fig.height=7, fig.width=7, out.width="60%", fig.align="center"}
-# Data simulation
-set.seed(1)
-simul <- SimulateComponents(n = 100, pk = c(3, 5, 4), v_within = c(0.8, 1), v_sign = -1)
-
-# Simulated data
-X <- simul$data
-
-# Pearson's correlations
-plot(simul)
-
-# Relationships between variables and latent variables
-simul$theta
+```{r clustering, eval=FALSE}
+stab_clust <- Clustering(xdata = x_clust)
+Clusters(stab_clust)
 ```
 
+## Extraction and visualisation of the results
 
-### Stability selection
+It is strongly recommended to check the calibration of the hyper-parameters using the function `CalibrationPlot()` on the output from any of the main functions listed above. The functions `print()`, `summary()` and `plot()` can also be used on the outputs from the main functions.
 
-Stability selection for dimensionality reduction is implemented in `BiSelection()`. It can be used in combination with sparse Principal Component Analysis (sPCA) to recover the sparse set of variables contributing to the Principal Components (PCs). Stability selection can be applied on the first three PCs using: 
+## Parametrisation
 
-```{r results="hide"}
-stab <- BiSelection(xdata = X, implementation = SparsePCA, ncomp = 3)
+Stability selection and consensus clustering can theoretically be done by aggregating the results from any selection (or clustering) algorithm on subsamples of the data. The choice of the underlying algorithm to use is specified in argument `implementation` in the main functions. Consensus clustering using partitioning around medoids, K means or Gaussian mixture models are also supported in **sharp**:
+
+```{r implementation, eval=FALSE}
+stab_clust <- Clustering(xdata = x_clust, implementation = PAMClustering)
+stab_clust <- Clustering(xdata = x_clust, implementation = KMeansClustering)
+stab_clust <- Clustering(xdata = x_clust, implementation = GMMClustering)
 ```
 
-```{r}
-print(stab)
-```
+Other algorithms can be used by defining a wrapper function to be called in `implementation`. Check out the documentation of `GraphicalModel()` for an example using a shrunk estimate of the partial correlation instead of the graphical LASSO. 
 
+## References
 
-### Calibration 
+- Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration for stability selection in penalised regression and graphical models: a multi-OMICs network application exploring the molecular response to tobacco smoking. (2021) arXiv. [link](https://doi.org/10.48550/arXiv.2106.02521)
 
-As for models presented in previous sections, the hyper-parameters are calibrated by maximising the stability score. 
+- Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010) Journal of the Royal Statistical Society: Series B (Statistical Methodology). [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
 
-```{r fig.height=7, fig.width=9, out.width="80%", fig.align="center"}
-par(mar = c(7, 5, 7, 6))
-CalibrationPlot(stab)
-```
-
-The PC-specific calibrated parameters are reported in:
-
-```{r}
-stab$summary
-```
-
-
-### Outputs
-
-The sets of stably selected variables for each of the PCs are encoded in:
-
-```{r}
-SelectedVariables(stab)
-```
-
-This can be visualised in a network:
-
-```{r fig.height=9, fig.width=9, out.width="100%", fig.align="center"}
-set.seed(1)
-plot(stab)
-```
-
-Corresponding selection proportions for each of the three PCs can be obtained from:
-
-```{r}
-SelectionProportions(stab)
-```
-
+- Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. (2003) Machine Learning. [link](https://doi.org/10.1023/A:1023949509487)

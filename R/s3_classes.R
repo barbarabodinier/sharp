@@ -324,6 +324,142 @@ predict.variable_selection <- function(object, xdata, ydata, newdata = NULL, met
 }
 
 
+#' Receiver Operating Characteristic (ROC) band
+#'
+#' Plots the True Positive Rate (TPR) as a function of the False Positive Rate
+#' (FPR) for different thresholds in predicted probabilities. If the results
+#' from multiple ROC analyses are provided (e.g. output of
+#' \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
+#' median is represented and flanked by a transparent band defined by point-wise
+#' \code{quantiles}.
+#'
+#' @param x output of \code{\link{ExplanatoryPerformance}}.
+#' @param col_band colour of the band defined by point-wise \code{quantiles}.
+#' @param alpha level of opacity for the band.
+#' @param quantiles point-wise quantiles of the performances defining the band.
+#' @param add logical indicating if the curve should be added to the current
+#'   plot.
+#' @param ... additional plotting arguments (see \code{\link[graphics]{par}}).
+#'
+#' @return A base plot.
+#'
+#' @seealso \code{\link{ExplanatoryPerformance}}
+#'
+#' @examples
+#' \donttest{
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(
+#'   n = 1000, pk = 10,
+#'   family = "binomial", ev_xy = 0.7
+#' )
+#'
+#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
+#' ids_train <- Resample(
+#'   data = simul$ydata,
+#'   tau = 0.5, family = "binomial"
+#' )
+#' xtrain <- simul$xdata[ids_train, ]
+#' ytrain <- simul$ydata[ids_train, ]
+#' xtest <- simul$xdata[-ids_train, ]
+#' ytest <- simul$ydata[-ids_train, ]
+#'
+#' # Stability selection
+#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
+#'
+#' # Evaluation of the performances on refitted models (K=1)
+#' roc <- ExplanatoryPerformance(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab, n_thr = NULL
+#' )
+#' plot(roc)
+#'
+#' # Using more refitting/test splits
+#' roc <- ExplanatoryPerformance(
+#'   xdata = xtest, ydata = ytest,
+#'   stability = stab, K = 100
+#' )
+#' boxplot(roc$AUC, ylab = "AUC")
+#' plot(roc)
+#' }
+#' @export
+plot.roc_band <- function(x,
+                          col_band = NULL,
+                          alpha = 0.5,
+                          quantiles = c(0.05, 0.95),
+                          add = FALSE,
+                          ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Defining default parameters if not provided
+  if (!"xlim" %in% names(extra_args)) {
+    extra_args$xlim <- c(0, 1)
+  }
+  if (!"ylim" %in% names(extra_args)) {
+    extra_args$ylim <- c(0, 1)
+  }
+  if (!"lwd" %in% names(extra_args)) {
+    extra_args$lwd <- 2
+  }
+  if (!"xlab" %in% names(extra_args)) {
+    extra_args$xlab <- "False Positive Rate"
+  }
+  if (!"ylab" %in% names(extra_args)) {
+    extra_args$ylab <- "True Positive Rate"
+  }
+  if (!"las" %in% names(extra_args)) {
+    extra_args$las <- 1
+  }
+  if (!"cex.lab" %in% names(extra_args)) {
+    extra_args$cex.lab <- 1.3
+  }
+  if (!"col" %in% names(extra_args)) {
+    extra_args$col <- "red"
+  }
+
+  # Extracting the number of iterations
+  niter <- length(x$AUC)
+
+  # Defining the band colour
+  if (is.null(col_band)) {
+    col_band <- extra_args$col
+  }
+
+  # Initialising the plot
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = plot)
+  if (!add) {
+    do.call(plot, args = c(list(x = NULL), tmp_extra_args))
+    graphics::abline(0, 1, lty = 3)
+  }
+
+  # Defining quantile bands
+  if (nrow(x$FPR) > 1) {
+    xseq <- apply(x$FPR, 2, FUN = function(x) {
+      sort(x)[rev(quantiles) * niter]
+    })
+    yseq <- apply(x$TPR, 2, FUN = function(x) {
+      sort(x)[quantiles * niter]
+    })
+    graphics::polygon(c(xseq[1, ], rev(xseq[2, ])),
+      c(yseq[1, ], rev(yseq[2, ])),
+      col = grDevices::adjustcolor(col = col_band, alpha.f = alpha),
+      border = NA
+    )
+  }
+
+  # Adding the point-wise average
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::lines)
+  do.call(graphics::lines, args = c(
+    list(
+      x = apply(x$FPR, 2, stats::median),
+      y = apply(x$TPR, 2, stats::median)
+    ),
+    tmp_extra_args
+  ))
+}
+
+
 #' @export
 summary.incremental <- function(object, ...) {
   cat(paste0("Performances of recalibrated models:"))
@@ -345,10 +481,4 @@ summary.incremental <- function(object, ...) {
 #' @export
 plot.incremental <- function(x, ...) {
   PlotIncremental(x, ...)
-}
-
-
-#' @export
-plot.roc_curve <- function(x, ...) {
-  PlotROC(x, ...)
 }

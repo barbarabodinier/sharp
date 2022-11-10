@@ -170,7 +170,7 @@ CalibrationPlot(stab,
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
 x <- simul$xdata
 y <- simul$ydata
 

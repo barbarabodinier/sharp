@@ -74,7 +74,7 @@ Runs a group Partial Least Squares model using implementation from
 ## Group PLS
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = c(10, 20, 20), family = "gaussian")
+simul <- SimulateRegression(n = 100, pk = 50, q = 3, family = "gaussian")
 x <- simul$xdata
 y <- simul$ydata
 

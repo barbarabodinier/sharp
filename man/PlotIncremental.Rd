@@ -209,8 +209,6 @@ PlotIncremental(perf, col = c(rep("red", N), rep("grey", 20 - N)))
 
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},
-\code{\link{Incremental}()},
-\code{\link{PlotROC}()},
-\code{\link{ROC}()}
+\code{\link{Incremental}()}
 }
 \concept{prediction performance functions}

@@ -1,133 +1,3 @@
-#' True and False Positive Rates
-#'
-#' Computes the True and False Positive Rates by comparing the true (observed) and
-#' predicted status. The predicted status is obtained by applying a threshold on
-#' the predicted scores.
-#'
-#' @param observed observed binary status.
-#' @param predicted predicted score.
-#' @param thr threshold for predicted probabilities.
-#'
-#' @return True and False Positive Rates (TPR and FPR, respectively).
-#'
-#' @keywords internal
-Rates <- function(observed, predicted, thr) {
-  contingency <- table(
-    factor(predicted > thr, levels = c(FALSE, TRUE)),
-    factor(observed, levels = c(0, 1))
-  )
-
-  TP <- contingency[2, 2]
-  P <- sum(contingency[, 2])
-  TPR <- TP / P
-
-  FP <- contingency[2, 1]
-  N <- sum(contingency[, 1])
-  FPR <- FP / N
-
-  return(list(TPR = TPR, FPR = FPR))
-}
-
-
-#' Receiver Operating Characteristic (ROC)
-#'
-#' Computes the True and False Positive Rates (TPR and FPR, respectively) and
-#' Area Under the Curve (AUC) by comparing the true (observed) and predicted
-#' status using a range of thresholds on the predicted score.
-#'
-#' @param predicted numeric predicted scores.
-#' @param observed factor encoding the observed binary status.
-#' @param n_thr number of thresholds to use to construct the ROC curve. For
-#'   faster computations on large data, values below \code{length(x)-1} can be
-#'   used.
-#'
-#' @return A list with: \item{TPR}{True Positive Rate.} \item{FPR}{False
-#'   Positive Rate.} \item{AUC}{Area Under the Curve.}
-#'
-#' @family prediction performance functions
-#'
-#' @examples
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = 20, family = "binomial")
-#'
-#' # Balanced training/test split
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
-#' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' x2 <- simul$xdata[-ids_train, , drop = FALSE]
-#' y2 <- simul$ydata[-ids_train, , drop = FALSE]
-#' ids_refit <- Resample(
-#'   data = y2,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xrefit <- x2[ids_refit, , drop = FALSE]
-#' yrefit <- y2[ids_refit, , drop = FALSE]
-#' xtest <- x2[-ids_refit, ]
-#' ytest <- y2[-ids_refit, ]
-#'
-#' # Stability selection and refitting
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-#' refitted <- Refit(xdata = xrefit, ydata = yrefit, stability = stab)
-#'
-#' # ROC analysis
-#' predicted <- predict(refitted, newdata = as.data.frame(xtest))
-#' roc <- ROC(predicted = predicted, observed = ytest)
-#' PlotROC(roc)
-#' plot(roc) # alternative formulation
-#' @export
-ROC <- function(predicted, observed, n_thr = NULL) {
-  # Checking the inputs
-  predicted <- as.numeric(predicted)
-  if (is.factor(observed)) {
-    observed <- factor(observed, levels = levels(observed), labels = c(0, 1))
-  } else {
-    observed <- factor(observed, levels = sort(unique(observed)), labels = c(0, 1))
-  }
-
-  # Defining the thresholds
-  breaks <- sort(unique(predicted), decreasing = FALSE)
-  if (length(breaks) <= 1) {
-    message("The predicted value is the same for all observations.")
-    FPR <- TPR <- AUC <- NA
-  } else {
-    breaks <- breaks[-length(breaks)]
-    if (!is.null(n_thr)) {
-      if (length(breaks) > n_thr) {
-        breaks <- breaks[floor(seq(1, length(breaks), length.out = n_thr))]
-      } else {
-        breaks <- sort(c(breaks, seq(min(breaks), max(breaks), length.out = n_thr - length(breaks))))
-      }
-    }
-
-    # Computing
-    TPR <- FPR <- rep(NA, length(breaks) + 2)
-    for (k in 1:length(breaks)) {
-      out <- Rates(observed = observed, predicted = predicted, thr = breaks[k])
-      TPR[k + 1] <- out$TPR
-      FPR[k + 1] <- out$FPR
-    }
-    TPR[1] <- FPR[1] <- 1
-    TPR[length(TPR)] <- FPR[length(FPR)] <- 0
-
-    # Computing the AUC
-    tmp <- apply(rbind(TPR[-1], TPR[-length(TPR)]), 2, mean)
-    AUC <- abs(sum(diff(FPR) * tmp))
-  }
-
-  # Preparing output
-  out <- list(FPR = rbind(FPR), TPR = rbind(TPR), AUC = AUC)
-
-  # Defining class
-  class(out) <- "roc_curve"
-
-  return(out)
-}
-
-
 #' Regression model refitting
 #'
 #' Refits the regression model with stably selected variables as predictors
@@ -263,37 +133,6 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #' head(refitted$fitted.values) # refitted predicted probabilities
 #'
 #'
-#' ## Multinomial regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = 15, family = "multinomial")
-#'
-#' # Data split
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "multinomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
-#' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(
-#'   xdata = xtrain, ydata = ytrain,
-#'   family = "multinomial"
-#' )
-#'
-#' # Refitting the model
-#' refitted <- Refit(
-#'   xdata = xrefit, ydata = yrefit,
-#'   stability = stab
-#' )
-#' summary(refitted) # refitted coefficients
-#' head(refitted$fitted.values) # refitted predicted probabilities
-#'
-#'
 #' ## Partial Least Squares (single component)
 #'
 #' # Data simulation
@@ -332,7 +171,7 @@ ROC <- function(predicted, observed, n_thr = NULL) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = c(5, 5, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 500, pk = 15, q = 3, family = "gaussian")
 #'
 #' # Data split
 #' ids_train <- Resample(
@@ -643,7 +482,10 @@ Recalibrate <- Refit
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 10, family = "binomial")
+#' simul <- SimulateRegression(
+#'   n = 1000, pk = 10,
+#'   family = "binomial", ev_xy = 0.7
+#' )
 #'
 #' # Balanced split: 50% variable selection set and 50% for evaluation of performances
 #' ids_train <- Resample(
@@ -663,7 +505,7 @@ Recalibrate <- Refit
 #'   xdata = xtest, ydata = ytest,
 #'   stability = stab, n_thr = NULL
 #' )
-#' PlotROC(roc)
+#' plot(roc)
 #'
 #' # Using more refitting/test splits
 #' roc <- ExplanatoryPerformance(
@@ -671,14 +513,14 @@ Recalibrate <- Refit
 #'   stability = stab, K = 100
 #' )
 #' boxplot(roc$AUC, ylab = "AUC")
-#' PlotROC(roc)
+#' plot(roc)
 #'
 #' # Comparison with saturated model
 #' roc <- ExplanatoryPerformance(
 #'   xdata = xtest, ydata = ytest,
 #'   family = "binomial", K = 100
 #' )
-#' PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
+#' plot(roc, col = "blue", col_band = "blue", add = TRUE)
 #'
 #'
 #' ## Partial Least Squares (single component)
@@ -708,7 +550,7 @@ Recalibrate <- Refit
 #'   stability = stab,
 #'   implementation = PLSDA, prediction = PredictPLSDA
 #' )
-#' PlotROC(roc)
+#' plot(roc)
 #'
 #'
 #' ## Cox regression
@@ -995,6 +837,9 @@ ExplanatoryPerformance <- function(xdata, ydata,
   if (is.null(implementation)) {
     out <- c(out, Beta = list(Beta))
   }
+
+  # Defining class
+  class(out) <- "roc_band"
 
   return(out)
 }
@@ -1329,119 +1174,6 @@ Incremental <- function(xdata, ydata,
   class(out) <- "incremental"
 
   return(out)
-}
-
-
-#' Receiver Operating Characteristic (ROC) curve
-#'
-#' Plots the True Positive Rate (TPR) as a function of the False Positive Rate
-#' (FPR) for different thresholds in predicted probabilities. If the results
-#' from multiple ROC analyses are provided (e.g. output of
-#' \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
-#' median is represented and flanked by a transparent band defined by
-#' point-wise \code{quantiles}.
-#'
-#' @inheritParams CalibrationPlot
-#' @param roc output of \code{\link{ROC}} or
-#'   \code{\link{ExplanatoryPerformance}}.
-#' @param col colour of the point-wise median curve.
-#' @param col_band colour of the band defined by point-wise \code{quantiles}.
-#' @param alpha level of opacity for the band.
-#' @param quantiles point-wise quantiles of the performances defining the band.
-#' @param add logical indicating if the curve should be added to the current
-#'   plot.
-#'
-#' @return A plot.
-#'
-#' @family prediction performance functions
-#'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
-#'
-#' @examples
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = 10, family = "binomial")
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-#'
-#' # Evaluation of the performances on refitted models (K=1)
-#' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab, n_thr = NULL
-#' )
-#' PlotROC(roc)
-#'
-#' # Using more refitting/test splits
-#' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab, K = 100
-#' )
-#' PlotROC(roc)
-#'
-#' # Comparison with saturated model
-#' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   family = "binomial", K = 100
-#' )
-#' PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
-#' @export
-PlotROC <- function(roc,
-                    xlab = "False Positive Rate",
-                    ylab = "True Positive Rate",
-                    col = "red", col_band = NULL,
-                    alpha = 0.5,
-                    lwd = 1, lty = 1,
-                    quantiles = c(0.05, 0.95),
-                    add = FALSE) {
-  # Extracting the number of iterations
-  niter <- length(roc$AUC)
-
-  # Defining the band colour
-  if (is.null(col_band)) {
-    col_band <- col
-  }
-
-  # Initialising the plot
-  if (!add) {
-    plot(NULL,
-      xlim = c(0, 1), ylim = c(0, 1),
-      type = "l", lwd = 2,
-      xlab = xlab, ylab = ylab,
-      las = 1, cex.lab = 1.3,
-      panel.first = graphics::abline(0, 1, lty = 3)
-    )
-  }
-
-  # Defining quantile bands
-  if (nrow(roc$FPR) > 1) {
-    xseq <- apply(roc$FPR, 2, FUN = function(x) {
-      sort(x)[rev(quantiles) * niter]
-    })
-    yseq <- apply(roc$TPR, 2, FUN = function(x) {
-      sort(x)[quantiles * niter]
-    })
-    graphics::polygon(c(xseq[1, ], rev(xseq[2, ])),
-      c(yseq[1, ], rev(yseq[2, ])),
-      col = grDevices::adjustcolor(col_band, alpha.f = alpha),
-      border = NA
-    )
-  }
-
-  # Adding the point-wise average
-  graphics::lines(apply(roc$FPR, 2, stats::median), apply(roc$TPR, 2, stats::median),
-    type = "l", lwd = lwd, lty = lty, col = col
-  )
 }
 
 

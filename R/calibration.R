@@ -554,14 +554,14 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'
 #' # Regression with multivariate outcomes
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(20, 30), family = "gaussian")
+#' simul <- SimulateRegression(n = 100, pk = 50, q = 2, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
 #' median_betas <- AggregatedEffects(stab)
 #' dim(median_betas)
 #'
 #' # Sparse PLS with multivariate outcome
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #' stab <- BiSelection(
@@ -944,7 +944,7 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'

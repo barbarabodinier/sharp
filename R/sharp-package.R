@@ -1,20 +1,24 @@
 #' sharp: Stability-enHanced Approaches using Resampling Procedures
 #'
-#' Implementation of stability selection for graphical modelling and variable
-#' selection in regression and dimensionality reduction. These models use on
-#' resampling approaches to estimate selection probabilities. Calibration of the
-#' hyper-parameters is done via maximisation of a stability score measuring the
-#' likelihood of informative (non-uniform) selection.
+#' In stability selection and consensus clustering, resampling techniques are
+#' used to enhance the reliability of the results. In this package,
+#' hyper-parameters are calibrated by maximising model stability, which is
+#' measured by the negative log-likelihood under the null hypothesis that all
+#' selection (or co-membership) probabilities are identical. Functions are
+#' readily implemented for the use of LASSO regression, sparse PCA, sparse
+#' (group) PLS or graphical LASSO in stability selection, and hierarchical
+#' clustering, partitioning around medoids, K means or Gaussian mixture models
+#' in consensus clustering.
 #'
 #' \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
-#' 0.1\cr Date: \tab 2021-04-30\cr License: \tab GPL (>= 3)\cr Maintainer: \tab
-#' Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
+#' 1.3.0 \cr Date: \tab 2022-11-09 \cr License: \tab GPL (>= 3)\cr Maintainer:
+#' \tab Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{sharp}
-#'
 #'   \insertRef{stabilityselectionMB}{sharp}
+#'
+#'   \insertRef{ConsensusClustering}{sharp}
 #'
 #' @docType package
 #' @name sharp-package

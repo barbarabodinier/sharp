@@ -3,7 +3,7 @@ test_that("PLS 'a la carte' is consistent with mixOmics", {
   for (scale in c(TRUE, FALSE)) {
     # Data simulation
     set.seed(1)
-    simul <- SimulateRegression(n = 20, pk = c(5, 5, 5), family = "gaussian")
+    simul <- SimulateRegression(n = 20, pk = 15, q = 3, family = "gaussian", nu_xy = 1)
     x <- simul$xdata + 10
     y <- simul$ydata + 10
 

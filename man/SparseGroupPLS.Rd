@@ -82,7 +82,7 @@ Runs a sparse group Partial Least Squares model using implementation from
 ## Sparse group PLS
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 100, pk = c(10, 15, 5), family = "gaussian")
+simul <- SimulateRegression(n = 100, pk = 30, q = 3, family = "gaussian")
 x <- simul$xdata
 y <- simul$ydata
 

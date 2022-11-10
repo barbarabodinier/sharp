@@ -51,7 +51,7 @@
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = c(5, 5, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 200, pk = 15, q = 3, family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'
@@ -125,6 +125,9 @@ PLS <- function(xdata, ydata,
   if (is.vector(ydata)) {
     ydata <- cbind(ydata)
   }
+  if (is.null(colnames(ydata))) {
+    colnames(ydata) <- paste0("outcome", 1:ncol(ydata))
+  }
 
   # Checking consistency of arguments
   if (is.null(selectedX) & is.null(selectedY)) {
@@ -166,6 +169,7 @@ PLS <- function(xdata, ydata,
   }
   rownames(selectedY) <- colnames(ydata)
   colnames(selectedY) <- paste0("comp", 1:ncomp)
+  print(selectedY)
 
   # Initialisation
   Emat <- scale(xdata, center = TRUE, scale = scale)
@@ -203,6 +207,7 @@ PLS <- function(xdata, ydata,
 
     # Extracting the stably selected outcomes
     idsY <- rownames(selectedY)[which(selectedY[, comp] == 1)]
+    print(idsY)
     if (length(idsY) > 0) {
       Fmat_selected <- Fmat[, idsY, drop = FALSE]
     } else {
@@ -386,7 +391,7 @@ PredictPLS <- function(xdata, model) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(10, 20, 30), family = "gaussian")
+#' simul <- SimulateRegression(n = 100, pk = 20, q = 3, family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'
@@ -398,7 +403,7 @@ PredictPLS <- function(xdata, model) {
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
+#' simul <- SimulateRegression(n = 100, pk = 20, family = "binomial")
 #'
 #' # Running sPLS-DA with 2 X-variables and 1 Y-variable
 #' mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
@@ -563,7 +568,7 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
 #' ## Sparse group PLS
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(10, 15, 5), family = "gaussian")
+#' simul <- SimulateRegression(n = 100, pk = 30, q = 3, family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'
@@ -771,7 +776,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #' ## Group PLS
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(10, 20, 20), family = "gaussian")
+#' simul <- SimulateRegression(n = 100, pk = 50, q = 3, family = "gaussian")
 #' x <- simul$xdata
 #' y <- simul$ydata
 #'

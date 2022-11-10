@@ -31,7 +31,7 @@
 #'
 #' # Data simulation (multivariate outcome)
 #' set.seed(1)
-#' simul <- SimulateRegression(pk = c(15, 15, 20))
+#' simul <- SimulateRegression(pk = 50, q = 3)
 #'
 #' # Running multivariate Gaussian LASSO
 #' mylasso <- SelectionAlgo(

@@ -477,7 +477,7 @@ DBSCANClustering <- function(xdata,
 
   # Extracting relevant extra arguments (pam)
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = dbscan::dbscan)
-  tmp_extra_args_dbscan <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "eps", "minPts")]
+  tmp_extra_args_dbscan <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "eps", "minPts", "row")]
 
   # Initialisation of arrays storing co-membership matrices and weights
   adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * nrow(Lambda)))

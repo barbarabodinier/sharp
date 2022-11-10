@@ -2,12 +2,12 @@ Package: sharp
 Type: Package
 Title: Stability-enHanced Approaches using Resampling Procedures
 Version: 1.3.0
-Date: 2022-10-13
+Date: 2022-11-09
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
 URL: https://github.com/barbarabodinier/sharp
 BugReports: https://github.com/barbarabodinier/sharp/issues
-Description: Implementation of stability selection for graphical modelling and variable selection in regression and dimensionality reduction. These models use on resampling approaches to estimate selection probabilities (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>). Calibration of the hyper-parameters is done via maximisation of a stability score measuring the likelihood of informative (non-uniform) selection (B Bodinier, S Filippi, TH Nost, J Chiquet, M Chadeau-Hyam (2021) <arXiv:2106.02521>).
+Description: In stability selection (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>) and consensus clustering (S Monti et al (2003) <doi:10.1023/A:1023949509487>), resampling techniques are used to enhance the reliability of the results. In this package, hyper-parameters are calibrated by maximising model stability, which is measured by the negative log-likelihood under the null hypothesis that all selection (or co-membership) probabilities are identical (B Bodinier et al (2021) <arXiv:2106.02521>). Functions are readily implemented for the use of LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO in stability selection, and hierarchical clustering, partitioning around medoids, K means or Gaussian mixture models in consensus clustering. 
 License: GPL (>= 3)
 Language: en-GB
 Encoding: UTF-8

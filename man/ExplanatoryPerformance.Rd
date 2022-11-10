@@ -135,7 +135,10 @@ For a fair evaluation of the prediction performance, the data is
 
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 1000, pk = 10, family = "binomial")
+simul <- SimulateRegression(
+  n = 1000, pk = 10,
+  family = "binomial", ev_xy = 0.7
+)
 
 # Balanced split: 50\% variable selection set and 50\% for evaluation of performances
 ids_train <- Resample(
@@ -155,7 +158,7 @@ roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   stability = stab, n_thr = NULL
 )
-PlotROC(roc)
+plot(roc)
 
 # Using more refitting/test splits
 roc <- ExplanatoryPerformance(
@@ -163,14 +166,14 @@ roc <- ExplanatoryPerformance(
   stability = stab, K = 100
 )
 boxplot(roc$AUC, ylab = "AUC")
-PlotROC(roc)
+plot(roc)
 
 # Comparison with saturated model
 roc <- ExplanatoryPerformance(
   xdata = xtest, ydata = ytest,
   family = "binomial", K = 100
 )
-PlotROC(roc, col = "blue", col_band = "blue", add = TRUE)
+plot(roc, col = "blue", col_band = "blue", add = TRUE)
 
 
 ## Partial Least Squares (single component)
@@ -200,7 +203,7 @@ roc <- ExplanatoryPerformance(
   stability = stab,
   implementation = PLSDA, prediction = PredictPLSDA
 )
-PlotROC(roc)
+plot(roc)
 
 
 ## Cox regression
@@ -293,8 +296,6 @@ print(perf)
 
 Other prediction performance functions: 
 \code{\link{Incremental}()},
-\code{\link{PlotIncremental}()},
-\code{\link{PlotROC}()},
-\code{\link{ROC}()}
+\code{\link{PlotIncremental}()}
 }
 \concept{prediction performance functions}

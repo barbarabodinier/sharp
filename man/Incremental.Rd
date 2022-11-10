@@ -274,8 +274,6 @@ PlotIncremental(incremental)
 
 Other prediction performance functions: 
 \code{\link{ExplanatoryPerformance}()},
-\code{\link{PlotIncremental}()},
-\code{\link{PlotROC}()},
-\code{\link{ROC}()}
+\code{\link{PlotIncremental}()}
 }
 \concept{prediction performance functions}
