@@ -36,6 +36,7 @@ install.packages("sharp")
 The development version can be installed from [GitHub](https://github.com/):
 
 ```{r installation github, eval=FALSE}
+remotes::install_github("barbarabodinier/fake")
 remotes::install_github("barbarabodinier/sharp")
 ```
 
