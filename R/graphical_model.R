@@ -107,9 +107,11 @@
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}
 #'
+#'   \insertRef{stabilityselectionSS}{sharp}
+#'
 #'   \insertRef{stabilityselectionMB}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{sharp}
+#'   \insertRef{GraphicalLasso}{sharp}
 #'
 #' @return An object of class \code{graphical_model}. A list with: \item{S}{a
 #'   matrix of the best stability scores for different (sets of) parameters
@@ -272,7 +274,7 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
                            resampling = "subsampling", cpss = FALSE,
                            PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                            Lambda_cardinal = 50, lambda_max = NULL, lambda_path_factor = 0.001, max_density = 0.5,
-                           n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+                           n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
   # Definition of the type of approach (single or multi-block)
   if (is.null(pk)) {
     pk <- ncol(xdata)
@@ -349,6 +351,11 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
 
   # Defining the class
   class(out) <- "graphical_model"
+
+  # Making beep
+  if (!is.null(beep)) {
+    beepr::beep(sound = beep)
+  }
 
   return(out)
 }

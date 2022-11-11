@@ -26,6 +26,7 @@ VariableSelection(
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
+  beep = NULL,
   ...
 )
 }
@@ -121,6 +122,10 @@ penalisation.}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
+
+\item{beep}{sound indicating the end of the run. Possible values are:
+\code{NULL} (no sound) or an integer between 1 and 11 (see argument
+\code{sound} in \code{\link[beepr]{beep}}).}
 
 \item{...}{additional parameters passed to the functions provided in
 \code{implementation} or \code{resampling}.}
@@ -403,9 +408,11 @@ par(oldpar)
 \references{
 \insertRef{ourstabilityselection}{sharp}
 
+  \insertRef{stabilityselectionSS}{sharp}
+
   \insertRef{stabilityselectionMB}{sharp}
 
-  \insertRef{stabilityselectionSS}{sharp}
+  \insertRef{lasso}{sharp}
 }
 \seealso{
 \code{\link{PenalisedRegression}}, \code{\link{SelectionAlgo}},

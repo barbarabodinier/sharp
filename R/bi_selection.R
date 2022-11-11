@@ -157,10 +157,9 @@
 #'
 #'   \insertRef{sparsePLS}{sharp}
 #'
-#'   \insertRef{sparsePCA}{sharp}
-#'
 #'   \insertRef{sparsePCASVD}{sharp}
 #'
+#'   \insertRef{sparsePCA}{sharp}
 #'
 #' @examples
 #' \donttest{
@@ -324,7 +323,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                         family = "gaussian", implementation = SparsePLS,
                         resampling = "subsampling", cpss = FALSE,
                         PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                        n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+                        n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
   # Defining Lambda if used with sparse PCA or PLS
   if (is.null(LambdaX)) {
     if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
@@ -777,6 +776,11 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
   # Defining the class
   class(out) <- "bi_selection"
+
+  # Making beep
+  if (!is.null(beep)) {
+    beepr::beep(sound = beep)
+  }
 
   return(out)
 }

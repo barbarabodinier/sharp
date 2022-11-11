@@ -222,16 +222,17 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
 #'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 #'
-#' @details The consensus score is derived from a probabilistic model where
-#'   \eqn{Z(\lambda, n_C)} is the vector of stable cluster memberships and the
-#'   \eqn{H_{ij}(\lambda, n_C)} are co-membership counts. We have:
+#' @details The consensus score is derived from the following probabilistic
+#'   model:
 #'
 #'   \eqn{(H_{ij}(\lambda, n_C))_{ij} indep. | Z_i(\lambda, n_C) = z_i,
 #'   Z_j(\lambda, n_C) = z_j ~ B(K, p_{z_i, z_j})}
 #'
-#'   where \eqn{B} is the binomial distribution, \eqn{K} is the number of
-#'   resampling iterations and \eqn{p_{z_i, z_j}} is the probability that items
-#'   \eqn{i} and \eqn{j} are co-members.
+#'   where \eqn{Z(\lambda, n_C)} is the vector of stable cluster memberships,
+#'   the \eqn{H_{ij}(\lambda, n_C)} are co-membership counts, \eqn{B} is the
+#'   binomial distribution, \eqn{K} is the number of resampling iterations and
+#'   \eqn{p_{z_i, z_j}} is the probability that items \eqn{i} and \eqn{j} are
+#'   co-members.
 #'
 #'   The likelihood \eqn{L_o(\lambda, n_C)} of observing co-membership
 #'   proportions at least as extreme conditionally on the stable clusters with a

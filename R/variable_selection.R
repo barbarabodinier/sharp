@@ -77,6 +77,9 @@
 #'   \code{ydata} should be included in the output.
 #' @param verbose logical indicating if a loading bar and messages should be
 #'   printed.
+#' @param beep sound indicating the end of the run. Possible values are:
+#'   \code{NULL} (no sound) or an integer between 1 and 11 (see argument
+#'   \code{sound} in \code{\link[beepr]{beep}}).
 #' @param ... additional parameters passed to the functions provided in
 #'   \code{implementation} or \code{resampling}.
 #'
@@ -185,9 +188,11 @@
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}
 #'
+#'   \insertRef{stabilityselectionSS}{sharp}
+#'
 #'   \insertRef{stabilityselectionMB}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{sharp}
+#'   \insertRef{lasso}{sharp}
 #'
 #' @import fake
 #'
@@ -366,7 +371,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
                               resampling = "subsampling", cpss = FALSE,
                               PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                               Lambda_cardinal = 100, group_x = NULL, group_penalisation = FALSE,
-                              n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+                              n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
   # Defining Lambda if used with sparse PCA or PLS
   if (is.null(Lambda)) {
     if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
@@ -451,6 +456,11 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 
   # Defining the class
   class(out) <- "variable_selection"
+
+  # Making beep
+  if (!is.null(beep)) {
+    beepr::beep(sound = beep)
+  }
 
   return(out)
 }

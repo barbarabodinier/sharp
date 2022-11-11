@@ -29,6 +29,7 @@ GraphicalModel(
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
+  beep = NULL,
   ...
 )
 }
@@ -144,6 +145,10 @@ the density of the estimated graph does not exceed max_density.}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}
+
+\item{beep}{sound indicating the end of the run. Possible values are:
+\code{NULL} (no sound) or an integer between 1 and 11 (see argument
+\code{sound} in \code{\link[beepr]{beep}}).}
 
 \item{...}{additional parameters passed to the functions provided in
 \code{implementation} or \code{resampling}.}
@@ -364,9 +369,11 @@ par(oldpar)
 \references{
 \insertRef{ourstabilityselection}{sharp}
 
+  \insertRef{stabilityselectionSS}{sharp}
+
   \insertRef{stabilityselectionMB}{sharp}
 
-  \insertRef{stabilityselectionSS}{sharp}
+  \insertRef{GraphicalLasso}{sharp}
 }
 \seealso{
 \code{\link{PenalisedGraphical}}, \code{\link{GraphicalAlgo}},

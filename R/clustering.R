@@ -95,11 +95,9 @@
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}
 #'
-#'   \insertRef{stabilityselectionMB}{sharp}
+#'   \insertRef{rCOSA}{sharp}
 #'
-#'   \insertRef{stabilityselectionSS}{sharp}
-#'
-#'   \insertRef{SparseClustering}{sharp}
+#'   \insertRef{COSA}{sharp}
 #'
 #'   \insertRef{ConsensusClustering}{sharp}
 #'
@@ -148,7 +146,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
                        scale = TRUE,
                        linkage = "complete",
                        row = TRUE,
-                       n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+                       n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
   # Visiting all possible numbers of clusters
   if (is.null(eps)) {
     if (is.null(nc)) {
@@ -243,6 +241,11 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 
   # Defining the class
   class(out) <- "clustering"
+
+  # Making beep
+  if (!is.null(beep)) {
+    beepr::beep(sound = beep)
+  }
 
   return(out)
 }
