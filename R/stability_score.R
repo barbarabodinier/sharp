@@ -222,26 +222,29 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
 #'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 #'
-#' @details The consensus score is derived from a Stochastic Block Model where
-#'   \eqn{Z(\lambda, n_C)} is a latent random vector taking values in \eqn{{1,
-#'   ..., n_C}} encoding the cluster membership and the \eqn{H_{ij}(\lambda,
-#'   n_C)} are co-membership counts. We have:
+#' @details The consensus score is derived from a probabilistic model where
+#'   \eqn{Z(\lambda, n_C)} is the vector of stable cluster memberships and the
+#'   \eqn{H_{ij}(\lambda, n_C)} are co-membership counts. We have:
 #'
-#'   \eqn{(Z_i(\lambda, n_C))_i i.i.d. ~ M(1, p_Z)}
+#'   \eqn{(H_{ij}(\lambda, n_C))_{ij} indep. | Z_i(\lambda, n_C) = z_i,
+#'   Z_j(\lambda, n_C) = z_j ~ B(K, p_{z_i, z_j})}
 #'
-#'   \eqn{(H_{ij}(\lambda, n_C))_{ij} indep. | Z_i, Z_j ~ B(K, p_{Z_i(\lambda,
-#'   n_C), Z_j(\lambda, n_C)})}
-#'
-#'   where \eqn{M} denotes the multinomial distribution and \eqn{B} is the
-#'   binomial distribution.
+#'   where \eqn{B} is the binomial distribution, \eqn{K} is the number of
+#'   resampling iterations and \eqn{p_{z_i, z_j}} is the probability that items
+#'   \eqn{i} and \eqn{j} are co-members.
 #'
 #'   The likelihood \eqn{L_o(\lambda, n_C)} of observing co-membership
 #'   proportions at least as extreme conditionally on the stable clusters with a
-#'   given number of clusters \eqn{Z(\lambda, n_C)} can be expressed as:
+#'   given number of clusters \eqn{Z(\lambda, n_C)} can be computed under the
+#'   null hypothesis that all pairs of items have the same probability of
+#'   co-membership \eqn{p_0(\lambda, n_C)}:
 #'
-#'   \eqn{L_o(\lambda, n_C) = \prod_{i =/= j} P(H_{ij}(\lambda, n_C) \le
-#'   h_{ij})^{1_{Z_i(\lambda, n_C) =/= Z_j(\lambda, n_C)}} x P(H_{ij}(\lambda,
-#'   n_C) \ge h_{ij})^{1_{Z_i(\lambda, n_C) = Z_j(\lambda, n_C)}}}
+#'   \eqn{L_o(\lambda, n_C) = \prod_{i =/= j} f_{K, p_0(\lambda,
+#'   n_C)}(h_{ij})^{1_{Z_i(\lambda, n_C) =/= Z_j(\lambda, n_C)}} x (1-f_{K,
+#'   p_0(\lambda, n_C)}(h_{ij}-1))^{1_{Z_i(\lambda, n_C) = Z_j(\lambda, n_C)}}}
+#'
+#'   where \eqn{f_{K, p}} denotes the cumulative probability function of the
+#'   binomial distribution with parameters \eqn{K} and \eqn{p}.
 #'
 #'   We also compute the likelihoods \eqn{L_s(\lambda, n_C)} and
 #'   \eqn{L_u(\lambda, n_C)} for binary (most stable) and flat (most unstable)
