@@ -438,6 +438,7 @@ par(oldpar)
 Other stability selection functions: 
 \code{\link{Clustering}()},
 \code{\link{GraphicalModel}()},
+\code{\link{StructuralEquations}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability selection functions}

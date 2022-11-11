@@ -169,7 +169,6 @@ PLS <- function(xdata, ydata,
   }
   rownames(selectedY) <- colnames(ydata)
   colnames(selectedY) <- paste0("comp", 1:ncomp)
-  print(selectedY)
 
   # Initialisation
   Emat <- scale(xdata, center = TRUE, scale = scale)
@@ -207,7 +206,6 @@ PLS <- function(xdata, ydata,
 
     # Extracting the stably selected outcomes
     idsY <- rownames(selectedY)[which(selectedY[, comp] == 1)]
-    print(idsY)
     if (length(idsY) > 0) {
       Fmat_selected <- Fmat[, idsY, drop = FALSE]
     } else {
