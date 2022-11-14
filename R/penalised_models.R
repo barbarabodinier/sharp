@@ -313,9 +313,10 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' @param ... additional parameters passed to \code{\link[regsem]{regsem}}.
 #'
 #' @return A list with: \item{selected}{matrix of binary selection status. Rows
-#'   correspond to different model parameters. Columns correspond to different
-#'   effects.} \item{beta_full}{array of model coefficients. Rows correspond to
-#'   different model parameters. Columns correspond to different effects.}
+#'   correspond to different regularisation parameters. Columns correspond to
+#'   different parameters to estimated.} \item{beta_full}{array of model
+#'   coefficients. Rows correspond to different regularisation parameters.
+#'   Columns correspond to different parameters to estimated.}
 #'
 #' @family underlying algorithm functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}},
@@ -350,8 +351,7 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' mysem$selected
 #'
 #' # Obtaining results in matrix format
-#' LavaanMatrix(vect = mysem$selected[2, ], adjacency = dag)
-#' theta # simulated is the same
+#' LavaanMatrix(vect = mysem$selected[3, ], adjacency = dag)
 #'
 #' @export
 PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
@@ -382,6 +382,9 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
   }
   if (!"optMethod" %in% names(tmp_extra_args)) {
     tmp_extra_args$optMethod <- "rsolnp"
+  }
+  if (!"pars_pen" %in% names(tmp_extra_args)) {
+    tmp_extra_args$pars_pen <- "regressions"
   }
 
   for (k in 1:length(Lambda)) {
@@ -428,7 +431,129 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
   colnames(beta_full) <- names(lavaan::coef(out_lavaan))
 
   # Extracting selection status
-  selected <- ifelse(beta_full != 0, yes = 1, no = 0)
+  if (length(tmp_extra_args$pars_pen) == 1) {
+    if (tmp_extra_args$pars_pen == "regressions") {
+      selected <- ifelse(beta_full[, !grepl("~~", colnames(beta_full))] != 0, yes = 1, no = 0)
+    }
+    if (tmp_extra_args$pars_pen == "loadings") { # to check for latent variables
+      selected <- ifelse(beta_full[, grepl("=~", colnames(beta_full))] != 0, yes = 1, no = 0)
+    }
+  } else {
+    selected <- ifelse(beta_full != 0, yes = 1, no = 0)
+  }
+
+  return(list(selected = selected, beta_full = beta_full))
+}
+
+
+#' Penalised Structural Equation Model (OpenMx)
+#'
+#' Runs penalised Structural Equation Modelling using implementation from
+#' \code{\link[OpenMx]{OpenMx}}. This function is not using stability.
+#'
+#' @inheritParams StructuralEquations
+#' @param Lambda matrix of parameters controlling the level of sparsity (only
+#'   the minimum, maximum and length are used).
+#' @param ... additional parameters passed to \code{\link[regsem]{regsem}}.
+#'
+#' @return A list with: \item{selected}{matrix of binary selection status. Rows
+#'   correspond to different regularisation parameters. Columns correspond to
+#'   different parameters to estimated.} \item{beta_full}{array of model
+#'   coefficients. Rows correspond to different regularisation parameters.
+#'   Columns correspond to different parameters to estimated.}
+#'
+#' @family underlying algorithm functions
+#' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}},
+#'   \code{\link{OpenMxMatrix}}
+#'
+#' @references \insertRef{RegSEM}{sharp}
+#'
+#'   \insertRef{lavaanBook}{sharp}
+#'
+#' @examples
+#' # Definition of the model structure
+#' layers <- list(
+#'   c("var1", "var2", "var3"),
+#'   c("var4", "var5"),
+#'   c("var6", "var7", "var8")
+#' )
+#' dag <- LayeredDAG(layers)
+#'
+#' # Definition of simulated effects
+#' theta <- dag
+#' theta[2, 4] <- 0
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateStructural(theta = theta)
+#'
+#' # Running regularised SEM
+#' mysem <- PenalisedOpenMx(
+#'   xdata = simul$data, adjacency = dag,
+#'   Lambda = seq(1, 50, by = 10)
+#' )
+#' mysem$selected
+#'
+#' # Obtaining results in matrix format
+#' OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
+#' theta # simulated is the same
+#'
+#' @export
+PenalisedOpenMx <- function(xdata, adjacency, residual_covariance = NULL,
+                            Lambda, ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Scaling the data
+  xdata <- scale(xdata)
+
+  # Defining RAM matrices in OpenMx format
+  ram_matrices <- OpenMxModel(adjacency = adjacency)
+
+  # Defining expectation
+  expectation <- OpenMx::mxExpectationRAM("A", "S", "F", "M",
+    dimnames = colnames(adjacency)
+  )
+
+  # Defining fit function (maximum likelihood estimation)
+  ml_function <- OpenMx::mxFitFunctionML()
+
+  # Running unpenalised model
+  model_spec <- OpenMx::mxModel(
+    "Model",
+    OpenMx::mxData(xdata, type = "raw"),
+    ram_matrices$Amat,
+    ram_matrices$Smat,
+    ram_matrices$Fmat,
+    ram_matrices$Mmat,
+    expectation,
+    ml_function
+  )
+  unpenalised <- OpenMx::mxRun(model_spec, silent = TRUE, suppressWarnings = TRUE)
+
+  # Running penalised estimations
+  coef_to_penalise <- as.character(stats::na.exclude(as.vector(ram_matrices$Amat$labels)))
+  mymodel <- OpenMx::mxPenaltySearch(OpenMx::mxModel(
+    unpenalised,
+    OpenMx::mxPenaltyLASSO(
+      what = coef_to_penalise,
+      name = "lasso",
+      lambda = min(Lambda),
+      lambda.max = max(Lambda),
+      lambda.step = (max(Lambda) - min(Lambda) + 1) / length(Lambda)
+    ),
+    OpenMx::mxMatrix("Full", 1, 1, free = TRUE, values = 0, labels = "lambda")
+  ), silent = TRUE, suppressWarnings = TRUE)$compute$steps$PS$output$detail
+  # mymodel$statusCode # check convergence (should be "OK")
+
+  # Extracting estimated coefficients
+  beta_full <- as.matrix(mymodel[rev(1:nrow(mymodel)), seq(6, ncol(mymodel) - 1)])
+
+  # Defining row and column names
+  rownames(beta_full) <- paste0("s", seq(0, nrow(beta_full) - 1))
+
+  # Extracting selection status
+  selected <- ifelse(abs(beta_full[, coef_to_penalise, drop = FALSE]) > 1e-5, yes = 1, no = 0)
 
   return(list(selected = selected, beta_full = beta_full))
 }
@@ -599,6 +724,194 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL) {
 
   # Re-ordering as in input
   A <- A[rownames(adjacency), colnames(adjacency)]
+
+  return(A)
+}
+
+
+#' Writing OpenMx model (matrix specification)
+#'
+#' Returns matrix specification for use in \code{\link[OpenMx]{mxModel}} from
+#' (i) the adjacency matrix of a Directed Acyclic Graph (asymmetric matrix A in
+#' Reticular Action Model notation), and (ii) a binary matrix encoding nonzero
+#' entries in the residual covariance matrix (symmetric matrix S in Reticular
+#' Action Model notation).
+#'
+#' @inheritParams PenalisedSEM
+#'
+#' @return A character string that can be used in argument \code{model} in
+#'   \code{\link[lavaan]{sem}}.
+#'
+#' @seealso \code{\link{PenalisedSEM}}, \code{\link{LavaanMatrix}}
+#'
+#' @references \insertRef{lavaanBook}{sharp}
+#'
+#' @examples
+#' # Definition of the model structure
+#' layers <- list(
+#'   c("var1", "var2", "var3"),
+#'   c("var4", "var5"),
+#'   c("var6", "var7", "var8")
+#' )
+#' dag <- LayeredDAG(layers)
+#'
+#' # Definition of simulated effects
+#' theta <- dag
+#' theta[2, 4] <- 0
+#' theta[3, 7] <- 0
+#' theta[4, 7] <- 0
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateStructural(n = 500, v_between = 1, theta = theta)
+#'
+#' # Writing RAM matrices for mxModel
+#' ram_matrices <- OpenMxModel(adjacency = dag)
+#'
+#' # Running unpenalised model
+#' unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+#'   "Model",
+#'   OpenMx::mxData(simul$data, type = "raw"),
+#'   ram_matrices$Amat,
+#'   ram_matrices$Smat,
+#'   ram_matrices$Fmat,
+#'   ram_matrices$Mmat,
+#'   OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+#'   OpenMx::mxFitFunctionML()
+#' ), silent = TRUE, suppressWarnings = TRUE)
+#'
+#' @export
+OpenMxModel <- function(adjacency, residual_covariance = NULL) {
+  # Transposing the adjacency matrix to get support of A matrix in RAM notation
+  adjacency <- t(adjacency)
+
+  # Creating residual covariance matrix structure if not provided
+  if (is.null(residual_covariance)) {
+    residual_covariance <- diag(ncol(adjacency))
+  }
+
+  # Defining coefficient labels (A)
+  Alabels <- matrix(paste0("a", as.vector(row(adjacency)), as.vector(col(adjacency))),
+    nrow = nrow(adjacency), ncol = ncol(adjacency)
+  )
+  Alabels <- ifelse(adjacency == 1, yes = Alabels, no = NA)
+
+  # Defining coefficient labels (S)
+  Slabels <- matrix(paste0("s", as.vector(row(residual_covariance)), as.vector(col(residual_covariance))),
+    nrow = nrow(residual_covariance), ncol = ncol(residual_covariance)
+  )
+  Slabels <- ifelse(residual_covariance == 1, yes = Slabels, no = NA)
+
+  # Creating matrix A
+  Amat <- OpenMx::mxMatrix(
+    type = "Full",
+    nrow = nrow(adjacency),
+    ncol = ncol(adjacency),
+    name = "A",
+    free = as.vector(ifelse(adjacency == 1, yes = TRUE, no = FALSE)),
+    values = as.vector(adjacency),
+    labels = as.vector(Alabels)
+  )
+
+  # Creating matrix S
+  Smat <- OpenMx::mxMatrix(
+    type = "Full",
+    nrow = nrow(residual_covariance),
+    ncol = ncol(residual_covariance),
+    name = "S",
+    free = as.vector(ifelse(residual_covariance == 1, yes = TRUE, no = FALSE)),
+    values = as.vector(residual_covariance),
+    labels = as.vector(Slabels)
+  )
+
+  # Creating matrix F
+  tmpmat <- diag(ncol(adjacency))
+  Fmat <- OpenMx::mxMatrix(
+    type = "Full",
+    nrow = nrow(tmpmat),
+    ncol = ncol(tmpmat),
+    name = "F",
+    free = FALSE,
+    values = as.vector(tmpmat)
+  )
+
+  # Creating matrix M (all zero for scaled data)
+  Mmat <- OpenMx::mxMatrix(
+    type = "Full",
+    nrow = 1,
+    ncol = ncol(adjacency),
+    name = "M",
+    free = FALSE,
+    values = rep(0, ncol(adjacency))
+  )
+
+  # Preparing output
+  out <- list(
+    Amat = Amat,
+    Smat = Smat,
+    Fmat = Fmat,
+    Mmat = Mmat
+  )
+
+  return(out)
+}
+
+
+#' Matrix from OpenMx outputs
+#'
+#' Returns a matrix from output of \code{\link[OpenMx]{mxPenaltySearch}}.
+#'
+#' @inheritParams PenalisedSEM
+#' @param vect vector of coefficients to assign to entries of the matrix.
+#'
+#' @return An asymmetric matrix.
+#'
+#' @seealso \code{\link{LavaanModel}}, \code{\link{PenalisedSEM}}
+#'
+#' @references \insertRef{lavaanBook}{sharp}
+#'
+#' @examples
+#' # Definition of the model structure
+#' layers <- list(
+#'   c("var1", "var2", "var3"),
+#'   c("var4", "var5"),
+#'   c("var6", "var7", "var8")
+#' )
+#' dag <- LayeredDAG(layers)
+#'
+#' # Definition of simulated effects
+#' theta <- dag
+#' theta[2, 4] <- 0
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateStructural(theta = theta)
+#'
+#' # Running regularised SEM
+#' mysem <- PenalisedOpenMx(
+#'   xdata = simul$data, adjacency = dag,
+#'   Lambda = seq(1, 50, by = 10)
+#' )
+#' mysem$selected
+#'
+#' # Obtaining results in matrix format
+#' OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
+#'
+#' @export
+OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
+  # Defining RAM matrices in OpenMx format
+  ram_matrices <- OpenMxModel(adjacency = adjacency, residual_covariance = residual_covariance)
+
+  # Assigning estimates to corresponding matrix entries
+  A <- ram_matrices$Amat$values
+  for (k in 1:length(vect)) {
+    A[which(ram_matrices$Amat$labels == names(vect)[k], arr.ind = TRUE)] <- vect[k]
+  }
+  A <- t(A)
+
+  # Defining row and column names
+  rownames(A) <- rownames(adjacency)
+  colnames(A) <- colnames(adjacency)
 
   return(A)
 }

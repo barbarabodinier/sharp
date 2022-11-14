@@ -63,6 +63,7 @@ mylasso$beta_full
 Other underlying algorithm functions: 
 \code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedGraphical}()},
+\code{\link{PenalisedOpenMx}()},
 \code{\link{PenalisedSEM}()}
 }
 \concept{underlying algorithm functions}

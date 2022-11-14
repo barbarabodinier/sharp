@@ -10,7 +10,7 @@
 #' @inheritParams VariableSelection
 #' @param xdata matrix with observations as rows and variables as columns.
 #' @param adjacency binary adjacency matrix of the Directed Acyclic Graph
-#'   (asymmetric matrix A in Reticular Action Model notation).
+#'   (transpose of the asymmetric matrix A in Reticular Action Model notation).
 #' @param residual_covariance binary and symmetric matrix encoding the nonzero
 #'   entries in the residual covariance matrix (symmetric matrix S in Reticular
 #'   Action Model notation). By default, this is the identity matrix (no
@@ -127,35 +127,29 @@
 #' oldpar <- par(no.readonly = TRUE)
 #' par(mar = rep(7, 4))
 #'
-#' # Definition of the model structure
-#' layers <- list(
-#'   c("var1", "var2", "var3"),
-#'   c("var4", "var5"),
-#'   c("var6", "var7", "var8")
-#' )
-#' dag <- LayeredDAG(layers)
-#'
-#' # Definition of simulated effects
-#' theta <- dag
-#' theta[2, 4] <- 0
-#' theta[3, 7] <- 0
-#' theta[4, 7] <- 0
-#'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateStructural(n = 500, theta = theta)
+#' simul <- SimulateStructural(n = 500, pk = c(3, 2, 3), nu_between = 0.5, v_sign = 1)
+#' dag <- LayeredDAG(layers = c(3, 2, 3))
 #'
-#' # Stability selection
+#' # Stability selection (using openmx)
 #' stab <- StructuralEquations(
 #'   xdata = simul$data,
-#'   Lambda = LambdaSequence(lmax = 1, lmin = 0.2, cardinal = 10),
+#'   Lambda = seq(50, 500, by = 50),
 #'   adjacency = dag
 #' )
 #' CalibrationPlot(stab)
+#' OpenMxMatrix(SelectedVariables(stab), adjacency = dag)
 #'
-#' # Extracting stable refined DAG
+#' # Stability selection (using regsem)
+#' stab <- StructuralEquations(
+#'   xdata = simul$data,
+#'   Lambda = LambdaSequence(lmax = 1, lmin = 0.2, cardinal = 10),
+#'   adjacency = dag,
+#'   implementation = PenalisedSEM
+#' )
+#' CalibrationPlot(stab)
 #' LavaanMatrix(SelectedVariables(stab), adjacency = dag)
-#' theta # simulated is the same
 #'
 #' par(oldpar)
 #' }
@@ -164,7 +158,7 @@
 StructuralEquations <- function(xdata, adjacency, residual_covariance = NULL,
                                 Lambda, pi_list = seq(0.6, 0.9, by = 0.01),
                                 K = 100, tau = 0.5, seed = 1, n_cat = 3,
-                                implementation = PenalisedSEM,
+                                implementation = PenalisedOpenMx,
                                 resampling = "subsampling", cpss = FALSE,
                                 PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                                 Lambda_cardinal = 100,

@@ -91,6 +91,7 @@ myglasso <- PenalisedGraphical(
 
 Other underlying algorithm functions: 
 \code{\link{ClusteringAlgo}()},
+\code{\link{PenalisedOpenMx}()},
 \code{\link{PenalisedRegression}()},
 \code{\link{PenalisedSEM}()}
 }
