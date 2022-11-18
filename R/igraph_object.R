@@ -252,7 +252,7 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
 
   # Changing arrow size for directed graphs
   if (mode == "directed") {
-    igraph::E(mygraph)$arrow.size <- 0.2
+    igraph::E(mygraph)$arrow.size <- 1
   }
 
   # Including/excluding satellites (nodes with no edges)
@@ -262,13 +262,13 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
 
   # Formatting vertices
   mydegrees <- igraph::degree(mygraph)
-  igraph::V(mygraph)$size <- as.numeric(as.character(cut(mydegrees, breaks = 4, labels = c(3, 4, 5, 6))))
+  igraph::V(mygraph)$size <- 10
   igraph::V(mygraph)$label <- node_label[igraph::V(mygraph)$name]
   igraph::V(mygraph)$color <- node_colour[igraph::V(mygraph)$name]
   igraph::V(mygraph)$shape <- node_shape[igraph::V(mygraph)$name]
   igraph::V(mygraph)$frame.color <- igraph::V(mygraph)$color
   igraph::V(mygraph)$label.family <- "sans"
-  igraph::V(mygraph)$label.cex <- as.numeric(as.character(cut(mydegrees, breaks = 4, labels = c(0.4, 0.45, 0.5, 0.55))))
+  igraph::V(mygraph)$label.cex <- 1
   igraph::V(mygraph)$label.color <- label_colour
 
   # Formatting edges
