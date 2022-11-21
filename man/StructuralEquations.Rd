@@ -28,10 +28,13 @@ StructuralEquations(
 )
 }
 \arguments{
-\item{xdata}{matrix with observations as rows and variables as columns.}
+\item{xdata}{matrix with observations as rows and variables as columns.
+Column names must be defined and in line with the row and column names of
+\code{adjacency}.}
 
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
@@ -213,10 +216,11 @@ par(mar = rep(7, 4))
 
 # Data simulation
 set.seed(1)
-simul <- SimulateStructural(n = 500, pk = c(3, 2, 3), nu_between = 0.5, v_sign = 1)
-dag <- LayeredDAG(layers = c(3, 2, 3))
+pk <- c(3, 2, 3)
+simul <- SimulateStructural(n = 500, pk = pk, nu_between = 0.5, v_sign = 1)
 
 # Stability selection (using openmx)
+dag <- LayeredDAG(layers = pk)
 stab <- StructuralEquations(
   xdata = simul$data,
   Lambda = seq(50, 500, by = 50),
@@ -234,10 +238,51 @@ stab <- StructuralEquations(
 )
 CalibrationPlot(stab)
 LavaanMatrix(SelectedVariables(stab), adjacency = dag)
-
 par(oldpar)
 }
+\dontrun{
+# Data simulation with latent variables
+set.seed(1)
+pk <- c(3, 2, 3)
+simul <- SimulateStructural(
+  n = 500,
+  pk = pk,
+  nu_between = 0.5,
+  v_sign = 1,
+  n_manifest = 3,
+  ev_manifest = 0.95
+)
 
+# Stability selection (using OpenMx)
+dag <- LayeredDAG(layers = pk, n_manifest = 3)
+penalised <- dag
+penalised[, 1:ncol(simul$data)] <- 0
+stab <- StructuralEquations(
+  xdata = simul$data,
+  adjacency = dag,
+  penalised = penalised,
+  Lambda = seq(10, 100, by = 10)
+)
+CalibrationPlot(stab)
+ids_latent <- grep("f", colnames(dag))
+OpenMxMatrix(SelectedVariables(stab),
+  adjacency = dag
+)[ids_latent, ids_latent]
+
+# Stability selection (using regsem)
+stab <- StructuralEquations(
+  xdata = simul$data,
+  Lambda = LambdaSequence(lmax = 1, lmin = 0.2, cardinal = 5),
+  adjacency = dag,
+  implementation = PenalisedSEM, K = 50
+)
+CalibrationPlot(stab)
+ids_latent <- grep("f", colnames(dag))
+LavaanMatrix(SelectedVariables(stab),
+  adjacency = dag,
+  manifest = colnames(dag)[grep("x", colnames(dag))]
+)[ids_latent, ids_latent]
+}
 }
 \references{
 \insertRef{ourstabilityselection}{sharp}

@@ -4,16 +4,19 @@
 \alias{OpenMxModel}
 \title{Writing OpenMx model (matrix specification)}
 \usage{
-OpenMxModel(adjacency, residual_covariance = NULL)
+OpenMxModel(adjacency, residual_covariance = NULL, manifest = NULL)
 }
 \arguments{
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
 Action Model notation). By default, this is the identity matrix (no
 residual covariance).}
+
+\item{manifest}{optional vector of manifest variable names.}
 }
 \value{
 A character string that can be used in argument \code{model} in
@@ -27,15 +30,8 @@ entries in the residual covariance matrix (symmetric matrix S in Reticular
 Action Model notation).
 }
 \examples{
-# Definition of the model structure
-layers <- list(
-  c("var1", "var2", "var3"),
-  c("var4", "var5"),
-  c("var6", "var7", "var8")
-)
-dag <- LayeredDAG(layers)
-
 # Definition of simulated effects
+dag <- LayeredDAG(layers = c(3, 2, 3))
 theta <- dag
 theta[2, 4] <- 0
 theta[3, 7] <- 0
@@ -59,6 +55,27 @@ unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
   OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
   OpenMx::mxFitFunctionML()
 ), silent = TRUE, suppressWarnings = TRUE)
+unpenalised$A$values
+
+# Incorporating latent variables
+ram_matrices <- OpenMxModel(
+  adjacency = dag,
+  manifest = paste0("x", 1:7)
+)
+ram_matrices$Fmat$values
+
+# Running unpenalised model
+unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+  "Model",
+  OpenMx::mxData(simul$data[, 1:7], type = "raw"),
+  ram_matrices$Amat,
+  ram_matrices$Smat,
+  ram_matrices$Fmat,
+  ram_matrices$Mmat,
+  OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+  OpenMx::mxFitFunctionML()
+), silent = TRUE, suppressWarnings = TRUE)
+unpenalised$A$values
 
 }
 \references{

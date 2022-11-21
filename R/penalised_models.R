@@ -327,15 +327,9 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of the model structure
-#' layers <- list(
-#'   c("var1", "var2", "var3"),
-#'   c("var4", "var5"),
-#'   c("var6", "var7", "var8")
-#' )
-#' dag <- LayeredDAG(layers)
-#'
+#' \donttest{
 #' # Definition of simulated effects
+#' dag <- LayeredDAG(layers = c(3, 2, 3))
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
@@ -353,6 +347,26 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' # Obtaining results in matrix format
 #' LavaanMatrix(vect = mysem$selected[3, ], adjacency = dag)
 #'
+#' # Data simulation with latent variables
+#' set.seed(1)
+#' pk <- c(3, 2, 3)
+#' simul <- SimulateStructural(
+#'   n = 500,
+#'   pk = pk,
+#'   nu_between = 0.5,
+#'   v_sign = 1,
+#'   n_manifest = 3,
+#'   ev_manifest = 0.95
+#' )
+#'
+#' # Running regularised SEM
+#' dag <- LayeredDAG(layers = pk, n_manifest = 3)
+#' mysem <- PenalisedSEM(
+#'   xdata = simul$data, adjacency = dag,
+#'   Lambda = LambdaSequence(lmax = 1, lmin = 0.01, cardinal = 5)
+#' )
+#' mysem$selected
+#' }
 #' @export
 PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
                          Lambda, n_convergence = 500, ...) {
@@ -363,7 +377,11 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
   xdata <- scale(xdata)
 
   # Creating lavaan model
-  model_spec <- LavaanModel(adjacency = adjacency, residual_covariance = residual_covariance)
+  model_spec <- LavaanModel(
+    adjacency = adjacency,
+    residual_covariance = residual_covariance,
+    manifest = colnames(adjacency)[colnames(adjacency) %in% colnames(xdata)]
+  )
 
   # Running unpenalised sem
   out_lavaan <- lavaan::sem(model = model_spec, data = xdata)
@@ -454,6 +472,8 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
 #' @inheritParams StructuralEquations
 #' @param Lambda matrix of parameters controlling the level of sparsity (only
 #'   the minimum, maximum and length are used).
+#' @param penalised optional binary matrix indicating which coefficients are
+#'   regularised.
 #' @param ... additional parameters passed to \code{\link[regsem]{regsem}}.
 #'
 #' @return A list with: \item{selected}{matrix of binary selection status. Rows
@@ -471,15 +491,8 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
 #'   \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of the model structure
-#' layers <- list(
-#'   c("var1", "var2", "var3"),
-#'   c("var4", "var5"),
-#'   c("var6", "var7", "var8")
-#' )
-#' dag <- LayeredDAG(layers)
-#'
 #' # Definition of simulated effects
+#' dag <- LayeredDAG(layers = c(3, 2, 3))
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
@@ -499,16 +512,33 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
 #' theta # simulated is the same
 #'
 #' @export
-PenalisedOpenMx <- function(xdata, adjacency, residual_covariance = NULL,
+PenalisedOpenMx <- function(xdata,
+                            adjacency,
+                            penalised = NULL,
+                            residual_covariance = NULL,
                             Lambda, ...) {
   # Storing extra arguments
   extra_args <- list(...)
+
+  # Checking inputs
+  if (!is.null(penalised)) {
+    if (any(dim(penalised) != dim(adjacency))) {
+      stop("Arguments 'adjacency' and 'penalised' are not compatible. They must be of the same dimension.")
+    }
+  } else {
+    penalised <- adjacency
+  }
+  penalised <- t(penalised)
 
   # Scaling the data
   xdata <- scale(xdata)
 
   # Defining RAM matrices in OpenMx format
-  ram_matrices <- OpenMxModel(adjacency = adjacency)
+  ram_matrices <- OpenMxModel(
+    adjacency = adjacency,
+    residual_covariance = residual_covariance,
+    manifest = colnames(adjacency)[colnames(adjacency) %in% colnames(xdata)]
+  )
 
   # Defining expectation
   expectation <- OpenMx::mxExpectationRAM("A", "S", "F", "M",
@@ -532,7 +562,7 @@ PenalisedOpenMx <- function(xdata, adjacency, residual_covariance = NULL,
   unpenalised <- OpenMx::mxRun(model_spec, silent = TRUE, suppressWarnings = TRUE)
 
   # Running penalised estimations
-  coef_to_penalise <- as.character(stats::na.exclude(as.vector(ram_matrices$Amat$labels)))
+  coef_to_penalise <- as.character(stats::na.exclude(ram_matrices$Amat$labels[which(penalised == 1)]))
   mymodel <- OpenMx::mxPenaltySearch(OpenMx::mxModel(
     unpenalised,
     OpenMx::mxPenaltyLASSO(
@@ -544,10 +574,12 @@ PenalisedOpenMx <- function(xdata, adjacency, residual_covariance = NULL,
     ),
     OpenMx::mxMatrix("Full", 1, 1, free = TRUE, values = 0, labels = "lambda")
   ), silent = TRUE, suppressWarnings = TRUE)$compute$steps$PS$output$detail
-  # mymodel$statusCode # check convergence (should be "OK")
 
   # Extracting estimated coefficients
   beta_full <- as.matrix(mymodel[rev(1:nrow(mymodel)), seq(6, ncol(mymodel) - 1)])
+
+  # Setting as missing if model did not converge
+  beta_full[which(as.character(mymodel$statusCode) != "OK"), ] <- NA
 
   # Defining row and column names
   rownames(beta_full) <- paste0("s", seq(0, nrow(beta_full) - 1))
@@ -568,6 +600,7 @@ PenalisedOpenMx <- function(xdata, adjacency, residual_covariance = NULL,
 #' Action Model notation).
 #'
 #' @inheritParams PenalisedSEM
+#' @param manifest optional vector of manifest variable names.
 #'
 #' @return A character string that can be used in argument \code{model} in
 #'   \code{\link[lavaan]{sem}}.
@@ -606,8 +639,20 @@ PenalisedOpenMx <- function(xdata, adjacency, residual_covariance = NULL,
 #' regsem::extractMatrices(mylavaan)$A
 #' regsem::extractMatrices(mylavaan)$S
 #'
+#' # Incorporating latent variables
+#' dag <- LayeredDAG(layers = c(2, 1), n_manifest = 2)
+#' LavaanModel(dag, manifest = paste0("x", 1:6))
+#'
 #' @export
-LavaanModel <- function(adjacency, residual_covariance = NULL) {
+LavaanModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) {
+  # Identifying manifest and latent variables
+  if (is.null(manifest)) {
+    ids_manifest <- 1:ncol(adjacency)
+    ids_latent <- NULL
+  } else {
+    ids_manifest <- which(colnames(adjacency) %in% manifest)
+    ids_latent <- which(!colnames(adjacency) %in% manifest)
+  }
   # Creating residual covariance matrix structure if not provided
   if (is.null(residual_covariance)) {
     residual_covariance <- diag(ncol(adjacency))
@@ -622,15 +667,43 @@ LavaanModel <- function(adjacency, residual_covariance = NULL) {
   # Initialising model specification
   model_spec <- ""
 
-  # Listing regressions
-  for (j in 1:ncol(adjacency)) {
-    predictors <- rownames(adjacency)[which(adjacency[, j] != 0)]
-    if (length(predictors) > 0) {
-      model_spec <- paste0(
-        model_spec, colnames(adjacency)[j], " ~ ",
-        paste(predictors, collapse = " + "),
-        " \n "
-      )
+  if (length(ids_latent) > 0) {
+    # Listing regressions
+    adjacency_latent <- adjacency[ids_latent, ids_latent]
+    for (j in 1:ncol(adjacency_latent)) {
+      predictors <- rownames(adjacency_latent)[which(adjacency_latent[, j] != 0)]
+      if (length(predictors) > 0) {
+        model_spec <- paste0(
+          model_spec, colnames(adjacency_latent)[j], " ~ ",
+          paste(predictors, collapse = " + "),
+          " \n "
+        )
+      }
+    }
+
+    # Listing measurements
+    for (j in ids_latent) {
+      measured <- rownames(adjacency)[which(adjacency[j, ] != 0)]
+      measured <- measured[measured %in% manifest]
+      if (length(measured) > 0) {
+        model_spec <- paste0(
+          model_spec, colnames(adjacency)[j], " =~ ",
+          paste(measured, collapse = " + "),
+          " \n "
+        )
+      }
+    }
+  } else {
+    # Listing regressions
+    for (j in 1:ncol(adjacency)) {
+      predictors <- rownames(adjacency)[which(adjacency[, j] != 0)]
+      if (length(predictors) > 0) {
+        model_spec <- paste0(
+          model_spec, colnames(adjacency)[j], " ~ ",
+          paste(predictors, collapse = " + "),
+          " \n "
+        )
+      }
     }
   }
 
@@ -670,7 +743,7 @@ LavaanModel <- function(adjacency, residual_covariance = NULL) {
 #'
 #' Returns a matrix from output in \code{\link[lavaan]{lavaan}} format.
 #'
-#' @inheritParams PenalisedSEM
+#' @inheritParams LavaanModel
 #' @param vect vector of coefficients to assign to entries of the matrix.
 #'
 #' @return An asymmetric matrix.
@@ -680,15 +753,8 @@ LavaanModel <- function(adjacency, residual_covariance = NULL) {
 #' @references \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of the model structure
-#' layers <- list(
-#'   c("var1", "var2", "var3"),
-#'   c("var4", "var5"),
-#'   c("var6", "var7", "var8")
-#' )
-#' dag <- LayeredDAG(layers)
-#'
 #' # Definition of simulated effects
+#' dag <- LayeredDAG(layers = c(3, 2, 3))
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
@@ -706,9 +772,9 @@ LavaanModel <- function(adjacency, residual_covariance = NULL) {
 #' LavaanMatrix(vect = mysem$beta_full, adjacency = dag)
 #'
 #' @export
-LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL) {
+LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest = NULL) {
   # Creating lavaan model
-  model_spec <- LavaanModel(adjacency = adjacency, residual_covariance = residual_covariance)
+  model_spec <- LavaanModel(adjacency = adjacency, residual_covariance = residual_covariance, manifest = manifest)
 
   # Running unpenalised sem
   out_lavaan <- lavaan::sem(model = model_spec, data = NULL)
@@ -737,7 +803,7 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL) {
 #' entries in the residual covariance matrix (symmetric matrix S in Reticular
 #' Action Model notation).
 #'
-#' @inheritParams PenalisedSEM
+#' @inheritParams LavaanModel
 #'
 #' @return A character string that can be used in argument \code{model} in
 #'   \code{\link[lavaan]{sem}}.
@@ -747,15 +813,8 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL) {
 #' @references \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of the model structure
-#' layers <- list(
-#'   c("var1", "var2", "var3"),
-#'   c("var4", "var5"),
-#'   c("var6", "var7", "var8")
-#' )
-#' dag <- LayeredDAG(layers)
-#'
 #' # Definition of simulated effects
+#' dag <- LayeredDAG(layers = c(3, 2, 3))
 #' theta <- dag
 #' theta[2, 4] <- 0
 #' theta[3, 7] <- 0
@@ -779,9 +838,30 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL) {
 #'   OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
 #'   OpenMx::mxFitFunctionML()
 #' ), silent = TRUE, suppressWarnings = TRUE)
+#' unpenalised$A$values
+#'
+#' # Incorporating latent variables
+#' ram_matrices <- OpenMxModel(
+#'   adjacency = dag,
+#'   manifest = paste0("x", 1:7)
+#' )
+#' ram_matrices$Fmat$values
+#'
+#' # Running unpenalised model
+#' unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+#'   "Model",
+#'   OpenMx::mxData(simul$data[, 1:7], type = "raw"),
+#'   ram_matrices$Amat,
+#'   ram_matrices$Smat,
+#'   ram_matrices$Fmat,
+#'   ram_matrices$Mmat,
+#'   OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+#'   OpenMx::mxFitFunctionML()
+#' ), silent = TRUE, suppressWarnings = TRUE)
+#' unpenalised$A$values
 #'
 #' @export
-OpenMxModel <- function(adjacency, residual_covariance = NULL) {
+OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) {
   # Transposing the adjacency matrix to get support of A matrix in RAM notation
   adjacency <- t(adjacency)
 
@@ -790,25 +870,39 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL) {
     residual_covariance <- diag(ncol(adjacency))
   }
 
+  # Creating manifest if not provided (considering all variables as measured)
+  if (is.null(manifest)) {
+    manifest <- colnames(adjacency)
+  }
+  latent <- colnames(adjacency)[!colnames(adjacency) %in% manifest]
+
   # Defining coefficient labels (A)
-  Alabels <- matrix(paste0("a", as.vector(row(adjacency)), as.vector(col(adjacency))),
+  Alabels <- matrix(paste0("a", as.vector(row(adjacency)), "_", as.vector(col(adjacency))),
     nrow = nrow(adjacency), ncol = ncol(adjacency)
   )
   Alabels <- ifelse(adjacency == 1, yes = Alabels, no = NA)
 
   # Defining coefficient labels (S)
-  Slabels <- matrix(paste0("s", as.vector(row(residual_covariance)), as.vector(col(residual_covariance))),
+  Slabels <- matrix(paste0("s", as.vector(row(residual_covariance)), "_", as.vector(col(residual_covariance))),
     nrow = nrow(residual_covariance), ncol = ncol(residual_covariance)
   )
+  Slabels[lower.tri(Slabels)] <- Slabels[upper.tri(Slabels)] # symmetry
   Slabels <- ifelse(residual_covariance == 1, yes = Slabels, no = NA)
 
   # Creating matrix A
+  adjacency_free <- ifelse(adjacency == 1, yes = TRUE, no = FALSE)
+  if (length(latent) > 0) {
+    for (i in 1:length(latent)) {
+      id <- which(adjacency_free[, latent[i]])[1]
+      adjacency_free[id, latent[i]] <- FALSE
+    }
+  }
   Amat <- OpenMx::mxMatrix(
     type = "Full",
     nrow = nrow(adjacency),
     ncol = ncol(adjacency),
     name = "A",
-    free = as.vector(ifelse(adjacency == 1, yes = TRUE, no = FALSE)),
+    free = as.vector(adjacency_free),
     values = as.vector(adjacency),
     labels = as.vector(Alabels)
   )
@@ -826,6 +920,8 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL) {
 
   # Creating matrix F
   tmpmat <- diag(ncol(adjacency))
+  rownames(tmpmat) <- colnames(tmpmat) <- colnames(adjacency)
+  tmpmat <- tmpmat[manifest, ]
   Fmat <- OpenMx::mxMatrix(
     type = "Full",
     nrow = nrow(tmpmat),
@@ -871,15 +967,8 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL) {
 #' @references \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of the model structure
-#' layers <- list(
-#'   c("var1", "var2", "var3"),
-#'   c("var4", "var5"),
-#'   c("var6", "var7", "var8")
-#' )
-#' dag <- LayeredDAG(layers)
-#'
 #' # Definition of simulated effects
+#' dag <- LayeredDAG(layers = c(3, 2, 3))
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
@@ -912,6 +1001,15 @@ OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
   # Defining row and column names
   rownames(A) <- rownames(adjacency)
   colnames(A) <- colnames(adjacency)
+
+  # # Removing observed variables
+  # if (!include_manifest){
+  #   ids_latent=which(apply(ram_matrices$Fmat$values,2,sum)==1)
+  #   A=A[ids_latent,ids_latent]
+  # }
+
+  # Defining the class of the output
+  class(A) <- c("matrix", "adjacency_matrix")
 
   return(A)
 }

@@ -10,7 +10,8 @@ OpenMxMatrix(vect, adjacency, residual_covariance = NULL)
 \item{vect}{vector of coefficients to assign to entries of the matrix.}
 
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
@@ -24,15 +25,8 @@ An asymmetric matrix.
 Returns a matrix from output of \code{\link[OpenMx]{mxPenaltySearch}}.
 }
 \examples{
-# Definition of the model structure
-layers <- list(
-  c("var1", "var2", "var3"),
-  c("var4", "var5"),
-  c("var6", "var7", "var8")
-)
-dag <- LayeredDAG(layers)
-
 # Definition of simulated effects
+dag <- LayeredDAG(layers = c(3, 2, 3))
 theta <- dag
 theta[2, 4] <- 0
 

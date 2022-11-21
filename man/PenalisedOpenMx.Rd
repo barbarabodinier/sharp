@@ -4,13 +4,26 @@
 \alias{PenalisedOpenMx}
 \title{Penalised Structural Equation Model (OpenMx)}
 \usage{
-PenalisedOpenMx(xdata, adjacency, residual_covariance = NULL, Lambda, ...)
+PenalisedOpenMx(
+  xdata,
+  adjacency,
+  penalised = NULL,
+  residual_covariance = NULL,
+  Lambda,
+  ...
+)
 }
 \arguments{
-\item{xdata}{matrix with observations as rows and variables as columns.}
+\item{xdata}{matrix with observations as rows and variables as columns.
+Column names must be defined and in line with the row and column names of
+\code{adjacency}.}
 
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
+
+\item{penalised}{optional binary matrix indicating which coefficients are
+regularised.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
@@ -34,15 +47,8 @@ Runs penalised Structural Equation Modelling using implementation from
 \code{\link[OpenMx]{OpenMx}}. This function is not using stability.
 }
 \examples{
-# Definition of the model structure
-layers <- list(
-  c("var1", "var2", "var3"),
-  c("var4", "var5"),
-  c("var6", "var7", "var8")
-)
-dag <- LayeredDAG(layers)
-
 # Definition of simulated effects
+dag <- LayeredDAG(layers = c(3, 2, 3))
 theta <- dag
 theta[2, 4] <- 0
 

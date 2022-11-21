@@ -14,10 +14,13 @@ PenalisedSEM(
 )
 }
 \arguments{
-\item{xdata}{matrix with observations as rows and variables as columns.}
+\item{xdata}{matrix with observations as rows and variables as columns.
+Column names must be defined and in line with the row and column names of
+\code{adjacency}.}
 
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
@@ -42,15 +45,9 @@ Runs penalised Structural Equation Modelling using implementation from
 \code{\link[regsem]{regsem}}. This function is not using stability.
 }
 \examples{
-# Definition of the model structure
-layers <- list(
-  c("var1", "var2", "var3"),
-  c("var4", "var5"),
-  c("var6", "var7", "var8")
-)
-dag <- LayeredDAG(layers)
-
+\donttest{
 # Definition of simulated effects
+dag <- LayeredDAG(layers = c(3, 2, 3))
 theta <- dag
 theta[2, 4] <- 0
 
@@ -68,6 +65,26 @@ mysem$selected
 # Obtaining results in matrix format
 LavaanMatrix(vect = mysem$selected[3, ], adjacency = dag)
 
+# Data simulation with latent variables
+set.seed(1)
+pk <- c(3, 2, 3)
+simul <- SimulateStructural(
+  n = 500,
+  pk = pk,
+  nu_between = 0.5,
+  v_sign = 1,
+  n_manifest = 3,
+  ev_manifest = 0.95
+)
+
+# Running regularised SEM
+dag <- LayeredDAG(layers = pk, n_manifest = 3)
+mysem <- PenalisedSEM(
+  xdata = simul$data, adjacency = dag,
+  Lambda = LambdaSequence(lmax = 1, lmin = 0.01, cardinal = 5)
+)
+mysem$selected
+}
 }
 \references{
 \insertRef{RegSEM}{sharp}

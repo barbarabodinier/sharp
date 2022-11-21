@@ -4,18 +4,21 @@
 \alias{LavaanMatrix}
 \title{Matrix from lavaan outputs}
 \usage{
-LavaanMatrix(vect, adjacency, residual_covariance = NULL)
+LavaanMatrix(vect, adjacency, residual_covariance = NULL, manifest = NULL)
 }
 \arguments{
 \item{vect}{vector of coefficients to assign to entries of the matrix.}
 
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
 Action Model notation). By default, this is the identity matrix (no
 residual covariance).}
+
+\item{manifest}{optional vector of manifest variable names.}
 }
 \value{
 An asymmetric matrix.
@@ -24,15 +27,8 @@ An asymmetric matrix.
 Returns a matrix from output in \code{\link[lavaan]{lavaan}} format.
 }
 \examples{
-# Definition of the model structure
-layers <- list(
-  c("var1", "var2", "var3"),
-  c("var4", "var5"),
-  c("var6", "var7", "var8")
-)
-dag <- LayeredDAG(layers)
-
 # Definition of simulated effects
+dag <- LayeredDAG(layers = c(3, 2, 3))
 theta <- dag
 theta[2, 4] <- 0
 

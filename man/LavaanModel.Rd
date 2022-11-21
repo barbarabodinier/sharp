@@ -4,16 +4,19 @@
 \alias{LavaanModel}
 \title{Writing lavaan model}
 \usage{
-LavaanModel(adjacency, residual_covariance = NULL)
+LavaanModel(adjacency, residual_covariance = NULL, manifest = NULL)
 }
 \arguments{
 \item{adjacency}{binary adjacency matrix of the Directed Acyclic Graph
-(transpose of the asymmetric matrix A in Reticular Action Model notation).}
+(transpose of the asymmetric matrix A in Reticular Action Model notation).
+The row and column names of this matrix must be defined.}
 
 \item{residual_covariance}{binary and symmetric matrix encoding the nonzero
 entries in the residual covariance matrix (symmetric matrix S in Reticular
 Action Model notation). By default, this is the identity matrix (no
 residual covariance).}
+
+\item{manifest}{optional vector of manifest variable names.}
 }
 \value{
 A character string that can be used in argument \code{model} in
@@ -55,6 +58,10 @@ model_spec <- LavaanModel(
 mylavaan <- lavaan::sem(model = model_spec)
 regsem::extractMatrices(mylavaan)$A
 regsem::extractMatrices(mylavaan)$S
+
+# Incorporating latent variables
+dag <- LayeredDAG(layers = c(2, 1), n_manifest = 2)
+LavaanModel(dag, manifest = paste0("x", 1:6))
 
 }
 \references{
