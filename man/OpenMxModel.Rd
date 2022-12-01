@@ -31,7 +31,8 @@ Action Model notation).
 }
 \examples{
 # Definition of simulated effects
-dag <- LayeredDAG(layers = c(3, 2, 3))
+pk <- c(3, 2, 3)
+dag <- LayeredDAG(layers = pk)
 theta <- dag
 theta[2, 4] <- 0
 theta[3, 7] <- 0
@@ -39,7 +40,7 @@ theta[4, 7] <- 0
 
 # Data simulation
 set.seed(1)
-simul <- SimulateStructural(n = 500, v_between = 1, theta = theta)
+simul <- SimulateStructural(n = 500, v_between = 1, theta = theta, pk = pk)
 
 # Writing RAM matrices for mxModel
 ram_matrices <- OpenMxModel(adjacency = dag)

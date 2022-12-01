@@ -28,13 +28,14 @@ Returns a matrix from output in \code{\link[lavaan]{lavaan}} format.
 }
 \examples{
 # Definition of simulated effects
-dag <- LayeredDAG(layers = c(3, 2, 3))
+pk <- c(3, 2, 3)
+dag <- LayeredDAG(layers = pk)
 theta <- dag
 theta[2, 4] <- 0
 
 # Data simulation
 set.seed(1)
-simul <- SimulateStructural(theta = theta)
+simul <- SimulateStructural(theta = theta, pk = pk)
 
 # Running regularised SEM
 mysem <- PenalisedSEM(

@@ -329,13 +329,14 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' @examples
 #' \donttest{
 #' # Definition of simulated effects
-#' dag <- LayeredDAG(layers = c(3, 2, 3))
+#' pk <- c(3, 2, 3)
+#' dag <- LayeredDAG(layers = pk)
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateStructural(theta = theta)
+#' simul <- SimulateStructural(theta = theta, pk = pk)
 #'
 #' # Running regularised SEM
 #' mysem <- PenalisedSEM(
@@ -492,13 +493,14 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
 #'
 #' @examples
 #' # Definition of simulated effects
-#' dag <- LayeredDAG(layers = c(3, 2, 3))
+#' pk <- c(3, 2, 3)
+#' dag <- LayeredDAG(layers = pk)
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateStructural(theta = theta)
+#' simul <- SimulateStructural(theta = theta, pk = pk)
 #'
 #' # Running regularised SEM
 #' mysem <- PenalisedOpenMx(
@@ -570,7 +572,7 @@ PenalisedOpenMx <- function(xdata,
       name = "lasso",
       lambda = min(Lambda),
       lambda.max = max(Lambda),
-      lambda.step = (max(Lambda) - min(Lambda) + 1) / length(Lambda)
+      lambda.step = (max(Lambda) - min(Lambda)) / max((length(Lambda) - 1), 1)
     ),
     OpenMx::mxMatrix("Full", 1, 1, free = TRUE, values = 0, labels = "lambda")
   ), silent = TRUE, suppressWarnings = TRUE)$compute$steps$PS$output$detail
@@ -754,13 +756,14 @@ LavaanModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
 #'
 #' @examples
 #' # Definition of simulated effects
-#' dag <- LayeredDAG(layers = c(3, 2, 3))
+#' pk <- c(3, 2, 3)
+#' dag <- LayeredDAG(layers = pk)
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateStructural(theta = theta)
+#' simul <- SimulateStructural(theta = theta, pk = pk)
 #'
 #' # Running regularised SEM
 #' mysem <- PenalisedSEM(
@@ -814,7 +817,8 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest =
 #'
 #' @examples
 #' # Definition of simulated effects
-#' dag <- LayeredDAG(layers = c(3, 2, 3))
+#' pk <- c(3, 2, 3)
+#' dag <- LayeredDAG(layers = pk)
 #' theta <- dag
 #' theta[2, 4] <- 0
 #' theta[3, 7] <- 0
@@ -822,7 +826,7 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest =
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateStructural(n = 500, v_between = 1, theta = theta)
+#' simul <- SimulateStructural(n = 500, v_between = 1, theta = theta, pk = pk)
 #'
 #' # Writing RAM matrices for mxModel
 #' ram_matrices <- OpenMxModel(adjacency = dag)
@@ -862,6 +866,8 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest =
 #'
 #' @export
 OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) {
+  # NB: means and variances are only correct for scaled data
+
   # Transposing the adjacency matrix to get support of A matrix in RAM notation
   adjacency <- t(adjacency)
 
@@ -908,12 +914,15 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
   )
 
   # Creating matrix S
+  residual_covariance_free <- ifelse(residual_covariance == 1, yes = TRUE, no = FALSE)
+  ids_fixed <- which(apply(adjacency, 1, sum) == 0)
+  residual_covariance_free[ids_fixed, ids_fixed] <- FALSE # non-residual (co)variances are fixed as data is scaled
   Smat <- OpenMx::mxMatrix(
     type = "Full",
     nrow = nrow(residual_covariance),
     ncol = ncol(residual_covariance),
     name = "S",
-    free = as.vector(ifelse(residual_covariance == 1, yes = TRUE, no = FALSE)),
+    free = as.vector(residual_covariance_free),
     values = as.vector(residual_covariance),
     labels = as.vector(Slabels)
   )
@@ -968,13 +977,14 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
 #'
 #' @examples
 #' # Definition of simulated effects
-#' dag <- LayeredDAG(layers = c(3, 2, 3))
+#' pk <- c(3, 2, 3)
+#' dag <- LayeredDAG(layers = pk)
 #' theta <- dag
 #' theta[2, 4] <- 0
 #'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateStructural(theta = theta)
+#' simul <- SimulateStructural(theta = theta, pk = pk)
 #'
 #' # Running regularised SEM
 #' mysem <- PenalisedOpenMx(
