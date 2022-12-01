@@ -30,54 +30,55 @@ entries in the residual covariance matrix (symmetric matrix S in Reticular
 Action Model notation).
 }
 \examples{
-# Definition of simulated effects
-pk <- c(3, 2, 3)
-dag <- LayeredDAG(layers = pk)
-theta <- dag
-theta[2, 4] <- 0
-theta[3, 7] <- 0
-theta[4, 7] <- 0
+if (requireNamespace("OpenMx", quietly = TRUE)) {
+  # Definition of simulated effects
+  pk <- c(3, 2, 3)
+  dag <- LayeredDAG(layers = pk)
+  theta <- dag
+  theta[2, 4] <- 0
+  theta[3, 7] <- 0
+  theta[4, 7] <- 0
 
-# Data simulation
-set.seed(1)
-simul <- SimulateStructural(n = 500, v_between = 1, theta = theta, pk = pk)
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateStructural(n = 500, v_between = 1, theta = theta, pk = pk)
 
-# Writing RAM matrices for mxModel
-ram_matrices <- OpenMxModel(adjacency = dag)
+  # Writing RAM matrices for mxModel
+  ram_matrices <- OpenMxModel(adjacency = dag)
 
-# Running unpenalised model
-unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
-  "Model",
-  OpenMx::mxData(simul$data, type = "raw"),
-  ram_matrices$Amat,
-  ram_matrices$Smat,
-  ram_matrices$Fmat,
-  ram_matrices$Mmat,
-  OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
-  OpenMx::mxFitFunctionML()
-), silent = TRUE, suppressWarnings = TRUE)
-unpenalised$A$values
+  # Running unpenalised model
+  unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+    "Model",
+    OpenMx::mxData(simul$data, type = "raw"),
+    ram_matrices$Amat,
+    ram_matrices$Smat,
+    ram_matrices$Fmat,
+    ram_matrices$Mmat,
+    OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+    OpenMx::mxFitFunctionML()
+  ), silent = TRUE, suppressWarnings = TRUE)
+  unpenalised$A$values
 
-# Incorporating latent variables
-ram_matrices <- OpenMxModel(
-  adjacency = dag,
-  manifest = paste0("x", 1:7)
-)
-ram_matrices$Fmat$values
+  # Incorporating latent variables
+  ram_matrices <- OpenMxModel(
+    adjacency = dag,
+    manifest = paste0("x", 1:7)
+  )
+  ram_matrices$Fmat$values
 
-# Running unpenalised model
-unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
-  "Model",
-  OpenMx::mxData(simul$data[, 1:7], type = "raw"),
-  ram_matrices$Amat,
-  ram_matrices$Smat,
-  ram_matrices$Fmat,
-  ram_matrices$Mmat,
-  OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
-  OpenMx::mxFitFunctionML()
-), silent = TRUE, suppressWarnings = TRUE)
-unpenalised$A$values
-
+  # Running unpenalised model
+  unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+    "Model",
+    OpenMx::mxData(simul$data[, 1:7], type = "raw"),
+    ram_matrices$Amat,
+    ram_matrices$Smat,
+    ram_matrices$Fmat,
+    ram_matrices$Mmat,
+    OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+    OpenMx::mxFitFunctionML()
+  ), silent = TRUE, suppressWarnings = TRUE)
+  unpenalised$A$values
+}
 }
 \references{
 \insertRef{lavaanBook}{sharp}

@@ -492,33 +492,37 @@ PenalisedSEM <- function(xdata, adjacency, residual_covariance = NULL,
 #'   \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of simulated effects
-#' pk <- c(3, 2, 3)
-#' dag <- LayeredDAG(layers = pk)
-#' theta <- dag
-#' theta[2, 4] <- 0
+#' if (requireNamespace("OpenMx", quietly = TRUE)) {
+#'   # Definition of simulated effects
+#'   pk <- c(3, 2, 3)
+#'   dag <- LayeredDAG(layers = pk)
+#'   theta <- dag
+#'   theta[2, 4] <- 0
 #'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateStructural(theta = theta, pk = pk)
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateStructural(theta = theta, pk = pk)
 #'
-#' # Running regularised SEM
-#' mysem <- PenalisedOpenMx(
-#'   xdata = simul$data, adjacency = dag,
-#'   Lambda = seq(1, 50, by = 10)
-#' )
-#' mysem$selected
+#'   # Running regularised SEM
+#'   mysem <- PenalisedOpenMx(
+#'     xdata = simul$data, adjacency = dag,
+#'     Lambda = seq(1, 50, by = 10)
+#'   )
+#'   mysem$selected
 #'
-#' # Obtaining results in matrix format
-#' OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
-#' theta # simulated is the same
-#'
+#'   # Obtaining results in matrix format
+#'   OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
+#'   theta # simulated is the same
+#' }
 #' @export
 PenalisedOpenMx <- function(xdata,
                             adjacency,
                             penalised = NULL,
                             residual_covariance = NULL,
                             Lambda, ...) {
+  # Checking OpenMx package is installed
+  CheckPackageInstalled("OpenMx")
+
   # Storing extra arguments
   extra_args <- list(...)
 
@@ -816,57 +820,61 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest =
 #' @references \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of simulated effects
-#' pk <- c(3, 2, 3)
-#' dag <- LayeredDAG(layers = pk)
-#' theta <- dag
-#' theta[2, 4] <- 0
-#' theta[3, 7] <- 0
-#' theta[4, 7] <- 0
+#' if (requireNamespace("OpenMx", quietly = TRUE)) {
+#'   # Definition of simulated effects
+#'   pk <- c(3, 2, 3)
+#'   dag <- LayeredDAG(layers = pk)
+#'   theta <- dag
+#'   theta[2, 4] <- 0
+#'   theta[3, 7] <- 0
+#'   theta[4, 7] <- 0
 #'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateStructural(n = 500, v_between = 1, theta = theta, pk = pk)
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateStructural(n = 500, v_between = 1, theta = theta, pk = pk)
 #'
-#' # Writing RAM matrices for mxModel
-#' ram_matrices <- OpenMxModel(adjacency = dag)
+#'   # Writing RAM matrices for mxModel
+#'   ram_matrices <- OpenMxModel(adjacency = dag)
 #'
-#' # Running unpenalised model
-#' unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
-#'   "Model",
-#'   OpenMx::mxData(simul$data, type = "raw"),
-#'   ram_matrices$Amat,
-#'   ram_matrices$Smat,
-#'   ram_matrices$Fmat,
-#'   ram_matrices$Mmat,
-#'   OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
-#'   OpenMx::mxFitFunctionML()
-#' ), silent = TRUE, suppressWarnings = TRUE)
-#' unpenalised$A$values
+#'   # Running unpenalised model
+#'   unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+#'     "Model",
+#'     OpenMx::mxData(simul$data, type = "raw"),
+#'     ram_matrices$Amat,
+#'     ram_matrices$Smat,
+#'     ram_matrices$Fmat,
+#'     ram_matrices$Mmat,
+#'     OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+#'     OpenMx::mxFitFunctionML()
+#'   ), silent = TRUE, suppressWarnings = TRUE)
+#'   unpenalised$A$values
 #'
-#' # Incorporating latent variables
-#' ram_matrices <- OpenMxModel(
-#'   adjacency = dag,
-#'   manifest = paste0("x", 1:7)
-#' )
-#' ram_matrices$Fmat$values
+#'   # Incorporating latent variables
+#'   ram_matrices <- OpenMxModel(
+#'     adjacency = dag,
+#'     manifest = paste0("x", 1:7)
+#'   )
+#'   ram_matrices$Fmat$values
 #'
-#' # Running unpenalised model
-#' unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
-#'   "Model",
-#'   OpenMx::mxData(simul$data[, 1:7], type = "raw"),
-#'   ram_matrices$Amat,
-#'   ram_matrices$Smat,
-#'   ram_matrices$Fmat,
-#'   ram_matrices$Mmat,
-#'   OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
-#'   OpenMx::mxFitFunctionML()
-#' ), silent = TRUE, suppressWarnings = TRUE)
-#' unpenalised$A$values
-#'
+#'   # Running unpenalised model
+#'   unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
+#'     "Model",
+#'     OpenMx::mxData(simul$data[, 1:7], type = "raw"),
+#'     ram_matrices$Amat,
+#'     ram_matrices$Smat,
+#'     ram_matrices$Fmat,
+#'     ram_matrices$Mmat,
+#'     OpenMx::mxExpectationRAM("A", "S", "F", "M", dimnames = colnames(dag)),
+#'     OpenMx::mxFitFunctionML()
+#'   ), silent = TRUE, suppressWarnings = TRUE)
+#'   unpenalised$A$values
+#' }
 #' @export
 OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) {
   # NB: means and variances are only correct for scaled data
+
+  # Checking OpenMx package is installed
+  CheckPackageInstalled("OpenMx")
 
   # Transposing the adjacency matrix to get support of A matrix in RAM notation
   adjacency <- t(adjacency)
@@ -976,28 +984,32 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
 #' @references \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
-#' # Definition of simulated effects
-#' pk <- c(3, 2, 3)
-#' dag <- LayeredDAG(layers = pk)
-#' theta <- dag
-#' theta[2, 4] <- 0
+#' if (requireNamespace("OpenMx", quietly = TRUE)) {
+#'   # Definition of simulated effects
+#'   pk <- c(3, 2, 3)
+#'   dag <- LayeredDAG(layers = pk)
+#'   theta <- dag
+#'   theta[2, 4] <- 0
 #'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateStructural(theta = theta, pk = pk)
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateStructural(theta = theta, pk = pk)
 #'
-#' # Running regularised SEM
-#' mysem <- PenalisedOpenMx(
-#'   xdata = simul$data, adjacency = dag,
-#'   Lambda = seq(1, 50, by = 10)
-#' )
-#' mysem$selected
+#'   # Running regularised SEM
+#'   mysem <- PenalisedOpenMx(
+#'     xdata = simul$data, adjacency = dag,
+#'     Lambda = seq(1, 50, by = 10)
+#'   )
+#'   mysem$selected
 #'
-#' # Obtaining results in matrix format
-#' OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
-#'
+#'   # Obtaining results in matrix format
+#'   OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
+#' }
 #' @export
 OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
+  # Checking OpenMx package is installed
+  CheckPackageInstalled("OpenMx")
+
   # Defining RAM matrices in OpenMx format
   ram_matrices <- OpenMxModel(adjacency = adjacency, residual_covariance = residual_covariance)
 
@@ -1011,12 +1023,6 @@ OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
   # Defining row and column names
   rownames(A) <- rownames(adjacency)
   colnames(A) <- colnames(adjacency)
-
-  # # Removing observed variables
-  # if (!include_manifest){
-  #   ids_latent=which(apply(ram_matrices$Fmat$values,2,sum)==1)
-  #   A=A[ids_latent,ids_latent]
-  # }
 
   # Defining the class of the output
   class(A) <- c("matrix", "adjacency_matrix")

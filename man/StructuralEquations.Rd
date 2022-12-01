@@ -220,14 +220,16 @@ pk <- c(3, 2, 3)
 simul <- SimulateStructural(n = 500, pk = pk, nu_between = 0.5, v_sign = 1)
 
 # Stability selection (using openmx)
-dag <- LayeredDAG(layers = pk)
-stab <- StructuralEquations(
-  xdata = simul$data,
-  Lambda = seq(50, 500, by = 50),
-  adjacency = dag
-)
-CalibrationPlot(stab)
-OpenMxMatrix(SelectedVariables(stab), adjacency = dag)
+if (requireNamespace("OpenMx", quietly = TRUE)) {
+  dag <- LayeredDAG(layers = pk)
+  stab <- StructuralEquations(
+    xdata = simul$data,
+    Lambda = seq(50, 500, by = 50),
+    adjacency = dag
+  )
+  CalibrationPlot(stab)
+  OpenMxMatrix(SelectedVariables(stab), adjacency = dag)
+}
 
 # Stability selection (using regsem)
 stab <- StructuralEquations(
@@ -254,20 +256,22 @@ simul <- SimulateStructural(
 )
 
 # Stability selection (using OpenMx)
-dag <- LayeredDAG(layers = pk, n_manifest = 3)
-penalised <- dag
-penalised[, 1:ncol(simul$data)] <- 0
-stab <- StructuralEquations(
-  xdata = simul$data,
-  adjacency = dag,
-  penalised = penalised,
-  Lambda = seq(10, 100, by = 10)
-)
-CalibrationPlot(stab)
-ids_latent <- grep("f", colnames(dag))
-OpenMxMatrix(SelectedVariables(stab),
-  adjacency = dag
-)[ids_latent, ids_latent]
+if (requireNamespace("OpenMx", quietly = TRUE)) {
+  dag <- LayeredDAG(layers = pk, n_manifest = 3)
+  penalised <- dag
+  penalised[, 1:ncol(simul$data)] <- 0
+  stab <- StructuralEquations(
+    xdata = simul$data,
+    adjacency = dag,
+    penalised = penalised,
+    Lambda = seq(10, 100, by = 10)
+  )
+  CalibrationPlot(stab)
+  ids_latent <- grep("f", colnames(dag))
+  OpenMxMatrix(SelectedVariables(stab),
+    adjacency = dag
+  )[ids_latent, ids_latent]
+}
 
 # Stability selection (using regsem)
 stab <- StructuralEquations(

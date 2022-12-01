@@ -25,26 +25,27 @@ An asymmetric matrix.
 Returns a matrix from output of \code{\link[OpenMx]{mxPenaltySearch}}.
 }
 \examples{
-# Definition of simulated effects
-pk <- c(3, 2, 3)
-dag <- LayeredDAG(layers = pk)
-theta <- dag
-theta[2, 4] <- 0
+if (requireNamespace("OpenMx", quietly = TRUE)) {
+  # Definition of simulated effects
+  pk <- c(3, 2, 3)
+  dag <- LayeredDAG(layers = pk)
+  theta <- dag
+  theta[2, 4] <- 0
 
-# Data simulation
-set.seed(1)
-simul <- SimulateStructural(theta = theta, pk = pk)
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateStructural(theta = theta, pk = pk)
 
-# Running regularised SEM
-mysem <- PenalisedOpenMx(
-  xdata = simul$data, adjacency = dag,
-  Lambda = seq(1, 50, by = 10)
-)
-mysem$selected
+  # Running regularised SEM
+  mysem <- PenalisedOpenMx(
+    xdata = simul$data, adjacency = dag,
+    Lambda = seq(1, 50, by = 10)
+  )
+  mysem$selected
 
-# Obtaining results in matrix format
-OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
-
+  # Obtaining results in matrix format
+  OpenMxMatrix(vect = mysem$selected[3, ], adjacency = dag)
+}
 }
 \references{
 \insertRef{lavaanBook}{sharp}
