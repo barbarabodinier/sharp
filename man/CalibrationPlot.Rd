@@ -63,8 +63,7 @@ drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \code{"n"} (no box).}
 
 \item{lines}{logical indicating if the points should be linked by lines. Only
-used if \code{stability} is the output of \code{\link{BiSelection}} or
-\code{\link{Clustering}}.}
+used if \code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{lty}{line type, as in \code{\link[graphics]{par}}. Only used if
 \code{stability} is the output of \code{\link{BiSelection}}.}
@@ -202,10 +201,7 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
-\code{\link{Clusters}()},
-\code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()},
-\code{\link{WeightBoxplot}()}
+\code{\link{SelectionProportions}()}
 }
 \concept{calibration functions}

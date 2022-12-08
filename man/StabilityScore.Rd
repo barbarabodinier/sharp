@@ -81,7 +81,6 @@ score <- StabilityScore(selprop, pi_list = c(0.6, 0.7, 0.8), K = 100)
 }
 \seealso{
 Other stability metric functions: 
-\code{\link{ConsensusScore}()},
 \code{\link{FDP}()},
 \code{\link{PFER}()},
 \code{\link{StabilityMetrics}()}

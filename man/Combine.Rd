@@ -7,27 +7,25 @@
 Combine(stability1, stability2, include_beta = TRUE)
 }
 \arguments{
-\item{stability1}{output from a first run of \code{\link{VariableSelection}},
-\code{\link{GraphicalModel}}, or \code{\link{Clustering}}.}
+\item{stability1}{output from a first run of \code{\link{VariableSelection}}
+or \code{\link{GraphicalModel}}.}
 
-\item{stability2}{output from a second run of
-\code{\link{VariableSelection}}, \code{\link{GraphicalModel}}, or
-\code{\link{Clustering}}.}
+\item{stability2}{output from a second run of \code{\link{VariableSelection}}
+or \code{\link{GraphicalModel}}.}
 
 \item{include_beta}{logical indicating if the beta coefficients of visited
-models should be concatenated. Only applicable to variable selection or
-clustering.}
+models should be concatenated. Only applicable to variable selection.}
 }
 \value{
 A single output of the same format.
 }
 \description{
-Merges the outputs from two runs of \code{\link{VariableSelection}},
-\code{\link{GraphicalModel}} or \code{\link{Clustering}}. The two runs must
-have been done using the same \code{methods} and the same \code{params} but
-with different \code{seed}s. The combined output will contain results based
-on iterations from both \code{stability1} and \code{stability2}. This
-function can be used for parallelisation.
+Merges the outputs from two runs of \code{\link{VariableSelection}} or
+\code{\link{GraphicalModel}}. The two runs must have been done using the same
+\code{methods} and the same \code{params} but with different \code{seed}s.
+The combined output will contain results based on iterations from both
+\code{stability1} and \code{stability2}. This function can be used for
+parallelisation.
 }
 \examples{
 \donttest{
@@ -54,20 +52,6 @@ simul <- SimulateGraphical(pk = 20)
 # Two runs
 stab1 <- GraphicalModel(xdata = simul$data, seed = 1, K = 10)
 stab2 <- GraphicalModel(xdata = simul$data, seed = 2, K = 10)
-
-# Merging the outputs
-stab <- Combine(stability1 = stab1, stability2 = stab2)
-str(stab)
-
-
-## Clustering
-
-# Data simulation
-simul <- SimulateClustering(n = c(15, 15, 15))
-
-# Two runs
-stab1 <- Clustering(xdata = simul$data, seed = 1)
-stab2 <- Clustering(xdata = simul$data, seed = 2)
 
 # Merging the outputs
 stab <- Combine(stability1 = stab1, stability2 = stab2)

@@ -180,8 +180,8 @@ Argmax <- function(stability) {
 #' Extracts the adjacency matrix of the (calibrated) stability selection
 #' graphical model.
 #'
-#' @param stability output of \code{\link{GraphicalModel}},
-#'   \code{\link{BiSelection}}, or \code{\link{Clustering}}.
+#' @param stability output of \code{\link{GraphicalModel}} or
+#'   \code{\link{BiSelection}}.
 #' @param argmax_id optional matrix of parameter IDs. If \code{argmax_id=NULL},
 #'   the calibrated model is used.
 #'
@@ -209,8 +209,8 @@ Argmax <- function(stability) {
 #' A <- Adjacency(stab, argmax_id = myids)
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
-  if (!inherits(stability, c("graphical_model", "bi_selection", "clustering"))) {
-    stop("Invalid input for argument 'stability'. This function only applies to outputs from GraphicalModel(), BiSelection() or Clustering().")
+  if (!inherits(stability, c("graphical_model", "bi_selection"))) {
+    stop("Invalid input for argument 'stability'. This function only applies to outputs from GraphicalModel() or BiSelection().")
   }
 
   if (inherits(stability, "bi_selection")) {
@@ -243,10 +243,6 @@ Adjacency <- function(stability, argmax_id = NULL) {
       }
       A <- A + A_block
     }
-  }
-
-  if (inherits(stability, "clustering")) {
-    A <- CoMembership(Clusters(stability = stability))
   }
 
   A[is.na(A)] <- 0
@@ -400,10 +396,6 @@ SelectionProportions <- function(stability, argmax_id = NULL) {
     out <- SelectionProportionsGraphical(stability = stability, argmax_id = argmax_id)
   }
   if (inherits(stability, "variable_selection")) {
-    out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
-  }
-  if (inherits(stability, "clustering")) {
-    argmax_id <- ArgmaxId(stability)
     out <- SelectionProportionsRegression(stability = stability, argmax_id = argmax_id)
   }
   if (inherits(stability, "bi_selection")) {
@@ -642,203 +634,6 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 }
 
 
-#' Calibrated consensus matrix
-#'
-#' Extracts the (calibrated) consensus matrix. Entries indicate the proportion
-#' of subsampling iterations where the two items were in the same cluster, out
-#' of all iterations where both items were drawn in the subsample.
-#'
-#' @param stability output of \code{\link{Clustering}}.
-#' @param argmax_id optional matrix of parameter IDs. If \code{argmax_id=NULL},
-#'   the calibrated model is used.
-#'
-#' @return A consensus matrix.
-#'
-#' @family calibration functions
-#'
-#' @seealso \code{\link{Clustering}}
-#'
-#' @examples
-#' \dontrun{
-#'
-#' # Simulation of data with clusters
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(10, 30, 15),
-#'   pk = 10, nu_xc = 1,
-#'   ev_xc = 0.95
-#' )
-#'
-#' # Consensus clustering
-#' stab <- Clustering(xdata = x, implementation = HierarchicalClustering)
-#' ConsensusMatrix(stab)
-#' }
-#'
-#' @export
-ConsensusMatrix <- function(stability, argmax_id = NULL) {
-  if (class(stability) != "clustering") {
-    stop("Invalid input for argument 'stability'. Only applicable to an object of class 'clustering', i.e. to the output of Clustering().")
-  }
-
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability = stability)
-  }
-  mat <- stability$coprop[, , argmax_id[1]]
-
-  return(mat)
-}
-
-
-#' Stable cluster membership
-#'
-#' Generates the (calibrated) stable cluster memberships.
-#'
-#' @inheritParams Adjacency
-#' @param stability output of \code{\link{Clustering}}.
-#'
-#' @return A vector of cluster memberships.
-#'
-#' @family calibration functions
-#' @seealso \code{\link{BiSelection}}
-#'
-#' @examples
-#' \donttest{
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(30, 30, 30),
-#'   nu_xc = 1
-#' )
-#' plot(simul)
-#'
-#' # Consensus clustering
-#' stab <- Clustering(
-#'   xdata = simul$data
-#' )
-#' Clusters(stab)
-#' }
-#' @export
-Clusters <- function(stability, argmax_id = NULL) {
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability = stability)
-  }
-
-  # Calibrated consensus matrix
-  coprop <- ConsensusMatrix(stability = stability, argmax_id = argmax_id[1])
-
-  # Extracting stable clusters from hierarchical clustering
-  shclust <- stats::hclust(stats::as.dist(1 - coprop), method = stability$methods$linkage)
-  mymembership <- stats::cutree(shclust, k = ceiling(stability$nc[argmax_id[1], 1]))
-
-  # Splitting noise clusters
-  if (any(!is.na(stability$bignoise))) {
-    noise_prop <- stability$bignoise[, argmax_id[1]]
-    if (any(noise_prop >= 0.5)) {
-      ids <- which(noise_prop >= 0.5)
-      mymembership[ids] <- max(mymembership) + seq(1, length(ids))
-      mymembership <- mymembership - min(mymembership) + 1
-    }
-  }
-
-  return(mymembership)
-}
-
-
-#' Stable attribute weights
-#'
-#' Creates a boxplots of the distribution of (calibrated) median attribute
-#' weights obtained from the COSA algorithm across the subsampling iterations.
-#'
-#' @inheritParams Adjacency
-#' @param stability output of \code{\link{Clustering}}.
-#' @param at coordinates along the x-axis (more details in
-#'   \code{\link[graphics]{boxplot}}).
-#' @param col optional vector of colours.
-#' @param boxwex box width (more details in \code{\link[graphics]{boxplot}}).
-#' @param xlab label of the x-axis.
-#' @param ylab label of the y-axis.
-#' @param cex.lab font size for labels.
-#' @param las orientation of labels on the x-axis (see
-#'   \code{\link[graphics]{par}}).
-#' @param frame logical indicating if the box around the plot should be drawn
-#'   (more details in \code{\link[graphics]{boxplot}}).
-#' @param add logical indicating if the boxplot should be added to the current
-#'   plot.
-#' @param ... additional parameters passed to \code{\link[graphics]{boxplot}}).
-#'
-#' @return A boxplot.
-#'
-#' @family calibration functions
-
-#' @seealso \code{\link{Clustering}}
-#'
-#' @examples
-#' \donttest{
-#' # Data simulation
-#' set.seed(2)
-#' simul <- SimulateClustering(
-#'   n = c(30, 30, 30), pk = 15,
-#'   theta_xc = c(rep(1, 5), rep(0, 10)),
-#'   ev_xc = c(rep(0.95, 5), rep(0, 10)),
-#' )
-#' plot(simul)
-#'
-#' # Consensus weighted clustering
-#' stab <- Clustering(
-#'   xdata = simul$data, Lambda = 0.5
-#' )
-#' WeightBoxplot(stability = stab)
-#' }
-#'
-#' @export
-WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
-                          col = NULL, boxwex = 0.3,
-                          xlab = "", ylab = "Weight", cex.lab = 1.5,
-                          las = 3, frame = "F", add = FALSE, ...) {
-  # Checking input
-  if (all(is.na(stability$Lambda))) {
-    stop("Invalid input for argument 'stability'. This function can only be used for weighted clustering.")
-  }
-
-  # Defining default colours
-  if (is.null(col)) {
-    col <- "navy"
-  }
-
-  # Extracting ID of calibrated parameters
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability)
-  }
-
-  # Extracting weights
-  y <- stability$Beta[argmax_id[1], , ]
-
-  # Removing zero weights (for sparse methods)
-  y[which(y == 0)] <- NA
-
-  xaxt <- "s"
-  if (is.null(at)) {
-    x <- 1:nrow(y)
-  } else {
-    x <- at
-    xaxt <- "n"
-  }
-
-  # Showing the distribution over nonzero weights
-  graphics::boxplot(t(y),
-    at = x, xlim = range(x),
-    col = col, boxcol = col, whiskcol = col,
-    staplecol = col,
-    whisklty = 1, range = 0, las = las, add = add,
-    xlab = xlab, ylab = ylab, cex.lab = cex.lab, frame = frame,
-    boxwex = boxwex, xaxt = xaxt, ...
-  )
-  if (!is.null(at)) {
-    graphics::axis(side = 1, at = graphics::axTicks(side = 1))
-  }
-}
-
-
 #' Calibration plot
 #'
 #' Creates a plot showing the stability score as a function of the parameter(s)
@@ -861,8 +656,7 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 #'   \code{"n"} (no box).
 #' @param lines logical indicating if the points should be linked by lines. Only
-#'   used if \code{stability} is the output of \code{\link{BiSelection}} or
-#'   \code{\link{Clustering}}.
+#'   used if \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param lty line type, as in \code{\link[graphics]{par}}. Only used if
 #'   \code{stability} is the output of \code{\link{BiSelection}}.
 #' @param lwd line width, as in \code{\link[graphics]{par}}. Only used if

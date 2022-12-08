@@ -1,20 +1,18 @@
 #' Merging stability selection outputs
 #'
-#' Merges the outputs from two runs of \code{\link{VariableSelection}},
-#' \code{\link{GraphicalModel}} or \code{\link{Clustering}}. The two runs must
-#' have been done using the same \code{methods} and the same \code{params} but
-#' with different \code{seed}s. The combined output will contain results based
-#' on iterations from both \code{stability1} and \code{stability2}. This
-#' function can be used for parallelisation.
+#' Merges the outputs from two runs of \code{\link{VariableSelection}} or
+#' \code{\link{GraphicalModel}}. The two runs must have been done using the same
+#' \code{methods} and the same \code{params} but with different \code{seed}s.
+#' The combined output will contain results based on iterations from both
+#' \code{stability1} and \code{stability2}. This function can be used for
+#' parallelisation.
 #'
-#' @param stability1 output from a first run of \code{\link{VariableSelection}},
-#'   \code{\link{GraphicalModel}}, or \code{\link{Clustering}}.
-#' @param stability2 output from a second run of
-#'   \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}, or
-#'   \code{\link{Clustering}}.
+#' @param stability1 output from a first run of \code{\link{VariableSelection}}
+#'   or \code{\link{GraphicalModel}}.
+#' @param stability2 output from a second run of \code{\link{VariableSelection}}
+#'   or \code{\link{GraphicalModel}}.
 #' @param include_beta logical indicating if the beta coefficients of visited
-#'   models should be concatenated. Only applicable to variable selection or
-#'   clustering.
+#'   models should be concatenated. Only applicable to variable selection.
 #'
 #' @return A single output of the same format.
 #'
@@ -49,25 +47,11 @@
 #' # Merging the outputs
 #' stab <- Combine(stability1 = stab1, stability2 = stab2)
 #' str(stab)
-#'
-#'
-#' ## Clustering
-#'
-#' # Data simulation
-#' simul <- SimulateClustering(n = c(15, 15, 15))
-#'
-#' # Two runs
-#' stab1 <- Clustering(xdata = simul$data, seed = 1)
-#' stab2 <- Clustering(xdata = simul$data, seed = 2)
-#'
-#' # Merging the outputs
-#' stab <- Combine(stability1 = stab1, stability2 = stab2)
-#' str(stab)
 #' }
 #' @export
 Combine <- function(stability1, stability2, include_beta = TRUE) {
-  if (!inherits(stability1, c("graphical_model", "variable_selection", "clustering"))) {
-    stop("Invalid inputs. This function only applies to outputs from GraphicalModel(), VariableSelection() or Clustering().")
+  if (!inherits(stability1, c("graphical_model", "variable_selection"))) {
+    stop("Invalid inputs. This function only applies to outputs from GraphicalModel() or VariableSelection().")
   }
   if (class(stability1) != class(stability2)) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They must be generated from the same function.")
@@ -166,16 +150,8 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
     }
   }
 
-  # Computing co-membership proportions
-  if (inherits(stability1, "clustering")) {
-    coprop <- array(NA, dim = dim(stability1$coprop), dimnames = dimnames(stability1$coprop))
-    for (k in 1:dim(stability1$coprop)[3]) {
-      coprop[, , k] <- (stability1$coprop[, , k] * stability1$params$K + stability2$coprop[, , k] * stability2$params$K) / K
-    }
-  }
-
   # Concatenating the beta coefficients
-  if (inherits(stability1, c("variable_selection", "clustering"))) {
+  if (inherits(stability1, c("variable_selection"))) {
     if (include_beta) {
       Beta <- NULL
       if (!is.null(stability1$Beta)) {
@@ -218,13 +194,6 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
       Sequential_template = Sequential_template, graph = graph,
       PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
     )
-  }
-  if (inherits(stability1, "clustering")) {
-    Sc <- matrix(NA, nrow = dim(coprop)[3], ncol = 1)
-    for (k in 1:dim(coprop)[3]) {
-      Sc[k, 1] <- ConsensusScore(coprop = coprop[, , k], nc = nc[k], K = K, linkage = stability1$methods$linkage)
-    }
-    Q <- 1 / K * (stability1$params$K * stability1$Q + stability2$params$K * stability2$Q) # weighted average
   }
 
   # Preparing output
@@ -272,33 +241,6 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         Q = metrics$Q, Q_s = metrics$Q_s, P = metrics$P,
         PFER = metrics$PFER, FDP = metrics$FDP,
         S_2d = metrics$S_2d, PFER_2d = metrics$PFER_2d, FDP_2d = metrics$FDP_2d,
-        selprop = bigstab,
-        methods = mymethods,
-        params = myparams
-      )
-    }
-  }
-
-  if (inherits(stability1, "clustering")) {
-    if (include_beta) {
-      out <- list(
-        Sc = Sc,
-        nc = nc,
-        Lambda = Lambda,
-        Q = Q,
-        coprop = coprop,
-        Beta = Beta,
-        selprop = bigstab,
-        methods = mymethods,
-        params = myparams
-      )
-    } else {
-      out <- list(
-        Sc = Sc,
-        nc = nc,
-        Lambda = Lambda,
-        Q = Q,
-        coprop = coprop,
         selprop = bigstab,
         methods = mymethods,
         params = myparams

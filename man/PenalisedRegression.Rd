@@ -58,7 +58,6 @@ mylasso$beta_full
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 
 Other underlying algorithm functions: 
-\code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedGraphical}()}
 }
 \concept{underlying algorithm functions}

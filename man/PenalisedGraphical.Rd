@@ -87,7 +87,6 @@ myglasso <- PenalisedGraphical(
 \code{\link{GraphicalModel}}
 
 Other underlying algorithm functions: 
-\code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedRegression}()}
 }
 \concept{underlying algorithm functions}

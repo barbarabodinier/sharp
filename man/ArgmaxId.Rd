@@ -52,10 +52,7 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
-\code{\link{Clusters}()},
-\code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()},
-\code{\link{WeightBoxplot}()}
+\code{\link{SelectionProportions}()}
 }
 \concept{calibration functions}

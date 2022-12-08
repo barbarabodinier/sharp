@@ -7,8 +7,8 @@
 Adjacency(stability, argmax_id = NULL)
 }
 \arguments{
-\item{stability}{output of \code{\link{GraphicalModel}},
-\code{\link{BiSelection}}, or \code{\link{Clustering}}.}
+\item{stability}{output of \code{\link{GraphicalModel}} or
+\code{\link{BiSelection}}.}
 
 \item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
 the calibrated model is used.}
@@ -45,10 +45,7 @@ Other calibration functions:
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
-\code{\link{Clusters}()},
-\code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()},
-\code{\link{WeightBoxplot}()}
+\code{\link{SelectionProportions}()}
 }
 \concept{calibration functions}

@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 ## Description
 
-> In stability selection and consensus clustering, resampling techniques are used to enhance the reliability of the results. In this package, hyper-parameters are calibrated by maximising model stability, which is measured by the negative log-likelihood under the null hypothesis that all selection (or co-membership) probabilities are identical. Functions are readily implemented for the use of LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO in stability selection, and hierarchical clustering, partitioning around medoids, K means or Gaussian mixture models in consensus clustering. 
+> In stability selection, resampling techniques are used to enhance the reliability of the results. In this package, hyper-parameters are calibrated by maximising model stability, which is measured by the negative log-likelihood under the null hypothesis that all selection probabilities are identical. Functions are readily implemented for the use of LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO.
 
 ## Installation
 
@@ -57,11 +57,6 @@ y_reg <- data_reg$ydata
 set.seed(1)
 data_ggm <- SimulateGraphical(n = 200, pk = 20)
 x_ggm <- data_ggm$data
-
-# Dataset for clustering
-set.seed(1)
-data_clust <- SimulateClustering(n = c(10, 10, 10))
-x_clust <- data_clust$data
 ```
 
 Check out the R package [**fake**](https://github.com/barbarabodinier/fake) for more details on these data simulation models.
@@ -86,35 +81,12 @@ stab_ggm <- GraphicalModel(xdata = x_ggm)
 Adjacency(stab_ggm)
 ```
 
-### Clustering
-
-Consensus clustering is done using hierarchical clustering as implemented in the R package [**stats**](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html). 
-
-```{r clustering, eval=FALSE}
-stab_clust <- Clustering(xdata = x_clust)
-Clusters(stab_clust)
-```
-
 ## Extraction and visualisation of the results
 
 It is strongly recommended to check the calibration of the hyper-parameters using the function `CalibrationPlot()` on the output from any of the main functions listed above. The functions `print()`, `summary()` and `plot()` can also be used on the outputs from the main functions.
-
-## Parametrisation
-
-Stability selection and consensus clustering can theoretically be done by aggregating the results from any selection (or clustering) algorithm on subsamples of the data. The choice of the underlying algorithm to use is specified in argument `implementation` in the main functions. Consensus clustering using partitioning around medoids, K means or Gaussian mixture models are also supported in **sharp**:
-
-```{r implementation, eval=FALSE}
-stab_clust <- Clustering(xdata = x_clust, implementation = PAMClustering)
-stab_clust <- Clustering(xdata = x_clust, implementation = KMeansClustering)
-stab_clust <- Clustering(xdata = x_clust, implementation = GMMClustering)
-```
-
-Other algorithms can be used by defining a wrapper function to be called in `implementation`. Check out the documentation of `GraphicalModel()` for an example using a shrunk estimate of the partial correlation instead of the graphical LASSO. 
 
 ## References
 
 - Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration for stability selection in penalised regression and graphical models: a multi-OMICs network application exploring the molecular response to tobacco smoking. (2021) arXiv. [link](https://doi.org/10.48550/arXiv.2106.02521)
 
 - Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010) Journal of the Royal Statistical Society: Series B (Statistical Methodology). [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
-
-- Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. (2003) Machine Learning. [link](https://doi.org/10.1023/A:1023949509487)

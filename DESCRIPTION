@@ -1,13 +1,13 @@
 Package: sharp
 Type: Package
 Title: Stability-enHanced Approaches using Resampling Procedures
-Version: 1.3.0
-Date: 2022-11-09
+Version: 1.2.1
+Date: 2022-12-07
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
 URL: https://github.com/barbarabodinier/sharp
 BugReports: https://github.com/barbarabodinier/sharp/issues
-Description: In stability selection (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>) and consensus clustering (S Monti et al (2003) <doi:10.1023/A:1023949509487>), resampling techniques are used to enhance the reliability of the results. In this package, hyper-parameters are calibrated by maximising model stability, which is measured by the negative log-likelihood under the null hypothesis that all selection (or co-membership) probabilities are identical (B Bodinier et al (2021) <arXiv:2106.02521>). Functions are readily implemented for the use of LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO in stability selection, and hierarchical clustering, partitioning around medoids, K means or Gaussian mixture models in consensus clustering. 
+Description: In stability selection (N Meinshausen, P Bühlmann (2010) <doi:10.1111/j.1467-9868.2010.00740.x>), resampling techniques are used to enhance the reliability of the results. In this package, hyper-parameters are calibrated by maximising model stability, which is measured by the negative log-likelihood under the null hypothesis that all selection probabilities are identical (B Bodinier et al (2021) <arXiv:2106.02521>). Functions are readily implemented for the use of LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO. 
 License: GPL (>= 3)
 Language: en-GB
 Encoding: UTF-8
@@ -21,16 +21,13 @@ Imports:
     grDevices,
     huge,
     igraph,
-    impute,
     MASS,
     mclust,
     parallel,
     Rdpack,
     withr (>= 2.4.0)
 Suggests:
-    cluster,
     corpcor,
-    dbscan,
     elasticnet,
     gglasso,
     mixOmics,
@@ -38,9 +35,7 @@ Suggests:
     plotrix,
     RCy3,
     rmarkdown,
-    rCOSA,
     sgPLS,
-    sparcl,
     survival (>= 3.2.13),
     testthat (>= 3.0.0),
     visNetwork
