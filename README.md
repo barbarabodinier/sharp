@@ -36,7 +36,6 @@ The development version can be installed from
 [GitHub](https://github.com/):
 
 ``` r
-remotes::install_github("barbarabodinier/fake")
 remotes::install_github("barbarabodinier/sharp")
 ```
 

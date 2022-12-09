@@ -2,7 +2,7 @@ Package: sharp
 Type: Package
 Title: Stability-enHanced Approaches using Resampling Procedures
 Version: 1.2.1
-Date: 2022-12-07
+Date: 2022-12-08
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
 URL: https://github.com/barbarabodinier/sharp
@@ -13,7 +13,7 @@ Language: en-GB
 Encoding: UTF-8
 RoxygenNote: 7.2.0
 Depends: 
-    fake
+    fake (>= 1.3.0)
 Imports: 
     beepr,
     glassoFast (>= 1.0.0),
