@@ -69,7 +69,7 @@ these data simulation models.
 
 In a regression context, stability selection is done using LASSO
 regression as implemented in the R package
-[**glmnet**](https://cran.r-project.org/web/packages/glmnet/index.html).
+[**glmnet**](https://CRAN.R-project.org/package=glmnet).
 
 ``` r
 stab_reg <- VariableSelection(xdata = x_reg, ydata = y_reg)
@@ -80,7 +80,7 @@ SelectedVariables(stab_reg)
 
 In a graphical modelling context, stability selection is done using the
 graphical LASSO as implemented in the R package
-[**glassoFast**](https://cran.r-project.org/web/packages/glassoFast/index.html).
+[**glassoFast**](https://CRAN.R-project.org/package=glassoFast).
 
 ``` r
 stab_ggm <- GraphicalModel(xdata = x_ggm)
