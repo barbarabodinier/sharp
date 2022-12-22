@@ -8,7 +8,7 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/sharp)](https://CRAN.R-project.org/package=sharp)
 [![CRAN RStudio mirror
-downloads](https://cranlogs.r-pkg.org/badges/grand-total/sharp?color=blue)](https://r-pkg.org/pkg/sharp)
+downloads](https://cranlogs.r-pkg.org/badges/last-month/sharp?color=blue)](https://r-pkg.org/pkg/sharp)
 ![GitHub last
 commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=GitHub&style=flat-square)
 <!-- badges: end -->
@@ -136,17 +136,16 @@ instead of the graphical LASSO.
 
 ## References
 
--   Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien
-    Chiquet and Marc Chadeau-Hyam. Automated calibration for stability
-    selection in penalised regression and graphical models: a
-    multi-OMICs network application exploring the molecular response to
-    tobacco smoking. (2021) arXiv.
-    [link](https://doi.org/10.48550/arXiv.2106.02521)
+- Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet
+  and Marc Chadeau-Hyam. Automated calibration for stability selection
+  in penalised regression and graphical models: a multi-OMICs network
+  application exploring the molecular response to tobacco
+  smoking. (2021) arXiv.
+  [link](https://doi.org/10.48550/arXiv.2106.02521)
 
--   Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010)
-    Journal of the Royal Statistical Society: Series B (Statistical
-    Methodology).
-    [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
+- Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010)
+  Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology). [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
 
--   Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. (2003)
-    Machine Learning. [link](https://doi.org/10.1023/A:1023949509487)
+- Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. (2003)
+  Machine Learning. [link](https://doi.org/10.1023/A:1023949509487)
