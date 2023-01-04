@@ -207,11 +207,28 @@ CheckDataRegression <- function(xdata, ydata = NULL,
 
   # Preparing ydata
   if (!is.null(ydata)) {
-    if (is.vector(ydata) | is.factor(ydata)) {
-      ydata <- matrix(ydata, ncol = 1)
-    }
+    # Turning data frame into matrix
     if (is.data.frame(ydata)) {
       ydata <- as.matrix(ydata)
+    }
+    # Turning matrix with one column into vector
+    if (is.matrix(ydata)) {
+      if (ncol(ydata) == 1) {
+        ydata <- as.vector(ydata)
+      }
+    }
+    # Turning vector into factor
+    if (is.vector(ydata)) {
+      ydata <- as.factor(ydata)
+    }
+    # Defining reference category and final data type
+    if (is.factor(ydata)) {
+      if ((family %in% c("binomial", "multinomial")) & verbose) {
+        message(paste0("Reference category: ", levels(ydata)[1]))
+        message(paste0("Other categorie(s): ", paste(levels(ydata)[-1], collapse = ", ")))
+      }
+      ydata <- as.numeric(ydata) - 1
+      ydata <- matrix(ydata, ncol = 1)
     }
   }
 
@@ -262,16 +279,9 @@ CheckDataRegression <- function(xdata, ydata = NULL,
   if ((family %in% c("binomial", "multinomial"))) {
     if (ncol(ydata) > 1) {
       ydata <- DummyToCategories(x = ydata, verbose = verbose)
-    } else {
-      ydata <- as.factor(ydata)
-      if (verbose) {
-        message(paste0("Reference category: ", levels(ydata)[1]))
-        message(paste0("Other categorie(s): ", paste(levels(ydata)[-1], collapse = ", ")))
-      }
-      ydata <- as.numeric(ydata) - 1
+      ydata <- matrix(ydata, ncol = 1)
+      rownames(ydata) <- rownames(xdata)
     }
-    ydata <- matrix(ydata, ncol = 1)
-    rownames(ydata) <- rownames(xdata)
     ytmp <- as.numeric(table(ydata))
     if (any(ytmp == 1)) {
       stop("At least one category in 'ydata' with only one observation.")
