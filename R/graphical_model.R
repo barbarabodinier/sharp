@@ -333,7 +333,7 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
   out <- mypar[[1]]
   if (n_cores > 1) {
     for (i in 2:length(mypar)) {
-      out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[2]]))
+      out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[i]]))
     }
   }
 
