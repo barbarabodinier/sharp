@@ -46,4 +46,5 @@ Suggests:
     testthat (>= 3.0.0),
     visNetwork
 Config/testthat/edition: 3
+Remotes: mkampert/rCOSA
 RdMacros: Rdpack
