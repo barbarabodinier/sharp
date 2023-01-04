@@ -39,6 +39,11 @@ Ensemble <- function(stability, xdata, ydata) {
     stop("This function can only be applied with the following families for regression models: 'gaussian' or 'binomial'.")
   }
 
+  # Object preparation, error and warning messages
+  CheckDataRegression(
+    xdata = xdata, ydata = ydata, family = stability$methods$family, verbose = FALSE
+  )
+
   # Extracting beta coefficients
   argmax_id <- ArgmaxId(stability = stability)[1]
   beta <- t(stability$Beta[argmax_id, , ])

@@ -18,7 +18,7 @@ ExplanatoryPerformance(
   n_thr = NULL,
   ij_method = FALSE,
   time = 1000,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }

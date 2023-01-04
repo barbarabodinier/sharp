@@ -644,7 +644,7 @@ ExplanatoryPerformance <- function(xdata, ydata,
                                    K = 1, tau = 0.8, seed = 1,
                                    n_thr = NULL,
                                    ij_method = FALSE, time = 1000,
-                                   verbose = TRUE, ...) {
+                                   verbose = FALSE, ...) {
   # Checking the inputs
   if (!is.null(stability)) {
     if (!inherits(stability, "variable_selection")) {
@@ -669,11 +669,6 @@ ExplanatoryPerformance <- function(xdata, ydata,
   CheckDataRegression(
     xdata = xdata, ydata = ydata, family = family, verbose = verbose
   )
-
-  # # Re-formatting input data
-  # if (is.vector(ydata)) {
-  #   ydata <- cbind(ydata)
-  # }
 
   # Defining the metric to use
   if (ij_method) {
@@ -1121,6 +1116,7 @@ Incremental <- function(xdata, ydata,
       K = K, tau = tau, seed = seed,
       n_thr = n_thr,
       ij_method = ij_method, time = time,
+      verbose = FALSE,
       ...
     )
     if (family == "binomial") {
