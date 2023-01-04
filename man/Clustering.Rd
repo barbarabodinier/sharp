@@ -110,11 +110,11 @@ An object of class \code{clustering}. A list with: \item{Sc}{a matrix
 }
 \description{
 Performs consensus (weighted) clustering. The underlying algorithm (e.g.
-hierarchical clustering) is run with different number of clusters
-(\code{nc}). For weighed clustering (e.g. using distances defined by COSA),
-different penalty parameter for attribute weights (\code{Lambda}) are also
-used. The hyper-parameter(s) are calibrated by maximisation of the consensus
-score.
+hierarchical clustering) is run with different number of clusters \code{nc}.
+In consensus weighed clustering, weighted distances are calculated using the
+\code{\link[rCOSA]{cosa2}} algorithm with different penalty parameters
+\code{Lambda}. The hyper-parameters are calibrated by maximisation of the
+consensus score.
 }
 \details{
 In consensus clustering, a clustering algorithm is applied on

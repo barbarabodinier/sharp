@@ -8,7 +8,7 @@ HierarchicalClustering(
   xdata,
   nc = NULL,
   Lambda = NULL,
-  distance = "euclidian",
+  distance = "euclidean",
   linkage = "complete",
   scale = TRUE,
   row = TRUE,
@@ -22,17 +22,17 @@ HierarchicalClustering(
 underlying algorithm specified in \code{implementation}. If \code{nc} is
 not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 
-\item{Lambda}{vector of penalty parameters (see argument \code{lambda} from
-\code{\link[rCOSA]{cosa2}}). Classical (unweighted) clustering is used if
+\item{Lambda}{vector of penalty parameters (see argument \code{lambda} in
+\code{\link[rCOSA]{cosa2}}). Unweighted distance matrices are used if
 \code{Lambda=NULL}.}
 
 \item{distance}{character string indicating the type of distance to use. If
-\code{weighted=FALSE}, possible values include \code{"euclidian"},
+\code{Lambda=NULL}, possible values include \code{"euclidean"},
 \code{"maximum"}, \code{"canberra"}, \code{"binary"}, and
 \code{"minkowski"} (see argument \code{method} in
-\code{\link[stats]{dist}}).  If \code{weighted=TRUE}, possible values
-include \code{"euclidian"} (\code{pwr=2}) or \code{"absolute"}
-(\code{pwr=1}) (see argument \code{pwr} from \code{\link[rCOSA]{cosa2}}).}
+\code{\link[stats]{dist}}).  Otherwise, possible values include
+\code{"euclidean"} (\code{pwr=2}) or \code{"absolute"} (\code{pwr=1}) (see
+argument \code{pwr} in \code{\link[rCOSA]{cosa2}}).}
 
 \item{linkage}{character string indicating the type of linkage used in
 hierarchical clustering to define the stable clusters. Possible values
@@ -50,7 +50,9 @@ all variables contribute equally to the clustering of the observations.}
 \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. Parameters
 \code{niter} (default to 1) and \code{noit} (default to 100) correspond to
 the number of iterations in \code{\link[rCOSA]{cosa2}} to calculate weights
-and may need to be modified.}
+and may need to be modified. Argument \code{pwr} in
+\code{\link[rCOSA]{cosa2}} is ignored, please provide \code{distance}
+instead.}
 }
 \value{
 A list with: \item{comembership}{an array of binary and symmetric
@@ -60,10 +62,9 @@ A list with: \item{comembership}{an array of binary and symmetric
 \description{
 Runs hierarchical clustering using implementation from
 \code{\link[stats]{hclust}}. If \code{Lambda} is provided, clustering is
-applied on the weighted distance matrix calculated using the COSA algorithm
-as implemented in \code{\link[rCOSA]{cosa2}}. Otherwise, distances are
-calculated using \code{\link[stats]{dist}}. This function is not using
-stability.
+applied on the weighted distance matrix calculated using the
+\code{\link[rCOSA]{cosa2}} algorithm. Otherwise, distances are calculated
+using \code{\link[stats]{dist}}. This function is not using stability.
 }
 \examples{
 
@@ -88,7 +89,7 @@ myhclust <- HierarchicalClustering(
 \references{
 \insertRef{COSA}{sharp}
 
-\insertRef{rCOSA}{sharp}
+  \insertRef{rCOSA}{sharp}
 }
 \seealso{
 Other clustering algorithms: 

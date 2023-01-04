@@ -9,7 +9,7 @@ DBSCANClustering(
   nc = NULL,
   eps = NULL,
   Lambda = NULL,
-  distance = "euclidian",
+  distance = "euclidean",
   scale = TRUE,
   ...
 )
@@ -24,17 +24,17 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \item{eps}{radius in density-based clustering, see
 \code{\link[dbscan]{dbscan}}.}
 
-\item{Lambda}{vector of penalty parameters (see argument \code{lambda} from
-\code{\link[rCOSA]{cosa2}}). Classical (unweighted) clustering is used if
+\item{Lambda}{vector of penalty parameters (see argument \code{lambda} in
+\code{\link[rCOSA]{cosa2}}). Unweighted distance matrices are used if
 \code{Lambda=NULL}.}
 
 \item{distance}{character string indicating the type of distance to use. If
-\code{weighted=FALSE}, possible values include \code{"euclidian"},
+\code{Lambda=NULL}, possible values include \code{"euclidean"},
 \code{"maximum"}, \code{"canberra"}, \code{"binary"}, and
 \code{"minkowski"} (see argument \code{method} in
-\code{\link[stats]{dist}}).  If \code{weighted=TRUE}, possible values
-include \code{"euclidian"} (\code{pwr=2}) or \code{"absolute"}
-(\code{pwr=1}) (see argument \code{pwr} from \code{\link[rCOSA]{cosa2}}).}
+\code{\link[stats]{dist}}).  Otherwise, possible values include
+\code{"euclidean"} (\code{pwr=2}) or \code{"absolute"} (\code{pwr=1}) (see
+argument \code{pwr} in \code{\link[rCOSA]{cosa2}}).}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}

@@ -25,6 +25,7 @@ Imports:
     MASS,
     mclust,
     parallel,
+    randomcoloR,
     Rdpack,
     withr (>= 2.4.0)
 Suggests:

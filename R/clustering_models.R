@@ -2,27 +2,28 @@
 #'
 #' Runs hierarchical clustering using implementation from
 #' \code{\link[stats]{hclust}}. If \code{Lambda} is provided, clustering is
-#' applied on the weighted distance matrix calculated using the COSA algorithm
-#' as implemented in \code{\link[rCOSA]{cosa2}}. Otherwise, distances are
-#' calculated using \code{\link[stats]{dist}}. This function is not using
-#' stability.
+#' applied on the weighted distance matrix calculated using the
+#' \code{\link[rCOSA]{cosa2}} algorithm. Otherwise, distances are calculated
+#' using \code{\link[stats]{dist}}. This function is not using stability.
 #'
 #' @inheritParams Clustering
-#' @param Lambda vector of penalty parameters (see argument \code{lambda} from
-#'   \code{\link[rCOSA]{cosa2}}). Classical (unweighted) clustering is used if
+#' @param Lambda vector of penalty parameters (see argument \code{lambda} in
+#'   \code{\link[rCOSA]{cosa2}}). Unweighted distance matrices are used if
 #'   \code{Lambda=NULL}.
 #' @param distance character string indicating the type of distance to use. If
-#'   \code{weighted=FALSE}, possible values include \code{"euclidian"},
+#'   \code{Lambda=NULL}, possible values include \code{"euclidean"},
 #'   \code{"maximum"}, \code{"canberra"}, \code{"binary"}, and
 #'   \code{"minkowski"} (see argument \code{method} in
-#'   \code{\link[stats]{dist}}).  If \code{weighted=TRUE}, possible values
-#'   include \code{"euclidian"} (\code{pwr=2}) or \code{"absolute"}
-#'   (\code{pwr=1}) (see argument \code{pwr} from \code{\link[rCOSA]{cosa2}}).
+#'   \code{\link[stats]{dist}}).  Otherwise, possible values include
+#'   \code{"euclidean"} (\code{pwr=2}) or \code{"absolute"} (\code{pwr=1}) (see
+#'   argument \code{pwr} in \code{\link[rCOSA]{cosa2}}).
 #' @param ... additional parameters passed to \code{\link[stats]{hclust}},
 #'   \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. Parameters
 #'   \code{niter} (default to 1) and \code{noit} (default to 100) correspond to
 #'   the number of iterations in \code{\link[rCOSA]{cosa2}} to calculate weights
-#'   and may need to be modified.
+#'   and may need to be modified. Argument \code{pwr} in
+#'   \code{\link[rCOSA]{cosa2}} is ignored, please provide \code{distance}
+#'   instead.
 #'
 #' @return A list with: \item{comembership}{an array of binary and symmetric
 #'   co-membership matrices.} \item{weights}{a matrix of median weights by
@@ -32,7 +33,7 @@
 #'
 #' @references \insertRef{COSA}{sharp}
 #'
-#' \insertRef{rCOSA}{sharp}
+#'   \insertRef{rCOSA}{sharp}
 #'
 #' @examples
 #'
@@ -55,10 +56,15 @@
 #' )
 #' @export
 HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
-                                   distance = "euclidian", linkage = "complete",
+                                   distance = "euclidean", linkage = "complete",
                                    scale = TRUE, row = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
+
+  # Checking that pwr is not provided (rCOSA)
+  if ("pwr" %in% names(extra_args)) {
+    warning("Argument 'pwr' is ignored. Please provide 'distance' instead: 'euclidean' is equivalent to 'pwr = 2' and 'absolute' is equivalent to 'pwr = 1'.")
+  }
 
   # Defining lX argument for cosa2
   if ("lX" %in% names(extra_args)) {
@@ -82,10 +88,10 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 
   # Adapting distance to cosa2
   if (weighted) {
-    if (distance %in% c("euclidian", "absolute")) {
-      distance <- ifelse(distance == "euclidian", yes = 2, no = 1)
+    if (distance %in% c("euclidean", "absolute")) {
+      distance <- ifelse(distance == "euclidean", yes = 2, no = 1)
     } else {
-      warning("Invalid input for argument 'distance'. For COSA clustering, possible values are: 'euclidian' (L2-norm) or 'absolute' (L1-norm). The 'euclidian' distance was used.")
+      warning("Invalid input for argument 'distance'. For COSA clustering, possible values are: 'euclidean' (L2-norm) or 'absolute' (L1-norm). The 'euclidean' distance was used.")
       distance <- 2
     }
   }
@@ -240,7 +246,7 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 #' )
 #' @export
 PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
-                          distance = "euclidian",
+                          distance = "euclidean",
                           scale = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
@@ -267,10 +273,10 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
 
   # Adapting distance to cosa2
   if (weighted) {
-    if (distance %in% c("euclidian", "absolute")) {
-      distance <- ifelse(distance == "euclidian", yes = 2, no = 1)
+    if (distance %in% c("euclidean", "absolute")) {
+      distance <- ifelse(distance == "euclidean", yes = 2, no = 1)
     } else {
-      warning("Invalid input for argument 'distance'. For COSA clustering, possible values are: 'euclidian' (L2-norm) or 'absolute' (L1-norm). The 'euclidian' distance was used.")
+      warning("Invalid input for argument 'distance'. For COSA clustering, possible values are: 'euclidean' (L2-norm) or 'absolute' (L1-norm). The 'euclidean' distance was used.")
       distance <- 2
     }
   }
@@ -420,7 +426,7 @@ DBSCANClustering <- function(xdata,
                              nc = NULL,
                              eps = NULL,
                              Lambda = NULL,
-                             distance = "euclidian",
+                             distance = "euclidean",
                              scale = TRUE, ...) {
   # Storing extra arguments
   extra_args <- list(...)
@@ -447,10 +453,10 @@ DBSCANClustering <- function(xdata,
 
   # Adapting distance to cosa2
   if (weighted) {
-    if (distance %in% c("euclidian", "absolute")) {
-      distance <- ifelse(distance == "euclidian", yes = 2, no = 1)
+    if (distance %in% c("euclidean", "absolute")) {
+      distance <- ifelse(distance == "euclidean", yes = 2, no = 1)
     } else {
-      warning("Invalid input for argument 'distance'. For COSA clustering, possible values are: 'euclidian' (L2-norm) or 'absolute' (L1-norm). The 'euclidian' distance was used.")
+      warning("Invalid input for argument 'distance'. For COSA clustering, possible values are: 'euclidean' (L2-norm) or 'absolute' (L1-norm). The 'euclidean' distance was used.")
       distance <- 2
     }
   }

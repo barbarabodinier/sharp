@@ -134,7 +134,7 @@ which they are represented. Only used if \code{stability} is the output of
 \code{\link{BiSelection}}.}
 }
 \value{
-a calibration plot.
+A calibration plot.
 }
 \description{
 Creates a plot showing the stability score as a function of the parameter(s)
@@ -203,6 +203,7 @@ Other calibration functions:
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
 \code{\link{Clusters}()},
+\code{\link{ConsensusHeatmap}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
 \code{\link{SelectionProportions}()},

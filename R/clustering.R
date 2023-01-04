@@ -1,11 +1,11 @@
 #' Consensus clustering
 #'
 #' Performs consensus (weighted) clustering. The underlying algorithm (e.g.
-#' hierarchical clustering) is run with different number of clusters
-#' (\code{nc}). For weighed clustering (e.g. using distances defined by COSA),
-#' different penalty parameter for attribute weights (\code{Lambda}) are also
-#' used. The hyper-parameter(s) are calibrated by maximisation of the consensus
-#' score.
+#' hierarchical clustering) is run with different number of clusters \code{nc}.
+#' In consensus weighed clustering, weighted distances are calculated using the
+#' \code{\link[rCOSA]{cosa2}} algorithm with different penalty parameters
+#' \code{Lambda}. The hyper-parameters are calibrated by maximisation of the
+#' consensus score.
 #'
 #' @inheritParams VariableSelection
 #' @param xdata data matrix with observations as rows and variables as columns.
@@ -253,11 +253,12 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 
 #' Consensus clustering (internal)
 #'
-#' Runs consensus (weighted) clustering with different numbers of clusters
-#' (\code{nc}). For weighed clustering (e.g. using distances defined by COSA),
-#' different penalty parameter for attribute weights (\code{Lambda}) are also
-#' used. The hyper-parameter(s) are calibrated by maximisation of the consensus
-#' score. This function uses a serial implementation and requires the grids of
+#' Performs consensus (weighted) clustering. The underlying algorithm (e.g.
+#' hierarchical clustering) is run with different number of clusters \code{nc}.
+#' In consensus weighed clustering, weighted distances are calculated using the
+#' \code{\link[rCOSA]{cosa2}} algorithm with different penalty parameters
+#' \code{Lambda}. The hyper-parameters are calibrated by maximisation of the
+#' consensus score. This function uses a serial implementation and requires the grids of
 #' hyper-parameters as input (for internal use only).
 #'
 #' @inheritParams Clustering

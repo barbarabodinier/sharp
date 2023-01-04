@@ -46,6 +46,7 @@ Other calibration functions:
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
 \code{\link{Clusters}()},
+\code{\link{ConsensusHeatmap}()},
 \code{\link{SelectedVariables}()},
 \code{\link{SelectionProportions}()},
 \code{\link{WeightBoxplot}()}

@@ -693,13 +693,17 @@ ConsensusMatrix <- function(stability, argmax_id = NULL) {
 #'
 #' Generates the (calibrated) stable cluster memberships.
 #'
-#' @inheritParams Adjacency
 #' @param stability output of \code{\link{Clustering}}.
+#' @param linkage character string indicating the type of linkage used in
+#'   hierarchical clustering to define the stable clusters. Possible values
+#'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
+#'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
+#' @param argmax_id optional parameter ID. If \code{argmax_id=NULL}, the
+#'   calibrated model is used.
 #'
 #' @return A vector of cluster memberships.
 #'
 #' @family calibration functions
-#' @seealso \code{\link{BiSelection}}
 #'
 #' @examples
 #' \donttest{
@@ -718,7 +722,7 @@ ConsensusMatrix <- function(stability, argmax_id = NULL) {
 #' Clusters(stab)
 #' }
 #' @export
-Clusters <- function(stability, argmax_id = NULL) {
+Clusters <- function(stability, linkage = "complete", argmax_id = NULL) {
   if (is.null(argmax_id)) {
     argmax_id <- ArgmaxId(stability = stability)
   }
@@ -727,7 +731,7 @@ Clusters <- function(stability, argmax_id = NULL) {
   coprop <- ConsensusMatrix(stability = stability, argmax_id = argmax_id[1])
 
   # Extracting stable clusters from hierarchical clustering
-  shclust <- stats::hclust(stats::as.dist(1 - coprop), method = stability$methods$linkage)
+  shclust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
   mymembership <- stats::cutree(shclust, k = ceiling(stability$nc[argmax_id[1], 1]))
 
   # Splitting noise clusters
@@ -741,6 +745,145 @@ Clusters <- function(stability, argmax_id = NULL) {
   }
 
   return(mymembership)
+}
+
+
+#' Consensus matrix heatmap
+#'
+#' Creates a heatmap of the (calibrated) consensus matrix.
+#'
+#' @inheritParams Clusters
+#' @param theta optional vector of cluster membership. If provided, the ordering
+#'   of the items should be the same as in \code{\link{Clusters}}. This argument
+#'   is used to re-order the consensus matrix.
+#' @param theta_star optional vector of true cluster membership. If provided,
+#'   the ordering of the items should be the same as in \code{\link{Clusters}}.
+#'   This argument is used to define item colours.
+#' @param lines logical indicating if lines separating the clusters provided in
+#'   \code{theta} should be displayed.
+#' @param col.lines colour of the lines separating the clusters.
+#' @param lwd.lines width of the lines separating the clusters.
+#' @param tick logical indicating if axis tickmarks should be displayed.
+#' @param axes logical indicating if item labels should be displayed.
+#' @param col.axis optional vector of cluster colours.
+#' @param cex.axis font size for axes.
+#' @param xlas orientation of labels on the x-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param ylas orientation of labels on the y-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param bty character string indicating if the box around the plot should be
+#'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
+#'   \code{"n"} (no box).
+#' @param ... additional arguments passed to \code{\link{Heatmap}}.
+#'
+#' @return A heatmap.
+#'
+#' @family calibration functions
+#'
+#' @examples
+#' \donttest{
+#' oldpar <- par(no.readonly = TRUE)
+#' par(mar = rep(5, 4))
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(10, 20, 30), nu_xc = 1, ev_xc = 0.3
+#' )
+#'
+#' # Consensus clustering
+#' stab <- Clustering(
+#'   xdata = simul$data
+#' )
+#'
+#' # Consensus matrix
+#' ConsensusHeatmap(
+#'   stability = stab,
+#'   theta_star = simul$theta
+#' )
+#'
+#' par(oldpar)
+#' }
+#' @export
+ConsensusHeatmap <- function(stability,
+                             linkage = "complete",
+                             argmax_id = NULL,
+                             theta = NULL,
+                             theta_star = NULL,
+                             lines = TRUE,
+                             col.lines = c("blue"),
+                             lwd.lines = 2,
+                             tick = TRUE,
+                             axes = TRUE,
+                             col.axis = NULL,
+                             cex.axis = 1,
+                             xlas = 2,
+                             ylas = 2,
+                             bty = "n",
+                             ...) {
+  # Defining theta if not provided
+  if (is.null(theta)) {
+    if (is.null(argmax_id)) {
+      argmax_id <- ArgmaxId(stability = stability)
+    }
+    coprop <- ConsensusMatrix(stability = stability, argmax_id = argmax_id[1])
+    shclust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
+    theta <- stats::cutree(shclust, k = ceiling(stability$nc[argmax_id[1], 1]))
+    ids <- shclust$order
+  } else {
+    theta <- as.numeric(as.factor(theta))
+    ids <- sort.list(theta)
+  }
+
+  # Defining theta_star if not provided
+  if (is.null(theta_star)) {
+    theta_star <- theta
+  } else {
+    theta_star <- as.numeric(as.factor(theta_star))
+  }
+
+  # Ordering by theta
+  mat <- ConsensusMatrix(stability)
+  theta <- theta[ids]
+  theta_star <- theta_star[ids]
+  mat <- mat[ids, ids]
+
+  # Preparing heatmap
+  Heatmap(mat = mat, axes = FALSE, bty = bty, ...)
+
+  # Adding separation lines based on theta
+  if (lines) {
+    thr <- which(!duplicated(theta))
+    graphics::abline(h = length(theta) - thr[-1] + 1, col = col.lines, lwd = lwd.lines)
+    graphics::abline(v = thr[-1] - 1, col = col.lines, lwd = lwd.lines)
+  }
+
+  # Defining axis colours if not provided
+  if (is.null(col.axis)) {
+    col.axis <- randomcoloR::distinctColorPalette(k = length(unique(theta_star)))
+  }
+
+  # Adding axes and ticks
+  for (k in 1:nrow(mat)) {
+    graphics::axis(
+      side = 2,
+      at = k - 0.5,
+      labels = ifelse(axes, yes = rev(rownames(mat))[k], no = ""),
+      las = ylas,
+      col.axis = col.axis[rev(theta_star)[k]],
+      col.ticks = col.axis[rev(theta_star)[k]],
+      cex.axis = cex.axis, tick = tick
+    )
+    graphics::axis(
+      side = 1,
+      at = k - 0.5,
+      labels = ifelse(axes, yes = colnames(mat)[k], no = ""),
+      las = xlas,
+      col.axis = col.axis[theta_star[k]],
+      col.ticks = col.axis[theta_star[k]],
+      cex.axis = cex.axis, tick = tick
+    )
+  }
 }
 
 
@@ -909,7 +1052,7 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'   which they are represented. Only used if \code{stability} is the output of
 #'   \code{\link{BiSelection}}.
 #'
-#' @return a calibration plot.
+#' @return A calibration plot.
 #'
 #' @family calibration functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},

@@ -4,13 +4,18 @@
 \alias{Clusters}
 \title{Stable cluster membership}
 \usage{
-Clusters(stability, argmax_id = NULL)
+Clusters(stability, linkage = "complete", argmax_id = NULL)
 }
 \arguments{
 \item{stability}{output of \code{\link{Clustering}}.}
 
-\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated model is used.}
+\item{linkage}{character string indicating the type of linkage used in
+hierarchical clustering to define the stable clusters. Possible values
+include \code{"complete"}, \code{"single"} and \code{"average"} (see
+argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).}
+
+\item{argmax_id}{optional parameter ID. If \code{argmax_id=NULL}, the
+calibrated model is used.}
 }
 \value{
 A vector of cluster memberships.
@@ -36,13 +41,12 @@ Clusters(stab)
 }
 }
 \seealso{
-\code{\link{BiSelection}}
-
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
+\code{\link{ConsensusHeatmap}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
 \code{\link{SelectionProportions}()},
