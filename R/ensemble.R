@@ -149,51 +149,36 @@ Ensemble <- function(stability, xdata, ydata) {
 #'
 #' @family ensemble model functions
 #'
+#' @seealso \code{\link{predict.variable_selection}}
+#'
 #' @examples
 #' \donttest{
-#' # Linear regression
+#' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
+#'
+#' # Training/test split
 #' ids <- Split(data = simul$ydata, tau = c(0.8, 0.2))
 #' stab <- VariableSelection(
 #'   xdata = simul$xdata[ids[[1]], ],
 #'   ydata = simul$ydata[ids[[1]], ]
 #' )
-#' ensemble <- Ensemble(
-#'   stability = stab,
-#'   xdata = simul$xdata[ids[[1]], ],
-#'   ydata = simul$ydata[ids[[1]], ]
-#' )
-#' yhat <- EnsemblePredictions(
-#'   ensemble = ensemble,
-#'   xdata = simul$xdata[ids[[2]], ]
-#' )
-#' cor(simul$ydata[ids[[2]], ], yhat)^2 # Q-squared
 #'
-#' # Logistic regression
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 20, family = "binomial", ev_xy = 0.9)
-#' ids <- Split(data = simul$ydata, family = "binomial", tau = c(0.8, 0.2))
-#' stab <- VariableSelection(
-#'   xdata = simul$xdata[ids[[1]], ],
-#'   ydata = simul$ydata[ids[[1]], ],
-#'   family = "binomial"
-#' )
+#' # Constructing the ensemble model
 #' ensemble <- Ensemble(
 #'   stability = stab,
 #'   xdata = simul$xdata[ids[[1]], ],
 #'   ydata = simul$ydata[ids[[1]], ]
 #' )
+#'
+#' # Making predictions
 #' yhat <- EnsemblePredictions(
 #'   ensemble = ensemble,
 #'   xdata = simul$xdata[ids[[2]], ]
 #' )
-#' plot(ROC(predicted = yhat, observed = simul$ydata[ids[[2]], ]))
-#' yhat <- EnsemblePredictions(
-#'   ensemble = ensemble,
-#'   xdata = simul$xdata[ids[[2]], ],
-#'   type = "response"
-#' ) # predicted probabilities
+#'
+#' # Calculating Q-squared
+#' cor(simul$ydata[ids[[2]], ], yhat)^2
 #' }
 #' @export
 EnsemblePredictions <- function(ensemble, xdata, ...) {

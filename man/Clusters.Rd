@@ -46,10 +46,10 @@ Other calibration functions:
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
 \code{\link{CalibrationPlot}()},
-\code{\link{ConsensusHeatmap}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
 \code{\link{SelectionProportions}()},
-\code{\link{WeightBoxplot}()}
+\code{\link{WeightBoxplot}()},
+\code{\link{plot.clustering}()}
 }
 \concept{calibration functions}

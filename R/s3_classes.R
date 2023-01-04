@@ -248,6 +248,143 @@ plot.bi_selection <- function(x, ...) {
 }
 
 
+#' Consensus matrix heatmap
+#'
+#' Creates a heatmap of the (calibrated) consensus matrix.
+#'
+#' @inheritParams Clusters
+#' @param x output of \code{\link{Clustering}}.
+#' @param theta optional vector of cluster membership. If provided, the ordering
+#'   of the items should be the same as in \code{\link{Clusters}}. This argument
+#'   is used to re-order the consensus matrix.
+#' @param theta_star optional vector of true cluster membership. If provided,
+#'   the ordering of the items should be the same as in \code{\link{Clusters}}.
+#'   This argument is used to define item colours.
+#' @param lines logical indicating if lines separating the clusters provided in
+#'   \code{theta} should be displayed.
+#' @param col.lines colour of the lines separating the clusters.
+#' @param lwd.lines width of the lines separating the clusters.
+#' @param tick logical indicating if axis tickmarks should be displayed.
+#' @param axes logical indicating if item labels should be displayed.
+#' @param col.axis optional vector of cluster colours.
+#' @param cex.axis font size for axes.
+#' @param xlas orientation of labels on the x-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param ylas orientation of labels on the y-axis, as \code{las} in
+#'   \code{\link[graphics]{par}}.
+#' @param bty character string indicating if the box around the plot should be
+#'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
+#'   \code{"n"} (no box).
+#' @param ... additional arguments passed to \code{\link{Heatmap}}.
+#'
+#' @return A heatmap.
+#'
+#' @family calibration functions
+#'
+#' @examples
+#' \donttest{
+#' oldpar <- par(no.readonly = TRUE)
+#' par(mar = rep(5, 4))
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateClustering(
+#'   n = c(10, 20, 30), nu_xc = 1, ev_xc = 0.3
+#' )
+#'
+#' # Consensus clustering
+#' stab <- Clustering(
+#'   xdata = simul$data
+#' )
+#'
+#' # Consensus matrix
+#' plot(x = stab, theta_star = simul$theta)
+#'
+#' par(oldpar)
+#' }
+#' @export
+plot.clustering <- function(x,
+                            linkage = "complete",
+                            argmax_id = NULL,
+                            theta = NULL,
+                            theta_star = NULL,
+                            lines = TRUE,
+                            col.lines = c("blue"),
+                            lwd.lines = 2,
+                            tick = TRUE,
+                            axes = TRUE,
+                            col.axis = NULL,
+                            cex.axis = 1,
+                            xlas = 2,
+                            ylas = 2,
+                            bty = "n",
+                            ...) {
+  # Defining theta if not provided
+  if (is.null(theta)) {
+    if (is.null(argmax_id)) {
+      argmax_id <- ArgmaxId(stability = x)
+    }
+    coprop <- ConsensusMatrix(stability = x, argmax_id = argmax_id[1])
+    shclust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
+    theta <- stats::cutree(shclust, k = ceiling(x$nc[argmax_id[1], 1]))
+    ids <- shclust$order
+  } else {
+    theta <- as.numeric(as.factor(theta))
+    ids <- sort.list(theta)
+  }
+
+  # Defining theta_star if not provided
+  if (is.null(theta_star)) {
+    theta_star <- theta
+  } else {
+    theta_star <- as.numeric(as.factor(theta_star))
+  }
+
+  # Ordering by theta
+  mat <- ConsensusMatrix(stability = x, argmax_id = argmax_id)
+  theta <- theta[ids]
+  theta_star <- theta_star[ids]
+  mat <- mat[ids, ids]
+
+  # Preparing heatmap
+  Heatmap(mat = mat, axes = FALSE, bty = bty, ...)
+
+  # Adding separation lines based on theta
+  if (lines) {
+    thr <- which(!duplicated(theta))
+    graphics::abline(h = length(theta) - thr[-1] + 1, col = col.lines, lwd = lwd.lines)
+    graphics::abline(v = thr[-1] - 1, col = col.lines, lwd = lwd.lines)
+  }
+
+  # Defining axis colours if not provided
+  if (is.null(col.axis)) {
+    col.axis <- randomcoloR::distinctColorPalette(k = length(unique(theta_star)))
+  }
+
+  # Adding axes and ticks
+  for (k in 1:nrow(mat)) {
+    graphics::axis(
+      side = 2,
+      at = k - 0.5,
+      labels = ifelse(axes, yes = rev(rownames(mat))[k], no = ""),
+      las = ylas,
+      col.axis = col.axis[rev(theta_star)[k]],
+      col.ticks = col.axis[rev(theta_star)[k]],
+      cex.axis = cex.axis, tick = tick
+    )
+    graphics::axis(
+      side = 1,
+      at = k - 0.5,
+      labels = ifelse(axes, yes = colnames(mat)[k], no = ""),
+      las = xlas,
+      col.axis = col.axis[theta_star[k]],
+      col.ticks = col.axis[theta_star[k]],
+      cex.axis = cex.axis, tick = tick
+    )
+  }
+}
+
+
 #' @export
 coef.variable_selection <- function(object, ...) {
   # Checking inputs
@@ -281,8 +418,102 @@ coef.variable_selection <- function(object, ...) {
 }
 
 
+#' Predict method for stability selection
+#'
+#' Computes predicted values from the output of \code{\link{VariableSelection}}.
+#'
+#' @param object output of \code{\link{VariableSelection}}.
+#' @param xdata predictor data (training set).
+#' @param ydata outcome data (training set).
+#' @param newdata optional predictor data (test set).
+#' @param method character string indicating if predictions should be obtained
+#'   from an \code{\link{Ensemble}} model (if \code{method="ensemble"}) or a
+#'   \code{\link{Refit}}ted model (if \code{method="refit"}).
+#' @param ... additional arguments passed to \code{\link[stats]{predict}}.
+#'
+#' @return Predicted values.
+#'
+#' @seealso \code{\link{Refit}}, \code{\link{Ensemble}},
+#'   \code{\link{EnsemblePredictions}}
+#'
+#' @examples
+#' \donttest{
+#' ## Linear regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
+#'
+#' # Training/test split
+#' ids <- Split(data = simul$ydata, tau = c(0.8, 0.2))
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata[ids[[1]], ],
+#'   ydata = simul$ydata[ids[[1]], ]
+#' )
+#'
+#' # Predictions from post stability selection estimation
+#' yhat <- predict(stab,
+#'   xdata = simul$xdata[ids[[1]], ],
+#'   ydata = simul$ydata[ids[[1]], ],
+#'   newdata = simul$xdata[ids[[2]], ],
+#'   method = "refit"
+#' )
+#' cor(simul$ydata[ids[[2]], ], yhat)^2 # Q-squared
+#'
+#' # Predictions from ensemble model
+#' yhat <- predict(stab,
+#'   xdata = simul$xdata[ids[[1]], ],
+#'   ydata = simul$ydata[ids[[1]], ],
+#'   newdata = simul$xdata[ids[[2]], ],
+#'   method = "ensemble"
+#' )
+#' cor(simul$ydata[ids[[2]], ], yhat)^2 # Q-squared
+#'
+#'
+#' ## Logistic regression
+#'
+#' # Data simulation
+#' set.seed(1)
+#' simul <- SimulateRegression(n = 1000, pk = 20, family = "binomial", ev_xy = 0.9)
+#'
+#' # Training/test split
+#' ids <- Split(data = simul$ydata, family = "binomial", tau = c(0.8, 0.2))
+#'
+#' # Stability selection
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata[ids[[1]], ],
+#'   ydata = simul$ydata[ids[[1]], ],
+#'   family = "binomial"
+#' )
+#'
+#' # Predictions from post stability selection estimation
+#' yhat <- predict(stab,
+#'   xdata = simul$xdata[ids[[1]], ],
+#'   ydata = simul$ydata[ids[[1]], ],
+#'   newdata = simul$xdata[ids[[2]], ],
+#'   method = "refit"
+#' )
+#' plot(ROC(predicted = yhat, observed = simul$ydata[ids[[2]], ]))
+#'
+#' # Predictions from ensemble model
+#' yhat <- predict(stab,
+#'   xdata = simul$xdata[ids[[1]], ],
+#'   ydata = simul$ydata[ids[[1]], ],
+#'   newdata = simul$xdata[ids[[2]], ],
+#'   method = "ensemble"
+#' )
+#' plot(ROC(predicted = yhat, observed = simul$ydata[ids[[2]], ]),
+#'   add = TRUE,
+#'   col = "blue"
+#' )
+#' }
 #' @export
-predict.variable_selection <- function(object, xdata, ydata, newdata = NULL, method = c("ensemble", "refit"), ...) {
+predict.variable_selection <- function(object,
+                                       xdata, ydata, newdata = NULL,
+                                       method = c("ensemble", "refit"),
+                                       ...) {
   # Checking inputs
   if (!object$methods$family %in% c("gaussian", "binomial", "multinomial", "cox")) {
     stop("This function can only be applied with the following families for regression models: 'gaussian', 'binomial', 'multinomial' or 'cox'.")
@@ -317,7 +548,7 @@ predict.variable_selection <- function(object, xdata, ydata, newdata = NULL, met
   # Predictions from refitted model
   if (method[1] == "refit") {
     refitted <- Refit(xdata = xdata, ydata = ydata, stability = object)
-    yhat <- stats::predict(object = refitted, newdata = as.data.frame(xdata), ...)
+    yhat <- stats::predict(object = refitted, newdata = as.data.frame(newdata), ...)
     yhat <- cbind(yhat)
   }
   return(yhat)
