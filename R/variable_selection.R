@@ -180,7 +180,7 @@
 #'   are ordered in the same way and correspond to parameter values stored in
 #'   \code{Lambda}.
 #'
-#' @family stability selection functions
+#' @family stability functions
 #' @seealso \code{\link{PenalisedRegression}}, \code{\link{SelectionAlgo}},
 #'   \code{\link{LambdaGridRegression}}, \code{\link{Resample}},
 #'   \code{\link{StabilityScore}} \code{\link{Refit}},

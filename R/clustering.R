@@ -89,7 +89,8 @@
 #'   dimension of \code{coprop} are ordered in the same way and correspond to
 #'   parameter values stored in \code{nc} and \code{Lambda}.
 #'
-#' @family stability selection functions
+#' @family stability functions
+#'
 #' @seealso \code{\link{Resample}}, \code{\link{StabilityScore}},
 #'   \code{\link{HierarchicalClustering}}, \code{\link{PAMClustering}},
 #'   \code{\link{KMeansClustering}}, \code{\link{GMMClustering}}

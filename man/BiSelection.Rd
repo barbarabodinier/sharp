@@ -435,9 +435,9 @@ par(oldpar)
   \code{\link{VariableSelection}}, \code{\link{Resample}},
   \code{\link{StabilityScore}}
 
-Other stability selection functions: 
+Other stability functions: 
 \code{\link{Clustering}()},
 \code{\link{GraphicalModel}()},
 \code{\link{VariableSelection}()}
 }
-\concept{stability selection functions}
+\concept{stability functions}

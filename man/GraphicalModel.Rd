@@ -380,9 +380,9 @@ par(oldpar)
   \code{\link{LambdaGridGraphical}}, \code{\link{Resample}},
   \code{\link{StabilityScore}} \code{\link{Graph}}, \code{\link{Adjacency}},
 
-Other stability selection functions: 
+Other stability functions: 
 \code{\link{BiSelection}()},
 \code{\link{Clustering}()},
 \code{\link{VariableSelection}()}
 }
-\concept{stability selection functions}
+\concept{stability functions}

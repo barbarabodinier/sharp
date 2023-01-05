@@ -141,7 +141,8 @@
 #'   and correspond to components and parameter values stored in
 #'   \code{summary_full}.
 #'
-#' @family stability selection functions
+#' @family stability functions
+#'
 #' @seealso \code{\link{SparsePCA}}, \code{\link{SparsePLS}},
 #'   \code{\link{GroupPLS}}, \code{\link{SparseGroupPLS}},
 #'   \code{\link{VariableSelection}}, \code{\link{Resample}},

@@ -420,9 +420,9 @@ par(oldpar)
   \code{\link{StabilityScore}} \code{\link{Refit}},
   \code{\link{ExplanatoryPerformance}}, \code{\link{Incremental}},
 
-Other stability selection functions: 
+Other stability functions: 
 \code{\link{BiSelection}()},
 \code{\link{Clustering}()},
 \code{\link{GraphicalModel}()}
 }
-\concept{stability selection functions}
+\concept{stability functions}

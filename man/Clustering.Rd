@@ -196,9 +196,9 @@ WeightBoxplot(stab)
   \code{\link{HierarchicalClustering}}, \code{\link{PAMClustering}},
   \code{\link{KMeansClustering}}, \code{\link{GMMClustering}}
 
-Other stability selection functions: 
+Other stability functions: 
 \code{\link{BiSelection}()},
 \code{\link{GraphicalModel}()},
 \code{\link{VariableSelection}()}
 }
-\concept{stability selection functions}
+\concept{stability functions}
