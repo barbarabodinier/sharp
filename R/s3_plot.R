@@ -338,7 +338,7 @@ plot.roc_band <- function(x,
 }
 
 
-#' Visualisation of incremental performance
+#' Plot of incremental performance
 #'
 #' Represents prediction performances upon sequential inclusion of the
 #' predictors in a logistic or Cox regression model as produced by

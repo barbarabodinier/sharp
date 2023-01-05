@@ -4,7 +4,7 @@
 \alias{plot.incremental}
 \alias{IncrementalPlot}
 \alias{PlotIncremental}
-\title{Visualisation of incremental performance}
+\title{Plot of incremental performance}
 \usage{
 \method{plot}{incremental}(
   x,
@@ -83,9 +83,7 @@ PlotIncremental(
 
 \item{col}{vector of colours by stable selection status.}
 
-\item{col.axis}{optional vector of label colours by stable selection status.
-If \code{col.axis=NULL}, the colours provided in argument \code{col} are
-used.}
+\item{col.axis}{optional vector of label colours by stable selection status.}
 
 \item{cex}{size of point.}
 
