@@ -9,19 +9,8 @@
 \method{plot}{incremental}(
   x,
   quantiles = c(0.05, 0.95),
-  ylab = "Performance",
-  pch = 18,
   col = c("red", "grey"),
   col.axis = NULL,
-  cex = 1,
-  cex.lab = 1.5,
-  xcex.axis = 1,
-  ycex.axis = 1,
-  xlas = 2,
-  ylas = 1,
-  sfrac = 0.005,
-  ylim = NULL,
-  bty = "o",
   xgrid = FALSE,
   ygrid = FALSE,
   output_data = FALSE,
@@ -31,19 +20,8 @@
 IncrementalPlot(
   x,
   quantiles = c(0.05, 0.95),
-  ylab = "Performance",
-  pch = 18,
   col = c("red", "grey"),
   col.axis = NULL,
-  cex = 1,
-  cex.lab = 1.5,
-  xcex.axis = 1,
-  ycex.axis = 1,
-  xlas = 2,
-  ylas = 1,
-  sfrac = 0.005,
-  ylim = NULL,
-  bty = "o",
   xgrid = FALSE,
   ygrid = FALSE,
   output_data = FALSE,
@@ -53,19 +31,8 @@ IncrementalPlot(
 PlotIncremental(
   x,
   quantiles = c(0.05, 0.95),
-  ylab = "Performance",
-  pch = 18,
   col = c("red", "grey"),
   col.axis = NULL,
-  cex = 1,
-  cex.lab = 1.5,
-  xcex.axis = 1,
-  ycex.axis = 1,
-  xlas = 2,
-  ylas = 1,
-  sfrac = 0.005,
-  ylim = NULL,
-  bty = "o",
   xgrid = FALSE,
   ygrid = FALSE,
   output_data = FALSE,
@@ -77,42 +44,13 @@ PlotIncremental(
 
 \item{quantiles}{quantiles defining the lower and upper bounds.}
 
-\item{ylab}{label of the y-axis.}
-
-\item{pch}{type of point, as in \code{\link[graphics]{points}}.}
-
 \item{col}{vector of colours by stable selection status.}
 
 \item{col.axis}{optional vector of label colours by stable selection status.}
 
-\item{cex}{size of point.}
+\item{xgrid}{logical indicating if a vertical grid should be drawn.}
 
-\item{cex.lab}{font size for labels.}
-
-\item{xcex.axis}{size of labels along the x-axis.}
-
-\item{ycex.axis}{size of labels along the y-axis.}
-
-\item{xlas}{orientation of labels on the x-axis, as \code{las} in
-\code{\link[graphics]{par}}.}
-
-\item{ylas}{orientation of labels on the y-axis, as \code{las} in
-\code{\link[graphics]{par}}.}
-
-\item{sfrac}{size of the end bars, as in \code{\link[plotrix]{plotCI}}.}
-
-\item{ylim}{displayed range along the y-axis. Only used if \code{stability}
-is the output of \code{\link{BiSelection}}.}
-
-\item{bty}{character string indicating if the box around the plot should be
-drawn. Possible values include: \code{"o"} (default, the box is drawn), or
-\code{"n"} (no box).}
-
-\item{xgrid}{logical indicating if a vertical grid should be drawn. Only used
-if \code{stability} is the output of \code{\link{BiSelection}}.}
-
-\item{ygrid}{logical indicating if a horizontal grid should be drawn. Only
-used if \code{stability} is the output of \code{\link{BiSelection}}.}
+\item{ygrid}{logical indicating if a horizontal grid should be drawn.}
 
 \item{output_data}{logical indicating if the median and quantiles should be
 returned in a matrix.}

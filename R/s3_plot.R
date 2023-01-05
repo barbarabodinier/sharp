@@ -27,14 +27,6 @@ plot.variable_selection <- function(x,
   # Storing extra arguments
   extra_args <- list(...)
 
-  # Checking inputs
-  if (length(col) != 2) {
-    col <- rep(col[1], 2)
-  }
-  if (is.null(col.axis)) {
-    col.axis <- col
-  }
-
   # Defining default settings
   if (!"type" %in% names(extra_args)) {
     extra_args$type <- "h"
@@ -56,6 +48,18 @@ plot.variable_selection <- function(x,
   }
   if (!"cex.axis" %in% names(extra_args)) {
     extra_args$cex.axis <- 1
+  }
+
+  # Checking inputs
+  if (length(col) != 2) {
+    col <- rep(col[1], 2)
+  }
+  if (is.null(col.axis)) {
+    col.axis <- col
+  } else {
+    if (length(col.axis) != 2) {
+      col.axis <- rep(col.axis[1], 2)
+    }
   }
 
   # Extracting selection proportions
@@ -345,14 +349,12 @@ plot.roc_band <- function(x,
 #' \code{\link{Incremental}}. The median and \code{quantiles} of the performance
 #' metric are reported. See examples in \code{\link{Incremental}}.
 #'
-#' @inheritParams CalibrationPlot
 #' @param x output of \code{\link{Incremental}}.
 #' @param quantiles quantiles defining the lower and upper bounds.
-#' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
 #' @param col vector of colours by stable selection status.
 #' @param col.axis optional vector of label colours by stable selection status.
-#' @param xcex.axis size of labels along the x-axis.
-#' @param ycex.axis size of labels along the y-axis.
+#' @param xgrid logical indicating if a vertical grid should be drawn.
+#' @param ygrid logical indicating if a horizontal grid should be drawn.
 #' @param output_data logical indicating if the median and quantiles should be
 #'   returned in a matrix.
 #' @param ... additional plotting arguments (see \code{\link[graphics]{par}}).
@@ -364,21 +366,48 @@ plot.roc_band <- function(x,
 #' @export
 plot.incremental <- function(x,
                              quantiles = c(0.05, 0.95),
-                             ylab = "Performance",
-                             pch = 18,
-                             col = c("red", "grey"), col.axis = NULL,
-                             cex = 1, cex.lab = 1.5,
-                             xcex.axis = 1, ycex.axis = 1,
-                             xlas = 2, ylas = 1,
-                             sfrac = 0.005,
-                             ylim = NULL, bty = "o",
+                             col = c("red", "grey"),
+                             col.axis = NULL,
                              xgrid = FALSE, ygrid = FALSE,
                              output_data = FALSE,
                              ...) {
   # Checking plotrix package is installed
   CheckPackageInstalled("plotrix")
 
-  # Checking the inputs
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Defining default settings
+  if (!"xlab" %in% names(extra_args)) {
+    extra_args$xlab <- ""
+  }
+  if (!"ylab" %in% names(extra_args)) {
+    extra_args$ylab <- "Performance"
+  }
+  if (!"pch" %in% names(extra_args)) {
+    extra_args$pch <- 18
+  }
+  if (!"las" %in% names(extra_args)) {
+    extra_args$las <- 2
+  }
+  if (!"cex.lab" %in% names(extra_args)) {
+    extra_args$cex.lab <- 1.5
+  }
+  if (!"sfrac" %in% names(extra_args)) {
+    extra_args$sfrac <- 0.005
+  }
+
+  # Checking inputs
+  if (length(col) != 2) {
+    col <- rep(col[1], 2)
+  }
+  if (is.null(col.axis)) {
+    col.axis <- col
+  } else {
+    if (length(col.axis) != 2) {
+      col.axis <- rep(col.axis[1], 2)
+    }
+  }
   quantiles <- sort(quantiles)
 
   # Re-formatting the inputs
@@ -417,8 +446,12 @@ plot.incremental <- function(x,
   }
 
   # Defining the plot range
-  if (is.null(ylim)) {
+  if (!"ylim" %in% names(extra_args)) {
     ylim <- range(c(xlower, xupper, xfull))
+    extra_args$ylim <- ylim
+  }
+  if (!"xlim" %in% names(extra_args)) {
+    extra_args$xlim <- range(xseq)
   }
 
   # Defining horizontal grid
@@ -445,36 +478,65 @@ plot.incremental <- function(x,
     mycolours_axis <- col.axis[1]
   }
 
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = base::plot)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "panel.first", "xaxt", "yaxt", "sfrac")]
+
   # Creating the plot
-  plot(NULL,
-    cex.lab = cex.lab,
-    bty = bty,
-    xlim = range(xseq), ylim = ylim,
-    panel.first = c(
-      graphics::abline(h = hseq, col = "grey", lty = 3),
-      graphics::abline(v = vseq, col = "grey", lty = 3)
+  do.call(base::plot, args = c(
+    list(
+      x = NULL,
+      panel.first = c(
+        graphics::abline(h = hseq, col = "grey", lty = 3),
+        graphics::abline(v = vseq, col = "grey", lty = 3)
+      ),
+      xaxt = "n", yaxt = "n"
     ),
-    xlab = "", xaxt = "n", yaxt = "n", ylab = ylab,
-    ...
-  )
-  graphics::axis(
-    side = 2, at = grDevices::axisTicks(ylim, log = FALSE),
-    las = ylas, cex.axis = ycex.axis
-  )
-  plotrix::plotCI(
-    x = xseq, y = xfull, li = xlower, ui = xupper,
-    pch = pch, cex = cex,
-    sfrac = sfrac,
-    col = mycolours, add = TRUE
-  )
-  graphics::axis(side = 1, at = xseq, labels = NA)
+    tmp_extra_args
+  ))
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "sfrac")]
+
+  # Adding y-axis
+  do.call(graphics::axis, args = c(
+    list(
+      side = 2,
+      at = grDevices::axisTicks(ylim, log = FALSE)
+    ),
+    tmp_extra_args
+  ))
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = plotrix::plotCI)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "li", "ui", "col", "add")]
+
+  # Adding points
+  do.call(plotrix::plotCI, args = c(
+    list(
+      x = xseq, y = xfull, li = xlower, ui = xupper,
+      col = mycolours, add = TRUE
+    ),
+    tmp_extra_args
+  ))
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "col.ticks", "sfrac")]
+
+  # Adding x-axis
   for (k in 1:length(xseq)) {
-    graphics::axis(
-      side = 1, at = xseq[k],
-      labels = ifelse(k == 1, yes = x$names[k], no = paste0("+ ", x$names[k])),
-      col.axis = mycolours_axis[k],
-      las = xlas, cex.axis = xcex.axis
-    )
+    do.call(graphics::axis, args = c(
+      list(
+        side = 1,
+        at = xseq[k],
+        labels = ifelse(k == 1, yes = x$names[k], no = paste0("+ ", x$names[k])),
+        col.axis = mycolours_axis[k],
+        col.ticks = mycolours_axis[k]
+      ),
+      tmp_extra_args
+    ))
   }
 
   if (output_data) {
