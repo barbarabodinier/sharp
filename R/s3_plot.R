@@ -1,20 +1,113 @@
+#' Plot of selection proportions
+#'
+#' Makes a barplot of selection proportions in decreasing order. See examples in
+#' \code{\link{VariableSelection}}.
+#'
+#' @param x output of \code{\link{VariableSelection}}.
+#' @param col vector of colours by stable selection status.
+#' @param col.axis optional vector of label colours by stable selection status.
+#' @param col.thr threshold colour.
+#' @param lty.thr threshold line type as \code{lty} in
+#'   \code{\link[graphics]{par}}.
+#' @param n_predictors number of predictors to display.
+#' @param ... additional plotting arguments (see \code{\link[graphics]{par}}).
+#'
+#' @return A plot.
+#'
+#' @seealso \code{\link{VariableSelection}}
+#'
 #' @export
-plot.variable_selection <- function(x, ...) {
+plot.variable_selection <- function(x,
+                                    col = c("red", "grey"),
+                                    col.axis = NULL,
+                                    col.thr = "darkred",
+                                    lty.thr = 2,
+                                    n_predictors = NULL,
+                                    ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Checking inputs
+  if (length(col) != 2) {
+    col <- rep(col[1], 2)
+  }
+  if (is.null(col.axis)) {
+    col.axis <- col
+  }
+
+  # Defining default settings
+  if (!"type" %in% names(extra_args)) {
+    extra_args$type <- "h"
+  }
+  if (!"xlab" %in% names(extra_args)) {
+    extra_args$xlab <- ""
+  }
+  if (!"ylab" %in% names(extra_args)) {
+    extra_args$ylab <- "Selection proportion"
+  }
+  if (!"las" %in% names(extra_args)) {
+    extra_args$las <- 2
+  }
+  if (!"ylim" %in% names(extra_args)) {
+    extra_args$ylim <- c(0, 1)
+  }
+  if (!"cex.lab" %in% names(extra_args)) {
+    extra_args$cex.lab <- 1.5
+  }
+  if (!"cex.axis" %in% names(extra_args)) {
+    extra_args$cex.axis <- 1
+  }
+
+  # Extracting selection proportions
   selprop <- SelectionProportions(x)
-  selprop <- sort(selprop, decreasing = TRUE)
-  plot(selprop,
-    type = "h",
-    xlab = "", ylab = "Selection proportion",
-    las = 1, ylim = c(0, 1), xaxt = "n",
-    col = ifelse(SelectedVariables(x)[names(selprop)],
-      yes = "navy", no = "grey"
-    )
-  )
-  graphics::axis(
-    side = 1, at = 1:length(selprop),
-    labels = names(selprop), las = 2
-  )
-  graphics::abline(h = Argmax(x)[1, 2], lty = 2, col = "darkred")
+
+  # Defining colours
+  mycolours <- ifelse(SelectedVariables(x) == 1, yes = col[1], no = col[2])
+  mycolours_axis <- mycolours
+
+  # Re-ordering by decreasing selection proportion
+  ids <- sort.list(selprop, decreasing = TRUE)
+  if (is.null(n_predictors)) {
+    n_predictors <- length(ids)
+  }
+  n_predictors <- min(n_predictors, length(ids))
+  ids <- ids[1:n_predictors]
+  selprop <- selprop[ids]
+  mycolours <- mycolours[ids]
+  mycolours_axis <- mycolours_axis[ids]
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- extra_args
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("xaxt", "col")]
+
+  # Making plot
+  do.call(base::plot, args = c(
+    list(
+      x = selprop,
+      xaxt = "n",
+      col = mycolours
+    ),
+    tmp_extra_args
+  ))
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "col.ticks", "type")]
+
+  # Adding axis
+  for (i in 1:length(selprop)) {
+    do.call(graphics::axis, args = c(
+      list(
+        side = 1,
+        at = i,
+        labels = names(selprop)[i],
+        col.axis = mycolours_axis[i],
+        col.ticks = mycolours_axis[i]
+      ),
+      tmp_extra_args
+    ))
+  }
+  graphics::abline(h = Argmax(x)[1, 2], lty = lty.thr, col = col.thr)
 }
 
 
@@ -258,8 +351,6 @@ plot.roc_band <- function(x,
 #' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
 #' @param col vector of colours by stable selection status.
 #' @param col.axis optional vector of label colours by stable selection status.
-#'   If \code{col.axis=NULL}, the colours provided in argument \code{col} are
-#'   used.
 #' @param xcex.axis size of labels along the x-axis.
 #' @param ycex.axis size of labels along the y-axis.
 #' @param output_data logical indicating if the median and quantiles should be
