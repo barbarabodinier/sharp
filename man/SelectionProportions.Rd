@@ -10,8 +10,8 @@ SelectionProportions(stability, argmax_id = NULL)
 \item{stability}{output of \code{\link{VariableSelection}},
 \code{\link{GraphicalModel}}, or \code{\link{BiSelection}}.}
 
-\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated model is used.}
+\item{argmax_id}{optional indices of hyper-parameters. If
+\code{argmax_id=NULL}, the calibrated hyper-parameters are used.}
 }
 \value{
 A symmetric matrix (graphical model) or vector (variable selection)
@@ -87,10 +87,8 @@ prop <- SelectionProportions(stab)
   \code{\link{BiSelection}}
 
 Other calibration functions: 
-\code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
-\code{\link{Clusters}()},
 \code{\link{ConsensusMatrix}()},
-\code{\link{SelectedVariables}()}
+\code{\link{Stable}()}
 }
 \concept{calibration functions}

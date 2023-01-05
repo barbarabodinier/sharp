@@ -54,10 +54,8 @@ stab$params$pi_list[ids[2]]
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 
 Other calibration functions: 
-\code{\link{Adjacency}()},
-\code{\link{Clusters}()},
 \code{\link{ConsensusMatrix}()},
-\code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()}
+\code{\link{SelectionProportions}()},
+\code{\link{Stable}()}
 }
 \concept{calibration functions}

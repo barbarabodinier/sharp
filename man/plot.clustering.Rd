@@ -31,8 +31,8 @@ hierarchical clustering to define the stable clusters. Possible values
 include \code{"complete"}, \code{"single"} and \code{"average"} (see
 argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).}
 
-\item{argmax_id}{optional parameter ID. If \code{argmax_id=NULL}, the
-calibrated model is used.}
+\item{argmax_id}{optional indices of hyper-parameters. If
+\code{argmax_id=NULL}, the calibrated hyper-parameters are used.}
 
 \item{theta}{optional vector of cluster membership. If provided, the ordering
 of the items should be the same as in \code{\link{Clusters}}. This argument

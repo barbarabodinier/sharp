@@ -25,8 +25,8 @@ WeightBoxplot(
 \item{at}{coordinates along the x-axis (more details in
 \code{\link[graphics]{boxplot}}).}
 
-\item{argmax_id}{optional matrix of parameter IDs. If \code{argmax_id=NULL},
-the calibrated model is used.}
+\item{argmax_id}{optional indices of hyper-parameters. If
+\code{argmax_id=NULL}, the calibrated hyper-parameters are used.}
 
 \item{col}{optional vector of colours.}
 

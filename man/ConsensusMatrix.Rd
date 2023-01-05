@@ -41,10 +41,8 @@ ConsensusMatrix(stab)
 \code{\link{Clustering}}
 
 Other calibration functions: 
-\code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
-\code{\link{Clusters}()},
-\code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()}
+\code{\link{SelectionProportions}()},
+\code{\link{Stable}()}
 }
 \concept{calibration functions}
