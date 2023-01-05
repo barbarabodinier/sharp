@@ -27,8 +27,7 @@ or\code{implementation=PAMClustering}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
-\code{cpss=FALSE}.}
+\item{tau}{subsample size.}
 
 \item{seed}{value of the seed to initialise the random number generator and
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}

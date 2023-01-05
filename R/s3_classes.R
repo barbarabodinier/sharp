@@ -38,6 +38,23 @@ print.bi_selection <- function(x, ...) {
 
 
 #' @export
+print.clustering <- function(x, ...) {
+  if (x$methods$implementation == "HierarchicalClustering") {
+    cat(paste0("Consensus clustering using function ", x$methods$implementation, " with ", x$methods$linkage, " linkage."))
+  } else {
+    cat(paste0("Consensus clustering using function ", x$methods$implementation, "."))
+  }
+  cat("\n")
+  if (x$methods$resampling == "subsampling") {
+    cat(paste0("The model was run using ", x$params$K, " subsamples of ", x$params$tau * 100, "% of the observations."))
+  } else {
+    cat(paste0("The model was run using ", x$params$K, " bootstrap samples."))
+  }
+  cat("\n")
+}
+
+
+#' @export
 summary.variable_selection <- function(object, ...) {
   cat(paste0(
     "Calibrated parameters: lambda = ",
@@ -212,6 +229,26 @@ summary.bi_selection <- function(object, ...) {
       cat("\n")
     }
   }
+  cat("\n")
+}
+
+
+#' @export
+summary.clustering <- function(object, ...) {
+  cat(paste0(
+    "Calibrated parameters: nc = ",
+    formatC(Argmax(object)[1, 1], format = "f", digits = 3),
+    ifelse(!is.na(Argmax(object)[1, 2]),
+      yes = paste0(" and lambda = ", formatC(Argmax(object)[1, 2], format = "f", digits = 3)),
+      no = ""
+    )
+  ))
+  cat("\n")
+  cat("\n")
+  cat(paste0(
+    "Maximum consensus score: ",
+    formatC(max(object$S, na.rm = TRUE), format = "f", digits = 3)
+  ))
   cat("\n")
 }
 

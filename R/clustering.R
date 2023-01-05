@@ -9,6 +9,7 @@
 #'
 #' @inheritParams VariableSelection
 #' @param xdata data matrix with observations as rows and variables as columns.
+#' @param tau subsample size.
 #' @param Lambda vector of penalty parameters. Only used if
 #'   \code{implementation=HierarchicalClustering}
 #'   or\code{implementation=PAMClustering}.
@@ -103,40 +104,35 @@
 #'
 #' @examples
 #' \donttest{
-#' ## Consensus clustering
-#'
-#' # Data simulation
+#' # Consensus clustering
 #' set.seed(1)
 #' simul <- SimulateClustering(
-#'   n = c(30, 30, 30), nu_xc = 1, ev_xc = 0.7
+#'   n = c(30, 30, 30), nu_xc = 1, ev_xc = 0.5
 #' )
-#' plot(simul)
-#'
-#' # Consensus clustering
-#' stab <- Clustering(
-#'   xdata = simul$data
-#' )
+#' stab <- Clustering(xdata = simul$data)
+#' print(stab)
+#' CalibrationPlot(stab)
+#' summary(stab)
 #' Clusters(stab)
+#' plot(stab)
 #'
-#'
-#' ## Consensus weighted clustering
-#'
-#' # Data simulation
+#' # Consensus weighted clustering
 #' set.seed(1)
 #' simul <- SimulateClustering(
 #'   n = c(30, 30, 30), pk = 20,
 #'   theta_xc = c(rep(1, 10), rep(0, 10)),
 #'   ev_xc = 0.9
 #' )
-#' plot(simul)
-#'
-#' # Consensus weighted clustering
 #' stab <- Clustering(
 #'   xdata = simul$data,
 #'   Lambda = LambdaSequence(lmin = 0.1, lmax = 10, cardinal = 10),
 #'   noit = 20, niter = 10
 #' )
+#' print(stab)
+#' CalibrationPlot(stab)
+#' summary(stab)
 #' Clusters(stab)
+#' plot(stab)
 #' WeightBoxplot(stab)
 #' }
 #' @export
