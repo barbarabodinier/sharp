@@ -263,6 +263,7 @@ plot.roc_band <- function(x,
 #' @param ycex.axis size of labels along the y-axis.
 #' @param output_data logical indicating if the median and quantiles should be
 #'   returned in a matrix.
+#' @param ... additional plotting arguments (see \code{\link[graphics]{par}}).
 #'
 #' @return A plot.
 #'
@@ -280,7 +281,8 @@ plot.incremental <- function(x,
                              sfrac = 0.005,
                              ylim = NULL, bty = "o",
                              xgrid = FALSE, ygrid = FALSE,
-                             output_data = FALSE) {
+                             output_data = FALSE,
+                             ...) {
   # Checking plotrix package is installed
   CheckPackageInstalled("plotrix")
 
@@ -348,7 +350,8 @@ plot.incremental <- function(x,
       graphics::abline(h = hseq, col = "grey", lty = 3),
       graphics::abline(v = vseq, col = "grey", lty = 3)
     ),
-    xlab = "", xaxt = "n", yaxt = "n", ylab = ylab
+    xlab = "", xaxt = "n", yaxt = "n", ylab = ylab,
+    ...
   )
   graphics::axis(
     side = 2, at = grDevices::axisTicks(ylim, log = FALSE),

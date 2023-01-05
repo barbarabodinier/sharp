@@ -89,7 +89,6 @@ prop <- SelectionProportions(stab)
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
-\code{\link{Argmax}()},
 \code{\link{Clusters}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()}

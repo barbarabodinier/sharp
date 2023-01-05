@@ -1,11 +1,11 @@
-#' Calibrated parameter indices
+#' Calibrated hyper-parameter(s)
 #'
-#' Extracts the indices of calibrated parameters with respect to the grids
-#' provided in \code{Lambda} and \code{pi_list} in \code{stability}.
+#' Extracts the calibrated hyper-parameters (or their indices for
+#' \code{\link{ArgmaxId}}) with respect to the grids provided in \code{Lambda}
+#' and \code{pi_list} in argument \code{stability}.
 #'
 #' @param stability output of \code{\link{VariableSelection}} or
-#'   \code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
-#'   provided.
+#'   \code{\link{GraphicalModel}}.
 #' @param S matrix of stability scores obtained with different combinations of
 #'   parameters where rows correspond to different values of the parameter
 #'   controlling the level of sparsity in the underlying feature selection
@@ -13,10 +13,12 @@
 #'   selection proportions. If \code{S=NULL}, argument \code{stability} must be
 #'   provided.
 #'
-#' @return A matrix of parameter indices. For multi-block graphical models, rows
-#'   correspond to different blocks.
+#' @return A matrix of hyper-parameters (\code{\link{Argmax}}) or indices
+#'   (\code{\link{ArgmaxId}}). For multi-block graphical models, rows correspond
+#'   to different blocks.
 #'
 #' @family calibration functions
+#'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
@@ -27,16 +29,17 @@
 #' # Stability selection
 #' stab <- GraphicalModel(xdata = simul$data)
 #'
-#' # Extracting IDs of calibrated parameters
+#' # Extracting calibrated hyper-parameters
+#' Argmax(stab)
+#'
+#' # Extracting calibrated hyper-parameters IDs
 #' ids <- ArgmaxId(stab)
+#' ids
+#'
+#' # Relationship between the two functions
 #' stab$Lambda[ids[1], 1]
 #' stab$params$pi_list[ids[2]]
 #'
-#' # Alternative formulation
-#' ids2 <- ArgmaxId(S = stab$S_2d)
-#'
-#' # Link with Argmax() function
-#' args <- Argmax(stab)
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
   if ((is.null(stability)) & (is.null(S))) {
@@ -51,14 +54,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
       Sc <- round(stability$Sc, digits = 4)
       argmax_id <- which(Sc == max(Sc, na.rm = TRUE))
       argmax_id <- argmax_id[which(stability$nc[argmax_id] == max(stability$nc[argmax_id]))]
-      # argmax_id <- argmax_id[which(stability$Q[argmax_id] == min(stability$Q[argmax_id]))]
       argmax_id <- cbind(min(argmax_id))
-
-      # if (any(!is.na(stability$S_2d[argmax_id, ]))) {
-      #   argmax_id <- matrix(c(argmax_id, which.max(stability$S_2d[argmax_id, ])), ncol = 2)
-      # } else {
-      #   argmax_id <- matrix(c(argmax_id, NA), ncol = 2)
-      # }
     } else {
       argmax_id <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)
       if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
@@ -98,38 +94,7 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
 }
 
 
-#' Calibrated parameters
-#'
-#' Extracts calibrated parameter values in stability selection.
-#'
-#' @param stability output of \code{\link{VariableSelection}},
-#'   \code{\link{BiSelection}} or \code{\link{GraphicalModel}}.
-#'
-#' @return A matrix of parameter values. If applied to the output of
-#'   \code{\link{VariableSelection}} or \code{\link{GraphicalModel}}, the first
-#'   column (\code{lambda}) denotes the calibrated hyper-parameter of the
-#'   underlying algorithm. The second column (\code{pi}) is the calibrated
-#'   threshold in selection/co-membership proportions. For multi-block graphical
-#'   models, rows correspond to different blocks. If applied to the output of
-#'   \code{\link{BiSelection}}, all columns are named as in object
-#'   \code{summary}.
-#'
-#' @family calibration functions
-#' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
-#'   \code{\link{BiSelection}}
-#'
-#' @examples
-#' ## Graphical modelling
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = 20)
-#'
-#' # Stability selection
-#' stab <- GraphicalModel(xdata = simul$data)
-#'
-#' # Extracting calibrated parameters
-#' Argmax(stab)
+#' @rdname ArgmaxId
 #' @export
 Argmax <- function(stability) {
   clustering <- ifelse(inherits(stability, "clustering"), yes = TRUE, no = FALSE)

@@ -24,7 +24,8 @@
   bty = "o",
   xgrid = FALSE,
   ygrid = FALSE,
-  output_data = FALSE
+  output_data = FALSE,
+  ...
 )
 
 IncrementalPlot(
@@ -45,7 +46,8 @@ IncrementalPlot(
   bty = "o",
   xgrid = FALSE,
   ygrid = FALSE,
-  output_data = FALSE
+  output_data = FALSE,
+  ...
 )
 
 PlotIncremental(
@@ -66,7 +68,8 @@ PlotIncremental(
   bty = "o",
   xgrid = FALSE,
   ygrid = FALSE,
-  output_data = FALSE
+  output_data = FALSE,
+  ...
 )
 }
 \arguments{
@@ -114,6 +117,8 @@ used if \code{stability} is the output of \code{\link{BiSelection}}.}
 
 \item{output_data}{logical indicating if the median and quantiles should be
 returned in a matrix.}
+
+\item{...}{additional plotting arguments (see \code{\link[graphics]{par}}).}
 }
 \value{
 A plot.

@@ -44,7 +44,6 @@ Clusters(stab)
 Other calibration functions: 
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
-\code{\link{Argmax}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
 \code{\link{SelectionProportions}()}

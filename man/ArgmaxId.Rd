@@ -2,14 +2,16 @@
 % Please edit documentation in R/calibration.R
 \name{ArgmaxId}
 \alias{ArgmaxId}
-\title{Calibrated parameter indices}
+\alias{Argmax}
+\title{Calibrated hyper-parameter(s)}
 \usage{
 ArgmaxId(stability = NULL, S = NULL)
+
+Argmax(stability)
 }
 \arguments{
 \item{stability}{output of \code{\link{VariableSelection}} or
-\code{\link{GraphicalModel}}. If \code{stability=NULL}, \code{S} must be
-provided.}
+\code{\link{GraphicalModel}}.}
 
 \item{S}{matrix of stability scores obtained with different combinations of
 parameters where rows correspond to different values of the parameter
@@ -19,12 +21,14 @@ selection proportions. If \code{S=NULL}, argument \code{stability} must be
 provided.}
 }
 \value{
-A matrix of parameter indices. For multi-block graphical models, rows
-  correspond to different blocks.
+A matrix of hyper-parameters (\code{\link{Argmax}}) or indices
+  (\code{\link{ArgmaxId}}). For multi-block graphical models, rows correspond
+  to different blocks.
 }
 \description{
-Extracts the indices of calibrated parameters with respect to the grids
-provided in \code{Lambda} and \code{pi_list} in \code{stability}.
+Extracts the calibrated hyper-parameters (or their indices for
+\code{\link{ArgmaxId}}) with respect to the grids provided in \code{Lambda}
+and \code{pi_list} in argument \code{stability}.
 }
 \examples{
 # Data simulation
@@ -34,23 +38,23 @@ simul <- SimulateGraphical(pk = 20)
 # Stability selection
 stab <- GraphicalModel(xdata = simul$data)
 
-# Extracting IDs of calibrated parameters
+# Extracting calibrated hyper-parameters
+Argmax(stab)
+
+# Extracting calibrated hyper-parameters IDs
 ids <- ArgmaxId(stab)
+ids
+
+# Relationship between the two functions
 stab$Lambda[ids[1], 1]
 stab$params$pi_list[ids[2]]
 
-# Alternative formulation
-ids2 <- ArgmaxId(S = stab$S_2d)
-
-# Link with Argmax() function
-args <- Argmax(stab)
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 
 Other calibration functions: 
 \code{\link{Adjacency}()},
-\code{\link{Argmax}()},
 \code{\link{Clusters}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},

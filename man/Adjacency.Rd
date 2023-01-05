@@ -43,7 +43,6 @@ A <- Adjacency(stab, argmax_id = myids)
 
 Other calibration functions: 
 \code{\link{ArgmaxId}()},
-\code{\link{Argmax}()},
 \code{\link{Clusters}()},
 \code{\link{ConsensusMatrix}()},
 \code{\link{SelectedVariables}()},
