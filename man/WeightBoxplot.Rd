@@ -55,38 +55,8 @@ A boxplot.
 \description{
 Creates a boxplots of the distribution of (calibrated) median attribute
 weights obtained from the COSA algorithm across the subsampling iterations.
-}
-\examples{
-\donttest{
-# Data simulation
-set.seed(2)
-simul <- SimulateClustering(
-  n = c(30, 30, 30), pk = 15,
-  theta_xc = c(rep(1, 5), rep(0, 10)),
-  ev_xc = c(rep(0.95, 5), rep(0, 10)),
-)
-plot(simul)
-
-# Consensus weighted clustering
-stab <- Clustering(
-  xdata = simul$data, Lambda = 0.5
-)
-WeightBoxplot(stability = stab)
-}
-
+See examples in \code{\link{Clustering}}.
 }
 \seealso{
 \code{\link{Clustering}}
-
-Other calibration functions: 
-\code{\link{Adjacency}()},
-\code{\link{ArgmaxId}()},
-\code{\link{Argmax}()},
-\code{\link{CalibrationPlot}()},
-\code{\link{Clusters}()},
-\code{\link{ConsensusMatrix}()},
-\code{\link{SelectedVariables}()},
-\code{\link{SelectionProportions}()},
-\code{\link{plot.clustering}()}
 }
-\concept{calibration functions}

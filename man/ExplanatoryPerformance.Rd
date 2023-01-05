@@ -7,6 +7,8 @@
 ExplanatoryPerformance(
   xdata,
   ydata,
+  new_xdata = NULL,
+  new_ydata = NULL,
   stability = NULL,
   family = NULL,
   implementation = NULL,
@@ -29,6 +31,10 @@ columns.}
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
 with character/numeric values or a factor.}
+
+\item{new_xdata}{optional test set (predictor data).}
+
+\item{new_ydata}{optional test set (outcome data).}
 
 \item{stability}{output of \code{\link{VariableSelection}}. If
 \code{stability=NULL} (the default), a model including all variables in
@@ -58,11 +64,14 @@ function to use for resampling. This function must use arguments named
 \code{data} and \code{tau} and return the IDs of observations to be
 included in the resampled dataset.}
 
-\item{K}{number of training-test splits.}
+\item{K}{number of training-test splits. Only used if \code{new_xdata} and
+\code{new_ydata} are not provided.}
 
-\item{tau}{proportion of observations used in the training set.}
+\item{tau}{proportion of observations used in the training set. Only used if
+\code{new_xdata} and \code{new_ydata} are not provided.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to ensure reproducibility of the results. Only
+used if \code{new_xdata} and \code{new_ydata} are not provided.}
 
 \item{n_thr}{number of thresholds to use to construct the ROC curve. If
 \code{n_thr=NULL}, all predicted probability values are iteratively used as
@@ -131,62 +140,60 @@ For a fair evaluation of the prediction performance, the data is
 }
 \examples{
 \donttest{
-## Logistic regression
-
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(
   n = 1000, pk = 10,
-  family = "binomial", ev_xy = 0.7
+  family = "binomial", ev_xy = 0.8
 )
 
-# Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(
+# Data split: selection, training and test set
+ids <- Split(
   data = simul$ydata,
-  tau = 0.5, family = "binomial"
+  family = "binomial",
+  tau = c(0.4, 0.3, 0.3)
 )
-xtrain <- simul$xdata[ids_train, ]
-ytrain <- simul$ydata[ids_train, ]
-xtest <- simul$xdata[-ids_train, ]
-ytest <- simul$ydata[-ids_train, ]
-
-# Stability selection
-stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-
-# Evaluation of the performances on refitted models (K=1)
-roc <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab, n_thr = NULL
-)
-plot(roc)
-
-# Using more refitting/test splits
-roc <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab, K = 100
-)
-boxplot(roc$AUC, ylab = "AUC")
-plot(roc)
-
-# Comparison with saturated model
-roc <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  family = "binomial", K = 100
-)
-plot(roc, col = "blue", col_band = "blue", add = TRUE)
-
-
-## Partial Least Squares (single component)
+xselect <- simul$xdata[ids[[1]], ]
+yselect <- simul$ydata[ids[[1]], ]
+xtrain <- simul$xdata[ids[[2]], ]
+ytrain <- simul$ydata[ids[[2]], ]
+xtest <- simul$xdata[ids[[3]], ]
+ytest <- simul$ydata[ids[[3]], ]
 
 # Stability selection
 stab <- VariableSelection(
+  xdata = xselect,
+  ydata = yselect,
+  family = "binomial"
+)
+
+# Performances in test set of model refitted in training set
+roc <- ExplanatoryPerformance(
   xdata = xtrain, ydata = ytrain,
+  new_xdata = xtest, new_ydata = ytest,
+  stability = stab
+)
+plot(roc)
+roc$AUC
+
+# Alternative with multiple training/test splits
+roc <- ExplanatoryPerformance(
+  xdata = rbind(xtrain, xtest),
+  ydata = c(ytrain, ytest),
+  stability = stab, K = 100
+)
+plot(roc)
+boxplot(roc$AUC)
+
+# Partial Least Squares Discriminant Analysis
+stab <- VariableSelection(
+  xdata = xselect,
+  ydata = yselect,
   implementation = SparsePLS,
   family = "binomial"
 )
-print(SelectedVariables(stab))
 
-# Defining wrapping functions for PLS-DA
+# Defining wrapping functions for predictions from PLS-DA
 PLSDA <- function(xdata, ydata, family = "binomial") {
   model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
   return(model)
@@ -197,105 +204,20 @@ PredictPLSDA <- function(xdata, model) {
   return(predicted)
 }
 
-# Evaluation of the performances on refitted models (K=1)
+# Performances with custom models
 roc <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab,
+  xdata = rbind(xtrain, xtest),
+  ydata = c(ytrain, ytest),
+  stability = stab, K = 100,
   implementation = PLSDA, prediction = PredictPLSDA
 )
 plot(roc)
-
-
-## Cox regression
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 500, pk = 50, family = "binomial")
-ydata <- cbind(
-  time = runif(nrow(simul$ydata), min = 100, max = 2000),
-  case = simul$ydata[, 1]
-) # including dummy time to event
-
-# Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "binomial"
-)
-xtrain <- simul$xdata[ids_train, ]
-ytrain <- ydata[ids_train, ]
-xtest <- simul$xdata[-ids_train, ]
-ytest <- ydata[-ids_train, ]
-
-# Stability selection
-stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
-
-# Evaluation of the performances on refitted models (K=1)
-perf <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab, ij_method = TRUE
-)
-print(perf)
-
-# Using more refitting/test splits
-perf <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab, K = 10, time = 1000
-)
-boxplot(perf$concordance)
-
-
-## Linear regression
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 1000, pk = 10, family = "gaussian")
-
-# Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "gaussian"
-)
-xtrain <- simul$xdata[ids_train, ]
-ytrain <- simul$ydata[ids_train, ]
-xtest <- simul$xdata[-ids_train, ]
-ytest <- simul$ydata[-ids_train, ]
-
-# Stability selection
-stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-
-# Evaluation of the performances on refitted models (K=1)
-perf <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab
-)
-print(perf)
-
-
-## Partial Least Squares (single component)
-
-# Stability selection
-stab <- VariableSelection(
-  xdata = xtrain, ydata = ytrain,
-  implementation = SparsePLS,
-  family = "gaussian"
-)
-print(SelectedVariables(stab))
-
-# Evaluation of the performances on refitted models (K=1)
-perf <- ExplanatoryPerformance(
-  xdata = xtest, ydata = ytest,
-  stability = stab,
-  implementation = PLS, prediction = PredictPLS
-)
-print(perf)
 }
-
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{Refit}}
 
 Other prediction performance functions: 
-\code{\link{Incremental}()},
-\code{\link{PlotIncremental}()}
+\code{\link{Incremental}()}
 }
 \concept{prediction performance functions}

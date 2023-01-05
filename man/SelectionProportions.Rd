@@ -90,11 +90,8 @@ Other calibration functions:
 \code{\link{Adjacency}()},
 \code{\link{ArgmaxId}()},
 \code{\link{Argmax}()},
-\code{\link{CalibrationPlot}()},
 \code{\link{Clusters}()},
 \code{\link{ConsensusMatrix}()},
-\code{\link{SelectedVariables}()},
-\code{\link{WeightBoxplot}()},
-\code{\link{plot.clustering}()}
+\code{\link{SelectedVariables}()}
 }
 \concept{calibration functions}

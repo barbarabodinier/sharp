@@ -7,6 +7,8 @@
 Incremental(
   xdata,
   ydata,
+  new_xdata = NULL,
+  new_ydata = NULL,
   stability = NULL,
   family = NULL,
   implementation = NULL,
@@ -30,6 +32,10 @@ columns.}
 \item{ydata}{optional vector or matrix of outcome(s). If \code{family} is set
 to \code{"binomial"} or \code{"multinomial"}, \code{ydata} can be a vector
 with character/numeric values or a factor.}
+
+\item{new_xdata}{optional test set (predictor data).}
+
+\item{new_ydata}{optional test set (outcome data).}
 
 \item{stability}{output of \code{\link{VariableSelection}}. If
 \code{stability=NULL} (the default), a model including all variables in
@@ -61,11 +67,14 @@ included in the resampled dataset.}
 
 \item{n_predictors}{number of predictors to consider.}
 
-\item{K}{number of training-test splits.}
+\item{K}{number of training-test splits. Only used if \code{new_xdata} and
+\code{new_ydata} are not provided.}
 
-\item{tau}{proportion of observations used in the training set.}
+\item{tau}{proportion of observations used in the training set. Only used if
+\code{new_xdata} and \code{new_ydata} are not provided.}
 
-\item{seed}{value of the seed to ensure reproducibility of the results.}
+\item{seed}{value of the seed to ensure reproducibility of the results. Only
+used if \code{new_xdata} and \code{new_ydata} are not provided.}
 
 \item{n_thr}{number of thresholds to use to construct the ROC curve. If
 \code{n_thr=NULL}, all predicted probability values are iteratively used as
@@ -133,139 +142,48 @@ as in \code{\link{ExplanatoryPerformance}}.
 }
 \examples{
 \donttest{
-## Logistic regression
-
 # Data simulation
 set.seed(1)
-simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
-
-# Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "binomial"
+simul <- SimulateRegression(
+  n = 1000, pk = 10,
+  family = "binomial", ev_xy = 0.8
 )
-xtrain <- simul$xdata[ids_train, ]
-ytrain <- simul$ydata[ids_train, ]
-xtest <- simul$xdata[-ids_train, ]
-ytest <- simul$ydata[-ids_train, ]
 
-# Stability selection
-stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-
-# Evaluating marginal contribution of the predictors
-perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-summary(perf)
-
-# Visualisation
-PlotIncremental(perf)
-plot(perf) # alternative formulation
-
-
-## Partial Least Squares (single component)
+# Data split: selection, training and test set
+ids <- Split(
+  data = simul$ydata,
+  family = "binomial",
+  tau = c(0.4, 0.3, 0.3)
+)
+xselect <- simul$xdata[ids[[1]], ]
+yselect <- simul$ydata[ids[[1]], ]
+xtrain <- simul$xdata[ids[[2]], ]
+ytrain <- simul$ydata[ids[[2]], ]
+xtest <- simul$xdata[ids[[3]], ]
+ytest <- simul$ydata[ids[[3]], ]
 
 # Stability selection
 stab <- VariableSelection(
-  xdata = xtrain, ydata = ytrain,
-  implementation = SparsePLS,
+  xdata = xselect,
+  ydata = yselect,
   family = "binomial"
 )
-print(SelectedVariables(stab))
 
-# Defining wrapping functions for PLS-DA
-PLSDA <- function(xdata, ydata, family = "binomial") {
-  model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
-  return(model)
-}
-PredictPLSDA <- function(xdata, model) {
-  xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
-  predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
-  return(predicted)
-}
-
-# Evaluation of the performances on refitted models (K=1)
-incremental <- Incremental(
-  xdata = xtest, ydata = ytest,
-  stability = stab,
-  implementation = PLSDA, prediction = PredictPLSDA,
-  K = 10
-)
-PlotIncremental(incremental)
-
-
-## Cox regression
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
-ydata <- cbind(
-  time = runif(nrow(simul$ydata), min = 100, max = 2000),
-  case = simul$ydata[, 1]
-) # including dummy time to event
-
-# Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "binomial"
-)
-xtrain <- simul$xdata[ids_train, ]
-ytrain <- ydata[ids_train, ]
-xtest <- simul$xdata[-ids_train, ]
-ytest <- ydata[-ids_train, ]
-
-# Stability selection
-stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
-
-# Marginal contribution
-perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-PlotIncremental(perf)
-
-# Faster computations on a single data split
-perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
-PlotIncremental(perf)
-
-
-## Linear regression
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
-
-# Balanced split: 50\% variable selection set and 50\% for evaluation of performances
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "gaussian"
-)
-xtrain <- simul$xdata[ids_train, ]
-ytrain <- simul$ydata[ids_train, ]
-xtest <- simul$xdata[-ids_train, ]
-ytest <- simul$ydata[-ids_train, ]
-
-# Stability selection
-stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-
-# Evaluating marginal contribution of the predictors
-perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-PlotIncremental(perf)
-
-
-## Partial Least Squares (single component)
-
-# Stability selection
-stab <- VariableSelection(
+# Performances in test set of model refitted in training set
+incr <- Incremental(
   xdata = xtrain, ydata = ytrain,
-  implementation = SparsePLS,
-  family = "gaussian"
+  new_xdata = xtest, new_ydata = ytest,
+  stability = stab, n_predictors = 10
 )
-print(SelectedVariables(stab))
+plot(incr)
 
-# Evaluation of the performances on refitted models (K=1)
-incremental <- Incremental(
-  xdata = xtest, ydata = ytest,
-  stability = stab,
-  implementation = PLS, prediction = PredictPLS,
-  K = 10
+# Alternative with multiple training/test splits
+incr <- Incremental(
+  xdata = rbind(xtrain, xtest),
+  ydata = c(ytrain, ytest),
+  stability = stab, K = 10, n_predictors = 10
 )
-PlotIncremental(incremental)
+plot(incr)
 }
 
 }
@@ -273,7 +191,6 @@ PlotIncremental(incremental)
 \code{\link{VariableSelection}}, \code{\link{Refit}}
 
 Other prediction performance functions: 
-\code{\link{ExplanatoryPerformance}()},
-\code{\link{PlotIncremental}()}
+\code{\link{ExplanatoryPerformance}()}
 }
 \concept{prediction performance functions}

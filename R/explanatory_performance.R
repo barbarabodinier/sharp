@@ -255,23 +255,6 @@ Refit <- function(xdata, ydata, stability = NULL,
     )
   }
 
-  # # Re-formatting the inputs
-  # if (is.vector(xdata)) {
-  #   xdata <- cbind(xdata)
-  #   colnames(xdata) <- "var"
-  # }
-  # if (family %in% c("binomial", "multinomial")) {
-  #   if (!is.factor(ydata)) {
-  #     if (!is.vector(ydata)) {
-  #       if (ncol(ydata) != 1) {
-  #         ydata <- DummyToCategories(ydata)
-  #       } else {
-  #         ydata <- as.numeric(ydata)
-  #       }
-  #     }
-  #   }
-  # }
-
   if (use_pls) {
     # Refitting the PLS model
     mymodel <- PLS(
@@ -318,7 +301,6 @@ Refit <- function(xdata, ydata, stability = NULL,
           ),
           tmp_extra_args
         ))
-        # mymodel <- stats::lm(myformula, data = as.data.frame(xdata), ...)
       }
 
       # Recalibration for Cox regression
@@ -333,26 +315,22 @@ Refit <- function(xdata, ydata, stability = NULL,
           ),
           tmp_extra_args
         ))
-        # mymodel <- survival::coxph(myformula, data = as.data.frame(xdata), ...)
       }
 
       # Recalibration for logistic regression
       if (family == "binomial") {
         tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::glm)
         tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data", "family")]
-        mymodel <- do.call(stats::glm, args = c(
-          list(
-            formula = myformula,
-            data = as.data.frame(xdata),
-            family = stats::binomial(link = "logit")
-          ),
-          tmp_extra_args
-        ))
-        # mymodel <- stats::glm(myformula,
-        #   data = as.data.frame(xdata),
-        #   family = stats::binomial(link = "logit"),
-        #   ...
-        # )
+        suppressWarnings({
+          mymodel <- do.call(stats::glm, args = c(
+            list(
+              formula = myformula,
+              data = as.data.frame(xdata),
+              family = stats::binomial(link = "logit")
+            ),
+            tmp_extra_args
+          ))
+        })
       }
 
       # Recalibration for multinomial regression
@@ -406,6 +384,8 @@ Recalibrate <- Refit
 #'   \code{stability=NULL} (the default), a model including all variables in
 #'   \code{xdata} as predictors is fitted. Argument \code{family} must be
 #'   provided in this case.
+#' @param new_xdata optional test set (predictor data).
+#' @param new_ydata optional test set (outcome data).
 #' @param implementation optional function to refit the model. If
 #'   \code{implementation=NULL} and \code{stability} is the output of
 #'   \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
@@ -414,9 +394,12 @@ Recalibrate <- Refit
 #'   \code{\link[nnet]{multinom}} (multinomial regression) is used.
 #' @param prediction optional function to compute predicted values from the
 #'   model refitted with \code{implementation}.
-#' @param K number of training-test splits.
-#' @param tau proportion of observations used in the training set.
-#' @param seed value of the seed to ensure reproducibility of the results.
+#' @param K number of training-test splits. Only used if \code{new_xdata} and
+#'   \code{new_ydata} are not provided.
+#' @param tau proportion of observations used in the training set. Only used if
+#'   \code{new_xdata} and \code{new_ydata} are not provided.
+#' @param seed value of the seed to ensure reproducibility of the results. Only
+#'   used if \code{new_xdata} and \code{new_ydata} are not provided.
 #' @param n_thr number of thresholds to use to construct the ROC curve. If
 #'   \code{n_thr=NULL}, all predicted probability values are iteratively used as
 #'   thresholds. For faster computations on large data, less thresholds can be
@@ -478,62 +461,60 @@ Recalibrate <- Refit
 #'
 #' @examples
 #' \donttest{
-#' ## Logistic regression
-#'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateRegression(
 #'   n = 1000, pk = 10,
-#'   family = "binomial", ev_xy = 0.7
+#'   family = "binomial", ev_xy = 0.8
 #' )
 #'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
+#' # Data split: selection, training and test set
+#' ids <- Split(
 #'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
+#'   family = "binomial",
+#'   tau = c(0.4, 0.3, 0.3)
 #' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-#'
-#' # Evaluation of the performances on refitted models (K=1)
-#' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab, n_thr = NULL
-#' )
-#' plot(roc)
-#'
-#' # Using more refitting/test splits
-#' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab, K = 100
-#' )
-#' boxplot(roc$AUC, ylab = "AUC")
-#' plot(roc)
-#'
-#' # Comparison with saturated model
-#' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   family = "binomial", K = 100
-#' )
-#' plot(roc, col = "blue", col_band = "blue", add = TRUE)
-#'
-#'
-#' ## Partial Least Squares (single component)
+#' xselect <- simul$xdata[ids[[1]], ]
+#' yselect <- simul$ydata[ids[[1]], ]
+#' xtrain <- simul$xdata[ids[[2]], ]
+#' ytrain <- simul$ydata[ids[[2]], ]
+#' xtest <- simul$xdata[ids[[3]], ]
+#' ytest <- simul$ydata[ids[[3]], ]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(
+#'   xdata = xselect,
+#'   ydata = yselect,
+#'   family = "binomial"
+#' )
+#'
+#' # Performances in test set of model refitted in training set
+#' roc <- ExplanatoryPerformance(
 #'   xdata = xtrain, ydata = ytrain,
+#'   new_xdata = xtest, new_ydata = ytest,
+#'   stability = stab
+#' )
+#' plot(roc)
+#' roc$AUC
+#'
+#' # Alternative with multiple training/test splits
+#' roc <- ExplanatoryPerformance(
+#'   xdata = rbind(xtrain, xtest),
+#'   ydata = c(ytrain, ytest),
+#'   stability = stab, K = 100
+#' )
+#' plot(roc)
+#' boxplot(roc$AUC)
+#'
+#' # Partial Least Squares Discriminant Analysis
+#' stab <- VariableSelection(
+#'   xdata = xselect,
+#'   ydata = yselect,
 #'   implementation = SparsePLS,
 #'   family = "binomial"
 #' )
-#' print(SelectedVariables(stab))
 #'
-#' # Defining wrapping functions for PLS-DA
+#' # Defining wrapping functions for predictions from PLS-DA
 #' PLSDA <- function(xdata, ydata, family = "binomial") {
 #'   model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
 #'   return(model)
@@ -544,101 +525,17 @@ Recalibrate <- Refit
 #'   return(predicted)
 #' }
 #'
-#' # Evaluation of the performances on refitted models (K=1)
+#' # Performances with custom models
 #' roc <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab,
+#'   xdata = rbind(xtrain, xtest),
+#'   ydata = c(ytrain, ytest),
+#'   stability = stab, K = 100,
 #'   implementation = PLSDA, prediction = PredictPLSDA
 #' )
 #' plot(roc)
-#'
-#'
-#' ## Cox regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = 50, family = "binomial")
-#' ydata <- cbind(
-#'   time = runif(nrow(simul$ydata), min = 100, max = 2000),
-#'   case = simul$ydata[, 1]
-#' ) # including dummy time to event
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
-#'
-#' # Evaluation of the performances on refitted models (K=1)
-#' perf <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab, ij_method = TRUE
-#' )
-#' print(perf)
-#'
-#' # Using more refitting/test splits
-#' perf <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab, K = 10, time = 1000
-#' )
-#' boxplot(perf$concordance)
-#'
-#'
-#' ## Linear regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 10, family = "gaussian")
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "gaussian"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-#'
-#' # Evaluation of the performances on refitted models (K=1)
-#' perf <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab
-#' )
-#' print(perf)
-#'
-#'
-#' ## Partial Least Squares (single component)
-#'
-#' # Stability selection
-#' stab <- VariableSelection(
-#'   xdata = xtrain, ydata = ytrain,
-#'   implementation = SparsePLS,
-#'   family = "gaussian"
-#' )
-#' print(SelectedVariables(stab))
-#'
-#' # Evaluation of the performances on refitted models (K=1)
-#' perf <- ExplanatoryPerformance(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab,
-#'   implementation = PLS, prediction = PredictPLS
-#' )
-#' print(perf)
 #' }
-#'
 #' @export
-ExplanatoryPerformance <- function(xdata, ydata,
+ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
                                    stability = NULL, family = NULL,
                                    implementation = NULL, prediction = NULL, resampling = "subsampling",
                                    K = 1, tau = 0.8, seed = 1,
@@ -664,11 +561,26 @@ ExplanatoryPerformance <- function(xdata, ydata,
       stop("Argument 'family' must be provided. Possible values are: 'gaussian', 'cox' or 'binomial'.")
     }
   }
+  if (!is.null(new_xdata)) {
+    if (is.null(new_ydata)) {
+      stop("Argument 'new_ydata' must be provided if 'new_xdata' is provided.")
+    }
+    K <- 1
+  }
 
   # Object preparation, error and warning messages
   CheckDataRegression(
     xdata = xdata, ydata = ydata, family = family, verbose = verbose
   )
+  if (!is.null(new_xdata)) {
+    xtrain <- xdata
+    ytrain <- ydata
+    CheckDataRegression(
+      xdata = new_xdata, ydata = new_ydata, family = family, verbose = verbose
+    )
+    xtest <- xdata
+    ytest <- ydata
+  }
 
   # Defining the metric to use
   if (ij_method) {
@@ -683,131 +595,115 @@ ExplanatoryPerformance <- function(xdata, ydata,
   if (family == "gaussian") {
     metric <- "q2"
   }
-  # if (is.null(n_folds) | (K==1)) {
-  #   n_folds <- 1
-  # } else {
-  #   K <- ceiling(K / n_folds)
-  # }
-  n_folds <- 1
 
   # Setting seed for reproducibility
   withr::local_seed(seed)
 
-  # Defining the number of thresholds to use for AUC calculations
-  if (is.null(n_thr)) {
-    n_thr <- floor((1 - tau) * nrow(xdata))
-  }
-
   # Running the subsampling iterations
   iter <- 0
   for (k in 1:K) {
-    for (fold_id in 1:n_folds) {
-      iter <- iter + 1
-      if (n_folds == 1) {
-        # Balanced training/test split
-        ids_test <- Resample(data = ydata, tau = 1 - tau, family = family, resampling = resampling, ...)
-      } else {
-        if (fold_id == 1) {
-          ids_folds <- Folds(data = ydata, n_folds = n_folds)
-        }
-        ids_test <- ids_folds[[fold_id]]
-      }
+    iter <- iter + 1
+
+    if (is.null(new_xdata)) {
+      # Balanced training/test split
+      ids_test <- Resample(data = ydata, tau = 1 - tau, family = family, resampling = resampling, ...)
       xtrain <- xdata[-ids_test, , drop = FALSE]
       ytrain <- ydata[-ids_test, , drop = FALSE]
       xtest <- xdata[ids_test, , drop = FALSE]
       ytest <- ydata[ids_test, , drop = FALSE]
+    }
 
-      # Recalibration from stability selection model
-      refitted <- Refit(
-        xdata = xtrain, ydata = ytrain,
-        stability = stability,
-        implementation = implementation,
-        family = family,
-        check_input = FALSE,
-        ...
-      )
+    # Recalibration from stability selection model
+    refitted <- Refit(
+      xdata = xtrain, ydata = ytrain,
+      stability = stability,
+      implementation = implementation,
+      family = family,
+      check_input = FALSE,
+      ...
+    )
 
-      if (is.null(implementation)) {
-        # Initialising matrix of beta coefficients
-        if (iter == 1) {
-          if (family %in% c("gaussian", "binomial", "cox")) {
-            Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(refitted)))
-            colnames(Beta) <- names(stats::coef(refitted))
-            rownames(Beta) <- paste0("iter", 1:K)
-          }
-        }
-
-        # Storing beta coefficients
+    if (is.null(implementation)) {
+      # Initialising matrix of beta coefficients
+      if (iter == 1) {
         if (family %in% c("gaussian", "binomial", "cox")) {
-          Beta[iter, ] <- stats::coef(refitted)
+          Beta <- matrix(NA, nrow = K, ncol = length(stats::coef(refitted)))
+          colnames(Beta) <- names(stats::coef(refitted))
+          rownames(Beta) <- paste0("iter", 1:K)
         }
-
-        # Predictions from logistic models
-        if (tolower(metric) == "roc") {
-          predicted <- stats::predict.glm(refitted, newdata = as.data.frame(xtest), type = "response")
-        }
-
-
-        # Predictions from linear models
-        if (tolower(metric) == "q2") {
-          predicted <- stats::predict.lm(refitted, newdata = as.data.frame(xtest))
-        }
-      } else {
-        if (is.null(prediction)) {
-          stop("Argument 'prediction' has to be provided if 'implementation' is provided. It must be a function that takes the output of 'implementation' as argument.")
-        }
-        predicted <- do.call(prediction, args = list(xdata = xtest, model = refitted))
       }
-      # Performing ROC analyses
+
+      # Storing beta coefficients
+      if (family %in% c("gaussian", "binomial", "cox")) {
+        Beta[iter, ] <- stats::coef(refitted)
+      }
+
+      # Predictions from logistic models
       if (tolower(metric) == "roc") {
-        # ROC analysis
-        roc <- ROC(predicted = predicted, observed = ytest, n_thr = n_thr)
-
-        # Initialisation of the object
-        if (iter == 1) {
-          # n_thr <- length(roc$FPR) - 2
-          FPR <- TPR <- matrix(NA, nrow = K * n_folds, ncol = length(roc$TPR))
-          AUC <- rep(NA, K * n_folds)
-        }
-
-        # Storing the metrics
-        FPR[iter, ] <- roc$FPR
-        TPR[iter, ] <- roc$TPR
-        AUC[iter] <- roc$AUC
+        suppressWarnings({
+          predicted <- stats::predict.glm(refitted, newdata = as.data.frame(xtest))
+        })
       }
 
-      # Performing Q-squared analyses
+
+      # Predictions from linear models
       if (tolower(metric) == "q2") {
-        # Initialisation of the object
-        if (iter == 1) {
-          Q_squared <- rep(NA, K * n_folds)
-        }
+        predicted <- stats::predict.lm(refitted, newdata = as.data.frame(xtest))
+      }
+    } else {
+      if (is.null(prediction)) {
+        stop("Argument 'prediction' has to be provided if 'implementation' is provided. It must be a function that takes the output of 'implementation' as argument.")
+      }
+      predicted <- do.call(prediction, args = list(xdata = xtest, model = refitted))
+    }
+    # Performing ROC analyses
+    if (tolower(metric) == "roc") {
+      # ROC analysis
+      roc <- ROC(predicted = predicted, observed = ytest, n_thr = length(predicted) - 1)
 
-        # Computing the Q-squared
-        Q_squared[iter] <- stats::cor(predicted, ytest)^2
+      # Initialisation of the object
+      if (iter == 1) {
+        FPR <- TPR <- matrix(NA, nrow = K, ncol = length(roc$TPR))
+        AUC <- rep(NA, K)
       }
 
-      # Performing concordance analyses
-      if (tolower(metric) == "concordance") {
-        # Computing the concordance index for given times
-        predicted <- stats::predict(refitted, newdata = as.data.frame(xtest), type = "lp")
-        survobject <- survival::Surv(time = ytest[, 1], event = ytest[, 2])
-        S0 <- summary(survival::survfit(refitted), times = time, extend = TRUE)$surv
-        S <- S0^exp(predicted)
-        cstat <- survival::concordance(survobject ~ S)
+      # Storing the metrics
+      FPR[iter, ] <- roc$FPR
+      TPR[iter, ] <- roc$TPR
+      AUC[iter] <- roc$AUC
+    }
 
-        if (ij_method) {
-          # Storing the concordance index and confidence interval
-          cindex <- cstat$concordance
-          lower <- cindex - 1.96 * sqrt(cstat$var)
-          upper <- cindex + 1.96 * sqrt(cstat$var)
-        } else {
-          # Storing concordance index
-          if (iter == 1) {
-            cindex <- rep(NA, K * n_folds)
-          }
-          cindex[iter] <- cstat$concordance
+    # Performing Q-squared analyses
+    if (tolower(metric) == "q2") {
+      # Initialisation of the object
+      if (iter == 1) {
+        Q_squared <- rep(NA, K)
+      }
+
+      # Computing the Q-squared
+      Q_squared[iter] <- stats::cor(predicted, ytest)^2
+    }
+
+    # Performing concordance analyses
+    if (tolower(metric) == "concordance") {
+      # Computing the concordance index for given times
+      predicted <- stats::predict(refitted, newdata = as.data.frame(xtest), type = "lp")
+      survobject <- survival::Surv(time = ytest[, 1], event = ytest[, 2])
+      S0 <- summary(survival::survfit(refitted), times = time, extend = TRUE)$surv
+      S <- S0^exp(predicted)
+      cstat <- survival::concordance(survobject ~ S)
+
+      if (ij_method) {
+        # Storing the concordance index and confidence interval
+        cindex <- cstat$concordance
+        lower <- cindex - 1.96 * sqrt(cstat$var)
+        upper <- cindex + 1.96 * sqrt(cstat$var)
+      } else {
+        # Storing concordance index
+        if (iter == 1) {
+          cindex <- rep(NA, K)
         }
+        cindex[iter] <- cstat$concordance
       }
     }
   }
@@ -892,143 +788,52 @@ ExplanatoryPerformance <- function(xdata, ydata,
 #'
 #' @examples
 #' \donttest{
-#' ## Logistic regression
-#'
 #' # Data simulation
 #' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
+#' simul <- SimulateRegression(
+#'   n = 1000, pk = 10,
+#'   family = "binomial", ev_xy = 0.8
 #' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
 #'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-#'
-#' # Evaluating marginal contribution of the predictors
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-#' summary(perf)
-#'
-#' # Visualisation
-#' PlotIncremental(perf)
-#' plot(perf) # alternative formulation
-#'
-#'
-#' ## Partial Least Squares (single component)
+#' # Data split: selection, training and test set
+#' ids <- Split(
+#'   data = simul$ydata,
+#'   family = "binomial",
+#'   tau = c(0.4, 0.3, 0.3)
+#' )
+#' xselect <- simul$xdata[ids[[1]], ]
+#' yselect <- simul$ydata[ids[[1]], ]
+#' xtrain <- simul$xdata[ids[[2]], ]
+#' ytrain <- simul$ydata[ids[[2]], ]
+#' xtest <- simul$xdata[ids[[3]], ]
+#' ytest <- simul$ydata[ids[[3]], ]
 #'
 #' # Stability selection
 #' stab <- VariableSelection(
-#'   xdata = xtrain, ydata = ytrain,
-#'   implementation = SparsePLS,
+#'   xdata = xselect,
+#'   ydata = yselect,
 #'   family = "binomial"
 #' )
-#' print(SelectedVariables(stab))
 #'
-#' # Defining wrapping functions for PLS-DA
-#' PLSDA <- function(xdata, ydata, family = "binomial") {
-#'   model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
-#'   return(model)
-#' }
-#' PredictPLSDA <- function(xdata, model) {
-#'   xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
-#'   predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
-#'   return(predicted)
-#' }
-#'
-#' # Evaluation of the performances on refitted models (K=1)
-#' incremental <- Incremental(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab,
-#'   implementation = PLSDA, prediction = PredictPLSDA,
-#'   K = 10
-#' )
-#' PlotIncremental(incremental)
-#'
-#'
-#' ## Cox regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
-#' ydata <- cbind(
-#'   time = runif(nrow(simul$ydata), min = 100, max = 2000),
-#'   case = simul$ydata[, 1]
-#' ) # including dummy time to event
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
-#'
-#' # Marginal contribution
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-#' PlotIncremental(perf)
-#'
-#' # Faster computations on a single data split
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
-#' PlotIncremental(perf)
-#'
-#'
-#' ## Linear regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "gaussian"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-#'
-#' # Evaluating marginal contribution of the predictors
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-#' PlotIncremental(perf)
-#'
-#'
-#' ## Partial Least Squares (single component)
-#'
-#' # Stability selection
-#' stab <- VariableSelection(
+#' # Performances in test set of model refitted in training set
+#' incr <- Incremental(
 #'   xdata = xtrain, ydata = ytrain,
-#'   implementation = SparsePLS,
-#'   family = "gaussian"
+#'   new_xdata = xtest, new_ydata = ytest,
+#'   stability = stab, n_predictors = 10
 #' )
-#' print(SelectedVariables(stab))
+#' plot(incr)
 #'
-#' # Evaluation of the performances on refitted models (K=1)
-#' incremental <- Incremental(
-#'   xdata = xtest, ydata = ytest,
-#'   stability = stab,
-#'   implementation = PLS, prediction = PredictPLS,
-#'   K = 10
+#' # Alternative with multiple training/test splits
+#' incr <- Incremental(
+#'   xdata = rbind(xtrain, xtest),
+#'   ydata = c(ytrain, ytest),
+#'   stability = stab, K = 10, n_predictors = 10
 #' )
-#' PlotIncremental(incremental)
+#' plot(incr)
 #' }
 #'
 #' @export
-Incremental <- function(xdata, ydata,
+Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
                         stability = NULL, family = NULL,
                         implementation = NULL, prediction = NULL, resampling = "subsampling",
                         n_predictors = NULL,
@@ -1108,6 +913,8 @@ Incremental <- function(xdata, ydata,
     perf <- ExplanatoryPerformance(
       xdata = xdata[, myorder[1:k], drop = FALSE],
       ydata = ydata,
+      new_xdata = new_xdata,
+      new_ydata = new_ydata,
       stability = NULL,
       family = family,
       implementation = implementation,
@@ -1171,242 +978,3 @@ Incremental <- function(xdata, ydata,
 
   return(out)
 }
-
-
-#' Visualisation of incremental performance
-#'
-#' Represents prediction performances upon sequential inclusion of the
-#' predictors in a logistic or Cox regression model as produced by
-#' \code{\link{Incremental}}. The median and \code{quantiles} of the performance
-#' metric are reported.
-#'
-#' @inheritParams CalibrationPlot
-#' @param perf output of \code{\link{Incremental}}.
-#' @param quantiles quantiles defining the lower and upper bounds.
-#' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
-#' @param col vector of point colours.
-#' @param col.axis optional vector of label colours. If \code{col.axis=NULL},
-#'   the colours provided in argument \code{col} are used.
-#' @param xcex.axis size of labels along the x-axis.
-#' @param ycex.axis size of labels along the y-axis.
-#' @param output_data logical indicating if the median and quantiles should be
-#'   returned in a matrix.
-#'
-#' @return A plot.
-#'
-#' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
-#'
-#' @family prediction performance functions
-#'
-#' @examples
-#' \donttest{
-#' ## Logistic regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "binomial")
-#'
-#' # Evaluating marginal contribution of the predictors
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-#'
-#' # Basic visualisation
-#' PlotIncremental(perf)
-#'
-#' # Adding grids
-#' PlotIncremental(perf, xgrid = TRUE, ygrid = TRUE)
-#'
-#' # Changing colours
-#' PlotIncremental(perf,
-#'   bty = "n",
-#'   col = colorRampPalette(c("blue", "red"))(length(perf$names))
-#' )
-#'
-#'
-#' ## Cox regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 50, family = "binomial")
-#' ydata <- cbind(
-#'   time = runif(nrow(simul$ydata), min = 100, max = 2000),
-#'   case = simul$ydata[, 1]
-#' ) # including dummy time to event
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "binomial"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
-#'
-#' # Marginal contribution
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-#' PlotIncremental(perf)
-#'
-#' # Faster computations on a single data split
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, ij_method = TRUE)
-#' PlotIncremental(perf)
-#'
-#'
-#' ## Linear regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 1000, pk = 50, family = "gaussian")
-#'
-#' # Balanced split: 50% variable selection set and 50% for evaluation of performances
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "gaussian"
-#' )
-#' xtrain <- simul$xdata[ids_train, ]
-#' ytrain <- simul$ydata[ids_train, ]
-#' xtest <- simul$xdata[-ids_train, ]
-#' ytest <- simul$ydata[-ids_train, ]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "gaussian")
-#'
-#' # Evaluating marginal contribution of the predictors
-#' perf <- Incremental(xdata = xtest, ydata = ytest, stability = stab, K = 10)
-#' PlotIncremental(perf)
-#'
-#' # Evaluating marginal contribution of the predictors beyond stably selected
-#' perf <- Incremental(
-#'   xdata = xtest, ydata = ytest, stability = stab,
-#'   K = 10, n_predictors = 20
-#' )
-#' N <- sum(SelectedVariables(stab))
-#' PlotIncremental(perf, col = c(rep("red", N), rep("grey", 20 - N)))
-#' }
-#'
-#' @export
-PlotIncremental <- function(perf, quantiles = c(0.05, 0.95),
-                            ylab = "Performance",
-                            pch = 18,
-                            col = "black", col.axis = NULL,
-                            cex = 1, cex.lab = 1.5,
-                            xcex.axis = 1, ycex.axis = 1,
-                            xlas = 2, ylas = 1,
-                            sfrac = 0.005,
-                            ylim = NULL, bty = "o",
-                            xgrid = FALSE, ygrid = FALSE,
-                            output_data = FALSE) {
-  # Checking plotrix package is installed
-  CheckPackageInstalled("plotrix")
-
-  # Checking the inputs
-  quantiles <- sort(quantiles)
-
-  # Re-formatting the inputs
-  if (is.null(col.axis)) {
-    col.axis <- col
-  }
-
-  if ("concordance" %in% names(perf)) {
-    if ("lower" %in% names(perf)) {
-      x <- perf$concordance
-      xlower <- perf$lower
-      xupper <- perf$upper
-    } else {
-      x <- sapply(perf$concordance, stats::median, na.rm = TRUE)
-      xlower <- sapply(perf$concordance, stats::quantile, probs = quantiles[1], na.rm = TRUE)
-      xupper <- sapply(perf$concordance, stats::quantile, probs = quantiles[2], na.rm = TRUE)
-    }
-  }
-
-  if ("AUC" %in% names(perf)) {
-    x <- sapply(perf$AUC, stats::median, na.rm = TRUE)
-    xlower <- sapply(perf$AUC, stats::quantile, probs = quantiles[1], na.rm = TRUE)
-    xupper <- sapply(perf$AUC, stats::quantile, probs = quantiles[2], na.rm = TRUE)
-  }
-
-  if ("Q_squared" %in% names(perf)) {
-    x <- sapply(perf$Q_squared, stats::median, na.rm = TRUE)
-    xlower <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[1], na.rm = TRUE)
-    xupper <- sapply(perf$Q_squared, stats::quantile, probs = quantiles[2], na.rm = TRUE)
-  }
-  xseq <- 1:length(x)
-
-  # Re-formatting label colours
-  if (length(col.axis) < length(x)) {
-    col.axis <- rep(col.axis, length(x))
-  }
-
-  # Defining the plot range
-  if (is.null(ylim)) {
-    ylim <- range(c(xlower, xupper, x))
-  }
-
-  # Defining horizontal grid
-  hseq <- NULL
-  if (ygrid) {
-    hseq <- grDevices::axisTicks(ylim, log = FALSE)
-  }
-
-  # Defining vertical grid
-  vseq <- NULL
-  if (xgrid) {
-    vseq <- xseq
-  }
-
-  # Creating the plot
-  plot(NULL,
-    cex.lab = cex.lab,
-    bty = bty,
-    xlim = range(xseq), ylim = ylim,
-    panel.first = c(
-      graphics::abline(h = hseq, col = "grey", lty = 3),
-      graphics::abline(v = vseq, col = "grey", lty = 3)
-    ),
-    xlab = "", xaxt = "n", yaxt = "n", ylab = ylab
-  )
-  graphics::axis(
-    side = 2, at = grDevices::axisTicks(ylim, log = FALSE),
-    las = ylas, cex.axis = ycex.axis
-  )
-  plotrix::plotCI(
-    x = xseq, y = x, li = xlower, ui = xupper,
-    pch = pch, cex = cex,
-    sfrac = sfrac,
-    col = col, add = TRUE
-  )
-  graphics::axis(side = 1, at = xseq, labels = NA)
-  for (k in 1:length(xseq)) {
-    graphics::axis(
-      side = 1, at = xseq[k],
-      labels = ifelse(k == 1, yes = perf$names[k], no = paste0("+ ", perf$names[k])),
-      col.axis = col.axis[k],
-      las = xlas, cex.axis = xcex.axis
-    )
-  }
-
-  if (output_data) {
-    mat <- rbind(x, xlower, xupper)
-    colnames(mat) <- perf$names
-    return(mat)
-  }
-}
-
-#' @rdname PlotIncremental
-#' @export
-IncrementalPlot <- PlotIncremental

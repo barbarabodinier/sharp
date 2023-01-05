@@ -752,6 +752,7 @@ Clusters <- function(stability, linkage = "complete", argmax_id = NULL) {
 #'
 #' Creates a boxplots of the distribution of (calibrated) median attribute
 #' weights obtained from the COSA algorithm across the subsampling iterations.
+#' See examples in \code{\link{Clustering}}.
 #'
 #' @inheritParams Adjacency
 #' @param stability output of \code{\link{Clustering}}.
@@ -772,27 +773,7 @@ Clusters <- function(stability, linkage = "complete", argmax_id = NULL) {
 #'
 #' @return A boxplot.
 #'
-#' @family calibration functions
-
 #' @seealso \code{\link{Clustering}}
-#'
-#' @examples
-#' \donttest{
-#' # Data simulation
-#' set.seed(2)
-#' simul <- SimulateClustering(
-#'   n = c(30, 30, 30), pk = 15,
-#'   theta_xc = c(rep(1, 5), rep(0, 10)),
-#'   ev_xc = c(rep(0.95, 5), rep(0, 10)),
-#' )
-#' plot(simul)
-#'
-#' # Consensus weighted clustering
-#' stab <- Clustering(
-#'   xdata = simul$data, Lambda = 0.5
-#' )
-#' WeightBoxplot(stability = stab)
-#' }
 #'
 #' @export
 WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
@@ -847,7 +828,9 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'
 #' Creates a plot showing the stability score as a function of the parameter(s)
 #' controlling the level of sparsity in the underlying feature selection
-#' algorithm and/or the threshold in selection proportions.
+#' algorithm and/or the threshold in selection proportions. See examples in
+#' \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
+#' \code{\link{Clustering}} and \code{\link{BiSelection}}.
 #'
 #' @param stability output of \code{\link{VariableSelection}},
 #'   \code{\link{GraphicalModel}} or \code{\link{BiSelection}}.
@@ -915,61 +898,8 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 #'
 #' @return A calibration plot.
 #'
-#' @family calibration functions
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}},
-#'   \code{\link{BiSelection}}
-#'
-#' @examples
-#' \donttest{
-#' oldpar <- par(no.readonly = TRUE)
-#' par(mar = c(7, 5, 7, 6))
-#'
-#' ## Regression model
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = 20, nu_within = 0.1)
-#'
-#' # Stability selection
-#' stab <- GraphicalModel(xdata = simul$data)
-#'
-#' # Calibration heatmap
-#' CalibrationPlot(stab)
-#'
-#' # User-defined colours
-#' CalibrationPlot(stab,
-#'   col = c("ivory", "blue", "black"),
-#'   legend_length = 31,
-#'   legend_range = c(0, 2500)
-#' )
-#'
-#'
-#' ## Dimensionality reduction
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#'
-#' # sPLS: sparsity on both X and Y
-#' stab <- BiSelection(
-#'   xdata = x, ydata = y,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   LambdaY = 1:(ncol(y) - 1),
-#'   implementation = SparsePLS,
-#'   n_cat = 2
-#' )
-#'
-#' # Calibration plot
-#' CalibrationPlot(stab)
-#'
-#' # Other ordering of parameters
-#' CalibrationPlot(stab, params = c("nx", "ny"))
-#'
-#' par(oldpar)
-#' }
+#'   \code{\link{Clustering}}, \code{\link{BiSelection}}
 #'
 #' @export
 CalibrationPlot <- function(stability, block_id = NULL,
