@@ -760,7 +760,9 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
 #'   models (sequentially added predictors), a vector of Area Under the Curve
 #'   (AUC) values obtained with different data splits.} \item{Beta}{Estimated
 #'   regression coefficients from visited models.} \item{names}{Names of the
-#'   predictors by order of inclusion.}
+#'   predictors by order of inclusion.} \item{stable}{Binary vector indicating
+#'   which predictors are stably selected. Only returned if \code{stability} is
+#'   provided.}
 #'
 #'   For Cox regression, a list with: \item{concordance}{If
 #'   \code{ij_method=FALSE}, a list with, for each of the models (sequentially
@@ -774,13 +776,17 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
 #'   each of the models (sequentially added predictors). Only returned if
 #'   \code{ij_method=TRUE}.} \item{Beta}{Estimated regression coefficients from
 #'   visited models.} \item{names}{Names of the predictors by order of
-#'   inclusion.}
+#'   inclusion.} \item{stable}{Binary vector indicating
+#'   which predictors are stably selected. Only returned if \code{stability} is
+#'   provided.}
 #'
 #'   For linear regression, a list with: \item{Q_squared}{A list with, for each
 #'   of the models (sequentially added predictors), a vector of Q-squared
 #'   obtained with different data splits.} \item{Beta}{Estimated regression
 #'   coefficients from visited models.} \item{names}{Names of the predictors by
-#'   order of inclusion.}
+#'   order of inclusion.} \item{stable}{Binary vector indicating
+#'   which predictors are stably selected. Only returned if \code{stability} is
+#'   provided.}
 #'
 #' @seealso \code{\link{VariableSelection}}, \code{\link{Refit}}
 #'
@@ -971,7 +977,17 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
   }
 
   # Adding variable names
-  out <- c(out, names = list(myorder[1:n_predictors]))
+  mynames <- myorder[1:n_predictors]
+  out <- c(out, names = list(mynames))
+
+  # Adding stable selection status
+  if (!is.null(stability)) {
+    mystable <- ifelse(myorder[1:n_predictors] %in% myorder[1:sum(SelectedVariables(stability))],
+      yes = 1, no = 0
+    )
+    names(mystable) <- mynames
+    out <- c(out, stable = list(mystable))
+  }
 
   # Defining class
   class(out) <- "incremental"

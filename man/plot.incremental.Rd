@@ -11,7 +11,7 @@
   quantiles = c(0.05, 0.95),
   ylab = "Performance",
   pch = 18,
-  col = "black",
+  col = c("red", "grey"),
   col.axis = NULL,
   cex = 1,
   cex.lab = 1.5,
@@ -33,7 +33,7 @@ IncrementalPlot(
   quantiles = c(0.05, 0.95),
   ylab = "Performance",
   pch = 18,
-  col = "black",
+  col = c("red", "grey"),
   col.axis = NULL,
   cex = 1,
   cex.lab = 1.5,
@@ -55,7 +55,7 @@ PlotIncremental(
   quantiles = c(0.05, 0.95),
   ylab = "Performance",
   pch = 18,
-  col = "black",
+  col = c("red", "grey"),
   col.axis = NULL,
   cex = 1,
   cex.lab = 1.5,
@@ -81,10 +81,11 @@ PlotIncremental(
 
 \item{pch}{type of point, as in \code{\link[graphics]{points}}.}
 
-\item{col}{vector of point colours.}
+\item{col}{vector of colours by stable selection status.}
 
-\item{col.axis}{optional vector of label colours. If \code{col.axis=NULL},
-the colours provided in argument \code{col} are used.}
+\item{col.axis}{optional vector of label colours by stable selection status.
+If \code{col.axis=NULL}, the colours provided in argument \code{col} are
+used.}
 
 \item{cex}{size of point.}
 

@@ -198,10 +198,10 @@ summary.clustering <- function(object, ...) {
 
 #' @export
 summary.incremental <- function(object, ...) {
-  cat(paste0("Performances of recalibrated models:"))
+  cat(paste0("Performances of refitted models:"))
   cat("\n")
   cat("\n")
-  mat <- PlotIncremental(object, output_data = TRUE, ...)
+  mat <- plot.incremental(object, output_data = TRUE, ...)
   for (i in 1:ncol(mat)) {
     cat(paste0(
       ifelse(i == 1, yes = "  ", no = "+ "),

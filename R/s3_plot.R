@@ -256,9 +256,10 @@ plot.roc_band <- function(x,
 #' @param x output of \code{\link{Incremental}}.
 #' @param quantiles quantiles defining the lower and upper bounds.
 #' @param sfrac size of the end bars, as in \code{\link[plotrix]{plotCI}}.
-#' @param col vector of point colours.
-#' @param col.axis optional vector of label colours. If \code{col.axis=NULL},
-#'   the colours provided in argument \code{col} are used.
+#' @param col vector of colours by stable selection status.
+#' @param col.axis optional vector of label colours by stable selection status.
+#'   If \code{col.axis=NULL}, the colours provided in argument \code{col} are
+#'   used.
 #' @param xcex.axis size of labels along the x-axis.
 #' @param ycex.axis size of labels along the y-axis.
 #' @param output_data logical indicating if the median and quantiles should be
@@ -274,7 +275,7 @@ plot.incremental <- function(x,
                              quantiles = c(0.05, 0.95),
                              ylab = "Performance",
                              pch = 18,
-                             col = "black", col.axis = NULL,
+                             col = c("red", "grey"), col.axis = NULL,
                              cex = 1, cex.lab = 1.5,
                              xcex.axis = 1, ycex.axis = 1,
                              xlas = 2, ylas = 1,
@@ -341,6 +342,18 @@ plot.incremental <- function(x,
     vseq <- xseq
   }
 
+  # Defining colours by stable selection status
+  if ("stable" %in% names(x)) {
+    mycolours <- col[abs(x$stable - 2)]
+  } else {
+    mycolours <- col[1]
+  }
+  if ("stable" %in% names(x)) {
+    mycolours_axis <- col.axis[abs(x$stable - 2)]
+  } else {
+    mycolours_axis <- col.axis[1]
+  }
+
   # Creating the plot
   plot(NULL,
     cex.lab = cex.lab,
@@ -361,14 +374,14 @@ plot.incremental <- function(x,
     x = xseq, y = xfull, li = xlower, ui = xupper,
     pch = pch, cex = cex,
     sfrac = sfrac,
-    col = col, add = TRUE
+    col = mycolours, add = TRUE
   )
   graphics::axis(side = 1, at = xseq, labels = NA)
   for (k in 1:length(xseq)) {
     graphics::axis(
       side = 1, at = xseq[k],
       labels = ifelse(k == 1, yes = x$names[k], no = paste0("+ ", x$names[k])),
-      col.axis = col.axis[k],
+      col.axis = mycolours_axis[k],
       las = xlas, cex.axis = xcex.axis
     )
   }
