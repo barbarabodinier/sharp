@@ -165,6 +165,7 @@ plot.clustering <- function(x,
                             argmax_id = NULL,
                             theta = NULL,
                             theta_star = NULL,
+                            col = c("ivory", "navajowhite", "tomato", "darkred"),
                             lines = TRUE,
                             col.lines = c("blue"),
                             lwd.lines = 2,
@@ -204,7 +205,7 @@ plot.clustering <- function(x,
   mat <- mat[ids, ids]
 
   # Preparing heatmap
-  Heatmap(mat = mat, axes = FALSE, bty = bty, ...)
+  Heatmap(mat = mat, col = col, axes = FALSE, bty = bty, ...)
 
   # Adding separation lines based on theta
   if (lines) {

@@ -10,6 +10,7 @@
   argmax_id = NULL,
   theta = NULL,
   theta_star = NULL,
+  col = c("ivory", "navajowhite", "tomato", "darkred"),
   lines = TRUE,
   col.lines = c("blue"),
   lwd.lines = 2,
