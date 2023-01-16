@@ -140,6 +140,7 @@ plot.bi_selection <- function(x, ...) {
 #' @param theta_star optional vector of true cluster membership. If provided,
 #'   the ordering of the items should be the same as in \code{\link{Clusters}}.
 #'   This argument is used to define item colours.
+#' @param col vector of colours.
 #' @param lines logical indicating if lines separating the clusters provided in
 #'   \code{theta} should be displayed.
 #' @param col.lines colour of the lines separating the clusters.

@@ -13,7 +13,8 @@ Language: en-GB
 Encoding: UTF-8
 RoxygenNote: 7.2.0
 Depends: 
-    fake
+    fake (>= 1.3.0),
+    R (>= 3.5)
 Imports: 
     beepr,
     glassoFast (>= 1.0.0),
@@ -46,5 +47,5 @@ Suggests:
     testthat (>= 3.0.0),
     visNetwork
 Config/testthat/edition: 3
-Remotes: mkampert/rCOSA
+Additional_repositories: https://barbarabodinier.github.io/drat
 RdMacros: Rdpack

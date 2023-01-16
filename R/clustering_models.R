@@ -79,6 +79,9 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
     Lambda <- 0
   } else {
     weighted <- TRUE
+
+    # Checking rCOSA package is installed
+    CheckPackageInstalled("rCOSA")
   }
 
   # Re-formatting Lambda
@@ -264,6 +267,9 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
     Lambda <- 0
   } else {
     weighted <- TRUE
+
+    # Checking rCOSA package is installed
+    CheckPackageInstalled("rCOSA")
   }
 
   # Re-formatting Lambda
@@ -444,6 +450,9 @@ DBSCANClustering <- function(xdata,
     Lambda <- 0
   } else {
     weighted <- TRUE
+
+    # Checking rCOSA package is installed
+    CheckPackageInstalled("rCOSA")
   }
 
   # Re-formatting Lambda

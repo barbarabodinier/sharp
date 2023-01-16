@@ -43,6 +43,8 @@ is used to re-order the consensus matrix.}
 the ordering of the items should be the same as in \code{\link{Clusters}}.
 This argument is used to define item colours.}
 
+\item{col}{vector of colours.}
+
 \item{lines}{logical indicating if lines separating the clusters provided in
 \code{theta} should be displayed.}
 
