@@ -4,10 +4,13 @@ COSA
 CPSS
 Chadeau
 Chiquet
+ClusteringPerformance
+ConsensusMatrix
 ConsensusScore
 Cytoscape
 DBSCAN
 EnsemblePredictions
+ExplanatoryPerformance
 FDP
 FN
 FP
@@ -56,3 +59,4 @@ ted
 thr
 unimodality
 visNetwork
+ydata
