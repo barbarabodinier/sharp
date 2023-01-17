@@ -48,15 +48,18 @@ The stability score is derived from the likelihood under the
   (selection proportion \eqn{\le 1-\pi}), and the unstable ones (selection
   proportions between \eqn{1-\pi} and \eqn{\pi}).
 
-  The likelihood of observing stably selected, stably excluded and unstable
-  features can be expressed as:
+  Under the hypothesis of equi-probability (instability), the likelihood of
+  observing stably selected, stably excluded and unstable features can be
+  expressed as:
 
-  \eqn{L_{\lambda, \pi} = \prod_{j=1}^N [ P( H_{\lambda} (j) \geq K
-  \pi)^{1_{H_{\lambda} (j) \ge K \pi}} \times P( (1-\pi) K < H_{\lambda} (j)
-  < K \pi )^{1_{ (1-\pi) K < H_{\lambda} (j) < K \pi }} \times P( H_{\lambda}
-  (j) \leq K (1-\pi) )^{1_{ H_{\lambda} (j) \le K (1-\pi) }} ]}
+  \eqn{L_{\lambda, \pi} = \prod_{j=1}^N [ ( 1 - F( K \pi - 1 ) )^{1_{H_{\lambda} (j) \ge K \pi}}
+  \times ( F( K \pi - 1 ) - F( K ( 1 - \pi ) )^{1_{ (1-\pi) K < H_{\lambda} (j) < K \pi }}
+  \times F( K ( 1 - \pi ) )^{1_{ H_{\lambda} (j) \le K (1-\pi) }} ]}
 
-  where \eqn{H_{\lambda} (j)} is the selection count of feature \eqn{j}.
+  where \eqn{H_{\lambda} (j)} is the selection count of feature \eqn{j} and
+  \eqn{F(x)} is the cumulative probability function of the binomial
+  distribution with parameters \eqn{K} and the average proportion of selected
+  features over resampling iterations.
 
   The stability score is computed as the minus log-transformed likelihood
   under the assumption of uniform selection:
