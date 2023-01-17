@@ -46,6 +46,6 @@ Suggests:
     survival (>= 3.2.13),
     testthat (>= 3.0.0),
     visNetwork
-Config/testthat/edition: 3
 Additional_repositories: https://barbarabodinier.github.io/drat
+Config/testthat/edition: 3
 RdMacros: Rdpack
