@@ -28,39 +28,41 @@ how unlikely it is that the clustering procedure is uniform (i.e.
 uninformative) for a given combination of parameters.
 }
 \details{
-The consensus score is derived from the following probabilistic
-  model:
+Let \eqn{\Gamma(\lambda, G)} be the consensus matrix. We introduce
+  the matrix \eqn{H(\lambda, G)} of co-membership count corrected for the
+  subsampling procedure, defined as the integer part of \eqn{K
+  \Gamma(\lambda, G)}.
 
-  \eqn{(H_{ij}(\lambda, n_C))_{ij} indep. | Z_i(\lambda, n_C) = z_i,
-  Z_j(\lambda, n_C) = z_j ~ B(K, p_{z_i, z_j})}
+  Under the hypothesis of equiprobability of co-membership (instability), we
+  assume that the co-membership counts follow the same binomial distribution
+  for all pairs of items.
 
-  where \eqn{Z(\lambda, n_C)} is the vector of stable cluster memberships,
-  the \eqn{H_{ij}(\lambda, n_C)} are co-membership counts, \eqn{B} is the
-  binomial distribution, \eqn{K} is the number of resampling iterations and
-  \eqn{p_{z_i, z_j}} is the probability that items \eqn{i} and \eqn{j} are
-  co-members.
+  Given stable clusters \eqn{Z} and hyper-parameters \eqn{(\lambda, G)},
+  clustering stability is measured as the probability \eqn{p_{\lambda,
+  G}(H|z)} of observing co-membership counts in \eqn{H} that are at least as
+  high within clusters and at least as low between clusters under
+  equiprobability:
 
-  The likelihood \eqn{L_o(\lambda, n_C)} of observing co-membership
-  proportions at least as extreme conditionally on the stable clusters with a
-  given number of clusters \eqn{Z(\lambda, n_C)} can be computed under the
-  null hypothesis that all pairs of items have the same probability of
-  co-membership \eqn{p_0(\lambda, n_C)}:
+  \eqn{p_{\lambda, G}(H|Z) = \prod_{i < j} F(H_{ij})^{1_{Z_i=/=Z_j}}
+  \times (1 - F(H_{ij}))^{1_{Z_i=Z_j}}}
 
-  \eqn{L_o(\lambda, n_C) = \prod_{i =/= j} f_{K, p_0(\lambda,
-  n_C)}(h_{ij})^{1_{Z_i(\lambda, n_C) =/= Z_j(\lambda, n_C)}} x (1-f_{K,
-  p_0(\lambda, n_C)}(h_{ij}-1))^{1_{Z_i(\lambda, n_C) = Z_j(\lambda, n_C)}}}
+  where \eqn{F(x)} is the cumulative probability function of the binomial
+  distribution with parameters \eqn{K} and probability \eqn{\gamma = N_c/N}
+  with \eqn{N_c} the number of stable co-members and \eqn{N} the number of
+  item pairs.
 
-  where \eqn{f_{K, p}} denotes the cumulative probability function of the
-  binomial distribution with parameters \eqn{K} and \eqn{p}.
+  This probability is minimised at \eqn{H^s}, which corresponding to the most
+  stable clustering and is defined as:
 
-  We also compute the likelihoods \eqn{L_s(\lambda, n_C)} and
-  \eqn{L_u(\lambda, n_C)} for binary (most stable) and flat (most unstable)
-  consensus matrices, respectively.
+  \eqn{H^s_{ij} = K \times 1_{Z_i = Z_j}}
 
-  The consensus score is then defined as:
+  The consensus score is calculated as the following standardised
+  probability:
 
-  \eqn{S(\lambda, n_C) = [ log(L_u(\lambda, n_C)) - log(L_o(\lambda, n_C)) ]
-  / [ log(L_u(\lambda, n_C)) - log(L_s(\lambda, n_C)) ]}
+  \eqn{S_c(\lambda, G) = (p_{\lambda, G}(H (\lambda, G)|Z)) / (p_{\lambda,
+  G}(H^s|Z))}
+
+  The consensus score increases with clustering stability.
 }
 \examples{
 
@@ -76,6 +78,7 @@ plot(simul)
 stab <- Clustering(
   xdata = simul$data
 )
+stab$Sc[3]
 
 # Calculating the consensus score
 ConsensusScore(

@@ -48,9 +48,9 @@ The stability score is derived from the likelihood under the
   (selection proportion \eqn{\le 1-\pi}), and the unstable ones (selection
   proportions between \eqn{1-\pi} and \eqn{\pi}).
 
-  Under the hypothesis of equi-probability (instability), the likelihood of
-  observing stably selected, stably excluded and unstable features can be
-  expressed as:
+  Under the hypothesis of equiprobability of selection (instability), the
+  likelihood of observing stably selected, stably excluded and unstable
+  features can be expressed as:
 
   \eqn{L_{\lambda, \pi} = \prod_{j=1}^N [ ( 1 - F( K \pi - 1 ) )^{1_{H_{\lambda} (j) \ge K \pi}}
   \times ( F( K \pi - 1 ) - F( K ( 1 - \pi ) )^{1_{ (1-\pi) K < H_{\lambda} (j) < K \pi }}
