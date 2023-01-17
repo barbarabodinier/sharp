@@ -68,11 +68,13 @@ myclust <- PAMClustering(
 )
 
 # Weighted PAM clustering (using COSA)
-myclust <- PAMClustering(
-  xdata = simul$data,
-  nc = 1:20,
-  Lambda = c(0.2, 0.5)
-)
+if (requireNamespace("rCOSA", quietly = TRUE)) {
+  myclust <- PAMClustering(
+    xdata = simul$data,
+    nc = 1:20,
+    Lambda = c(0.2, 0.5)
+  )
+}
 }
 \references{
 \insertRef{COSA}{sharp}

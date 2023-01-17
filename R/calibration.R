@@ -500,14 +500,14 @@ AggregatedEffects <- function(stability, lambda_id = NULL, side = "X", comp = 1,
 #'
 #' @export
 ConsensusMatrix <- function(stability, argmax_id = NULL) {
-  if (class(stability) != "clustering") {
+  if (inherits(stability, "clustering")) {
+    if (is.null(argmax_id)) {
+      argmax_id <- ArgmaxId(stability = stability)
+    }
+    mat <- stability$coprop[, , argmax_id[1]]
+  } else {
     stop("Invalid input for argument 'stability'. Only applicable to an object of class 'clustering', i.e. to the output of Clustering().")
   }
-
-  if (is.null(argmax_id)) {
-    argmax_id <- ArgmaxId(stability = stability)
-  }
-  mat <- stability$coprop[, , argmax_id[1]]
 
   return(mat)
 }

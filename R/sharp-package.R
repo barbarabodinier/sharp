@@ -11,7 +11,7 @@
 #' in consensus clustering.
 #'
 #' \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
-#' 1.3.0 \cr Date: \tab 2022-11-09 \cr License: \tab GPL (>= 3)\cr Maintainer:
+#' 1.3.0 \cr Date: \tab 2023-01-17 \cr License: \tab GPL (>= 3)\cr Maintainer:
 #' \tab Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}

@@ -36,7 +36,7 @@ all variables contribute equally to the clustering of the observations.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),
-\code{\link{PAMClustering}} (Partioning Around Medoids),
+\code{\link{PAMClustering}} (Partitioning Around Medoids),
 \code{\link{KMeansClustering}} (k-means) and \code{\link{GMMClustering}}
 (Gaussian Mixture Models). Alternatively, a user-defined function taking
 \code{xdata} and \code{Lambda} as arguments and returning a binary and

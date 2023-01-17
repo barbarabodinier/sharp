@@ -48,12 +48,14 @@
 #' )
 #'
 #' # Weighted Hierarchical clustering (using COSA)
-#' myhclust <- HierarchicalClustering(
-#'   xdata = simul$data,
-#'   weighted = TRUE,
-#'   nc = 1:20,
-#'   Lambda = c(0.2, 0.5)
-#' )
+#' if (requireNamespace("rCOSA", quietly = TRUE)) {
+#'   myhclust <- HierarchicalClustering(
+#'     xdata = simul$data,
+#'     weighted = TRUE,
+#'     nc = 1:20,
+#'     Lambda = c(0.2, 0.5)
+#'   )
+#' }
 #' @export
 HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
                                    distance = "euclidean", linkage = "complete",
@@ -122,14 +124,16 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
     }
   }
 
-  # Extracting relevant extra arguments (cosa2)
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = rCOSA::cosa2)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "lambda", "stand", "pwr")]
-  tmp_extra_args_cosa2 <- tmp_extra_args
-
-  # Extracting relevant extra arguments (dist)
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
-  tmp_extra_args_dist <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "method")]
+  if (weighted) {
+    # Extracting relevant extra arguments (cosa2)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = rCOSA::cosa2)
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "lambda", "stand", "pwr")]
+    tmp_extra_args_cosa2 <- tmp_extra_args
+  } else {
+    # Extracting relevant extra arguments (dist)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
+    tmp_extra_args_dist <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "method")]
+  }
 
   # Extracting relevant extra arguments (hclust)
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::hclust)
@@ -138,7 +142,6 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 
   # Initialisation of arrays storing co-membership matrices and weights
   adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * nrow(Lambda)))
-  # weight <- array(NA, dim = c(nrow(xdata), ncol(xdata), nrow(nc) * nrow(Lambda)))
   weight <- matrix(NA, nrow = nrow(nc) * nrow(Lambda), ncol = ncol(xdata))
 
   # Making xdata a data frame for cosa2
@@ -242,11 +245,13 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 #' )
 #'
 #' # Weighted PAM clustering (using COSA)
-#' myclust <- PAMClustering(
-#'   xdata = simul$data,
-#'   nc = 1:20,
-#'   Lambda = c(0.2, 0.5)
-#' )
+#' if (requireNamespace("rCOSA", quietly = TRUE)) {
+#'   myclust <- PAMClustering(
+#'     xdata = simul$data,
+#'     nc = 1:20,
+#'     Lambda = c(0.2, 0.5)
+#'   )
+#' }
 #' @export
 PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
                           distance = "euclidean",
@@ -301,14 +306,16 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
     nc <- cbind(seq(1, nrow(xdata)))
   }
 
-  # Extracting relevant extra arguments (cosa2)
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = rCOSA::cosa2)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "lambda", "stand", "pwr")]
-  tmp_extra_args_cosa2 <- tmp_extra_args
-
-  # Extracting relevant extra arguments (dist)
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
-  tmp_extra_args_dist <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "method")]
+  if (weighted) {
+    # Extracting relevant extra arguments (cosa2)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = rCOSA::cosa2)
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "lambda", "stand", "pwr")]
+    tmp_extra_args_cosa2 <- tmp_extra_args
+  } else {
+    # Extracting relevant extra arguments (dist)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
+    tmp_extra_args_dist <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "method")]
+  }
 
   # Extracting relevant extra arguments (pam)
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = cluster::pam)
@@ -422,11 +429,13 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
 #' )
 #'
 #' # Weighted PAM clustering (using COSA)
-#' myclust <- DBSCANClustering(
-#'   xdata = simul$data,
-#'   eps = c(0.25, 0.5, 0.75),
-#'   Lambda = c(0.2, 0.5)
-#' )
+#' if (requireNamespace("rCOSA", quietly = TRUE)) {
+#'   myclust <- DBSCANClustering(
+#'     xdata = simul$data,
+#'     eps = c(0.25, 0.5, 0.75),
+#'     Lambda = c(0.2, 0.5)
+#'   )
+#' }
 #' @export
 DBSCANClustering <- function(xdata,
                              nc = NULL,
@@ -481,14 +490,16 @@ DBSCANClustering <- function(xdata,
   # Initialising nc
   nc <- cbind(rep(NA, length(eps)))
 
-  # Extracting relevant extra arguments (cosa2)
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = rCOSA::cosa2)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "lambda", "stand", "pwr")]
-  tmp_extra_args_cosa2 <- tmp_extra_args
-
-  # Extracting relevant extra arguments (dist)
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
-  tmp_extra_args_dist <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "method")]
+  if (weighted) {
+    # Extracting relevant extra arguments (cosa2)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = rCOSA::cosa2)
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("X", "lambda", "stand", "pwr")]
+    tmp_extra_args_cosa2 <- tmp_extra_args
+  } else {
+    # Extracting relevant extra arguments (dist)
+    tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::dist)
+    tmp_extra_args_dist <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "method")]
+  }
 
   # Extracting relevant extra arguments (pam)
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = dbscan::dbscan)

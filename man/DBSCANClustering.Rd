@@ -75,11 +75,13 @@ myclust <- DBSCANClustering(
 )
 
 # Weighted PAM clustering (using COSA)
-myclust <- DBSCANClustering(
-  xdata = simul$data,
-  eps = c(0.25, 0.5, 0.75),
-  Lambda = c(0.2, 0.5)
-)
+if (requireNamespace("rCOSA", quietly = TRUE)) {
+  myclust <- DBSCANClustering(
+    xdata = simul$data,
+    eps = c(0.25, 0.5, 0.75),
+    Lambda = c(0.2, 0.5)
+  )
+}
 }
 \references{
 \insertRef{COSA}{sharp}

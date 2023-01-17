@@ -21,7 +21,7 @@
 #'   \code{implementation=DBSCANClustering}.
 #' @param implementation function to use for clustering. Possible functions
 #'   include \code{\link{HierarchicalClustering}} (hierarchical clustering),
-#'   \code{\link{PAMClustering}} (Partioning Around Medoids),
+#'   \code{\link{PAMClustering}} (Partitioning Around Medoids),
 #'   \code{\link{KMeansClustering}} (k-means) and \code{\link{GMMClustering}}
 #'   (Gaussian Mixture Models). Alternatively, a user-defined function taking
 #'   \code{xdata} and \code{Lambda} as arguments and returning a binary and
@@ -118,23 +118,25 @@
 #' plot(stab)
 #'
 #' # Consensus weighted clustering
-#' set.seed(1)
-#' simul <- SimulateClustering(
-#'   n = c(30, 30, 30), pk = 20,
-#'   theta_xc = c(rep(1, 10), rep(0, 10)),
-#'   ev_xc = 0.9
-#' )
-#' stab <- Clustering(
-#'   xdata = simul$data,
-#'   Lambda = LambdaSequence(lmin = 0.1, lmax = 10, cardinal = 10),
-#'   noit = 20, niter = 10
-#' )
-#' print(stab)
-#' CalibrationPlot(stab)
-#' summary(stab)
-#' Clusters(stab)
-#' plot(stab)
-#' WeightBoxplot(stab)
+#' if (requireNamespace("rCOSA", quietly = TRUE)) {
+#'   set.seed(1)
+#'   simul <- SimulateClustering(
+#'     n = c(30, 30, 30), pk = 20,
+#'     theta_xc = c(rep(1, 10), rep(0, 10)),
+#'     ev_xc = 0.9
+#'   )
+#'   stab <- Clustering(
+#'     xdata = simul$data,
+#'     Lambda = LambdaSequence(lmin = 0.1, lmax = 10, cardinal = 10),
+#'     noit = 20, niter = 10
+#'   )
+#'   print(stab)
+#'   CalibrationPlot(stab)
+#'   summary(stab)
+#'   Clusters(stab)
+#'   plot(stab)
+#'   WeightBoxplot(stab)
+#' }
 #' }
 #' @export
 Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,

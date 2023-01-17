@@ -539,12 +539,12 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #'
 #' # Consensus clustering
 #' stab <- Clustering(
-#'   xdata = simul$data
+#'   xdata = simul$data, nc = 1:5
 #' )
 #'
 #' # Clustering performance
-#' perf <- ClusteringPerformance(stab, simul)
-#' perf <- ClusteringPerformance(
+#' ClusteringPerformance(stab, simul)
+#' ClusteringPerformance(
 #'   theta = CoMembership(Clusters(stab)),
 #'   theta_star = simul$theta
 #' ) # alternative formulation

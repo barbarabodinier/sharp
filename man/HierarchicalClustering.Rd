@@ -79,12 +79,14 @@ myhclust <- HierarchicalClustering(
 )
 
 # Weighted Hierarchical clustering (using COSA)
-myhclust <- HierarchicalClustering(
-  xdata = simul$data,
-  weighted = TRUE,
-  nc = 1:20,
-  Lambda = c(0.2, 0.5)
-)
+if (requireNamespace("rCOSA", quietly = TRUE)) {
+  myhclust <- HierarchicalClustering(
+    xdata = simul$data,
+    weighted = TRUE,
+    nc = 1:20,
+    Lambda = c(0.2, 0.5)
+  )
+}
 }
 \references{
 \insertRef{COSA}{sharp}
