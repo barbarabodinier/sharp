@@ -52,10 +52,4 @@ stab$params$pi_list[ids[2]]
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
-
-Other calibration functions: 
-\code{\link{ConsensusMatrix}()},
-\code{\link{SelectionProportions}()},
-\code{\link{Stable}()}
 }
-\concept{calibration functions}

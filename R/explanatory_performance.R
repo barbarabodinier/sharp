@@ -72,39 +72,6 @@
 #' refitted$coefficients # refitted coefficients
 #'
 #'
-#' ## Cox regression
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
-#' ydata <- cbind(
-#'   time = runif(nrow(simul$ydata), min = 100, max = 2000),
-#'   case = simul$ydata[, 1]
-#' ) # including dummy time to event
-#'
-#' # Data split
-#' ids_train <- Resample(
-#'   data = ydata,
-#'   tau = 0.5, family = "cox"
-#' )
-#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
-#' ytrain <- ydata[ids_train, , drop = FALSE]
-#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrefit <- ydata[-ids_train, , drop = FALSE]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(xdata = xtrain, ydata = ytrain, family = "cox")
-#' print(SelectedVariables(stab))
-#'
-#' # Refitting the model
-#' refitted <- Refit(
-#'   xdata = xrefit, ydata = yrefit,
-#'   stability = stab
-#' )
-#' refitted$coefficients # refitted coefficients
-#' head(refitted$linear.predictors) # refitted scores
-#'
-#'
 #' ## Logistic regression
 #'
 #' # Data simulation
@@ -131,40 +98,6 @@
 #' )
 #' refitted$coefficients # refitted coefficients
 #' head(refitted$fitted.values) # refitted predicted probabilities
-#'
-#'
-#' ## Partial Least Squares (single component)
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-#'
-#' # Data split
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "gaussian"
-#' )
-#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
-#' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
-#'
-#' # Stability selection
-#' stab <- VariableSelection(
-#'   xdata = xtrain, ydata = ytrain,
-#'   implementation = SparsePLS,
-#'   family = "gaussian"
-#' )
-#' print(SelectedVariables(stab))
-#'
-#' # Refitting the model
-#' refitted <- Refit(
-#'   xdata = xrefit, ydata = yrefit,
-#'   implementation = PLS,
-#'   stability = stab
-#' )
-#' refitted$Wmat # refitted X-weights
-#' head(refitted$Tmat) # refitted X-scores
 #'
 #'
 #' ## Partial Least Squares (multiple components)

@@ -62,56 +62,6 @@ perfgraph <- SelectionPerformanceGraph(
   theta_star = simul
 )
 plot(perfgraph)
-
-# Alternative formulation
-perfgraph <- SelectionPerformanceGraph(
-  theta = Adjacency(stab),
-  theta_star = simul$theta
-)
-plot(perfgraph)
-
-# User-defined colours/shapes
-perfgraph <- SelectionPerformanceGraph(
-  theta = stab, theta_star = simul,
-  col = c("forestgreen", "orange", "black"),
-  node_colour = "red", node_shape = "star"
-)
-plot(perfgraph)
-perfgraph <- SelectionPerformanceGraph(
-  theta = stab, theta_star = simul,
-  col = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
-)
-plot(perfgraph)
-
-# Using and re-formatting igraph object
-require(igraph)
-igraph::V(perfgraph)$size <- 10
-plot(perfgraph, layout = igraph::layout_with_kk(perfgraph))
-
-# Regression model
-set.seed(1)
-simul <- SimulateRegression(pk = 30)
-stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
-perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
-plot(perf_graph)
-
-# Sparse PLS model
-set.seed(1)
-simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
-stab <- BiSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(x) - 1),
-  LambdaY = 1:(ncol(y) - 1),
-  implementation = SparsePLS,
-  n_cat = 2
-)
-perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
-plot(perf_graph)
 }
 
 }

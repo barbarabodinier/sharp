@@ -35,7 +35,7 @@ predicted co-membership. This function can only be used in simulation studies
 (i.e. when the true cluster membership is known).
 }
 \examples{
-
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(
@@ -50,10 +50,13 @@ stab <- Clustering(
 
 # Clustering performance
 ClusteringPerformance(stab, simul)
+
+# Alternative formulation
 ClusteringPerformance(
   theta = CoMembership(Clusters(stab)),
   theta_star = simul$theta
-) # alternative formulation
+)
+}
 
 }
 \seealso{

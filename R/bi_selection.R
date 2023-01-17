@@ -176,7 +176,7 @@
 #' # sPCA: sparsity on X (unsupervised)
 #' stab <- BiSelection(
 #'   xdata = simul$data,
-#'   ncomp = 3,
+#'   ncomp = 2,
 #'   LambdaX = 1:(ncol(simul$data) - 1),
 #'   implementation = SparsePCA
 #' )
@@ -191,7 +191,7 @@
 #' SelectedVariables(stab)
 #'
 #'
-#' ## Sparse/Group Partial Least Squares
+#' ## Sparse (Group) Partial Least Squares
 #'
 #' # Data simulation (continuous outcomes)
 #' set.seed(1)
@@ -230,85 +230,6 @@
 #'   family = "gaussian", ncomp = 3,
 #'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
 #'   implementation = SparseGroupPLS
-#' )
-#' CalibrationPlot(stab)
-#' summary(stab)
-#'
-#' # sgPLS: sparsity on both X and Y
-#' stab <- BiSelection(
-#'   xdata = x, ydata = y, K = 10,
-#'   group_x = c(2, 8, 5), group_y = c(1, 2),
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.2),
-#'   LambdaY = 1:2, AlphaY = seq(0.1, 0.9, by = 0.2),
-#'   implementation = SparseGroupPLS,
-#'   n_cat = 2
-#' )
-#' CalibrationPlot(stab)
-#' CalibrationPlot(stab,
-#'   params = c("nx", "alphax", "ny", "alphay")
-#' )
-#' summary(stab)
-#'
-#' # gPLS: sparsity on X
-#' stab <- BiSelection(
-#'   xdata = x, ydata = y,
-#'   group_x = c(2, 8, 5),
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:2,
-#'   implementation = GroupPLS
-#' )
-#' CalibrationPlot(stab)
-#' summary(stab)
-#'
-#' # gPLS: sparsity on both X and Y
-#' stab <- BiSelection(
-#'   xdata = x, ydata = y,
-#'   group_x = c(2, 8, 5), group_y = c(1, 2),
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:2, LambdaY = 1:2,
-#'   implementation = GroupPLS
-#' )
-#' CalibrationPlot(stab)
-#' summary(stab)
-#'
-#'
-#' ## Sparse/Group PLS-DA (Discriminant Analysis)
-#'
-#' # Data simulation (binary outcomes)
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 15, q = 3, family = "binomial")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#'
-#' # sPLS-DA: sparsity on X
-#' stab <- BiSelection(
-#'   xdata = x, ydata = cbind(y),
-#'   family = "binomial", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   implementation = SparsePLS
-#' )
-#' CalibrationPlot(stab)
-#' summary(stab)
-#'
-#' # sgPLS-DA: sparsity on X
-#' stab <- BiSelection(
-#'   xdata = x, ydata = cbind(y), K = 10,
-#'   group_x = c(2, 8, 5),
-#'   family = "binomial", ncomp = 3,
-#'   LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-#'   implementation = SparseGroupPLS
-#' )
-#' CalibrationPlot(stab)
-#' summary(stab)
-#'
-#' # gPLS-DA: sparsity on X
-#' stab <- BiSelection(
-#'   xdata = x, ydata = cbind(y),
-#'   group_x = c(2, 8, 5),
-#'   family = "binomial", ncomp = 3,
-#'   LambdaX = 1:2,
-#'   implementation = GroupPLS
 #' )
 #' CalibrationPlot(stab)
 #' summary(stab)

@@ -57,61 +57,17 @@ be used in simulation studies (i.e. when the true model is known).
 \donttest{
 # Variable selection model
 set.seed(1)
-simul <- SimulateRegression(pk = 30)
+simul <- SimulateRegression(pk = 30, nu_xy = 0.5)
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
-perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf <- SelectionPerformance(
+
+# Selection performance
+SelectionPerformance(theta = stab, theta_star = simul)
+
+# Alternative formulation
+SelectionPerformance(
   theta = SelectedVariables(stab),
   theta_star = simul$theta
-) # alternative formulation
-
-# Single-block graphical model
-set.seed(1)
-simul <- SimulateGraphical(pk = 30)
-stab <- GraphicalModel(xdata = simul$data)
-perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf <- SelectionPerformance(
-  theta = stab, theta_star = simul,
-  cor = cor(simul$data), thr = 0.5
 )
-perf <- SelectionPerformance(
-  theta = Adjacency(stab),
-  theta_star = simul$theta
-) # alternative formulation
-
-# Multi-block graphical model
-set.seed(1)
-simul <- SimulateGraphical(pk = c(10, 10))
-stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
-perf <- SelectionPerformance(theta = stab, theta_star = simul, pk = c(10, 10))
-perf <- SelectionPerformance(
-  theta = stab, theta_star = simul, pk = c(10, 10),
-  cor = cor(simul$data), thr = 0.5
-)
-perf <- SelectionPerformance(
-  theta = Adjacency(stab),
-  theta_star = simul$theta,
-  pk = c(10, 10)
-) # alternative formulation
-
-# Sparse PLS model
-set.seed(1)
-simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
-stab <- BiSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(x) - 1),
-  LambdaY = 1:(ncol(y) - 1),
-  implementation = SparsePLS,
-  n_cat = 2
-)
-perf <- SelectionPerformance(theta = stab, theta_star = simul)
-perf <- SelectionPerformance(
-  theta = stab$selected,
-  theta_star = simul$theta
-) # alternative formulation
 }
 
 }

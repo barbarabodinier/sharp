@@ -66,10 +66,4 @@ Stable(stab)
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{BiSelection}},
   \code{\link{GraphicalModel}}, \code{\link{Clustering}}
-
-Other calibration functions: 
-\code{\link{ArgmaxId}()},
-\code{\link{ConsensusMatrix}()},
-\code{\link{SelectionProportions}()}
 }
-\concept{calibration functions}

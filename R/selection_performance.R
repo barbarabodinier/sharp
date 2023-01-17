@@ -43,61 +43,17 @@
 #' \donttest{
 #' # Variable selection model
 #' set.seed(1)
-#' simul <- SimulateRegression(pk = 30)
+#' simul <- SimulateRegression(pk = 30, nu_xy = 0.5)
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf <- SelectionPerformance(
+#'
+#' # Selection performance
+#' SelectionPerformance(theta = stab, theta_star = simul)
+#'
+#' # Alternative formulation
+#' SelectionPerformance(
 #'   theta = SelectedVariables(stab),
 #'   theta_star = simul$theta
-#' ) # alternative formulation
-#'
-#' # Single-block graphical model
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = 30)
-#' stab <- GraphicalModel(xdata = simul$data)
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf <- SelectionPerformance(
-#'   theta = stab, theta_star = simul,
-#'   cor = cor(simul$data), thr = 0.5
 #' )
-#' perf <- SelectionPerformance(
-#'   theta = Adjacency(stab),
-#'   theta_star = simul$theta
-#' ) # alternative formulation
-#'
-#' # Multi-block graphical model
-#' set.seed(1)
-#' simul <- SimulateGraphical(pk = c(10, 10))
-#' stab <- GraphicalModel(xdata = simul$data, pk = c(10, 10), lambda_other_blocks = rep(0, 3))
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul, pk = c(10, 10))
-#' perf <- SelectionPerformance(
-#'   theta = stab, theta_star = simul, pk = c(10, 10),
-#'   cor = cor(simul$data), thr = 0.5
-#' )
-#' perf <- SelectionPerformance(
-#'   theta = Adjacency(stab),
-#'   theta_star = simul$theta,
-#'   pk = c(10, 10)
-#' ) # alternative formulation
-#'
-#' # Sparse PLS model
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#' stab <- BiSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   LambdaY = 1:(ncol(y) - 1),
-#'   implementation = SparsePLS,
-#'   n_cat = 2
-#' )
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf <- SelectionPerformance(
-#'   theta = stab$selected,
-#'   theta_star = simul$theta
-#' ) # alternative formulation
 #' }
 #'
 #' @export
@@ -334,56 +290,6 @@ GraphComparison <- function(graph1, graph2,
 #'   theta_star = simul
 #' )
 #' plot(perfgraph)
-#'
-#' # Alternative formulation
-#' perfgraph <- SelectionPerformanceGraph(
-#'   theta = Adjacency(stab),
-#'   theta_star = simul$theta
-#' )
-#' plot(perfgraph)
-#'
-#' # User-defined colours/shapes
-#' perfgraph <- SelectionPerformanceGraph(
-#'   theta = stab, theta_star = simul,
-#'   col = c("forestgreen", "orange", "black"),
-#'   node_colour = "red", node_shape = "star"
-#' )
-#' plot(perfgraph)
-#' perfgraph <- SelectionPerformanceGraph(
-#'   theta = stab, theta_star = simul,
-#'   col = c("forestgreen", "orange", "black"), lty = c(4, 2, 3)
-#' )
-#' plot(perfgraph)
-#'
-#' # Using and re-formatting igraph object
-#' require(igraph)
-#' igraph::V(perfgraph)$size <- 10
-#' plot(perfgraph, layout = igraph::layout_with_kk(perfgraph))
-#'
-#' # Regression model
-#' set.seed(1)
-#' simul <- SimulateRegression(pk = 30)
-#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata)
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
-#' plot(perf_graph)
-#'
-#' # Sparse PLS model
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#' stab <- BiSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   LambdaY = 1:(ncol(y) - 1),
-#'   implementation = SparsePLS,
-#'   n_cat = 2
-#' )
-#' perf <- SelectionPerformance(theta = stab, theta_star = simul)
-#' perf_graph <- SelectionPerformanceGraph(theta = stab, theta_star = simul)
-#' plot(perf_graph)
 #' }
 #'
 #' @export
@@ -529,7 +435,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #' @family functions for model performance
 #'
 #' @examples
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(
@@ -544,10 +450,13 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #'
 #' # Clustering performance
 #' ClusteringPerformance(stab, simul)
+#'
+#' # Alternative formulation
 #' ClusteringPerformance(
 #'   theta = CoMembership(Clusters(stab)),
 #'   theta_star = simul$theta
-#' ) # alternative formulation
+#' )
+#' }
 #'
 #' @export
 ClusteringPerformance <- function(theta, theta_star, ...) {
