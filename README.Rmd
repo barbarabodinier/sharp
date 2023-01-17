@@ -70,7 +70,7 @@ Check out the R package [**fake**](https://github.com/barbarabodinier/fake) for 
 
 ### Variable selection
 
-In a regression context, stability selection is done using LASSO regression as implemented in the R package [**glmnet**](https://cran.r-project.org/web/packages/glmnet/index.html). 
+In a regression context, stability selection is done using LASSO regression as implemented in the R package [**glmnet**](https://CRAN.R-project.org/package=glmnet). 
 
 ```{r variable selection, eval=FALSE}
 stab_reg <- VariableSelection(xdata = x_reg, ydata = y_reg)
@@ -79,7 +79,7 @@ SelectedVariables(stab_reg)
 
 ### Graphical modelling
 
-In a graphical modelling context, stability selection is done using the graphical LASSO as implemented in the R package [**glassoFast**](https://cran.r-project.org/web/packages/glassoFast/index.html). 
+In a graphical modelling context, stability selection is done using the graphical LASSO as implemented in the R package [**glassoFast**](https://CRAN.R-project.org/package=glassoFast). 
 
 ```{r graphical modelling, eval=FALSE}
 stab_ggm <- GraphicalModel(xdata = x_ggm)
