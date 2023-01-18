@@ -38,14 +38,14 @@ The development version can be installed from
 [GitHub](https://github.com/):
 
 ``` r
-remotes::install_github("barbarabodinier/fake")
 remotes::install_github("barbarabodinier/sharp")
 ```
 
 ## Example datasets
 
-To illustrate the use of the main functions implemented in **sharp**,
-three artificial datasets are created:
+To illustrate the use of the main functions implemented in
+[**sharp**](https://github.com/barbarabodinier/sharp), three artificial
+datasets are created:
 
 ``` r
 library(sharp)
@@ -121,7 +121,8 @@ by aggregating the results from any selection (or clustering) algorithm
 on subsamples of the data. The choice of the underlying algorithm to use
 is specified in argument `implementation` in the main functions.
 Consensus clustering using partitioning around medoids, K means or
-Gaussian mixture models are also supported in **sharp**:
+Gaussian mixture models are also supported in
+[**sharp**](https://github.com/barbarabodinier/sharp):
 
 ``` r
 stab_clust <- Clustering(xdata = x_clust, implementation = PAMClustering)
