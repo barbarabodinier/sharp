@@ -38,6 +38,7 @@ Suggests:
     nnet,
     plotrix,
     RCy3,
+    randomcoloR,
     rmarkdown,
     rCOSA,
     sgPLS,
