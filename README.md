@@ -44,7 +44,7 @@ remotes::install_github("barbarabodinier/sharp")
 ## Example datasets
 
 To illustrate the use of the main functions implemented in
-[**sharp**](https://github.com/barbarabodinier/sharp), three artificial
+[**sharp**](https://CRAN.R-project.org/package=sharp), three artificial
 datasets are created:
 
 ``` r
@@ -122,7 +122,7 @@ on subsamples of the data. The choice of the underlying algorithm to use
 is specified in argument `implementation` in the main functions.
 Consensus clustering using partitioning around medoids, K means or
 Gaussian mixture models are also supported in
-[**sharp**](https://github.com/barbarabodinier/sharp):
+[**sharp**](https://CRAN.R-project.org/package=sharp):
 
 ``` r
 stab_clust <- Clustering(xdata = x_clust, implementation = PAMClustering)
