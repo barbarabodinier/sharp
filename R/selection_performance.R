@@ -484,7 +484,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   if (TP + FP > 0) {
     precision <- TP / (TP + FP)
   } else {
-    precision <- 0
+    precision <- 1
   }
   if ((TP + FN) > 0) {
     recall <- TP / (TP + FN)
@@ -494,7 +494,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   if ((precision > 0) | (recall > 0)) {
     F1_score <- 2 * precision * recall / (precision + recall)
   } else {
-    F1_score <- 0
+    F1_score <- 1
   }
 
   if (is.null(cor)) {
