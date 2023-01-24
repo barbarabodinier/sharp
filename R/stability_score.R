@@ -220,10 +220,6 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #'   \code{K} subsampling iterations.
 #' @param nc number of clusters.
 #' @param K number of subsampling iterations.
-#' @param linkage character string indicating the type of linkage used in
-#'   hierarchical clustering to define the stable clusters. Possible values
-#'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
-#'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 #'
 #' @details Let \eqn{\Gamma(\lambda, G)} be the consensus matrix. We introduce
 #'   the matrix \eqn{H(\lambda, G)} of co-membership count corrected for the
@@ -288,41 +284,23 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' )
 #'
 #' @export
-ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
-  # Clustering on the consensus matrix
-  sh_clust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
+ConsensusScore <- function(coprop, nc, K = 100) {
+  # Extracting the upper triangle of the consensus matrix
+  coprop_vect <- coprop[upper.tri(coprop)]
 
-  # Identifying stable clusters
-  theta <- stats::cutree(sh_clust, k = nc)
+  # Defining maximum count for each pair of items
+  nmat <- matrix(rep(K, length(coprop_vect)), nrow = 1)
 
-  # Probability that items i and j belong to the same cluster
-  N <- length(theta) * (length(theta) - 1) / 2
-  p_unif <- sum(table(theta) * (table(theta) - 1)) / (2 * N) # P(i) * P(j | i)
+  # Defining total number of draws
+  k <- sum(matrix(round(K * coprop_vect), nrow = 1))
 
-  # Calculating log-likelihood for observed consensus matrix
-  loglik <- 0
-  for (i in 1:(nrow(coprop) - 1)) {
-    for (j in (i + 1):nrow(coprop)) {
-      if (theta[i] == theta[j]) {
-        loglik <- loglik + stats::pbinom(round(coprop[i, j] * K) - 1, size = K, prob = p_unif, lower.tail = FALSE, log = TRUE)
-      } else {
-        loglik <- loglik + stats::pbinom(round(coprop[i, j] * K), size = K, prob = p_unif, lower.tail = TRUE, log = TRUE)
-      }
-    }
-  }
+  # Calculating the log-probability of observing this repartition
+  neglogproba <- -extraDistr::dmvhyper(
+    x = matrix(round(K * coprop_vect), nrow = 1),
+    n = nmat,
+    k = k,
+    log = TRUE
+  )
 
-  # Calculating numbers of within and between cluster pairs
-  n_1 <- p_unif * N
-  n_3 <- (1 - p_unif) * N
-
-  # Calculating log-likelihood for most stable (binary) consensus matrix
-  p_1 <- stats::dbinom(K, size = K, prob = p_unif, log = TRUE)
-  p_3 <- stats::dbinom(0, size = K, prob = p_unif, log = TRUE)
-  best_score <- (n_1 * p_1 + n_3 * p_3)
-
-  # Calculating consensus score as likelihood ratio
-  # score <- (-loglik + worst_score) / (-best_score + worst_score) # ( x - min ) / ( max - min )
-  score <- loglik / best_score # ( x - min ) / ( max - min ) where min is zero
-
-  return(score)
+  return(neglogproba)
 }

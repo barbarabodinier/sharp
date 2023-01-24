@@ -26,7 +26,7 @@ plot.variable_selection <- function(x,
                                     ...) {
   # Storing extra arguments
   extra_args <- list(...)
-  
+
   # Defining default settings
   if (!"type" %in% names(extra_args)) {
     extra_args$type <- "h"
@@ -49,7 +49,7 @@ plot.variable_selection <- function(x,
   if (!"cex.axis" %in% names(extra_args)) {
     extra_args$cex.axis <- 1
   }
-  
+
   # Checking inputs
   if (length(col) != 2) {
     col <- rep(col[1], 2)
@@ -61,14 +61,14 @@ plot.variable_selection <- function(x,
       col.axis <- rep(col.axis[1], 2)
     }
   }
-  
+
   # Extracting selection proportions
   selprop <- SelectionProportions(x)
-  
+
   # Defining colours
   mycolours <- ifelse(SelectedVariables(x) == 1, yes = col[1], no = col[2])
   mycolours_axis <- mycolours
-  
+
   # Re-ordering by decreasing selection proportion
   ids <- sort.list(selprop, decreasing = TRUE)
   if (is.null(n_predictors)) {
@@ -79,11 +79,11 @@ plot.variable_selection <- function(x,
   selprop <- selprop[ids]
   mycolours <- mycolours[ids]
   mycolours_axis <- mycolours_axis[ids]
-  
+
   # Extracting relevant extra arguments
   tmp_extra_args <- extra_args
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("xaxt", "col")]
-  
+
   # Making plot
   do.call(base::plot, args = c(
     list(
@@ -93,11 +93,11 @@ plot.variable_selection <- function(x,
     ),
     tmp_extra_args
   ))
-  
+
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "col.ticks", "type")]
-  
+
   # Adding axis
   for (i in 1:length(selprop)) {
     do.call(graphics::axis, args = c(
@@ -191,30 +191,30 @@ plot.clustering <- function(x,
     theta <- as.numeric(as.factor(theta))
     ids <- sort.list(theta)
   }
-  
+
   # Defining theta_star if not provided
   if (is.null(theta_star)) {
     theta_star <- theta
   } else {
     theta_star <- as.numeric(as.factor(theta_star))
   }
-  
+
   # Ordering by theta
   mat <- ConsensusMatrix(stability = x, argmax_id = argmax_id)
   theta <- theta[ids]
   theta_star <- theta_star[ids]
   mat <- mat[ids, ids]
-  
+
   # Preparing heatmap
   Heatmap(mat = mat, col = col, axes = FALSE, bty = bty, ...)
-  
+
   # Adding separation lines based on theta
   if (lines) {
     thr <- which(!duplicated(theta))
     graphics::abline(h = length(theta) - thr[-1] + 1, col = col.lines, lwd = lwd.lines)
     graphics::abline(v = thr[-1] - 1, col = col.lines, lwd = lwd.lines)
   }
-  
+
   # Defining axis colours if not provided
   if (is.null(col.axis)) {
     if (requireNamespace("randomcoloR", quietly = TRUE)) {
@@ -223,7 +223,7 @@ plot.clustering <- function(x,
       col.axis <- grDevices::rainbow(n = length(unique(theta_star)), v = 0.8)
     }
   }
-  
+
   # Adding axes and ticks
   for (k in 1:nrow(mat)) {
     graphics::axis(
@@ -279,7 +279,7 @@ plot.roc_band <- function(x,
                           ...) {
   # Storing extra arguments
   extra_args <- list(...)
-  
+
   # Defining default parameters if not provided
   if (!"xlim" %in% names(extra_args)) {
     extra_args$xlim <- c(0, 1)
@@ -305,22 +305,22 @@ plot.roc_band <- function(x,
   if (!"col" %in% names(extra_args)) {
     extra_args$col <- "red"
   }
-  
+
   # Extracting the number of iterations
   niter <- length(x$AUC)
-  
+
   # Defining the band colour
   if (is.null(col_band)) {
     col_band <- extra_args$col
   }
-  
+
   # Initialising the plot
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = plot)
   if (!add) {
     do.call(plot, args = c(list(x = NULL), tmp_extra_args))
     graphics::abline(0, 1, lty = 3)
   }
-  
+
   # Defining quantile bands
   if (nrow(x$FPR) > 1) {
     xseq <- apply(x$FPR, 2, FUN = function(x) {
@@ -330,12 +330,12 @@ plot.roc_band <- function(x,
       sort(x)[quantiles * niter]
     })
     graphics::polygon(c(xseq[1, ], rev(xseq[2, ])),
-                      c(yseq[1, ], rev(yseq[2, ])),
-                      col = grDevices::adjustcolor(col = col_band, alpha.f = alpha),
-                      border = NA
+      c(yseq[1, ], rev(yseq[2, ])),
+      col = grDevices::adjustcolor(col = col_band, alpha.f = alpha),
+      border = NA
     )
   }
-  
+
   # Adding the point-wise average
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::lines)
   do.call(graphics::lines, args = c(
@@ -379,10 +379,10 @@ plot.incremental <- function(x,
                              ...) {
   # Checking plotrix package is installed
   CheckPackageInstalled("plotrix")
-  
+
   # Storing extra arguments
   extra_args <- list(...)
-  
+
   # Defining default settings
   if (!"xlab" %in% names(extra_args)) {
     extra_args$xlab <- ""
@@ -402,7 +402,7 @@ plot.incremental <- function(x,
   if (!"sfrac" %in% names(extra_args)) {
     extra_args$sfrac <- 0.005
   }
-  
+
   # Checking inputs
   if (length(col) != 2) {
     col <- rep(col[1], 2)
@@ -415,12 +415,12 @@ plot.incremental <- function(x,
     }
   }
   quantiles <- sort(quantiles)
-  
+
   # Re-formatting the inputs
   if (is.null(col.axis)) {
     col.axis <- col
   }
-  
+
   if ("concordance" %in% names(x)) {
     if ("lower" %in% names(x)) {
       xfull <- x$concordance
@@ -432,25 +432,25 @@ plot.incremental <- function(x,
       xupper <- sapply(x$concordance, stats::quantile, probs = quantiles[2], na.rm = TRUE)
     }
   }
-  
+
   if ("AUC" %in% names(x)) {
     xfull <- sapply(x$AUC, stats::median, na.rm = TRUE)
     xlower <- sapply(x$AUC, stats::quantile, probs = quantiles[1], na.rm = TRUE)
     xupper <- sapply(x$AUC, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
-  
+
   if ("Q_squared" %in% names(x)) {
     xfull <- sapply(x$Q_squared, stats::median, na.rm = TRUE)
     xlower <- sapply(x$Q_squared, stats::quantile, probs = quantiles[1], na.rm = TRUE)
     xupper <- sapply(x$Q_squared, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
   xseq <- 1:length(xfull)
-  
+
   # Re-formatting label colours
   if (length(col.axis) < length(xfull)) {
     col.axis <- rep(col.axis, length(xfull))
   }
-  
+
   # Defining the plot range
   if (!"ylim" %in% names(extra_args)) {
     ylim <- range(c(xlower, xupper, xfull))
@@ -459,19 +459,19 @@ plot.incremental <- function(x,
   if (!"xlim" %in% names(extra_args)) {
     extra_args$xlim <- range(xseq)
   }
-  
+
   # Defining horizontal grid
   hseq <- NULL
   if (ygrid) {
     hseq <- grDevices::axisTicks(ylim, log = FALSE)
   }
-  
+
   # Defining vertical grid
   vseq <- NULL
   if (xgrid) {
     vseq <- xseq
   }
-  
+
   # Defining colours by stable selection status
   if ("stable" %in% names(x)) {
     mycolours <- col[abs(x$stable - 2)]
@@ -483,11 +483,11 @@ plot.incremental <- function(x,
   } else {
     mycolours_axis <- col.axis[1]
   }
-  
+
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = base::plot)
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "panel.first", "xaxt", "yaxt", "sfrac")]
-  
+
   # Creating the plot
   do.call(base::plot, args = c(
     list(
@@ -500,11 +500,11 @@ plot.incremental <- function(x,
     ),
     tmp_extra_args
   ))
-  
+
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "sfrac")]
-  
+
   # Adding y-axis
   do.call(graphics::axis, args = c(
     list(
@@ -513,11 +513,11 @@ plot.incremental <- function(x,
     ),
     tmp_extra_args
   ))
-  
+
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = plotrix::plotCI)
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "li", "ui", "col", "add")]
-  
+
   # Adding points
   do.call(plotrix::plotCI, args = c(
     list(
@@ -526,11 +526,11 @@ plot.incremental <- function(x,
     ),
     tmp_extra_args
   ))
-  
+
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "col.ticks", "sfrac")]
-  
+
   # Adding x-axis
   for (k in 1:length(xseq)) {
     do.call(graphics::axis, args = c(
@@ -544,7 +544,7 @@ plot.incremental <- function(x,
       tmp_extra_args
     ))
   }
-  
+
   if (output_data) {
     mat <- rbind(xfull, xlower, xupper)
     colnames(mat) <- x$names

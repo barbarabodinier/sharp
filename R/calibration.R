@@ -997,9 +997,9 @@ CalibrationCurve <- function(stability,
 
   # Initialising plot
   plot(NA,
-    xlim = c(0, max(stability$nc)), ylim = c(0, 1),
+    xlim = c(0, max(stability$nc)), ylim = range(stability$Sc),
     xlab = xlab, ylab = ylab, cex.axis = cex.axis,
-    las = 1, cex.lab = cex.lab, bty = bty
+    cex.lab = cex.lab, bty = bty
   )
 
   # Adding lines
