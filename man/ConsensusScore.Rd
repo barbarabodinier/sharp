@@ -4,7 +4,7 @@
 \alias{ConsensusScore}
 \title{Consensus score}
 \usage{
-ConsensusScore(coprop, nc, K = 100)
+ConsensusScore(coprop, nc, K = 100, linkage = "complete")
 }
 \arguments{
 \item{coprop}{consensus matrix obtained with \code{nc} clusters across
@@ -13,6 +13,11 @@ ConsensusScore(coprop, nc, K = 100)
 \item{nc}{number of clusters.}
 
 \item{K}{number of subsampling iterations.}
+
+\item{linkage}{character string indicating the type of linkage used in
+hierarchical clustering to define the stable clusters. Possible values
+include \code{"complete"}, \code{"single"} and \code{"average"} (see
+argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).}
 }
 \value{
 A consensus score between 0 and 1.

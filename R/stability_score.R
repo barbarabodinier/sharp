@@ -220,6 +220,10 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #'   \code{K} subsampling iterations.
 #' @param nc number of clusters.
 #' @param K number of subsampling iterations.
+#' @param linkage character string indicating the type of linkage used in
+#'   hierarchical clustering to define the stable clusters. Possible values
+#'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
+#'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 #'
 #' @details Let \eqn{\Gamma(\lambda, G)} be the consensus matrix. We introduce
 #'   the matrix \eqn{H(\lambda, G)} of co-membership count corrected for the
@@ -284,7 +288,13 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' )
 #'
 #' @export
-ConsensusScore <- function(coprop, nc, K = 100) {
+ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
+  # Clustering on the consensus matrix
+  sh_clust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
+
+  # Identifying stable clusters
+  theta <- stats::cutree(sh_clust, k = nc)
+
   # Extracting the upper triangle of the consensus matrix
   coprop_vect <- coprop[upper.tri(coprop)]
 
@@ -295,12 +305,22 @@ ConsensusScore <- function(coprop, nc, K = 100) {
   k <- sum(matrix(round(K * coprop_vect), nrow = 1))
 
   # Calculating the log-probability of observing this repartition
-  neglogproba <- -extraDistr::dmvhyper(
+  logproba <- extraDistr::dmvhyper(
     x = matrix(round(K * coprop_vect), nrow = 1),
     n = nmat,
     k = k,
     log = TRUE
   )
 
-  return(neglogproba)
+  # Calculating the log-probability in the most stable scenario
+  N_c <- sum(table(theta) * (table(theta) - 1) / 2)
+  N <- length(coprop_vect)
+  logproba_best <- extraDistr::dmvhyper(
+    x = matrix(c(rep(K, N_c), rep(0, N - N_c)), nrow = 1),
+    n = nmat,
+    k = K * N_c,
+    log = TRUE
+  )
+
+  return(logproba / logproba_best)
 }

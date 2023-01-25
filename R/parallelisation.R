@@ -222,7 +222,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
   if (inherits(stability1, "clustering")) {
     Sc <- matrix(NA, nrow = dim(coprop)[3], ncol = 1)
     for (k in 1:dim(coprop)[3]) {
-      Sc[k, 1] <- ConsensusScore(coprop = coprop[, , k], nc = nc[k], K = K)
+      Sc[k, 1] <- ConsensusScore(coprop = coprop[, , k], nc = nc[k], K = K, linkage = stability1$methods$linkage)
     }
     Q <- 1 / K * (stability1$params$K * stability1$Q + stability2$params$K * stability2$Q) # weighted average
   }

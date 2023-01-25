@@ -440,7 +440,8 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
     metrics2[i] <- ConsensusScore(
       coprop = bigstab_obs[, , i],
       nc = ceiling(nc_full[i]),
-      K = K
+      K = K,
+      linkage = linkage
     )
   }
 
