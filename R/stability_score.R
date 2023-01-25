@@ -295,32 +295,22 @@ ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
   # Identifying stable clusters
   theta <- stats::cutree(sh_clust, k = nc)
 
-  # Extracting the upper triangle of the consensus matrix
-  coprop_vect <- coprop[upper.tri(coprop)]
+  H <- round(coprop * K)
+  H_within <- H * CoMembership(theta)
+  N_c <- sum(K * CoMembership(theta)[upper.tri(CoMembership(theta))])
 
-  # Defining maximum count for each pair of items
-  nmat <- matrix(rep(K, length(coprop_vect)), nrow = 1)
-
-  # Defining total number of draws
-  k <- sum(matrix(round(K * coprop_vect), nrow = 1))
-
-  # Calculating the log-probability of observing this repartition
-  logproba <- extraDistr::dmvhyper(
-    x = matrix(round(K * coprop_vect), nrow = 1),
-    n = nmat,
-    k = k,
-    log = TRUE
+  loglik <- stats::dhyper(
+    x = sum(H_within[upper.tri(H_within)]),
+    m = N_c,
+    n = sum(K * (1 - CoMembership(theta))[upper.tri(CoMembership(theta))]),
+    k = sum(H[upper.tri(H)]), log = TRUE
   )
 
-  # Calculating the log-probability in the most stable scenario
-  N_c <- sum(table(theta) * (table(theta) - 1) / 2)
-  N <- length(coprop_vect)
-  logproba_best <- extraDistr::dmvhyper(
-    x = matrix(c(rep(K, N_c), rep(0, N - N_c)), nrow = 1),
-    n = nmat,
-    k = K * N_c,
-    log = TRUE
-  )
+  # max_within=min(sum(H[upper.tri(H)]), N_c)
+  # loglik_best=c(loglik_best, dhyper(x=max_within,
+  #                                   m = N_c,
+  #                                   n = sum(K*(1-CoMembership(theta))[upper.tri(CoMembership(theta))]),
+  #                                   k = sum(H[upper.tri(H)]), log = TRUE))
 
-  return(logproba / logproba_best)
+  return(-loglik)
 }
