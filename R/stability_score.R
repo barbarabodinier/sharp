@@ -299,20 +299,29 @@ ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
   H_within <- H * CoMembership(theta)
   N_c <- sum(K * CoMembership(theta)[upper.tri(CoMembership(theta))])
 
-  loglik <- stats::dhyper(
-    x = sum(H_within[upper.tri(H_within)]),
-    m = N_c,
-    n = sum(K * (1 - CoMembership(theta))[upper.tri(CoMembership(theta))]),
-    k = sum(H[upper.tri(H)]), log = TRUE
+  H <- round(coprop * K)
+  H_within <- H * CoMembership(theta)
+  H_between <- H * (1 - CoMembership(theta))
+  N_c <- sum(K * CoMembership(theta)[upper.tri(CoMembership(theta))])
+  N <- K * sum(upper.tri(CoMembership(theta)))
+
+  a <- sum(H_within[upper.tri(H_within)]) / N_c
+  b <- sum(H_between[upper.tri(H_between)]) / (N - N_c)
+
+  m <- 1000
+  n <- 1000
+
+  x <- round(a * m)
+  k <- round(a * m) + round(b * n)
+
+  loglik <- stats::phyper(
+    q = x - 1,
+    m = m,
+    n = n,
+    k = k,
+    lower.tail = FALSE,
+    log = TRUE
   )
 
-  max_within <- min(sum(H[upper.tri(H)]), N_c)
-  loglik_best <- stats::dhyper(
-    x = max_within,
-    m = N_c,
-    n = sum(K * (1 - CoMembership(theta))[upper.tri(CoMembership(theta))]),
-    k = sum(H[upper.tri(H)]), log = TRUE
-  )
-
-  return(loglik / loglik_best)
+  return(-loglik)
 }
