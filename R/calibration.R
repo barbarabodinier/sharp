@@ -741,19 +741,26 @@ CalibrationPlot <- function(stability, block_id = NULL,
       # Extracting the number of blocks/components
       if ((stability$methods$type == "graphical_model") & (is.null(block_id))) {
         bigblocks <- BlockMatrix(stability$params$pk)
-        bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+        nblocks <- length(stability$params$pk) * (length(stability$params$pk) + 1) / 2
+        bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = 1:nblocks)
         N_blocks <- unname(table(bigblocks_vect))
-        blocks <- unique(as.vector(bigblocks_vect))
+        blocks <- levels(bigblocks_vect)
         names(N_blocks) <- blocks
-        nblocks <- max(blocks)
-        block_id <- 1:nblocks
+        block_id <- which(N_blocks != 0)
       } else {
-        block_id <- 1
+        if (is.null(block_id)) {
+          block_id <- 1
+        }
       }
       nblocks <- length(block_id)
 
       if (metric == "both") {
         for (b in block_id) {
+          # Printing block ID
+          if (length(block_id) > 1) {
+            message(paste0("Block ", b))
+          }
+
           # Extracting the stability scores
           if (clustering) {
             mat <- matrix(stability$Sc, ncol = length(unique(stability$Lambda)))

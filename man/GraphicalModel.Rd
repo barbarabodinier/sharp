@@ -345,24 +345,6 @@ if (requireNamespace("corpcor", quietly = TRUE)) {
   stable_adjacency <- Adjacency(stab)
 }
 
-
-## Example for the detection of block structure
-
-# Data simulation
-set.seed(1)
-pk <- sample(1:5, size = 5, replace = TRUE)
-simul <- SimulateComponents(
-  n = 100, pk = pk,
-  v_within = c(0.7, 0.8), v_sign = -1
-)
-
-# Data visualisation
-Heatmap(
-  mat = cor(simul$data),
-  col = c("navy", "white", "red"),
-  legend_range = c(-1, 1)
-)
-
 par(oldpar)
 }
 }

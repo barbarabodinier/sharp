@@ -248,24 +248,6 @@
 #'   stable_adjacency <- Adjacency(stab)
 #' }
 #'
-#'
-#' ## Example for the detection of block structure
-#'
-#' # Data simulation
-#' set.seed(1)
-#' pk <- sample(1:5, size = 5, replace = TRUE)
-#' simul <- SimulateComponents(
-#'   n = 100, pk = pk,
-#'   v_within = c(0.7, 0.8), v_sign = -1
-#' )
-#'
-#' # Data visualisation
-#' Heatmap(
-#'   mat = cor(simul$data),
-#'   col = c("navy", "white", "red"),
-#'   legend_range = c(-1, 1)
-#' )
-#'
 #' par(oldpar)
 #' }
 #' @export
@@ -443,15 +425,16 @@ SerialGraphical <- function(xdata, pk = NULL, Lambda, lambda_other_blocks = 0.1,
 
   # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
-  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+  nblocks <- length(pk) * (length(pk) + 1) / 2
+  bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = 1:nblocks)
   N_blocks <- unname(table(bigblocks_vect))
-  blocks <- unique(as.vector(bigblocks_vect))
+  blocks <- levels(bigblocks_vect)
   names(N_blocks) <- blocks
-  nblocks <- max(blocks)
 
   # Preparing the PFER and FDP thresholds
   if (length(PFER_thr) == 1) {
     PFER_thr_blocks <- ceiling(prop.table(N_blocks) * PFER_thr)
+    PFER_thr_blocks[which(is.na(PFER_thr_blocks))] <- Inf
   } else {
     if (length(PFER_thr) == nblocks) {
       PFER_thr_blocks <- PFER_thr

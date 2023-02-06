@@ -129,15 +129,15 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
     Sequential_template <- matrix(TRUE, nrow = nlambda, ncol = 1)
   }
 
-  # Create matrix with block indices
+  # Creating matrix with block indices
   nblocks <- 1
   if (graph) { # to avoid memory issues in high dimensional variable selection
     bigblocks <- BlockMatrix(pk)
-    bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+    nblocks <- length(pk) * (length(pk) + 1) / 2
+    bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = 1:nblocks)
     N_blocks <- unname(table(bigblocks_vect))
-    blocks <- unique(as.vector(bigblocks_vect))
+    blocks <- levels(bigblocks_vect)
     names(N_blocks) <- blocks
-    nblocks <- max(blocks)
   }
 
   # Initialising objects to be filled

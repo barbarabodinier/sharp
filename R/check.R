@@ -460,13 +460,13 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
     }
   }
 
-  # Create matrix with block indices
+  # Creating matrix with block indices
   bigblocks <- BlockMatrix(pk)
-  bigblocks_vect <- bigblocks[upper.tri(bigblocks)]
+  nblocks <- length(pk) * (length(pk) + 1) / 2
+  bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = 1:nblocks)
   N_blocks <- unname(table(bigblocks_vect))
-  blocks <- unique(as.vector(bigblocks_vect))
+  blocks <- levels(bigblocks_vect)
   names(N_blocks) <- blocks
-  nblocks <- max(blocks)
 
   # Checking the inputs (lambda_other_blocks in single-block analyses)
   if (!is.null(lambda_other_blocks)) {
