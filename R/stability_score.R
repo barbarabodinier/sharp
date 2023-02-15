@@ -288,40 +288,34 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' )
 #'
 #' @export
-ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
+ConsensusScore <- function(coprop, nc, K = 100, m = 1000, n = 1000, linkage = "complete") {
   # Clustering on the consensus matrix
   sh_clust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
 
   # Identifying stable clusters
   theta <- stats::cutree(sh_clust, k = nc)
 
-  H <- round(coprop * K)
-  H_within <- H * CoMembership(theta)
-  N_c <- sum(K * CoMembership(theta)[upper.tri(CoMembership(theta))])
+  # Defining relevant quantities
+  N_c <- sum(CoMembership(theta)[upper.tri(CoMembership(theta))])
+  N <- sum(upper.tri(CoMembership(theta)))
+  coprop_within <- coprop * CoMembership(theta)
+  coprop_between <- coprop * (1 - CoMembership(theta))
+  a <- sum(coprop_between[upper.tri(coprop_between)]) / (N - N_c)
+  b <- sum(coprop_within[upper.tri(coprop_within)]) / N_c
 
-  H <- round(coprop * K)
-  H_within <- H * CoMembership(theta)
-  H_between <- H * (1 - CoMembership(theta))
-  N_c <- sum(K * CoMembership(theta)[upper.tri(CoMembership(theta))])
-  N <- K * sum(upper.tri(CoMembership(theta)))
-
-  a <- sum(H_within[upper.tri(H_within)]) / N_c
-  b <- sum(H_between[upper.tri(H_between)]) / (N - N_c)
-
-  m <- 1000
-  n <- 1000
-
+  # Standardisation
   x <- round(a * m)
   k <- round(a * m) + round(b * n)
 
-  loglik <- stats::phyper(
-    q = x - 1,
-    m = m,
-    n = n,
-    k = k,
-    lower.tail = FALSE,
+  # Calculating p-value from hypergeometric test
+  score <- -stats::phyper(
+    q = x, # instances of co-members between stable clusters
+    m = m, # number of between-stable cluster pairs
+    n = n, # number of within-stable cluster pairs
+    k = k, # number of instances
+    lower.tail = TRUE,
     log = TRUE
   )
 
-  return(-loglik)
+  return(score)
 }
