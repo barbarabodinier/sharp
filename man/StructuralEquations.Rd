@@ -8,13 +8,13 @@ StructuralEquations(
   xdata,
   adjacency,
   residual_covariance = NULL,
-  Lambda,
+  Lambda = NULL,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
   tau = 0.5,
   seed = 1,
   n_cat = 3,
-  implementation = PenalisedOpenMx,
+  implementation = PenalisedLinearSystem,
   resampling = "subsampling",
   cpss = FALSE,
   PFER_method = "MB",
@@ -223,9 +223,7 @@ simul <- SimulateStructural(n = 500, pk = pk, nu_between = 0.5, v_sign = 1)
 dag <- LayeredDAG(layers = pk)
 stab <- StructuralEquations(
   xdata = simul$data,
-  adjacency = dag,
-  implementation = PenalisedLinearSystem,
-  Lambda = LambdaSequence(lmax = 1, lmin = 1e-3, cardinal = 20)
+  adjacency = dag
 )
 LinearSystemMatrix(vect = Stable(stab), adjacency = dag)
 
@@ -233,6 +231,7 @@ LinearSystemMatrix(vect = Stable(stab), adjacency = dag)
 if (requireNamespace("OpenMx", quietly = TRUE)) {
   stab <- StructuralEquations(
     xdata = simul$data,
+    implementation = PenalisedOpenMx,
     Lambda = seq(50, 500, by = 50),
     adjacency = dag
   )
@@ -260,6 +259,7 @@ if (requireNamespace("OpenMx", quietly = TRUE)) {
   penalised[, 1:ncol(simul$data)] <- 0
   stab <- StructuralEquations(
     xdata = simul$data,
+    implementation = PenalisedOpenMx,
     adjacency = dag,
     penalised = penalised,
     Lambda = seq(10, 100, by = 20),

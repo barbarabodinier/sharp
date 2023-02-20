@@ -139,9 +139,7 @@
 #' dag <- LayeredDAG(layers = pk)
 #' stab <- StructuralEquations(
 #'   xdata = simul$data,
-#'   adjacency = dag,
-#'   implementation = PenalisedLinearSystem,
-#'   Lambda = LambdaSequence(lmax = 1, lmin = 1e-3, cardinal = 20)
+#'   adjacency = dag
 #' )
 #' LinearSystemMatrix(vect = Stable(stab), adjacency = dag)
 #'
@@ -149,6 +147,7 @@
 #' if (requireNamespace("OpenMx", quietly = TRUE)) {
 #'   stab <- StructuralEquations(
 #'     xdata = simul$data,
+#'     implementation = PenalisedOpenMx,
 #'     Lambda = seq(50, 500, by = 50),
 #'     adjacency = dag
 #'   )
@@ -176,6 +175,7 @@
 #'   penalised[, 1:ncol(simul$data)] <- 0
 #'   stab <- StructuralEquations(
 #'     xdata = simul$data,
+#'     implementation = PenalisedOpenMx,
 #'     adjacency = dag,
 #'     penalised = penalised,
 #'     Lambda = seq(10, 100, by = 20),
@@ -192,9 +192,9 @@
 #' par(oldpar)
 #' @export
 StructuralEquations <- function(xdata, adjacency, residual_covariance = NULL,
-                                Lambda, pi_list = seq(0.6, 0.9, by = 0.01),
+                                Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
                                 K = 100, tau = 0.5, seed = 1, n_cat = 3,
-                                implementation = PenalisedOpenMx,
+                                implementation = PenalisedLinearSystem,
                                 resampling = "subsampling", cpss = FALSE,
                                 PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                                 Lambda_cardinal = 100,
@@ -222,6 +222,19 @@ StructuralEquations <- function(xdata, adjacency, residual_covariance = NULL,
       warning("Invalid input for argument 'n_cores'. Parallelisation relies on forking, it is only available on Unix systems.")
     }
     n_cores <- 1
+  }
+
+  # Defining the grid of penalty parameters (glmnet only)
+  if (is.null(Lambda)) {
+    # Identifying outcomes
+    outcome_ids <- which(apply(adjacency, 2, sum) != 0)
+    predictor_ids <- which(apply(adjacency, 1, sum) != 0)
+
+    # Computing approximate lambda max
+    lambda_max <- max(abs(stats::cov(xdata[, predictor_ids], xdata[, outcome_ids])))
+
+    # Defining lambda grid
+    Lambda <- matrix(LambdaSequence(lmax = lambda_max, lmin = 1e-4 * lambda_max, cardinal = Lambda_cardinal), ncol = 1)
   }
 
   # Stability selection and score

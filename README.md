@@ -56,6 +56,11 @@ data_reg <- SimulateRegression(n = 200, pk = 10)
 x_reg <- data_reg$xdata
 y_reg <- data_reg$ydata
 
+# Dataset for structural equation modelling
+set.seed(1)
+data_sem <- SimulateStructural(n = 200, pk = c(5, 2, 3))
+x_sem <- data_sem$data
+
 # Dataset for graphical modelling
 set.seed(1)
 data_ggm <- SimulateGraphical(n = 200, pk = 20)
@@ -82,6 +87,18 @@ regression as implemented in the R package
 ``` r
 stab_reg <- VariableSelection(xdata = x_reg, ydata = y_reg)
 SelectedVariables(stab_reg)
+```
+
+### Structural equation modelling
+
+In a structural equation modelling context, stability selection is done
+using series of LASSO regressions as implemented in the R package
+[**glmnet**](https://CRAN.R-project.org/package=glmnet).
+
+``` r
+dag <- LayeredDAG(layers = c(5, 2, 3))
+stab_sem <- StructuralEquations(xdata = x_sem, adjacency = dag)
+LinearSystemMatrix(vect = Stable(stab_sem), adjacency = dag)
 ```
 
 ### Graphical modelling
