@@ -555,13 +555,13 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
   colnames(Beta) <- colnames(mybeta$selected)
   if (length(dim(mybeta$beta_full)) == 2) {
     Beta_full <- array(0,
-      dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K),
+      dim = c(dim(mybeta$beta_full)[1], dim(mybeta$beta_full)[2], K),
       dimnames = list(rownames(mybeta$beta_full), dimnames(mybeta$beta_full)[[2]], NULL)
     )
   } else {
     if (length(dim(mybeta$beta_full)) == 3) {
       Beta_full <- array(0,
-        dim = c(nrow(Lambda), dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
+        dim = c(dim(mybeta$beta_full)[1], dim(mybeta$beta_full)[2], K, dim(mybeta$beta_full)[3]),
         dimnames = list(rownames(mybeta$beta_full), dimnames(mybeta$beta_full)[[2]], NULL, dimnames(mybeta$beta_full)[[3]])
       )
     } else {
@@ -620,7 +620,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     rownames(bigstab) <- rownames(Beta)
     for (i in 1:nrow(Beta)) {
       for (j in 1:ncol(Beta)) {
-        bigstab[i, j] <- sum(Beta[i, j, ] != 0) / K
+        bigstab[i, j] <- sum(Beta[i, j, ] != 0, na.rm = TRUE) / sum(!is.na(Beta[i, j, ]))
       }
     }
   } else {
@@ -697,14 +697,20 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     bigstab <- matrix(0, nrow = nrow(Beta), ncol = ncol(Beta))
     colnames(bigstab) <- colnames(Beta)
     rownames(bigstab) <- rownames(Beta)
+    n_valid <- rep(0, nrow(Beta))
     for (k in 1:ceiling(K / 2)) {
       A1 <- ifelse(Beta[, , k] != 0, yes = 1, no = 0)
       A2 <- ifelse(Beta[, , ceiling(K / 2) + k] != 0, yes = 1, no = 0)
       A <- A1 + A2
       A <- ifelse(A == 2, yes = 1, no = 0)
+      tmp_missing <- apply(A, 1, FUN = function(x) {
+        any(is.na(x))
+      })
+      A[which(tmp_missing), ] <- 0
+      n_valid <- n_valid + ifelse(!tmp_missing, yes = 1, no = 0)
       bigstab <- bigstab + A
     }
-    bigstab <- bigstab / ceiling(K / 2)
+    bigstab <- bigstab / n_valid
   }
 
   if (verbose) {

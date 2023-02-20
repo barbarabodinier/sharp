@@ -83,11 +83,15 @@ myglasso <- PenalisedGraphical(
   output_omega = TRUE
 )
 }
+\references{
+\insertRef{GraphicalLassoTibshirani}{sharp}
+}
 \seealso{
 \code{\link{GraphicalModel}}
 
 Other underlying algorithm functions: 
 \code{\link{ClusteringAlgo}()},
-\code{\link{PenalisedRegression}()}
+\code{\link{PenalisedRegression}()},
+\code{\link{PenalisedSEM}()}
 }
 \concept{underlying algorithm functions}

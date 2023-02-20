@@ -1,8 +1,8 @@
 Package: sharp
 Type: Package
 Title: Stability-enHanced Approaches using Resampling Procedures
-Version: 1.3.0.9005
-Date: 2023-01-18
+Version: 1.3.0.9006
+Date: 2023-02-20
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <b.bodinier@imperial.ac.uk>
 URL: https://github.com/barbarabodinier/sharp
@@ -24,10 +24,12 @@ Imports:
     huge,
     igraph,
     impute,
+    lavaan,
     MASS,
     mclust,
     parallel,
     Rdpack,
+    regsem,
     withr (>= 2.4.0)
 Suggests:
     cluster,
@@ -37,6 +39,7 @@ Suggests:
     gglasso,
     mixOmics,
     nnet,
+    OpenMx,
     plotrix,
     RCy3,
     randomcoloR,

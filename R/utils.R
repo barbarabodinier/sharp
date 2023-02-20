@@ -155,14 +155,11 @@ DummyToCategories <- function(x, verbose = FALSE) {
 #' @return A symmetric and binary matrix.
 #'
 #' @examples
-#' \dontrun{
 #' # Simulated grouping structure
 #' mygroups <- c(rep(1, 3), rep(2, 5), rep(3, 2))
 #'
 #' # Co-membership matrix
 #' CoMembership(mygroups)
-#' }
-#'
 #' @export
 CoMembership <- function(groups) {
   if (length(unique(groups)) > 1) {

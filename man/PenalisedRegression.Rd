@@ -54,11 +54,15 @@ mylasso <- PenalisedRegression(
 )
 mylasso$beta_full
 }
+\references{
+\insertRef{lasso}{sharp}
+}
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 
 Other underlying algorithm functions: 
 \code{\link{ClusteringAlgo}()},
-\code{\link{PenalisedGraphical}()}
+\code{\link{PenalisedGraphical}()},
+\code{\link{PenalisedSEM}()}
 }
 \concept{underlying algorithm functions}

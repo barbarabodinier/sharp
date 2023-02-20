@@ -80,6 +80,7 @@ myclust <- ClusteringAlgo(
 
 Other underlying algorithm functions: 
 \code{\link{PenalisedGraphical}()},
-\code{\link{PenalisedRegression}()}
+\code{\link{PenalisedRegression}()},
+\code{\link{PenalisedSEM}()}
 }
 \concept{underlying algorithm functions}

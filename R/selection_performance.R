@@ -96,7 +96,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
     if (is.vector(Asum)) {
       out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
     } else {
-      if (isSymmetric(theta_star)) {
+      if (ncol(theta_star) == nrow(theta_star)) {
         out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
       } else {
         out <- NULL
@@ -218,16 +218,28 @@ GraphComparison <- function(graph1, graph2,
   # Refining inputs
   names(col) <- names(lty) <- c("FP", "TN", "TP")
 
+  # Defining mode
+  if ("mode" %in% names(extra_args)) {
+    mode <- extra_args$mode
+  } else {
+    if (igraph::is.igraph(graph1)) {
+      mode <- ifelse(igraph::is.directed(graph1), yes = "directed", no = "undirected")
+    } else {
+      mode <- ifelse(isSymmetric(theta), yes = "undirected", no = "directed")
+    }
+  }
+
   # Extracting relevant extra arguments
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sharp::Graph)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour")]
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = Graph)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("adjacency", "node_colour", "mode")]
 
   # Making consensus graph
   # g <- Graph(adjacency = ifelse(Asum != 0, yes = 1, no = 0), node_colour = node_colour, ...)
-  g <- do.call(sharp::Graph, args = c(
+  g <- do.call(Graph, args = c(
     list(
       adjacency = ifelse(Asum != 0, yes = 1, no = 0),
-      node_colour = node_colour
+      node_colour = node_colour,
+      mode = mode
     ),
     tmp_extra_args
   ))
@@ -378,7 +390,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   if (TP + FP > 0) {
     precision <- TP / (TP + FP)
   } else {
-    precision <- 0
+    precision <- 1
   }
   if ((TP + FN) > 0) {
     recall <- TP / (TP + FN)
@@ -388,7 +400,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
   if ((precision > 0) | (recall > 0)) {
     F1_score <- 2 * precision * recall / (precision + recall)
   } else {
-    F1_score <- 0
+    F1_score <- 1
   }
 
   if (is.null(cor)) {

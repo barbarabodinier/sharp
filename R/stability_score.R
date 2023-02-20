@@ -288,7 +288,11 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' )
 #'
 #' @export
-ConsensusScore <- function(coprop, nc, K = 100, m = 1000, n = 1000, linkage = "complete") {
+ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
+  # Setting parameters
+  m <- 1000
+  n <- 1000
+
   # Clustering on the consensus matrix
   sh_clust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
 

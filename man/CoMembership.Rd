@@ -17,12 +17,9 @@ Generates a symmetric and binary matrix indicating, if two items are
 co-members, i.e. belong to the same cluster.
 }
 \examples{
-\dontrun{
 # Simulated grouping structure
 mygroups <- c(rep(1, 3), rep(2, 5), rep(3, 2))
 
 # Co-membership matrix
 CoMembership(mygroups)
-}
-
 }
