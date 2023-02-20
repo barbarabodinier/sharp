@@ -1010,6 +1010,9 @@ OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
   # Checking OpenMx package is installed
   CheckPackageInstalled("OpenMx")
 
+  # Re-formatting inputs
+  vect <- vect[1, ]
+
   # Defining RAM matrices in OpenMx format
   ram_matrices <- OpenMxModel(adjacency = adjacency, residual_covariance = residual_covariance)
 
