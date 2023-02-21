@@ -593,7 +593,7 @@ CheckInputClustering <- function(xdata, Lambda = NULL,
   if (sum(is.na(xdata)) > 0) {
     stop("Invalid input for argument 'xdata'. Missing values are not allowed in 'xdata'.")
   }
-  if ((nrow(xdata) < 10) | (ncol(xdata) < 1)) {
+  if ((nrow(xdata) < 3) | (ncol(xdata) < 1)) {
     stop("Invalid input for argument 'xdata'. Not enough xdata.")
   }
 

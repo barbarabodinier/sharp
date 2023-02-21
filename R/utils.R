@@ -173,7 +173,7 @@ CoMembership <- function(groups) {
   }
 
   # Re-formatting co-membership matrix
-  diag(comembership) <- 0
+  diag(comembership) <- 1
   rownames(comembership) <- colnames(comembership) <- names(groups)
 
   return(comembership)
