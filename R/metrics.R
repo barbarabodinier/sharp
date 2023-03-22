@@ -184,7 +184,9 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
           tmp_FDPs[j] <- FDP(selprop = stab_iter_block, PFER = tmp_PFERs[j], pi = pi)
           if ((tmp_PFERs[j] <= PFER_thr_blocks[block_id]) & (tmp_FDPs[j] <= FDP_thr_blocks[block_id])) {
             # Computing stability score (group penalisation is accounted for above so no need here)
-            tmp_loglik[j] <- StabilityScore(selprop = stab_iter_block, pi_list = pi, K = K, n_cat = n_cat, group = NULL)
+            theta <- ifelse(stab_iter_block >= pi, yes = 1, no = 0)
+            tmp_loglik[j] <- ConsensusScore(prop = stab_iter_block, K = K, theta = theta)
+            # tmp_loglik[j] <- StabilityScore(selprop = stab_iter_block, pi_list = pi, K = K, n_cat = n_cat, group = NULL)
           }
         }
 
@@ -200,7 +202,12 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
         # Keeping best stability score and other parameters at the max
         if (any(!is.na(tmp_loglik))) {
           tmp_loglik[is.na(tmp_loglik)] <- 0
-          myid <- which.max(tmp_loglik)
+
+          # Extracting the best pi (highest threshold if multiple choices)
+          myid <- which(tmp_loglik == max(tmp_loglik, na.rm = TRUE))
+          myid <- max(myid)
+
+          # Extracting corresponding metrics
           tmp_loglik[which(tmp_loglik == 0)] <- NA
           best_loglik[k, block_id] <- tmp_loglik[myid]
           P[k, block_id] <- pi_list[myid]

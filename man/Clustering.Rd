@@ -194,7 +194,7 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
   \insertRef{ConsensusClustering}{sharp}
 }
 \seealso{
-\code{\link{Resample}}, \code{\link{StabilityScore}},
+\code{\link{Resample}}, \code{\link{ConsensusScore}},
   \code{\link{HierarchicalClustering}}, \code{\link{PAMClustering}},
   \code{\link{KMeansClustering}}, \code{\link{GMMClustering}}
 

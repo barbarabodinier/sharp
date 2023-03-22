@@ -241,7 +241,7 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' stab$Sc[3]
 #'
 #' # Calculating the consensus score
-#' theta=CoMembership(Clusters(stab, argmax_id = 3))
+#' theta <- CoMembership(Clusters(stab, argmax_id = 3))
 #' ConsensusScore(
 #'   prop = (stab$coprop[, , 3])[upper.tri(stab$coprop[, , 3])],
 #'   K = stab$sampled_pairs[upper.tri(stab$sampled_pairs)],
@@ -261,9 +261,9 @@ ConsensusScore <- function(prop, K, theta) {
   p_b <- X_b / N_b
   p_0 <- (X_w + X_b) / (N_w + N_b)
   score <- (p_w - p_b) / sqrt(p_0 * (1 - p_0) * (1 / N_w + 1 / N_b))
-  
-#   # Calculating consensus score as negative log p-value
-#   score <- -stats::pnorm(z, lower.tail = FALSE, log.p = TRUE)
+
+  #   # Calculating consensus score as negative log p-value
+  #   score <- -stats::pnorm(z, lower.tail = FALSE, log.p = TRUE)
 
   return(score)
 }

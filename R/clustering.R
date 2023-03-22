@@ -91,7 +91,7 @@
 #'
 #' @family stability functions
 #'
-#' @seealso \code{\link{Resample}}, \code{\link{StabilityScore}},
+#' @seealso \code{\link{Resample}}, \code{\link{ConsensusScore}},
 #'   \code{\link{HierarchicalClustering}}, \code{\link{PAMClustering}},
 #'   \code{\link{KMeansClustering}}, \code{\link{GMMClustering}}
 #'

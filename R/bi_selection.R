@@ -501,12 +501,19 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
               if (any(mytmp != 1)) {
                 # Computing stability score for Y variables
                 if (as.character(substitute(implementation)) == "GroupPLS") {
-                  hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp,
-                    pi_list = stab$params$pi_list, K = K,
-                    group = NAToNULL(group_y)
-                  ))]
-                } else {
-                  hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
+                  # Using group penalisation (extracting one per group)
+                  mytmp <- mytmp[cumsum(NAToNULL(group_y))]
+                }
+                # Calculating the score for different thresholds pi
+                tmpscore <- rep(NA, length(stab$params$pi_list))
+                for (k in 1:length(stab$params$pi_list)) {
+                  theta <- ifelse(mytmp >= stab$params$pi_list[k], yes = 1, no = 0)
+                  tmpscore[k] <- ConsensusScore(prop = mytmp, K = K, theta = theta)
+                }
+                hat_pi <- NA
+                if (any(!is.na(tmpscore))) {
+                  myid <- which(tmpscore == max(tmpscore, na.rm = TRUE))
+                  hat_pi <- stab$params$pi_list[max(myid)]
                 }
                 tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(mytmp >= hat_pi, yes = 1, no = 0)
               } else {

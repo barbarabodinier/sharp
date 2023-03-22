@@ -38,10 +38,11 @@ stab <- Clustering(
 stab$Sc[3]
 
 # Calculating the consensus score
+theta <- CoMembership(Clusters(stab, argmax_id = 3))
 ConsensusScore(
-  prop = stab$coprop[, , 3],
-  K = stab$sampled_pairs,
-  theta = CoMembership(Clusters(stab, argmax_id = 3))
+  prop = (stab$coprop[, , 3])[upper.tri(stab$coprop[, , 3])],
+  K = stab$sampled_pairs[upper.tri(stab$sampled_pairs)],
+  theta = theta[upper.tri(theta)]
 )
 
 }
