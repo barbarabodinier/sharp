@@ -216,50 +216,9 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' how unlikely it is that the clustering procedure is uniform (i.e.
 #' uninformative) for a given combination of parameters.
 #'
-#' @param coprop consensus matrix obtained with \code{nc} clusters across
-#'   \code{K} subsampling iterations.
-#' @param nc number of clusters.
-#' @param K number of subsampling iterations.
-#' @param linkage character string indicating the type of linkage used in
-#'   hierarchical clustering to define the stable clusters. Possible values
-#'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
-#'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
-#'
-#' @details Let \eqn{\Gamma(\lambda, G)} be the consensus matrix. We introduce
-#'   the matrix \eqn{H(\lambda, G)} of co-membership count corrected for the
-#'   subsampling procedure, defined as the integer part of \eqn{K
-#'   \Gamma(\lambda, G)}.
-#'
-#'   Under the hypothesis of equiprobability of co-membership (instability), we
-#'   assume that the co-membership counts follow the same binomial distribution
-#'   for all pairs of items.
-#'
-#'   Given stable clusters \eqn{Z} and hyper-parameters \eqn{(\lambda, G)},
-#'   clustering stability is measured as the probability \eqn{p_{\lambda,
-#'   G}(H|z)} of observing co-membership counts in \eqn{H} that are at least as
-#'   high within clusters and at least as low between clusters under
-#'   equiprobability:
-#'
-#'   \eqn{p_{\lambda, G}(H|Z) = \prod_{i < j} F(H_{ij})^{1_{Z_i=/=Z_j}}
-#'   \times (1 - F(H_{ij}))^{1_{Z_i=Z_j}}}
-#'
-#'   where \eqn{F(x)} is the cumulative probability function of the binomial
-#'   distribution with parameters \eqn{K} and probability \eqn{\gamma = N_c/N}
-#'   with \eqn{N_c} the number of stable co-members and \eqn{N} the number of
-#'   item pairs.
-#'
-#'   This probability is minimised at \eqn{H^s}, which corresponding to the most
-#'   stable clustering and is defined as:
-#'
-#'   \eqn{H^s_{ij} = K \times 1_{Z_i = Z_j}}
-#'
-#'   The consensus score is calculated as the following standardised
-#'   probability:
-#'
-#'   \eqn{S_c(\lambda, G) = (p_{\lambda, G}(H (\lambda, G)|Z)) / (p_{\lambda,
-#'   G}(H^s|Z))}
-#'
-#'   The consensus score increases with clustering stability.
+#' @param prop consensus matrix.
+#' @param K matrix of co-sampling counts.
+#' @param theta consensus co-membership matrix.
 #'
 #' @return A consensus score between 0 and 1.
 #'
@@ -282,44 +241,29 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' stab$Sc[3]
 #'
 #' # Calculating the consensus score
+#' theta=CoMembership(Clusters(stab, argmax_id = 3))
 #' ConsensusScore(
-#'   coprop = stab$coprop[, , 3],
-#'   nc = stab$nc[3]
+#'   prop = (stab$coprop[, , 3])[upper.tri(stab$coprop[, , 3])],
+#'   K = stab$sampled_pairs[upper.tri(stab$sampled_pairs)],
+#'   theta = theta[upper.tri(theta)]
 #' )
 #'
 #' @export
-ConsensusScore <- function(coprop, nc, K = 100, linkage = "complete") {
-  # Setting parameters
-  m <- 1000
-  n <- 1000
+ConsensusScore <- function(prop, K, theta) {
+  # Calculating the within and between sums
+  X_w <- sum(prop * K * theta)
+  X_b <- sum(prop * K * (1 - theta))
+  N_w <- sum(K * theta)
+  N_b <- sum(K * (1 - theta))
 
-  # Clustering on the consensus matrix
-  sh_clust <- stats::hclust(stats::as.dist(1 - coprop), method = linkage)
-
-  # Identifying stable clusters
-  theta <- stats::cutree(sh_clust, k = nc)
-
-  # Defining relevant quantities
-  N_c <- sum(CoMembership(theta)[upper.tri(CoMembership(theta))])
-  N <- sum(upper.tri(CoMembership(theta)))
-  coprop_within <- coprop * CoMembership(theta)
-  coprop_between <- coprop * (1 - CoMembership(theta))
-  a <- sum(coprop_between[upper.tri(coprop_between)]) / (N - N_c)
-  b <- sum(coprop_within[upper.tri(coprop_within)]) / N_c
-
-  # Standardisation
-  x <- round(a * m)
-  k <- round(a * m) + round(b * n)
-
-  # Calculating p-value from hypergeometric test
-  score <- -stats::phyper(
-    q = x, # instances of co-members between stable clusters
-    m = m, # number of between-stable cluster pairs
-    n = n, # number of within-stable cluster pairs
-    k = k, # number of instances
-    lower.tail = TRUE,
-    log = TRUE
-  )
+  # Calculating the z statistic
+  p_w <- X_w / N_w
+  p_b <- X_b / N_b
+  p_0 <- (X_w + X_b) / (N_w + N_b)
+  score <- (p_w - p_b) / sqrt(p_0 * (1 - p_0) * (1 / N_w + 1 / N_b))
+  
+#   # Calculating consensus score as negative log p-value
+#   score <- -stats::pnorm(z, lower.tail = FALSE, log.p = TRUE)
 
   return(score)
 }

@@ -437,11 +437,17 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   # Calibration of consensus clustering
   metrics2 <- matrix(NA, ncol = 1, nrow = dim(bigstab_obs)[3])
   for (i in 1:dim(bigstab_obs)[3]) {
+    # Clustering on the consensus matrix
+    sh_clust <- stats::hclust(stats::as.dist(1 - bigstab_obs[, , i]), method = linkage)
+
+    # Identifying stable clusters
+    theta <- CoMembership(groups = stats::cutree(sh_clust, k = ceiling(nc_full[i])))
+
+    # Calculating the consensus score
     metrics2[i] <- ConsensusScore(
-      coprop = bigstab_obs[, , i],
-      nc = ceiling(nc_full[i]),
-      K = K,
-      linkage = linkage
+      prop = (bigstab_obs[, , i])[upper.tri(bigstab_obs[, , i])],
+      K = sampled_pairs[upper.tri(sampled_pairs)],
+      theta = theta[upper.tri(theta)]
     )
   }
 

@@ -220,9 +220,16 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
     )
   }
   if (inherits(stability1, "clustering")) {
+    sampled_pairs <- stability1$sampled_pairs + stability2$sampled_pairs
     Sc <- matrix(NA, nrow = dim(coprop)[3], ncol = 1)
     for (k in 1:dim(coprop)[3]) {
-      Sc[k, 1] <- ConsensusScore(coprop = coprop[, , k], nc = nc[k], K = K, linkage = stability1$methods$linkage)
+      # Clustering on the consensus matrix
+      sh_clust <- stats::hclust(stats::as.dist(1 - coprop[, , k]), method = stability1$methods$linkage)
+
+      # Identifying stable clusters
+      theta <- CoMembership(groups = stats::cutree(sh_clust, k = nc[k]))
+
+      Sc[k, 1] <- ConsensusScore(prop = coprop[, , k], K = sampled_pairs, theta = theta)
     }
     Q <- 1 / K * (stability1$params$K * stability1$Q + stability2$params$K * stability2$Q) # weighted average
   }
@@ -289,6 +296,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         coprop = coprop,
         Beta = Beta,
         selprop = bigstab,
+        sampled_pairs = sampled_pairs,
         methods = mymethods,
         params = myparams
       )
@@ -300,6 +308,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
         Q = Q,
         coprop = coprop,
         selprop = bigstab,
+        sampled_pairs = sampled_pairs,
         methods = mymethods,
         params = myparams
       )

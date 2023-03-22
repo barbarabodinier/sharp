@@ -911,7 +911,7 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
     nrow = nrow(residual_covariance), ncol = ncol(residual_covariance)
   )
   Slabels[lower.tri(Slabels)] <- Slabels[upper.tri(Slabels)] # symmetry
-  Slabels <- ifelse(residual_covariance == 1, yes = Slabels, no = NA)
+  Slabels <- ifelse(residual_covariance != 0, yes = Slabels, no = NA)
 
   # Creating matrix A
   adjacency_free <- ifelse(adjacency == 1, yes = TRUE, no = FALSE)
@@ -932,9 +932,10 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
   )
 
   # Creating matrix S
-  residual_covariance_free <- ifelse(residual_covariance == 1, yes = TRUE, no = FALSE)
+  residual_covariance_free <- ifelse(residual_covariance != 0, yes = TRUE, no = FALSE)
   ids_fixed <- which(apply(adjacency, 1, sum) == 0)
-  residual_covariance_free[ids_fixed, ids_fixed] <- FALSE # non-residual (co)variances are fixed as data is scaled
+  residual_covariance_free[cbind(ids_fixed, ids_fixed)] <- FALSE # non-residual (co)variances are fixed as data is scaled
+  # }
   Smat <- OpenMx::mxMatrix(
     type = "Full",
     nrow = nrow(residual_covariance),
