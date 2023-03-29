@@ -8,11 +8,11 @@ VariableSelection(
   xdata,
   ydata = NULL,
   Lambda = NULL,
-  pi_list = seq(0.6, 0.9, by = 0.01),
+  pi_list = seq(0.01, 0.99, by = 0.01),
   K = 100,
   tau = 0.5,
   seed = 1,
-  n_cat = 3,
+  n_cat = NULL,
   family = "gaussian",
   implementation = PenalisedRegression,
   resampling = "subsampling",
@@ -56,7 +56,8 @@ If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
@@ -245,10 +246,28 @@ par(mar = rep(7, 4))
 set.seed(1)
 simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
-print(stab)
+
+# Calibration plot
 CalibrationPlot(stab)
+
+# Extracting the results
 summary(stab)
-SelectedVariables(stab)
+Stable(stab)
+SelectionProportions(stab)
+plot(stab)
+
+# Using randomised LASSO
+stab <- VariableSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian", penalisation = "randomised"
+)
+plot(stab)
+
+# Using adaptive LASSO
+stab <- VariableSelection(
+  xdata = simul$xdata, ydata = simul$ydata,
+  family = "gaussian", penalisation = "adaptive"
+)
 plot(stab)
 
 # Using additional arguments from glmnet (e.g. penalty.factor)

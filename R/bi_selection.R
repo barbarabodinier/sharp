@@ -240,8 +240,8 @@
 BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                         LambdaX = NULL, LambdaY = NULL, AlphaX = NULL, AlphaY = NULL,
                         ncomp = 1, scale = TRUE,
-                        pi_list = seq(0.6, 0.9, by = 0.01),
-                        K = 100, tau = 0.5, seed = 1, n_cat = 3,
+                        pi_list = seq(0.01, 0.99, by = 0.01),
+                        K = 100, tau = 0.5, seed = 1, n_cat = NULL,
                         family = "gaussian", implementation = SparsePLS,
                         resampling = "subsampling", cpss = FALSE,
                         PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
@@ -504,16 +504,21 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                   # Using group penalisation (extracting one per group)
                   mytmp <- mytmp[cumsum(NAToNULL(group_y))]
                 }
+
                 # Calculating the score for different thresholds pi
-                tmpscore <- rep(NA, length(stab$params$pi_list))
-                for (k in 1:length(stab$params$pi_list)) {
-                  theta <- ifelse(mytmp >= stab$params$pi_list[k], yes = 1, no = 0)
-                  tmpscore[k] <- ConsensusScore(prop = mytmp, K = K, theta = theta)
-                }
-                hat_pi <- NA
-                if (any(!is.na(tmpscore))) {
-                  myid <- which(tmpscore == max(tmpscore, na.rm = TRUE))
-                  hat_pi <- stab$params$pi_list[max(myid)]
+                if (is.null(n_cat)) {
+                  tmpscore <- rep(NA, length(stab$params$pi_list))
+                  for (k in 1:length(stab$params$pi_list)) {
+                    theta <- ifelse(mytmp >= stab$params$pi_list[k], yes = 1, no = 0)
+                    tmpscore[k] <- ConsensusScore(prop = mytmp, K = K, theta = theta)
+                  }
+                  hat_pi <- NA
+                  if (any(!is.na(tmpscore))) {
+                    myid <- which(tmpscore == max(tmpscore, na.rm = TRUE))
+                    hat_pi <- stab$params$pi_list[max(myid)]
+                  }
+                } else {
+                  hat_pi <- stab$params$pi_list[which.max(StabilityScore(mytmp, pi_list = stab$params$pi_list, K = K))]
                 }
                 tmp_selected_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(mytmp >= hat_pi, yes = 1, no = 0)
               } else {

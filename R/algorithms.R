@@ -4,6 +4,7 @@
 #' \code{implementation}. This function is not using stability.
 #'
 #' @inheritParams VariableSelection
+#' @param scale logical indicating if the predictor data should be scaled.
 #' @param ... additional parameters passed to the function provided in
 #'   \code{implementation}.
 #'
@@ -41,7 +42,7 @@
 #' str(mylasso)
 #' @export
 SelectionAlgo <- function(xdata, ydata = NULL,
-                          Lambda, group_x = NULL,
+                          Lambda, group_x = NULL, scale = TRUE,
                           family = NULL,
                           implementation = PenalisedRegression, ...) {
   # Making sure none of the variables has a null standard deviation
@@ -54,6 +55,11 @@ SelectionAlgo <- function(xdata, ydata = NULL,
     for (k in which(mysd == 0)) {
       xdata[, k] <- xdata[, k] + stats::rnorm(n = nrow(xdata), sd = min(mysd[mysd != 0]) / 100)
     }
+  }
+
+  # Scaling the predictor data
+  if (scale) {
+    xdata <- scale(xdata)
   }
 
   # Applying user-defined function for variable selection

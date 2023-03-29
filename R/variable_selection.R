@@ -24,7 +24,8 @@
 #' @param seed value of the seed to initialise the random number generator and
 #'   ensure reproducibility of the results (see \code{\link[base]{set.seed}}).
 #' @param n_cat number of categories used to compute the stability score.
-#'   Possible values are 2 or 3.
+#'   Default is \code{NULL} to use the consensus score. Other possible values
+#'   are 2 or 3.
 #' @param family type of regression model. This argument is defined as in
 #'   \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}
 #'   (linear regression), \code{"binomial"} (logistic regression),
@@ -205,10 +206,28 @@
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
-#' print(stab)
+#'
+#' # Calibration plot
 #' CalibrationPlot(stab)
+#'
+#' # Extracting the results
 #' summary(stab)
-#' SelectedVariables(stab)
+#' Stable(stab)
+#' SelectionProportions(stab)
+#' plot(stab)
+#'
+#' # Using randomised LASSO
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "gaussian", penalisation = "randomised"
+#' )
+#' plot(stab)
+#'
+#' # Using adaptive LASSO
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "gaussian", penalisation = "adaptive"
+#' )
 #' plot(stab)
 #'
 #' # Using additional arguments from glmnet (e.g. penalty.factor)
@@ -365,8 +384,8 @@
 #' }
 #'
 #' @export
-VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
-                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
+VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(0.01, 0.99, by = 0.01),
+                              K = 100, tau = 0.5, seed = 1, n_cat = NULL,
                               family = "gaussian", implementation = PenalisedRegression,
                               resampling = "subsampling", cpss = FALSE,
                               PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,

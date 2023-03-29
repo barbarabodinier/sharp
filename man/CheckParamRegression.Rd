@@ -10,7 +10,7 @@ CheckParamRegression(
   K = 100,
   tau = 0.5,
   seed = 1,
-  n_cat = 3,
+  n_cat = NULL,
   family = "gaussian",
   implementation = PenalisedRegression,
   resampling = "subsampling",
@@ -40,7 +40,8 @@ If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}

@@ -252,7 +252,7 @@
 #' }
 #' @export
 GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks = 0.1,
-                           pi_list = seq(0.6, 0.9, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = 3,
+                           pi_list = seq(0.01, 0.99, by = 0.01), K = 100, tau = 0.5, seed = 1, n_cat = NULL,
                            implementation = PenalisedGraphical, start = "warm", scale = TRUE,
                            resampling = "subsampling", cpss = FALSE,
                            PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,

@@ -45,7 +45,8 @@ or\code{implementation=PAMClustering}.}
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),

@@ -5,6 +5,19 @@
 #'
 #' @inheritParams VariableSelection
 #' @param Lambda matrix of parameters controlling the level of sparsity.
+#' @param penalisation type of penalisation to use. If
+#'   \code{penalisation="classic"} (the default), penalised regression is done
+#'   with the same regularisation parameter, or using \code{penalty.factor}, if
+#'   specified. If \code{penalisation="randomised"}, the regularisation for each
+#'   of the variables is uniformly chosen between \code{lambda} and
+#'   \code{lambda/gamma}. If \code{penalisation="adaptive"}, the regularisation
+#'   for each of the variables is weighted by \code{1/abs(beta)^gamma} where
+#'   \code{beta} is the regression coefficient obtained from unpenalised
+#'   regression.
+#' @param gamma parameter for randomised or adaptive regularisation. Default is
+#'   \code{gamma=0.5} for randomised regularisation and \code{gamma=2} for
+#'   adaptive regularisation. The parameter \code{gamma} should be between
+#'   \code{0} and \code{1} for randomised regularisation.
 #' @param ... additional parameters passed to \code{\link[glmnet]{glmnet}}.
 #'
 #' @return A list with: \item{selected}{matrix of binary selection status. Rows
@@ -16,7 +29,11 @@
 #' @family underlying algorithm functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 #'
-#' @references \insertRef{lasso}{sharp}
+#' @references \insertRef{stabilityselectionMB}{sharp}
+#'
+#'   \insertRef{AdaptiveLasso}{sharp}
+#'
+#'   \insertRef{lasso}{sharp}
 #'
 #' @examples
 #' # Data simulation
@@ -37,29 +54,117 @@
 #' )
 #' mylasso$beta_full
 #' @export
-PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family, ...) {
+PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
+                                penalisation = c("classic", "randomised", "adaptive"),
+                                gamma = NULL,
+                                ...) {
   # Checking that input data are matrices
   xdata <- as.matrix(xdata)
   ydata <- as.matrix(ydata)
 
+  # Defining the type of penalised regression
+  penalisation <- match.arg(penalisation)
+
+  # Setting the default gamma
+  if (is.null(gamma)) {
+    gamma <- switch(penalisation,
+      classic = NULL,
+      randomised = 0.5,
+      adaptive = 2
+    )
+  }
+
   # Storing extra arguments
   extra_args <- list(...)
+
+  # Preparing the data for randomised lasso
+  if (penalisation == "randomised") {
+    xdata <- t(t(xdata) * stats::runif(ncol(xdata), min = gamma, max = 1))
+  }
+
+  # Preparing the data for adaptive lasso
+  if (penalisation == "adaptive") {
+    # Running unpenalised model to get the weights
+    if (family == "multinomial") {
+      # Extracting relevant extra arguments (excluding penalty.factor here)
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::glmnet)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "standardize", "family", "type.multinomial", "penalty.factor")]
+
+      # Running model
+      myweights <- stats::coef(do.call(glmnet::glmnet, args = c(
+        list(
+          x = xdata,
+          y = ydata,
+          family = family,
+          lambda = 0,
+          standardize = FALSE,
+          # thresh = 1e-15,
+          type.multinomial = "grouped"
+        ),
+        tmp_extra_args
+      )))[-1, 1]
+    } else {
+      # Extracting relevant extra arguments (excluding penalty.factor here)
+      tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::glmnet)
+      tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "family", "penalty.factor")]
+
+      # Running model
+      myweights <- stats::coef(do.call(glmnet::glmnet, args = c(
+        list(
+          x = xdata,
+          y = ydata,
+          lambda = 0,
+          standardize = FALSE,
+          # thresh = 1e-15, # could cause convergence issues
+          family = family
+        ),
+        tmp_extra_args
+      )))[-1, 1]
+    }
+
+    # Using the weights as penalty factors
+    myweights <- 1 / (abs(myweights)^gamma)
+    if ("penalty.factor" %in% names(extra_args)) {
+      extra_args$penalty.factor <- extra_args$penalty.factor * myweights
+    } else {
+      extra_args$penalty.factor <- myweights
+    }
+  }
 
   # Running the regression
   if (family == "multinomial") {
     # Extracting relevant extra arguments
     tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::glmnet)
-    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "family", "type.multinomial")]
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "standardize", "family", "type.multinomial")]
 
     # Running model
-    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family, type.multinomial = "grouped"), tmp_extra_args))
+    mymodel <- do.call(glmnet::glmnet, args = c(
+      list(
+        x = xdata,
+        y = ydata,
+        family = family,
+        lambda = Lambda,
+        standardize = FALSE,
+        type.multinomial = "grouped"
+      ),
+      tmp_extra_args
+    ))
   } else {
     # Extracting relevant extra arguments
     tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::glmnet)
-    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "family")]
+    tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "standardize", "family")]
 
     # Running model
-    mymodel <- do.call(glmnet::glmnet, args = c(list(x = xdata, y = ydata, lambda = Lambda, family = family), tmp_extra_args))
+    mymodel <- do.call(glmnet::glmnet, args = c(
+      list(
+        x = xdata,
+        y = ydata,
+        lambda = Lambda,
+        standardize = FALSE,
+        family = family
+      ),
+      tmp_extra_args
+    ))
   }
 
   if (!is.infinite(mymodel$lambda[1])) {

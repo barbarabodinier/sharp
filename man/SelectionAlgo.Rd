@@ -9,6 +9,7 @@ SelectionAlgo(
   ydata = NULL,
   Lambda,
   group_x = NULL,
+  scale = TRUE,
   family = NULL,
   implementation = PenalisedRegression,
   ...
@@ -31,6 +32,8 @@ If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
 argument indicates the number of variables in each group. Only used for
 models with group penalisation (e.g. \code{implementation=GroupPLS} or
 \code{implementation=SparseGroupPLS}).}
+
+\item{scale}{logical indicating if the predictor data should be scaled.}
 
 \item{family}{type of regression model. This argument is defined as in
 \code{\link[glmnet]{glmnet}}. Possible values include \code{"gaussian"}

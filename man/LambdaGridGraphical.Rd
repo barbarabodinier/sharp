@@ -47,7 +47,8 @@ Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 \code{cpss=FALSE}.}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{implementation}{function to use for graphical modelling. If
 \code{implementation=PenalisedGraphical}, the algorithm implemented in

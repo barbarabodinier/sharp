@@ -8,7 +8,7 @@
 #'
 #' @keywords internal
 CheckParamRegression <- function(Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
-                                 K = 100, tau = 0.5, seed = 1, n_cat = 3,
+                                 K = 100, tau = 0.5, seed = 1, n_cat = NULL,
                                  family = "gaussian", implementation = PenalisedRegression,
                                  resampling = "subsampling", PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                                  Lambda_cardinal = 100,
@@ -46,7 +46,13 @@ CheckParamRegression <- function(Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.0
 
   # Checking the inputs (pi_list)
   pi_list <- sort(pi_list)
-  if (n_cat == 3) {
+  restricted <- FALSE
+  if (!is.null(n_cat)) {
+    if (n_cat == 3) {
+      restricted <- TRUE
+    }
+  }
+  if (restricted) {
     if (any(pi_list > 0.5) & any(pi_list < 1)) {
       if ((min(pi_list) < 0.5) | (max(pi_list) > 1)) {
         warning("The values in 'pi_list' must be between 0.5 and 1. All other values were discarded.")
@@ -88,10 +94,12 @@ CheckParamRegression <- function(Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.0
   }
 
   # Checking the inputs (n_cat)
-  n_cat <- as.numeric(n_cat)
-  if ((length(n_cat) != 1) | is.na(n_cat)) {
-    warning("Invalid input for argument 'n_cat'. The argument 'seed' must be set to 2 or 3. The default value (3) was used.")
-    n_cat <- 3
+  if (!is.null(n_cat)) {
+    n_cat <- as.numeric(n_cat)
+    if ((length(n_cat) != 1) | is.na(n_cat)) {
+      warning("Invalid input for argument 'n_cat'. The argument 'n_cat' must be set to 2 or 3. The default value (3) was used.")
+      n_cat <- 3
+    }
   }
 
   # Checking the inputs (family)
@@ -344,7 +352,13 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
 
   # Checking the inputs (pi_list)
   pi_list <- sort(pi_list)
-  if (n_cat == 3) {
+  restricted <- FALSE
+  if (!is.null(n_cat)) {
+    if (n_cat == 3) {
+      restricted <- TRUE
+    }
+  }
+  if (restricted) {
     if (any(pi_list > 0.5) & any(pi_list < 1)) {
       if ((min(pi_list) < 0.5) | (max(pi_list) > 1)) {
         warning("The values in 'pi_list' must be between 0.5 and 1. All other values were discarded.")
@@ -386,10 +400,12 @@ CheckInputGraphical <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_bl
   }
 
   # Checking the inputs (n_cat)
-  n_cat <- as.numeric(n_cat)
-  if ((length(n_cat) != 1) | is.na(n_cat)) {
-    warning("Invalid input for argument 'n_cat'. The argument 'seed' must be set to 2 or 3. The default value (3) was used.")
-    n_cat <- 3
+  if (!is.null(n_cat)) {
+    n_cat <- as.numeric(n_cat)
+    if ((length(n_cat) != 1) | is.na(n_cat)) {
+      warning("Invalid input for argument 'n_cat'. The argument 'seed' must be set to 2 or 3. The default value (3) was used.")
+      n_cat <- 3
+    }
   }
 
   # Checking the inputs (implementation)

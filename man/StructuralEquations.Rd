@@ -9,11 +9,11 @@ StructuralEquations(
   adjacency,
   residual_covariance = NULL,
   Lambda = NULL,
-  pi_list = seq(0.6, 0.9, by = 0.01),
+  pi_list = seq(0.01, 0.99, by = 0.01),
   K = 100,
   tau = 0.5,
   seed = 1,
-  n_cat = 3,
+  n_cat = NULL,
   implementation = PenalisedLinearSystem,
   resampling = "subsampling",
   cpss = FALSE,
@@ -57,7 +57,8 @@ underlying feature selection algorithm specified in \code{implementation}.}
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{implementation}{function to use for variable selection. If
 \code{implementation=PenalisedSEM}, the algorithm implemented in
@@ -217,7 +218,13 @@ par(mar = rep(7, 4))
 # Data simulation
 set.seed(1)
 pk <- c(3, 2, 3)
-simul <- SimulateStructural(n = 500, pk = pk, nu_between = 0.5, v_sign = 1)
+simul <- SimulateStructural(
+  n = 500,
+  pk = pk,
+  nu_between = 0.5,
+  v_between = 1,
+  v_sign = 1
+)
 
 # Stability selection (using glmnet)
 dag <- LayeredDAG(layers = pk)
@@ -225,6 +232,7 @@ stab <- StructuralEquations(
   xdata = simul$data,
   adjacency = dag
 )
+CalibrationPlot(stab)
 LinearSystemMatrix(vect = Stable(stab), adjacency = dag)
 
 # Stability selection (using OpenMx)
@@ -248,6 +256,7 @@ simul <- SimulateStructural(
   pk = pk,
   nu_between = 0.5,
   v_sign = 1,
+  v_between = 1,
   n_manifest = 3,
   ev_manifest = 0.95
 )

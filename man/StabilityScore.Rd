@@ -22,7 +22,8 @@ StabilityScore(
 \item{K}{number of resampling iterations.}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{group}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group and only needs to

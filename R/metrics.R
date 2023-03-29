@@ -111,7 +111,7 @@
 #' )
 #' @export
 StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
-                             K = 100, n_cat = 3,
+                             K = 100, n_cat = NULL,
                              PFER_method = "MB", PFER_thr_blocks = Inf, FDP_thr_blocks = Inf,
                              Sequential_template = NULL, graph = TRUE, group = NULL) {
   if (graph) {
@@ -184,9 +184,12 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
           tmp_FDPs[j] <- FDP(selprop = stab_iter_block, PFER = tmp_PFERs[j], pi = pi)
           if ((tmp_PFERs[j] <= PFER_thr_blocks[block_id]) & (tmp_FDPs[j] <= FDP_thr_blocks[block_id])) {
             # Computing stability score (group penalisation is accounted for above so no need here)
-            theta <- ifelse(stab_iter_block >= pi, yes = 1, no = 0)
-            tmp_loglik[j] <- ConsensusScore(prop = stab_iter_block, K = K, theta = theta)
-            # tmp_loglik[j] <- StabilityScore(selprop = stab_iter_block, pi_list = pi, K = K, n_cat = n_cat, group = NULL)
+            if (is.null(n_cat)) {
+              theta <- ifelse(stab_iter_block >= pi, yes = 1, no = 0)
+              tmp_loglik[j] <- ConsensusScore(prop = stab_iter_block, K = K, theta = theta)
+            } else {
+              tmp_loglik[j] <- StabilityScore(selprop = stab_iter_block, pi_list = pi, K = K, n_cat = n_cat, group = NULL)
+            }
           }
         }
 

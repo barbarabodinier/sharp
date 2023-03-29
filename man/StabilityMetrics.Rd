@@ -9,7 +9,7 @@ StabilityMetrics(
   pk = NULL,
   pi_list = seq(0.6, 0.9, by = 0.01),
   K = 100,
-  n_cat = 3,
+  n_cat = NULL,
   PFER_method = "MB",
   PFER_thr_blocks = Inf,
   FDP_thr_blocks = Inf,
@@ -33,7 +33,8 @@ selection is performed.}
 \item{K}{number of resampling iterations.}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). If

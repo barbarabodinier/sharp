@@ -4,7 +4,15 @@
 \alias{PenalisedRegression}
 \title{Penalised regression}
 \usage{
-PenalisedRegression(xdata, ydata, Lambda = NULL, family, ...)
+PenalisedRegression(
+  xdata,
+  ydata,
+  Lambda = NULL,
+  family,
+  penalisation = c("classic", "randomised", "adaptive"),
+  gamma = NULL,
+  ...
+)
 }
 \arguments{
 \item{xdata}{matrix of predictors with observations as rows and variables as
@@ -21,6 +29,21 @@ with character/numeric values or a factor.}
 (linear regression), \code{"binomial"} (logistic regression),
 \code{"multinomial"} (multinomial regression), and \code{"cox"} (survival
 analysis).}
+
+\item{penalisation}{type of penalisation to use. If
+\code{penalisation="classic"} (the default), penalised regression is done
+with the same regularisation parameter, or using \code{penalty.factor}, if
+specified. If \code{penalisation="randomised"}, the regularisation for each
+of the variables is uniformly chosen between \code{lambda} and
+\code{lambda/gamma}. If \code{penalisation="adaptive"}, the regularisation
+for each of the variables is weighted by \code{1/abs(beta)^gamma} where
+\code{beta} is the regression coefficient obtained from unpenalised
+regression.}
+
+\item{gamma}{parameter for randomised or adaptive regularisation. Default is
+\code{gamma=0.5} for randomised regularisation and \code{gamma=2} for
+adaptive regularisation. The parameter \code{gamma} should be between
+\code{0} and \code{1} for randomised regularisation.}
 
 \item{...}{additional parameters passed to \code{\link[glmnet]{glmnet}}.}
 }
@@ -55,7 +78,11 @@ mylasso <- PenalisedRegression(
 mylasso$beta_full
 }
 \references{
-\insertRef{lasso}{sharp}
+\insertRef{stabilityselectionMB}{sharp}
+
+  \insertRef{AdaptiveLasso}{sharp}
+
+  \insertRef{lasso}{sharp}
 }
 \seealso{
 \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}

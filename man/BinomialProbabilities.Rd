@@ -17,7 +17,8 @@ be >0.5 and <1. If n_cat=2, these values must be >0 and <1.}
 \item{K}{number of resampling iterations.}
 
 \item{n_cat}{number of categories used to compute the stability score.
-Possible values are 2 or 3.}
+Default is \code{NULL} to use the consensus score. Other possible values
+are 2 or 3.}
 }
 \value{
 A list of probabilities for each of the 2 or 3 categories of

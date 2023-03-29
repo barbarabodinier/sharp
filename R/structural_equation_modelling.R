@@ -133,7 +133,13 @@
 #' # Data simulation
 #' set.seed(1)
 #' pk <- c(3, 2, 3)
-#' simul <- SimulateStructural(n = 500, pk = pk, nu_between = 0.5, v_sign = 1)
+#' simul <- SimulateStructural(
+#'   n = 500,
+#'   pk = pk,
+#'   nu_between = 0.5,
+#'   v_between = 1,
+#'   v_sign = 1
+#' )
 #'
 #' # Stability selection (using glmnet)
 #' dag <- LayeredDAG(layers = pk)
@@ -141,6 +147,7 @@
 #'   xdata = simul$data,
 #'   adjacency = dag
 #' )
+#' CalibrationPlot(stab)
 #' LinearSystemMatrix(vect = Stable(stab), adjacency = dag)
 #'
 #' # Stability selection (using OpenMx)
@@ -164,6 +171,7 @@
 #'   pk = pk,
 #'   nu_between = 0.5,
 #'   v_sign = 1,
+#'   v_between = 1,
 #'   n_manifest = 3,
 #'   ev_manifest = 0.95
 #' )
@@ -192,8 +200,8 @@
 #' par(oldpar)
 #' @export
 StructuralEquations <- function(xdata, adjacency, residual_covariance = NULL,
-                                Lambda = NULL, pi_list = seq(0.6, 0.9, by = 0.01),
-                                K = 100, tau = 0.5, seed = 1, n_cat = 3,
+                                Lambda = NULL, pi_list = seq(0.01, 0.99, by = 0.01),
+                                K = 100, tau = 0.5, seed = 1, n_cat = NULL,
                                 implementation = PenalisedLinearSystem,
                                 resampling = "subsampling", cpss = FALSE,
                                 PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
