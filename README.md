@@ -156,9 +156,7 @@ instead of the graphical LASSO.
 
 - Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet
   and Marc Chadeau-Hyam. Automated calibration for stability selection
-  in penalised regression and graphical models: a multi-OMICs network
-  application exploring the molecular response to tobacco
-  smoking. (2021) arXiv.
+  in penalised regression and graphical models. (2021) arXiv.
   [link](https://doi.org/10.48550/arXiv.2106.02521)
 
 - Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010)

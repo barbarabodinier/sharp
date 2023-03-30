@@ -127,7 +127,7 @@ Other algorithms can be used by defining a wrapper function to be called in `imp
 
 ## References
 
-- Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration for stability selection in penalised regression and graphical models: a multi-OMICs network application exploring the molecular response to tobacco smoking. (2021) arXiv. [link](https://doi.org/10.48550/arXiv.2106.02521)
+- Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration for stability selection in penalised regression and graphical models. (2021) arXiv. [link](https://doi.org/10.48550/arXiv.2106.02521)
 
 - Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010) Journal of the Royal Statistical Society: Series B (Statistical Methodology). [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
 
