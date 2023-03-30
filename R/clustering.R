@@ -428,9 +428,13 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
 
   # Imputation of missing values (accounting for the fact that 2 items potentially never get picked together)
   if (any(is.na(bigstab_obs))) {
-    warning("Missing values in consensus matrix. These have been imputed using KNN imputation. Consider increasing the number of subsamples 'K'.")
+    warning("Missing values in consensus matrix. These have been set to zero by default. Consider increasing the number of subsamples 'K'.")
     for (i in 1:dim(bigstab_obs)[3]) {
-      bigstab_obs[, , i] <- impute::impute.knn(bigstab_obs[, , i])$data
+      if (any(is.na(bigstab_obs[, , i]))) {
+        tmpmat <- bigstab_obs[, , i]
+        tmpmat[which(is.na(tmpmat))] <- 0
+        bigstab_obs[, , i] <- tmpmat
+      }
     }
   }
 
