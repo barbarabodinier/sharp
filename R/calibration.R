@@ -102,11 +102,12 @@ Argmax <- function(stability) {
   } else {
     if (clustering) {
       id <- ArgmaxId(stability = stability)
-      argmax <- matrix(c(
-        stability$nc[id[1], 1],
-        stability$Lambda[id[1], 1]
-      ),
-      ncol = 2
+      argmax <- matrix(
+        c(
+          stability$nc[id[1], 1],
+          stability$Lambda[id[1], 1]
+        ),
+        ncol = 2
       )
     } else {
       argmax <- matrix(NA, nrow = ncol(stability$Lambda), ncol = 2)

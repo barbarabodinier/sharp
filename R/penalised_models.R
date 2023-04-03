@@ -241,9 +241,9 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
 
       # Preparing the outputs
       if ("penalty.factor" %in% names(extra_args)) {
-        selected <- ifelse(mybeta[, colnames(xdata)[which(extra_args$penalty.factor != 0)], 1, drop = FALSE] != 0, yes = 1, no = 0)
+        selected <- ifelse(abind::adrop(mybeta[, colnames(xdata)[which(extra_args$penalty.factor != 0)], 1, drop = FALSE], drop = 3) != 0, yes = 1, no = 0)
       } else {
-        selected <- ifelse(mybeta[, , 1, drop = FALSE] != 0, yes = 1, no = 0)
+        selected <- ifelse(abind::adrop(mybeta[, , 1, drop = FALSE], drop = 3) != 0, yes = 1, no = 0)
       }
       beta_full <- mybeta
     }
@@ -519,13 +519,14 @@ PenalisedSEM <- function(xdata,
 
   for (k in 1:length(Lambda)) {
     # Running regularised sem
-    mymodel <- suppressWarnings(try(withr::with_seed(seed = 1, code = {
-      do.call(regsem::regsem, args = c(
-        list(model = out_lavaan, lambda = Lambda[k]),
-        tmp_extra_args
-      ))
-    }),
-    silent = TRUE
+    mymodel <- suppressWarnings(try(
+      withr::with_seed(seed = 1, code = {
+        do.call(regsem::regsem, args = c(
+          list(model = out_lavaan, lambda = Lambda[k]),
+          tmp_extra_args
+        ))
+      }),
+      silent = TRUE
     ))
 
     # Second chance to convergence
@@ -538,13 +539,14 @@ PenalisedSEM <- function(xdata,
             sd = 0.5 * abs(log(Lambda[k]) - log(Lambda[ifelse(k != 1, yes = k - 1, no = k + 1)]))
           ))
         })
-        mymodel <- suppressWarnings(try(withr::with_seed(seed = 1, code = {
-          do.call(regsem::regsem, args = c(
-            list(model = out_lavaan, lambda = sampled_lambda),
-            tmp_extra_args
-          ))
-        }),
-        silent = TRUE
+        mymodel <- suppressWarnings(try(
+          withr::with_seed(seed = 1, code = {
+            do.call(regsem::regsem, args = c(
+              list(model = out_lavaan, lambda = sampled_lambda),
+              tmp_extra_args
+            ))
+          }),
+          silent = TRUE
         ))
         it_conv <- it_conv + 1
       }

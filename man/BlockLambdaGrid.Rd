@@ -30,22 +30,24 @@ selection algorithm for multi-block calibration.
 }
 \examples{
 # Multi-block grid
-Lambda <- matrix(c(
-  0.8, 0.6, 0.3,
-  0.5, 0.4, 0.2,
-  0.7, 0.5, 0.1
-),
-ncol = 3, byrow = TRUE
+Lambda <- matrix(
+  c(
+    0.8, 0.6, 0.3,
+    0.5, 0.4, 0.2,
+    0.7, 0.5, 0.1
+  ),
+  ncol = 3, byrow = TRUE
 )
 mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = 0.1)
 
 # Multi-parameter grid (not recommended)
-Lambda <- matrix(c(
-  0.8, 0.6, 0.3,
-  0.5, 0.4, 0.2,
-  0.7, 0.5, 0.1
-),
-ncol = 3, byrow = TRUE
+Lambda <- matrix(
+  c(
+    0.8, 0.6, 0.3,
+    0.5, 0.4, 0.2,
+    0.7, 0.5, 0.1
+  ),
+  ncol = 3, byrow = TRUE
 )
 mygrid <- BlockLambdaGrid(Lambda, lambda_other_blocks = NULL)
 }

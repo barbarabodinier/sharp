@@ -11,19 +11,18 @@ Description: In stability selection (N Meinshausen, P Bühlmann (2010) <doi:10.1
 License: GPL (>= 3)
 Language: en-GB
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Depends: 
     fake (>= 1.3.0),
     R (>= 3.5)
 Imports: 
+    abind,
     beepr,
     glassoFast (>= 1.0.0),
     glmnet,
     grDevices,
-    huge,
     igraph,
     lavaan,
-    MASS,
     mclust,
     parallel,
     Rdpack,
