@@ -43,9 +43,8 @@ provided in this case.}
 
 \item{family}{type of regression model. Possible values include
 \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
-regression), \code{"multinomial"} (multinomial regression), and
-\code{"cox"} (survival analysis). If provided, this argument must be
-consistent with input \code{stability}.}
+regression), and \code{"cox"} (survival analysis). If provided, this
+argument must be consistent with input \code{stability}.}
 
 \item{implementation}{optional function to refit the model. If
 \code{implementation=NULL} and \code{stability} is the output of

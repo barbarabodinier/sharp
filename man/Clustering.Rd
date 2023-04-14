@@ -46,9 +46,9 @@ or\code{implementation=PAMClustering}.}
 \item{seed}{value of the seed to initialise the random number generator and
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
-\item{n_cat}{number of categories used to compute the stability score.
-Default is \code{NULL} to use the consensus score. Other possible values
-are 2 or 3.}
+\item{n_cat}{computation options for the stability score. Default is
+\code{NULL} to use the score based on a z test. Other possible values are 2
+or 3 to use the score based on the negative log-likelihood.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),
@@ -130,12 +130,9 @@ In consensus clustering, a clustering algorithm is applied on
   clustering method using \code{(1-coprop)} as distance (see
   \link{Clusters}).
 
-  The number of (stable) clusters is calibrated by maximisation of the
-  consensus score (see \link{ConsensusScore}) calculated from the observed,
-  most stable, and most unstable likelihoods:
-
-  \eqn{S(\lambda, n_C) = [ log(L_u(\lambda, n_C)) - log(L_o(\lambda, n_C)) ]
-  / [ log(L_u(\lambda, n_C)) - log(L_s(\lambda, n_C)) ]}
+  These parameters can be calibrated by maximisation of a stability score
+  (see \code{\link{ConsensusScore}}) calculated under the null hypothesis of
+  equiprobability of co-membership.
 
   It is strongly recommended to examine the calibration plot (see
   \code{\link{CalibrationPlot}}) to check that there is a clear maximum. The

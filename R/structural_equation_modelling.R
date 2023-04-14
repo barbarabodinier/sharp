@@ -39,17 +39,22 @@
 #'   corresponding Directed Acyclic Graph.
 #'
 #'   These parameters can be calibrated by maximisation of a stability score
-#'   (see \code{\link{StabilityScore}}) derived from the likelihood under the
-#'   assumption of uniform (uninformative) selection:
-#'
-#'   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+#'   (see \code{\link{ConsensusScore}} if \code{n_cat=NULL} or
+#'   \code{\link{StabilityScore}} otherwise) calculated under the null
+#'   hypothesis of equiprobability of selection.
 #'
 #'   It is strongly recommended to examine the calibration plot carefully to
 #'   check that the grids of parameters \code{Lambda} and \code{pi_list} do not
 #'   restrict the calibration to a region that would not include the global
 #'   maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
 #'   \code{Lambda} may need to be extended when the maximum stability is
-#'   observed on the left or right edges of the calibration heatmap.
+#'   observed on the left or right edges of the calibration heatmap. In some
+#'   instances, multiple peaks of stability score can be observed. Simulation
+#'   studies suggest that the peak corresponding to the largest number of
+#'   selected features tend to give better selection performances. This is not
+#'   necessarily the highest peak (which is automatically retained by the
+#'   functions in this package). The user can decide to manually choose another
+#'   peak.
 #'
 #'   To control the expected number of False Positives (Per Family Error Rate)
 #'   in the results, a threshold \code{PFER_thr} can be specified. The
@@ -143,7 +148,7 @@
 #'
 #' # Stability selection (using glmnet)
 #' dag <- LayeredDAG(layers = pk)
-#' stab <- StructuralEquations(
+#' stab <- StructuralModel(
 #'   xdata = simul$data,
 #'   adjacency = dag
 #' )
@@ -152,7 +157,7 @@
 #'
 #' # Stability selection (using OpenMx)
 #' if (requireNamespace("OpenMx", quietly = TRUE)) {
-#'   stab <- StructuralEquations(
+#'   stab <- StructuralModel(
 #'     xdata = simul$data,
 #'     implementation = PenalisedOpenMx,
 #'     Lambda = seq(50, 500, by = 50),
@@ -181,7 +186,7 @@
 #'   dag <- LayeredDAG(layers = pk, n_manifest = 3)
 #'   penalised <- dag
 #'   penalised[, 1:ncol(simul$data)] <- 0
-#'   stab <- StructuralEquations(
+#'   stab <- StructuralModel(
 #'     xdata = simul$data,
 #'     implementation = PenalisedOpenMx,
 #'     adjacency = dag,
@@ -199,14 +204,14 @@
 #'
 #' par(oldpar)
 #' @export
-StructuralEquations <- function(xdata, adjacency, residual_covariance = NULL,
-                                Lambda = NULL, pi_list = seq(0.01, 0.99, by = 0.01),
-                                K = 100, tau = 0.5, seed = 1, n_cat = NULL,
-                                implementation = PenalisedLinearSystem,
-                                resampling = "subsampling", cpss = FALSE,
-                                PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
-                                Lambda_cardinal = 100,
-                                n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
+StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
+                            Lambda = NULL, pi_list = seq(0.01, 0.99, by = 0.01),
+                            K = 100, tau = 0.5, seed = 1, n_cat = NULL,
+                            implementation = PenalisedLinearSystem,
+                            resampling = "subsampling", cpss = FALSE,
+                            PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
+                            Lambda_cardinal = 100,
+                            n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Object preparation, error and warning messages
   family <- "gaussian"
   ydata <- NULL

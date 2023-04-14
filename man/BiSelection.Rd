@@ -73,8 +73,9 @@ groups in X. Only used if \code{implementation=SparseGroupPLS} and
 transformed so that all variables have a standard deviation of one).}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
-\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
-\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
+\code{n_cat=NULL} or \code{n_cat=2}, these values must be \code{>0} and
+\code{<1}. If \code{n_cat=3}, these values must be \code{>0.5} and
+\code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
@@ -84,9 +85,9 @@ transformed so that all variables have a standard deviation of one).}
 \item{seed}{value of the seed to initialise the random number generator and
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
-\item{n_cat}{number of categories used to compute the stability score.
-Default is \code{NULL} to use the consensus score. Other possible values
-are 2 or 3.}
+\item{n_cat}{computation options for the stability score. Default is
+\code{NULL} to use the score based on a z test. Other possible values are 2
+or 3 to use the score based on the negative log-likelihood.}
 
 \item{family}{type of PLS model. This parameter must be set to
 \code{family="gaussian"} for continuous outcomes, or to
@@ -224,17 +225,22 @@ In stability selection, a feature selection algorithm is fitted on
   \code{group_y}.
 
   These parameters can be calibrated by maximisation of a stability score
-  (see \code{\link{StabilityScore}}) derived from the likelihood under the
-  assumption of uniform (uninformative) selection:
-
-  \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+  (see \code{\link{ConsensusScore}} if \code{n_cat=NULL} or
+  \code{\link{StabilityScore}} otherwise) calculated under the null
+  hypothesis of equiprobability of selection.
 
   It is strongly recommended to examine the calibration plot carefully to
   check that the grids of parameters \code{Lambda} and \code{pi_list} do not
   restrict the calibration to a region that would not include the global
   maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
   \code{Lambda} may need to be extended when the maximum stability is
-  observed on the left or right edges of the calibration plot.
+  observed on the left or right edges of the calibration heatmap. In some
+  instances, multiple peaks of stability score can be observed. Simulation
+  studies suggest that the peak corresponding to the largest number of
+  selected features tend to give better selection performances. This is not
+  necessarily the highest peak (which is automatically retained by the
+  functions in this package). The user can decide to manually choose another
+  peak.
 
   To control the expected number of False Positives (Per Family Error Rate)
   in the results, a threshold \code{PFER_thr} can be specified. The

@@ -18,12 +18,12 @@ commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=Git
 > In stability selection and consensus clustering, resampling techniques
 > are used to enhance the reliability of the results. In this package,
 > hyper-parameters are calibrated by maximising model stability, which
-> is measured by the negative log-likelihood under the null hypothesis
-> that all selection (or co-membership) probabilities are identical.
-> Functions are readily implemented for the use of LASSO regression,
-> sparse PCA, sparse (group) PLS or graphical LASSO in stability
-> selection, and hierarchical clustering, partitioning around medoids, K
-> means or Gaussian mixture models in consensus clustering.
+> is measured under the null hypothesis that all selection (or
+> co-membership) probabilities are identical. Functions are readily
+> implemented for the use of LASSO regression, sparse PCA, sparse
+> (group) PLS or graphical LASSO in stability selection, and
+> hierarchical clustering, partitioning around medoids, K means or
+> Gaussian mixture models in consensus clustering.
 
 ## Installation
 

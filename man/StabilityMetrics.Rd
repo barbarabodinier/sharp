@@ -27,14 +27,15 @@ variables in each group. If \code{pk=NULL}, single-block stability
 selection is performed.}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
-\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
-\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
+\code{n_cat=NULL} or \code{n_cat=2}, these values must be \code{>0} and
+\code{<1}. If \code{n_cat=3}, these values must be \code{>0.5} and
+\code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{n_cat}{number of categories used to compute the stability score.
-Default is \code{NULL} to use the consensus score. Other possible values
-are 2 or 3.}
+\item{n_cat}{computation options for the stability score. Default is
+\code{NULL} to use the score based on a z test. Other possible values are 2
+or 3 to use the score based on the negative log-likelihood.}
 
 \item{PFER_method}{method used to compute the upper-bound of the expected
 number of False Positives (or Per Family Error Rate, PFER). If

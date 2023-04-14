@@ -44,9 +44,9 @@ or\code{implementation=PAMClustering}.}
 \item{seed}{value of the seed to initialise the random number generator and
 ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
-\item{n_cat}{number of categories used to compute the stability score.
-Default is \code{NULL} to use the consensus score. Other possible values
-are 2 or 3.}
+\item{n_cat}{computation options for the stability score. Default is
+\code{NULL} to use the score based on a z test. Other possible values are 2
+or 3 to use the score based on the negative log-likelihood.}
 
 \item{implementation}{function to use for clustering. Possible functions
 include \code{\link{HierarchicalClustering}} (hierarchical clustering),

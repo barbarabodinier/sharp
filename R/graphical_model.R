@@ -63,17 +63,22 @@
 #'   \eqn{V_{\lambda, \pi} = \{ j: p_{\lambda}(j) \ge \pi \} }
 #'
 #'   These parameters can be calibrated by maximisation of a stability score
-#'   (see \code{\link{StabilityScore}}) derived from the likelihood under the
-#'   assumption of uniform (uninformative) selection:
-#'
-#'   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+#'   (see \code{\link{ConsensusScore}} if \code{n_cat=NULL} or
+#'   \code{\link{StabilityScore}} otherwise) calculated under the null
+#'   hypothesis of equiprobability of selection.
 #'
 #'   It is strongly recommended to examine the calibration plot carefully to
 #'   check that the grids of parameters \code{Lambda} and \code{pi_list} do not
 #'   restrict the calibration to a region that would not include the global
 #'   maximum (see \code{\link{CalibrationPlot}}). In particular, the grid
 #'   \code{Lambda} may need to be extended when the maximum stability is
-#'   observed on the left or right edges of the calibration heatmap.
+#'   observed on the left or right edges of the calibration heatmap. In some
+#'   instances, multiple peaks of stability score can be observed. Simulation
+#'   studies suggest that the peak corresponding to the largest number of
+#'   selected features tend to give better selection performances. This is not
+#'   necessarily the highest peak (which is automatically retained by the
+#'   functions in this package). The user can decide to manually choose another
+#'   peak.
 #'
 #'   To control the expected number of False Positives (Per Family Error Rate)
 #'   in the results, a threshold \code{PFER_thr} can be specified. The
@@ -245,6 +250,7 @@
 #'     xdata = simul$data, Lambda = matrix(c(0.01, 0.05, 0.1), ncol = 1),
 #'     implementation = ShrinkageSelection
 #'   )
+#'   CalibrationPlot(stab)
 #'   stable_adjacency <- Adjacency(stab)
 #' }
 #'

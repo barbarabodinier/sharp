@@ -16,14 +16,15 @@ StabilityScore(
 \item{selprop}{array of selection proportions.}
 
 \item{pi_list}{vector of thresholds in selection proportions. If
-\code{n_cat=3}, these values must be \code{>0.5} and \code{<1}. If
-\code{n_cat=2}, these values must be \code{>0} and \code{<1}.}
+\code{n_cat=NULL} or \code{n_cat=2}, these values must be \code{>0} and
+\code{<1}. If \code{n_cat=3}, these values must be \code{>0.5} and
+\code{<1}.}
 
 \item{K}{number of resampling iterations.}
 
-\item{n_cat}{number of categories used to compute the stability score.
-Default is \code{NULL} to use the consensus score. Other possible values
-are 2 or 3.}
+\item{n_cat}{computation options for the stability score. Default is
+\code{NULL} to use the score based on a z test. Other possible values are 2
+or 3 to use the score based on the negative log-likelihood.}
 
 \item{group}{vector encoding the grouping structure among predictors. This
 argument indicates the number of variables in each group and only needs to
@@ -63,9 +64,11 @@ The stability score is derived from the likelihood under the
   features over resampling iterations.
 
   The stability score is computed as the minus log-transformed likelihood
-  under the assumption of uniform selection:
+  under the assumption of equiprobability of selection:
 
   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+
+  The stability score increases with stability.
 
   Alternatively, the stability score can be computed by considering only two
   sets of features: stably selected (selection proportions \eqn{\ge \pi}) or

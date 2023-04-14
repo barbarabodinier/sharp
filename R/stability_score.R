@@ -30,9 +30,11 @@
 #'   features over resampling iterations.
 #'
 #'   The stability score is computed as the minus log-transformed likelihood
-#'   under the assumption of uniform selection:
+#'   under the assumption of equiprobability of selection:
 #'
 #'   \eqn{S_{\lambda, \pi} = -log(L_{\lambda, \pi})}
+#'
+#'   The stability score increases with stability.
 #'
 #'   Alternatively, the stability score can be computed by considering only two
 #'   sets of features: stably selected (selection proportions \eqn{\ge \pi}) or
@@ -212,15 +214,40 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 
 #' Consensus score
 #'
-#' Computes the consensus score from the consensus matrix. The score measures
-#' how unlikely it is that the clustering procedure is uniform (i.e.
-#' uninformative) for a given combination of parameters.
+#' Computes the consensus score from the consensus matrix, matrix of co-sampling
+#' counts and consensus clusters. The score is a z statistic for the comparison
+#' of the co-membership proportions observed within and between the consensus
+#' clusters.
 #'
 #' @param prop consensus matrix.
 #' @param K matrix of co-sampling counts.
 #' @param theta consensus co-membership matrix.
 #'
-#' @return A consensus score between 0 and 1.
+#' @details
+#'
+#' To calculate the consensus score, the features are classified as being stably
+#' selected or not (in selection) or as being in the same consensus cluster or
+#' not (in clustering). In selection, the quantities \eqn{X_w} and \eqn{X_b} are
+#' defined as the sum of the selection counts for features that are stably
+#' selected or not, respectively. In clustering, the quantities \eqn{X_w} and
+#' \eqn{X_b} are defined as the sum of the co-membership counts for pairs of
+#' items in the same consensus cluster or in different consensus clusters,
+#' respectively.
+#'
+#' Conditionally on this classification, and under the assumption that the
+#' selection (or co-membership) probabilities are the same for all features (or
+#' item pairs) in each of these two categories, the quantities \eqn{X_w} and
+#' \eqn{X_b} follow binomial distributions with probabilities \eqn{p_w} and
+#' \eqn{p_b}, respectively.
+#'
+#' In the most unstable situation, we suppose that all features (or item pairs)
+#' would have the same probability of being selected (or co-members). The
+#' consensus score is the z statistic from a z test where the null hypothesis is
+#' \eqn{p_w \leq p_b}.
+#'
+#' The consensus score increases with stability.
+#'
+#' @return A consensus score.
 #'
 #' @family stability metric functions
 #'

@@ -417,7 +417,7 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' \code{\link{PenalisedLinearSystem}} does not accommodate latent variables.
 #' These functions are not using stability.
 #'
-#' @inheritParams StructuralEquations
+#' @inheritParams StructuralModel
 #' @param Lambda matrix of parameters controlling the level of sparsity. Only
 #'   the minimum, maximum and length are used in \code{\link{PenalisedOpenMx}}.
 #' @param penalised optional binary matrix indicating which coefficients are

@@ -238,7 +238,9 @@ Refit <- function(xdata, ydata, stability = NULL,
 
       # Recalibration for Cox regression
       if (family == "cox") {
-        tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = survival::coxph)
+        ids1 <- which(names(extra_args) %in% names(formals(survival::coxph)))
+        ids2 <- which(names(extra_args) %in% names(formals(survival::coxph.control)))
+        tmp_extra_args <- extra_args[unique(c(ids1, ids2))]
         tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data")]
         ydata <- survival::Surv(time = ydata[, 1], event = ydata[, 2])
         mymodel <- do.call(survival::coxph, args = c(
@@ -252,7 +254,9 @@ Refit <- function(xdata, ydata, stability = NULL,
 
       # Recalibration for logistic regression
       if (family == "binomial") {
-        tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::glm)
+        ids1 <- which(names(extra_args) %in% names(formals(stats::glm)))
+        ids2 <- which(names(extra_args) %in% names(formals(stats::glm.control)))
+        tmp_extra_args <- extra_args[unique(c(ids1, ids2))]
         tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("formula", "data", "family")]
         suppressWarnings({
           mymodel <- do.call(stats::glm, args = c(
@@ -317,6 +321,10 @@ Recalibrate <- Refit
 #'   \code{stability=NULL} (the default), a model including all variables in
 #'   \code{xdata} as predictors is fitted. Argument \code{family} must be
 #'   provided in this case.
+#' @param family type of regression model. Possible values include
+#'   \code{"gaussian"} (linear regression), \code{"binomial"} (logistic
+#'   regression), and \code{"cox"} (survival analysis). If provided, this
+#'   argument must be consistent with input \code{stability}.
 #' @param new_xdata optional test set (predictor data).
 #' @param new_ydata optional test set (outcome data).
 #' @param implementation optional function to refit the model. If

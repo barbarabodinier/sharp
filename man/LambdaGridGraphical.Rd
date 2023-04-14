@@ -46,9 +46,9 @@ Only used for multi-block stability selection, i.e. if \code{length(pk)>1}.}
 \item{tau}{subsample size. Only used if \code{resampling="subsampling"} and
 \code{cpss=FALSE}.}
 
-\item{n_cat}{number of categories used to compute the stability score.
-Default is \code{NULL} to use the consensus score. Other possible values
-are 2 or 3.}
+\item{n_cat}{computation options for the stability score. Default is
+\code{NULL} to use the score based on a z test. Other possible values are 2
+or 3 to use the score based on the negative log-likelihood.}
 
 \item{implementation}{function to use for graphical modelling. If
 \code{implementation=PenalisedGraphical}, the algorithm implemented in

@@ -49,12 +49,9 @@
 #'   clustering method using \code{(1-coprop)} as distance (see
 #'   \link{Clusters}).
 #'
-#'   The number of (stable) clusters is calibrated by maximisation of the
-#'   consensus score (see \link{ConsensusScore}) calculated from the observed,
-#'   most stable, and most unstable likelihoods:
-#'
-#'   \eqn{S(\lambda, n_C) = [ log(L_u(\lambda, n_C)) - log(L_o(\lambda, n_C)) ]
-#'   / [ log(L_u(\lambda, n_C)) - log(L_s(\lambda, n_C)) ]}
+#'   These parameters can be calibrated by maximisation of a stability score
+#'   (see \code{\link{ConsensusScore}}) calculated under the null hypothesis of
+#'   equiprobability of co-membership.
 #'
 #'   It is strongly recommended to examine the calibration plot (see
 #'   \code{\link{CalibrationPlot}}) to check that there is a clear maximum. The

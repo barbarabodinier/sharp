@@ -3,15 +3,14 @@
 #' In stability selection and consensus clustering, resampling techniques are
 #' used to enhance the reliability of the results. In this package,
 #' hyper-parameters are calibrated by maximising model stability, which is
-#' measured by the negative log-likelihood under the null hypothesis that all
-#' selection (or co-membership) probabilities are identical. Functions are
-#' readily implemented for the use of LASSO regression, sparse PCA, sparse
-#' (group) PLS or graphical LASSO in stability selection, and hierarchical
-#' clustering, partitioning around medoids, K means or Gaussian mixture models
-#' in consensus clustering.
+#' measured under the null hypothesis that all selection (or co-membership)
+#' probabilities are identical. Functions are readily implemented for the use of
+#' LASSO regression, sparse PCA, sparse (group) PLS or graphical LASSO in
+#' stability selection, and hierarchical clustering, partitioning around
+#' medoids, K means or Gaussian mixture models in consensus clustering.
 #'
 #' \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
-#' 1.3.0 \cr Date: \tab 2023-01-17 \cr License: \tab GPL (>= 3)\cr Maintainer:
+#' 1.4.0 \cr Date: \tab 2023-04-13 \cr License: \tab GPL (>= 3)\cr Maintainer:
 #' \tab Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}
