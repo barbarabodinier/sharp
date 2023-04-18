@@ -38,7 +38,7 @@ Found the following (possibly) invalid URLs:
 
 Package suggested but not available for checking: 'rCOSA'
 
-* I have used the R package drat and hope this is ok (see Comments below).
+* I have used the R package drat. I also had this note with the previous version of sharp (1.3.0).
 
 Package unavailable to check Rd xrefs: 'rCOSA'
 
