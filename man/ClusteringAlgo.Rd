@@ -79,6 +79,7 @@ myclust <- ClusteringAlgo(
 \code{\link{VariableSelection}}
 
 Other underlying algorithm functions: 
+\code{\link{CART}()},
 \code{\link{PenalisedGraphical}()},
 \code{\link{PenalisedRegression}()},
 \code{\link{PenalisedSEM}()}

@@ -1,3 +1,13 @@
+# sharp version 1.4.0
+
+* Updated the stability score used by default (n_cat=NULL), previous score can be used with n_cat=3
+* Added new functions for structural equation modelling including StructuralModel(), PenalisedSEM(), PenalisedOpenMx(), 
+PenalisedLinearSystem(), LavaanModel(), LavaanMatrix(), OpenMxModel(), OpenMxMatrix() and LinearSystemMatrix()
+* Added new function CART() for classification and regression trees
+* Added the option to run randomised or adaptive lasso in PenalisedRegression()
+* Fixed a bug when running multinomial lasso with predictors with null variance in the subsamples
+* Fixed a bug where additional parameters in ... were used in glm.control() within Refit()
+
 # sharp version 1.3.0
 
 * Added new functions for consensus clustering including Clustering(), Clusters(), ConsensusMatrix(), ClusteringPerformance() and more

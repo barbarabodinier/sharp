@@ -29,9 +29,7 @@
 #' @family underlying algorithm functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}}
 #'
-#' @references \insertRef{stabilityselectionMB}{sharp}
-#'
-#'   \insertRef{AdaptiveLasso}{sharp}
+#' @references \insertRef{AdaptiveLasso}{sharp}
 #'
 #'   \insertRef{lasso}{sharp}
 #'

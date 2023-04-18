@@ -113,6 +113,7 @@ LinearSystemMatrix(vect = mysem$selected[20, ], adjacency = dag)
   \code{\link{LinearSystemMatrix}}
 
 Other underlying algorithm functions: 
+\code{\link{CART}()},
 \code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedGraphical}()},
 \code{\link{PenalisedRegression}()}

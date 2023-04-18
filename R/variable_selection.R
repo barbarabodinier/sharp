@@ -211,7 +211,10 @@
 #' # Linear regression
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "gaussian")
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "gaussian"
+#' )
 #'
 #' # Calibration plot
 #' CalibrationPlot(stab)
@@ -243,16 +246,30 @@
 #' )
 #' head(coef(stab))
 #'
+#' # Using CART
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   implementation = CART,
+#'   family = "gaussian",
+#' )
+#' plot(stab)
+#'
 #' # Regression with multivariate outcomes
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 100, pk = 20, q = 3, family = "gaussian")
-#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "mgaussian")
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "mgaussian"
+#' )
 #' summary(stab)
 #'
 #' # Logistic regression
 #' set.seed(1)
 #' simul <- SimulateRegression(n = 200, pk = 10, family = "binomial", ev_xy = 0.8)
-#' stab <- VariableSelection(xdata = simul$xdata, ydata = simul$ydata, family = "binomial")
+#' stab <- VariableSelection(
+#'   xdata = simul$xdata, ydata = simul$ydata,
+#'   family = "binomial"
+#' )
 #' summary(stab)
 #'
 #' # Sparse PCA (1 component, see BiSelection for more components)
@@ -287,18 +304,6 @@
 #' )
 #' CalibrationPlot(stab, xlab = "")
 #' SelectedVariables(stab)
-#'
-#' # Sparse PLS-DA (1 outcome, 1 component, see BiSelection for more options)
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
-#' stab <- VariableSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   Lambda = 1:(ncol(simul$xdata) - 1),
-#'   implementation = SparsePLS,
-#'   family = "binomial"
-#' )
-#' CalibrationPlot(stab, xlab = "")
-#' summary(stab)
 #'
 #' # Example with more hyper-parameters: elastic net
 #' set.seed(1)
