@@ -163,5 +163,6 @@ instead of the graphical LASSO.
   Journal of the Royal Statistical Society: Series B (Statistical
   Methodology). [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
 
-- Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. (2003)
-  Machine Learning. [link](https://doi.org/10.1023/A:1023949509487)
+- Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. Consensus
+  clustering. (2003) Machine Learning.
+  [link](https://doi.org/10.1023/A:1023949509487)
