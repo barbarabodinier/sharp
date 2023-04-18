@@ -90,17 +90,6 @@ mypls <- GroupPLS(
   group_x = c(10, 15, 25),
   group_y = c(2, 1), keepY = 1
 )
-
-## Group PLS-DA
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
-
-# Running sgPLS-DA with 1 group and sparsity of 0.9
-mypls <- GroupPLS(
-  xdata = simul$xdata, ydata = simul$ydata, Lambda = 1, family = "binomial",
-  group_x = c(10, 15, 25), test = 0
-)
 }
 \references{
 \insertRef{sparsegroupPLS}{sharp}

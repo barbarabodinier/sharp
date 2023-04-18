@@ -33,9 +33,10 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \code{\link[dbscan]{dbscan}}. Only used if
 \code{implementation=DBSCANClustering}.}
 
-\item{Lambda}{vector of penalty parameters. Only used if
-\code{implementation=HierarchicalClustering}
-or\code{implementation=PAMClustering}.}
+\item{Lambda}{vector of penalty parameters for weighted distance calculation.
+Only used if \code{implementation=HierarchicalClustering},
+\code{implementation=PAMClustering}, or
+\code{implementation=DBSCANClustering}.}
 
 \item{K}{number of resampling iterations.}
 

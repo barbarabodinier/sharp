@@ -31,9 +31,9 @@
 #'
 #' @family clustering algorithms
 #'
-#' @references \insertRef{COSA}{sharp}
+#' @references \insertRef{rCOSA}{sharp}
 #'
-#'   \insertRef{rCOSA}{sharp}
+#'   \insertRef{COSA}{sharp}
 #'
 #' @examples
 #'
@@ -228,9 +228,9 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 #'
 #' @family clustering algorithms
 #'
-#' @references \insertRef{COSA}{sharp}
+#' @references \insertRef{rCOSA}{sharp}
 #'
-#' \insertRef{rCOSA}{sharp}
+#'   \insertRef{COSA}{sharp}
 #'
 #' @examples
 #'
@@ -411,9 +411,9 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
 #'
 #' @family clustering algorithms
 #'
-#' @references \insertRef{COSA}{sharp}
+#' @references \insertRef{rCOSA}{sharp}
 #'
-#'   \insertRef{rCOSA}{sharp}
+#'   \insertRef{COSA}{sharp}
 #'
 #' @examples
 #'

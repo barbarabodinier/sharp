@@ -84,9 +84,9 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
 }
 }
 \references{
-\insertRef{COSA}{sharp}
+\insertRef{rCOSA}{sharp}
 
-  \insertRef{rCOSA}{sharp}
+  \insertRef{COSA}{sharp}
 }
 \seealso{
 Other clustering algorithms: 

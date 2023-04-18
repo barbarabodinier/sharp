@@ -21,9 +21,10 @@ CheckInputClustering(
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
-\item{Lambda}{vector of penalty parameters. Only used if
-\code{implementation=HierarchicalClustering}
-or\code{implementation=PAMClustering}.}
+\item{Lambda}{vector of penalty parameters for weighted distance calculation.
+Only used if \code{implementation=HierarchicalClustering},
+\code{implementation=PAMClustering}, or
+\code{implementation=DBSCANClustering}.}
 
 \item{K}{number of resampling iterations.}
 
