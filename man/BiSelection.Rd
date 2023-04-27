@@ -366,6 +366,7 @@ par(oldpar)
 Other stability functions: 
 \code{\link{Clustering}()},
 \code{\link{GraphicalModel}()},
+\code{\link{StructuralModel}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability functions}

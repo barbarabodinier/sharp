@@ -302,5 +302,11 @@ par(oldpar)
 \seealso{
 \code{\link{PenalisedSEM}}, \code{\link{SelectionAlgo}},
   \code{\link{Resample}}, \code{\link{StabilityScore}}
+
+Other stability functions: 
+\code{\link{BiSelection}()},
+\code{\link{Clustering}()},
+\code{\link{GraphicalModel}()},
+\code{\link{VariableSelection}()}
 }
-\concept{stability selection functions}
+\concept{stability functions}

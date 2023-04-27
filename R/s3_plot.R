@@ -116,6 +116,12 @@ plot.variable_selection <- function(x,
 
 
 #' @export
+plot.structural_model <- function(x, ...) {
+  igraph::plot.igraph(Graph(Stable(x), mode = "directed"), ...)
+}
+
+
+#' @export
 plot.graphical_model <- function(x, ...) {
   igraph::plot.igraph(Graph(x), ...)
 }

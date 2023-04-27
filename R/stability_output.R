@@ -51,7 +51,7 @@ Stable <- function(stability, argmax_id = NULL, linkage = "complete") {
     out <- SelectedVariables(stability = stability, argmax_id = argmax_id)
   }
 
-  if (inherits(stability, c("graphical_model"))) {
+  if (inherits(stability, c("graphical_model", "structural_model"))) {
     out <- Adjacency(stability = stability, argmax_id = argmax_id)
   }
 
@@ -66,11 +66,11 @@ Stable <- function(stability, argmax_id = NULL, linkage = "complete") {
 #' @rdname Stable
 #' @export
 SelectedVariables <- function(stability, argmax_id = NULL) {
-  if (!inherits(stability, c("variable_selection", "bi_selection"))) {
+  if (!inherits(stability, c("variable_selection", "structural_model", "bi_selection"))) {
     stop("Invalid input for argument 'stability'. This function only applies to outputs from VariableSelection() or BiSelection().")
   }
 
-  if (inherits(stability, "variable_selection")) {
+  if (inherits(stability, c("variable_selection", "structural_model"))) {
     if (is.null(argmax_id)) {
       argmax_id <- ArgmaxId(stability)
       argmax <- Argmax(stability)
@@ -97,7 +97,7 @@ SelectedVariables <- function(stability, argmax_id = NULL) {
 #' @rdname Stable
 #' @export
 Adjacency <- function(stability, argmax_id = NULL) {
-  if (!inherits(stability, c("graphical_model", "bi_selection", "clustering"))) {
+  if (!inherits(stability, c("graphical_model", "structural_model", "bi_selection", "clustering"))) {
     stop("Invalid input for argument 'stability'. This function only applies to outputs from GraphicalModel(), BiSelection() or Clustering().")
   }
 
@@ -135,6 +135,29 @@ Adjacency <- function(stability, argmax_id = NULL) {
 
   if (inherits(stability, "clustering")) {
     A <- CoMembership(Clusters(stability = stability))
+  }
+
+  if (inherits(stability, "structural_model")) {
+    if (stability$methods$implementation == "PenalisedLinearSystem") {
+      A <- LinearSystemMatrix(
+        vect = SelectedVariables(stability),
+        adjacency = stability$params$adjacency
+      )
+    }
+
+    if (stability$methods$implementation == "PenalisedOpenMx") {
+      A <- OpenMxMatrix(
+        vect = SelectedVariables(stability),
+        adjacency = stability$params$adjacency
+      )
+    }
+
+    if (stability$methods$implementation == "PenalisedSEM") {
+      A <- LavaanMatrix(
+        vect = SelectedVariables(stability),
+        adjacency = stability$params$adjacency
+      )
+    }
   }
 
   A[is.na(A)] <- 0

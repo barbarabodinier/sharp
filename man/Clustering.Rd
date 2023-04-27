@@ -200,6 +200,7 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
 Other stability functions: 
 \code{\link{BiSelection}()},
 \code{\link{GraphicalModel}()},
+\code{\link{StructuralModel}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability functions}

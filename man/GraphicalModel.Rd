@@ -373,6 +373,7 @@ par(oldpar)
 Other stability functions: 
 \code{\link{BiSelection}()},
 \code{\link{Clustering}()},
+\code{\link{StructuralModel}()},
 \code{\link{VariableSelection}()}
 }
 \concept{stability functions}

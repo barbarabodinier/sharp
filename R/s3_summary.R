@@ -23,6 +23,30 @@ summary.variable_selection <- function(object, ...) {
 
 
 #' @export
+summary.structural_model <- function(object, ...) {
+  cat(paste0(
+    "Calibrated parameters: lambda = ",
+    formatC(Argmax(object)[1, 1], format = "f", digits = 3),
+    " and pi = ",
+    formatC(Argmax(object)[1, 2], format = "f", digits = 3)
+  ))
+  cat("\n")
+  cat("\n")
+  cat(paste0(
+    "Maximum stability score: ",
+    formatC(max(object$S, na.rm = TRUE), format = "f", digits = 3)
+  ))
+  cat("\n")
+  cat("\n")
+  cat(paste0(
+    "Number of selected arrow(s): ",
+    sum(SelectedVariables(object))
+  ))
+  cat("\n")
+}
+
+
+#' @export
 summary.graphical_model <- function(object, ...) {
   if (ncol(object$S) > 1) {
     cat(paste0("Calibrated parameters:"))

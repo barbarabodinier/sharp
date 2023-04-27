@@ -118,7 +118,8 @@
 #'   are ordered in the same way and correspond to parameter values stored in
 #'   \code{Lambda}.
 #'
-#' @family stability selection functions
+#' @family stability functions
+#'
 #' @seealso \code{\link{PenalisedSEM}}, \code{\link{SelectionAlgo}},
 #'   \code{\link{Resample}}, \code{\link{StabilityScore}}
 #'
@@ -272,7 +273,7 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
     }
   }
 
-  # Re-set the function names
+  # Re-setting the function names
   if ("methods" %in% names(out)) {
     myimplementation <- as.character(substitute(implementation))
     if (is.function(resampling)) {
@@ -284,8 +285,11 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
     out$methods$resampling <- myresampling
   }
 
+  # Adding the hypothesised dag in the output
+  out$params$adjacency <- adjacency
+
   # Defining the class
-  class(out) <- "variable_selection"
+  class(out) <- "structural_model"
 
   return(out)
 }

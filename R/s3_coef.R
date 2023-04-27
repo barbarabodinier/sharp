@@ -29,3 +29,30 @@ coef.variable_selection <- function(object, ...) {
 
   return(beta)
 }
+
+
+#' @export
+coef.structural_model <- function(object, ...) {
+  # Extracting index of calibrated parameter
+  argmax_id <- ArgmaxId(stability = object)[1]
+
+  # Extracting beta coefficients
+  if (object$methods$family %in% c("gaussian", "binomial", "cox")) {
+    beta <- t(object$Beta[argmax_id, , ])
+    rownames(beta) <- paste0("iter", 1:nrow(beta))
+  }
+  if (object$methods$family %in% c("multinomial", "mgaussian")) {
+    tmpbeta <- object$Beta[argmax_id, , , ]
+    beta <- array(NA, dim = c(dim(tmpbeta)[2], dim(tmpbeta)[1], dim(tmpbeta)[3]))
+    for (k in 1:dim(tmpbeta)[3]) {
+      beta[, , k] <- t(tmpbeta[, , k])
+    }
+    dimnames(beta) <- list(
+      paste0("iter", 1:nrow(beta)),
+      dimnames(object$Beta)[[2]],
+      dimnames(object$Beta)[[4]]
+    )
+  }
+
+  return(beta)
+}

@@ -59,8 +59,13 @@
 #' @export
 SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5) {
   # Re-formatting input theta
-  if (inherits(theta, c("variable_selection", "graphical_model", "bi_selection"))) {
-    if (inherits(theta, "graphical_model")) {
+  if (inherits(theta, c(
+    "variable_selection",
+    "structural_model",
+    "graphical_model",
+    "bi_selection"
+  ))) {
+    if (inherits(theta, c("graphical_model", "structural_model"))) {
       theta <- Adjacency(theta)
     } else {
       if (inherits(theta, "variable_selection")) {
@@ -77,7 +82,12 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
   }
 
   # Re-formatting input theta_star
-  if (inherits(theta_star, c("simulation_regression", "simulation_graphical_model", "simulation_components"))) {
+  if (inherits(theta_star, c(
+    "simulation_regression",
+    "simulation_graphical_model",
+    "simulation_components",
+    "simulation_structural_causal_model"
+  ))) {
     theta_star <- theta_star$theta
   }
   if (is.vector(theta)) {

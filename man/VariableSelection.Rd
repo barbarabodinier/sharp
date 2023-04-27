@@ -453,6 +453,7 @@ par(oldpar)
 Other stability functions: 
 \code{\link{BiSelection}()},
 \code{\link{Clustering}()},
-\code{\link{GraphicalModel}()}
+\code{\link{GraphicalModel}()},
+\code{\link{StructuralModel}()}
 }
 \concept{stability functions}
