@@ -519,8 +519,8 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
     CheckDataRegression(
       xdata = new_xdata, ydata = new_ydata, family = family, verbose = verbose
     )
-    xtest <- xdata
-    ytest <- ydata
+    xtest <- new_xdata
+    ytest <- new_ydata
   }
 
   # Defining the metric to use
