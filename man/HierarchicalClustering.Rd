@@ -11,7 +11,6 @@ HierarchicalClustering(
   distance = "euclidean",
   linkage = "complete",
   scale = TRUE,
-  row = TRUE,
   ...
 )
 }
@@ -42,9 +41,6 @@ Only used if \code{implementation=HierarchicalClustering}.}
 
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
-
-\item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
-\code{row=FALSE}) contain the items to cluster.}
 
 \item{...}{additional parameters passed to \code{\link[stats]{hclust}},
 \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. Parameters

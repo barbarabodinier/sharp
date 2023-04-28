@@ -239,6 +239,11 @@ ClusteringAlgo <- function(xdata,
     }
   }
 
+  # Transposing if clustering of columns
+  if (!row) {
+    xdata <- t(xdata)
+  }
+
   # Applying user-defined function for variable selection
   out <- do.call(implementation, args = list(
     xdata = xdata,
@@ -246,7 +251,6 @@ ClusteringAlgo <- function(xdata,
     eps = eps,
     Lambda = Lambda,
     scale = scale,
-    row = row,
     ...
   ))
 
