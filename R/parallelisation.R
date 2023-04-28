@@ -66,8 +66,8 @@
 #' }
 #' @export
 Combine <- function(stability1, stability2, include_beta = TRUE) {
-  if (!inherits(stability1, c("graphical_model", "variable_selection", "clustering"))) {
-    stop("Invalid inputs. This function only applies to outputs from GraphicalModel(), VariableSelection() or Clustering().")
+  if (!inherits(stability1, c("variable_selection", "structural_model", "graphical_model", "clustering"))) {
+    stop("Invalid inputs. This function only applies to outputs from VariableSelection(), StructuralModel(), GraphicalModel() or Clustering().")
   }
   if (class(stability1) != class(stability2)) {
     stop("Arguments 'stability1' and 'stability2' are not compatible. They must be generated from the same function.")
@@ -175,7 +175,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
   }
 
   # Concatenating the beta coefficients
-  if (inherits(stability1, c("variable_selection", "clustering"))) {
+  if (inherits(stability1, c("variable_selection", "structural_model", "clustering"))) {
     if (include_beta) {
       Beta <- NULL
       if (!is.null(stability1$Beta)) {
@@ -212,7 +212,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
       PFER_method = PFER_method, PFER_thr_blocks = PFER_thr_blocks, FDP_thr_blocks = FDP_thr_blocks
     )
   }
-  if (inherits(stability1, "variable_selection")) {
+  if (inherits(stability1, c("variable_selection", "structural_model"))) {
     metrics <- StabilityMetrics(
       selprop = bigstab, pk = NULL, pi_list = pi_list, K = K, n_cat = n_cat,
       Sequential_template = Sequential_template, graph = graph,
@@ -261,7 +261,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
     }
   }
 
-  if (inherits(stability1, "variable_selection")) {
+  if (inherits(stability1, c("variable_selection", "structural_model"))) {
     if (include_beta) {
       out <- list(
         S = metrics$S, Lambda = Lambda,
