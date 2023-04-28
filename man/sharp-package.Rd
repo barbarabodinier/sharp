@@ -84,6 +84,8 @@ par(oldpar)
 }
 }
 \references{
+\insertRef{OurConsensusClustering}{sharp}
+
 \insertRef{ourstabilityselection}{sharp}
 
   \insertRef{stabilityselectionMB}{sharp}

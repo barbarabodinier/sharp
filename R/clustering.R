@@ -93,7 +93,7 @@
 #'   \code{\link{HierarchicalClustering}}, \code{\link{PAMClustering}},
 #'   \code{\link{KMeansClustering}}, \code{\link{GMMClustering}}
 #'
-#' @references \insertRef{ourstabilityselection}{sharp}
+#' @references \insertRef{OurConsensusClustering}{sharp}
 #'
 #'   \insertRef{rCOSA}{sharp}
 #'

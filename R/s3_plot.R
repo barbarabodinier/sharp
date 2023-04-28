@@ -498,14 +498,13 @@ plot.incremental <- function(x,
   do.call(base::plot, args = c(
     list(
       x = NULL,
-      panel.first = c(
-        graphics::abline(h = hseq, col = "grey", lty = 3),
-        graphics::abline(v = vseq, col = "grey", lty = 3)
-      ),
-      xaxt = "n", yaxt = "n"
+      xaxt = "n",
+      yaxt = "n"
     ),
     tmp_extra_args
   ))
+  graphics::abline(h = hseq, col = "grey", lty = 3)
+  graphics::abline(v = vseq, col = "grey", lty = 3)
 
   # Extracting relevant extra arguments
   tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = graphics::axis)

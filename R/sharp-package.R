@@ -13,7 +13,9 @@
 #' 1.4.0 \cr Date: \tab 2023-04-18 \cr License: \tab GPL (>= 3)\cr Maintainer:
 #' \tab Barbara Bodinier \email{b.bodinier@@imperial.ac.uk}}
 #'
-#' @references \insertRef{ourstabilityselection}{sharp}
+#' @references \insertRef{OurConsensusClustering}{sharp}
+#'
+#' \insertRef{ourstabilityselection}{sharp}
 #'
 #'   \insertRef{stabilityselectionMB}{sharp}
 #'

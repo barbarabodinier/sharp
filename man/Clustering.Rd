@@ -184,7 +184,7 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
 }
 }
 \references{
-\insertRef{ourstabilityselection}{sharp}
+\insertRef{OurConsensusClustering}{sharp}
 
   \insertRef{rCOSA}{sharp}
 
