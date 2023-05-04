@@ -239,6 +239,11 @@ ClusteringAlgo <- function(xdata,
     }
   }
 
+  # Scaling the data
+  if (scale) {
+    xdata <- scale(xdata)
+  }
+
   # Transposing if clustering of columns
   if (!row) {
     xdata <- t(xdata)
