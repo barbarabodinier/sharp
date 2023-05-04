@@ -20,6 +20,7 @@
 #' @seealso \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}
 #'
 #' @examples
+#' \donttest{
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateGraphical(pk = 20)
@@ -37,7 +38,7 @@
 #' # Relationship between the two functions
 #' stab$Lambda[ids[1], 1]
 #' stab$params$pi_list[ids[2]]
-#'
+#' }
 #' @export
 ArgmaxId <- function(stability = NULL, S = NULL) {
   if ((is.null(stability)) & (is.null(S))) {

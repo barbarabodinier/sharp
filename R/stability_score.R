@@ -252,7 +252,7 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' @family stability metric functions
 #'
 #' @examples
-#'
+#' \donttest{
 #' # Data simulation
 #' set.seed(2)
 #' simul <- SimulateClustering(
@@ -274,7 +274,7 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #'   K = stab$sampled_pairs[upper.tri(stab$sampled_pairs)],
 #'   theta = theta[upper.tri(theta)]
 #' )
-#'
+#' }
 #' @export
 ConsensusScore <- function(prop, K, theta) {
   # Calculating the within and between sums

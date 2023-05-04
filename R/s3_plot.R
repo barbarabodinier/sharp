@@ -461,6 +461,8 @@ plot.incremental <- function(x,
   if (!"ylim" %in% names(extra_args)) {
     ylim <- range(c(xlower, xupper, xfull))
     extra_args$ylim <- ylim
+  } else {
+    ylim <- extra_args$ylim
   }
   if (!"xlim" %in% names(extra_args)) {
     extra_args$xlim <- range(xseq)
@@ -514,7 +516,7 @@ plot.incremental <- function(x,
   do.call(graphics::axis, args = c(
     list(
       side = 2,
-      at = grDevices::axisTicks(ylim, log = FALSE)
+      at = grDevices::axisTicks(usr = ylim, log = FALSE)
     ),
     tmp_extra_args
   ))

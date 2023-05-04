@@ -46,7 +46,7 @@ consensus score is the z statistic from a z test where the null hypothesis is
 The consensus score increases with stability.
 }
 \examples{
-
+\donttest{
 # Data simulation
 set.seed(2)
 simul <- SimulateClustering(
@@ -68,7 +68,7 @@ ConsensusScore(
   K = stab$sampled_pairs[upper.tri(stab$sampled_pairs)],
   theta = theta[upper.tri(theta)]
 )
-
+}
 }
 \seealso{
 Other stability metric functions: 

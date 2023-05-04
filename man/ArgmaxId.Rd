@@ -31,6 +31,7 @@ Extracts the calibrated hyper-parameters (or their indices for
 and \code{pi_list} in argument \code{stability}.
 }
 \examples{
+\donttest{
 # Data simulation
 set.seed(1)
 simul <- SimulateGraphical(pk = 20)
@@ -48,7 +49,7 @@ ids
 # Relationship between the two functions
 stab$Lambda[ids[1], 1]
 stab$params$pi_list[ids[2]]
-
+}
 }
 \seealso{
 \code{\link{VariableSelection}}, \code{\link{GraphicalModel}}

@@ -26,7 +26,6 @@ Imports:
     mclust,
     parallel,
     Rdpack,
-    regsem,
     withr (>= 2.4.0)
 Suggests:
     cluster,
@@ -41,10 +40,10 @@ Suggests:
     RCy3,
     randomcoloR,
     rCOSA,
+    regsem,
     rmarkdown,
     rpart,
     sgPLS,
-    sparcl,
     survival (>= 3.2.13),
     testthat (>= 3.0.0),
     visNetwork
