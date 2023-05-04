@@ -10,7 +10,6 @@ HierarchicalClustering(
   Lambda = NULL,
   distance = "euclidean",
   linkage = "complete",
-  scale = TRUE,
   ...
 )
 }
@@ -38,9 +37,6 @@ hierarchical clustering to define the stable clusters. Possible values
 include \code{"complete"}, \code{"single"} and \code{"average"} (see
 argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
 Only used if \code{implementation=HierarchicalClustering}.}
-
-\item{scale}{logical indicating if the data should be scaled to ensure that
-all variables contribute equally to the clustering of the observations.}
 
 \item{...}{additional parameters passed to \code{\link[stats]{hclust}},
 \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. Parameters

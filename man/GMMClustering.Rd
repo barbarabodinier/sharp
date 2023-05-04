@@ -4,7 +4,7 @@
 \alias{GMMClustering}
 \title{Model-based clustering}
 \usage{
-GMMClustering(xdata, nc = NULL, scale = TRUE, ...)
+GMMClustering(xdata, nc = NULL, ...)
 }
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
@@ -12,9 +12,6 @@ GMMClustering(xdata, nc = NULL, scale = TRUE, ...)
 \item{nc}{matrix of parameters controlling the number of clusters in the
 underlying algorithm specified in \code{implementation}. If \code{nc} is
 not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
-
-\item{scale}{logical indicating if the data should be scaled to ensure that
-all variables contribute equally to the clustering of the observations.}
 
 \item{...}{additional parameters passed to \code{\link[mclust]{Mclust}}.}
 }

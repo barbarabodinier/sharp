@@ -4,14 +4,7 @@
 \alias{PAMClustering}
 \title{(Weighted) Partitioning Around Medoids}
 \usage{
-PAMClustering(
-  xdata,
-  nc = NULL,
-  Lambda = NULL,
-  distance = "euclidean",
-  scale = TRUE,
-  ...
-)
+PAMClustering(xdata, nc = NULL, Lambda = NULL, distance = "euclidean", ...)
 }
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
@@ -31,9 +24,6 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \code{\link[stats]{dist}}).  Otherwise, possible values include
 \code{"euclidean"} (\code{pwr=2}) or \code{"absolute"} (\code{pwr=1}) (see
 argument \code{pwr} in \code{\link[rCOSA]{cosa2}}).}
-
-\item{scale}{logical indicating if the data should be scaled to ensure that
-all variables contribute equally to the clustering of the observations.}
 
 \item{...}{additional parameters passed to \code{\link[cluster]{pam}},
 \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. If

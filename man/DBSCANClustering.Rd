@@ -10,7 +10,6 @@ DBSCANClustering(
   eps = NULL,
   Lambda = NULL,
   distance = "euclidean",
-  scale = TRUE,
   ...
 )
 }
@@ -35,9 +34,6 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \code{\link[stats]{dist}}).  Otherwise, possible values include
 \code{"euclidean"} (\code{pwr=2}) or \code{"absolute"} (\code{pwr=1}) (see
 argument \code{pwr} in \code{\link[rCOSA]{cosa2}}).}
-
-\item{scale}{logical indicating if the data should be scaled to ensure that
-all variables contribute equally to the clustering of the observations.}
 
 \item{...}{additional parameters passed to \code{\link[dbscan]{dbscan}}
 (except for \code{minPts} which is fixed to \code{2}),
