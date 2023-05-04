@@ -823,7 +823,9 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
       n_predictors <- 10
     }
   }
-  n_predictors <- min(n_predictors, ncol(xdata))
+  unpenalised_vars <- colnames(xdata)[!colnames(xdata) %in% names(SelectedVariables(stability))]
+  n_unpenalised <- length(unpenalised_vars)
+  n_predictors <- min(n_predictors, ncol(xdata) - n_unpenalised)
 
   # Defining the order of inclusion in the model
   if (is.null(stability)) {
@@ -831,9 +833,10 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
   } else {
     # Including variables by order of decreasing selection proportions
     myorder <- names(SelectionProportions(stability))[sort.list(SelectionProportions(stability), decreasing = TRUE)]
+    myorder <- myorder[1:n_predictors]
 
     # Including the variables that are forced in the model first by order of columns in the data
-    myorder <- c(colnames(xdata)[!colnames(xdata) %in% names(SelectedVariables(stability))], myorder)
+    myorder <- c(unpenalised_vars, myorder)
   }
 
   # Initialisation of the objects
@@ -856,7 +859,7 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
     pb <- utils::txtProgressBar(style = 3)
   }
 
-  for (k in 1:n_predictors) {
+  for (k in 1:length(myorder)) {
     perf <- ExplanatoryPerformance(
       xdata = xdata[, myorder[1:k], drop = FALSE],
       ydata = ydata,
@@ -893,7 +896,7 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
     Beta <- c(Beta, list(perf$Beta))
 
     if (verbose) {
-      utils::setTxtProgressBar(pb, k / n_predictors)
+      utils::setTxtProgressBar(pb, k / length(myorder))
     }
   }
 
@@ -918,15 +921,14 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
   }
 
   # Adding variable names
-  mynames <- myorder[1:n_predictors]
+  mynames <- myorder
   out <- c(out, names = list(mynames))
 
   # Adding stable selection status
   if (!is.null(stability)) {
-    mystable <- ifelse(myorder[1:n_predictors] %in% myorder[1:sum(SelectedVariables(stability))],
-      yes = 1, no = 0
-    )
-    names(mystable) <- mynames
+    mystable <- rep(0, length(myorder))
+    names(mystable) <- myorder
+    mystable[1:max(which(myorder %in% names(which(SelectedVariables(stability) == 1))))] <- 1
     out <- c(out, stable = list(mystable))
   }
 
