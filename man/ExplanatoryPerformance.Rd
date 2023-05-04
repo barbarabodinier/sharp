@@ -18,7 +18,6 @@ ExplanatoryPerformance(
   tau = 0.8,
   seed = 1,
   n_thr = NULL,
-  ij_method = FALSE,
   time = 1000,
   verbose = FALSE,
   ...
@@ -77,15 +76,6 @@ used if \code{new_xdata} and \code{new_ydata} are not provided.}
 thresholds. For faster computations on large data, less thresholds can be
 used. Only applicable to logistic regression.}
 
-\item{ij_method}{logical indicating if the analysis should be done for only
-one refitting/test split with variance of the concordance index should be
-computed using the infinitesimal jackknife method as implemented in
-\code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
-default), the concordance indices computed for different refitting/test
-splits are reported. If \code{ij_method=TRUE}, the concordance index and
-estimated confidence interval at level 0.05 are reported. Only applicable
-to Cox regression.}
-
 \item{time}{numeric indicating the time for which the survival probabilities
 are computed. Only applicable to Cox regression.}
 
@@ -100,14 +90,9 @@ A list with: \item{TPR}{True Positive Rate (for logistic regression
   only).} \item{FPR}{False Positive Rate (for logistic regression only).}
   \item{AUC}{Area Under the Curve (for logistic regression only).}
   \item{concordance}{Concordance index (for Cox regression only).}
-  \item{lower}{lower bound of the confidence interval at level 0.05 for the
-  concordance index calculated using the infinitesimal jackknife (for Cox
-  regression and with \code{ij_method=TRUE}).} \item{upper}{upper bound of
-  the confidence interval at level 0.05 for the concordance index calculated
-  using the infinitesimal jackknife (for Cox regression and with
-  \code{ij_method=TRUE}).} \item{Beta}{matrix of estimated beta coefficients
-  across the \code{K} iterations. Coefficients are extracted using the
-  \code{\link[stats]{coef}} function.}
+  \item{Beta}{matrix of estimated beta coefficients across the \code{K}
+  iterations. Coefficients are extracted using the \code{\link[stats]{coef}}
+  function.}
 }
 \description{
 Calculates model performance for linear (measured by Q-squared), logistic

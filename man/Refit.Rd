@@ -11,6 +11,8 @@ Refit(
   stability = NULL,
   family = NULL,
   implementation = NULL,
+  Lambda = NULL,
+  seed = 1,
   verbose = TRUE,
   ...
 )
@@ -21,6 +23,8 @@ Recalibrate(
   stability = NULL,
   family = NULL,
   implementation = NULL,
+  Lambda = NULL,
+  seed = 1,
   verbose = TRUE,
   ...
 )
@@ -51,6 +55,14 @@ regression), \code{\link[survival]{coxph}} (Cox regression),
 \code{\link[stats]{glm}} (logistic regression), or
 \code{\link[nnet]{multinom}} (multinomial regression) is used. The function
 \code{\link{PLS}} is used for the output of \code{\link{BiSelection}}.}
+
+\item{Lambda}{matrix of parameters controlling the level of sparsity in the
+underlying feature selection algorithm specified in \code{implementation}.
+If \code{Lambda=NULL} and \code{implementation=PenalisedRegression},
+\code{\link{LambdaGridRegression}} is used to define a relevant grid.}
+
+\item{seed}{value of the seed to initialise the random number generator and
+ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 
 \item{verbose}{logical indicating if a loading bar and messages should be
 printed.}

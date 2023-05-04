@@ -219,7 +219,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'
 #' # Comparison with refitted model
 #' refitted <- Refit(xdata = simul$xdata, ydata = simul$ydata, stability = stab)
-#' refitted_betas <- refitted$coefficients[-1]
+#' refitted_betas <- coef(refitted)[-1, 1]
 #' plot(median_betas[names(refitted_betas), ], refitted_betas,
 #'   panel.first = abline(0, 1, lty = 2)
 #' )

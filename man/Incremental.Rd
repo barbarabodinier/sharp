@@ -19,7 +19,6 @@ Incremental(
   tau = 0.8,
   seed = 1,
   n_thr = NULL,
-  ij_method = FALSE,
   time = 1000,
   verbose = TRUE,
   ...
@@ -80,15 +79,6 @@ used if \code{new_xdata} and \code{new_ydata} are not provided.}
 thresholds. For faster computations on large data, less thresholds can be
 used. Only applicable to logistic regression.}
 
-\item{ij_method}{logical indicating if the analysis should be done for only
-one refitting/test split with variance of the concordance index should be
-computed using the infinitesimal jackknife method as implemented in
-\code{\link[survival]{concordance}}. If \code{ij_method=FALSE} (the
-default), the concordance indices computed for different refitting/test
-splits are reported. If \code{ij_method=TRUE}, the concordance index and
-estimated confidence interval at level 0.05 are reported. Only applicable
-to Cox regression.}
-
 \item{time}{numeric indicating the time for which the survival probabilities
 are computed. Only applicable to Cox regression.}
 
@@ -114,19 +104,11 @@ An object of class \code{incremental}.
   which predictors are stably selected. Only returned if \code{stability} is
   provided.}
 
-  For Cox regression, a list with: \item{concordance}{If
-  \code{ij_method=FALSE}, a list with, for each of the models (sequentially
-  added predictors), a vector of concordance indices obtained with different
-  data splits. If \code{ij_method=TRUE}, a vector of concordance indices for
-  each of the models (sequentially added predictors).} \item{lower}{A vector
-  of the lower bound of the confidence interval at level 0.05 for concordance
-  indices for each of the models (sequentially added predictors). Only
-  returned if \code{ij_method=TRUE}.} \item{upper}{A vector of the upper
-  bound of the confidence interval at level 0.05 for concordance indices for
-  each of the models (sequentially added predictors). Only returned if
-  \code{ij_method=TRUE}.} \item{Beta}{Estimated regression coefficients from
-  visited models.} \item{names}{Names of the predictors by order of
-  inclusion.} \item{stable}{Binary vector indicating
+  For Cox regression, a list with: \item{concordance}{A list with, for each
+  of the models (sequentially added predictors), a vector of concordance
+  indices obtained with different data splits.} \item{Beta}{Estimated
+  regression coefficients from visited models.} \item{names}{Names of the
+  predictors by order of inclusion.} \item{stable}{Binary vector indicating
   which predictors are stably selected. Only returned if \code{stability} is
   provided.}
 
@@ -134,8 +116,8 @@ An object of class \code{incremental}.
   of the models (sequentially added predictors), a vector of Q-squared
   obtained with different data splits.} \item{Beta}{Estimated regression
   coefficients from visited models.} \item{names}{Names of the predictors by
-  order of inclusion.} \item{stable}{Binary vector indicating
-  which predictors are stably selected. Only returned if \code{stability} is
+  order of inclusion.} \item{stable}{Binary vector indicating which
+  predictors are stably selected. Only returned if \code{stability} is
   provided.}
 }
 \description{

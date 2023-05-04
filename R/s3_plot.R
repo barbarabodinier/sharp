@@ -484,12 +484,12 @@ plot.incremental <- function(x,
   if ("stable" %in% names(x)) {
     mycolours <- col[abs(x$stable - 2)]
   } else {
-    mycolours <- col[1]
+    mycolours <- rep(col[1], length(x$names))
   }
   if ("stable" %in% names(x)) {
     mycolours_axis <- col.axis[abs(x$stable - 2)]
   } else {
-    mycolours_axis <- col.axis[1]
+    mycolours_axis <- rep(col.axis[1], length(x$names))
   }
 
   # Extracting relevant extra arguments
