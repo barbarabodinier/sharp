@@ -14,13 +14,15 @@
 #'   regression), \code{"multinomial"} (multinomial regression), and
 #'   \code{"cox"} (survival analysis). If provided, this argument must be
 #'   consistent with input \code{stability}.
-#' @param implementation optional function to refit the model. If
-#'   \code{implementation=NULL} and \code{stability} is the output of
-#'   \code{\link{VariableSelection}}, \code{\link[stats]{lm}} (linear
+#' @param implementation optional function to refit the model. If \code{stability} is the output of
+#'   \code{\link{VariableSelection}}, a regression model is refitted.
+#'   If \code{implementation=NULL} and \code{Lambda=0}, this is done using \code{\link[stats]{lm}} (for linear
 #'   regression), \code{\link[survival]{coxph}} (Cox regression),
 #'   \code{\link[stats]{glm}} (logistic regression), or
-#'   \code{\link[nnet]{multinom}} (multinomial regression) is used. The function
-#'   \code{\link{PLS}} is used for the output of \code{\link{BiSelection}}.
+#'   \code{\link[nnet]{multinom}} (multinomial regression).
+#'   If \code{Lambda=NULL}, a Ridge regression is fitted and calibrated by cross validation using \code{\link[glmnet]{cv.glmnet}}.
+#'   The function \code{\link{PLS}} is used if \code{stability} is the output of \code{\link{BiSelection}}.
+#' @param Lambda optional vector of penalty parameters.
 #' @param ... additional arguments to be passed to the function provided in
 #'   \code{implementation}.
 #'
@@ -225,7 +227,14 @@ Refit <- function(xdata, ydata, stability = NULL,
         myformula <- stats::as.formula(paste0("ydata ~ ", paste(paste0("`", ids, "`"), collapse = " + ")))
       }
 
-      if (ncol(xdata) > 1) {
+      # Defining penalisation
+      penalised <- TRUE
+      if (ncol(xdata) == 1) {
+        penalised <- FALSE
+      }
+
+      # Preparing the model
+      if (penalised) {
         # Extracting relevant extra arguments
         tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = glmnet::cv.glmnet)
         tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "y", "lambda", "alpha", "family", "type.multinomial")]
@@ -543,8 +552,8 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
     CheckDataRegression(
       xdata = new_xdata, ydata = new_ydata, family = family, verbose = verbose
     )
-    xtest <- new_xdata
-    ytest <- new_ydata
+    xtest <- xdata # variable updated by CheckDataRegression()
+    ytest <- ydata
   }
 
   # Defining the metric to use
@@ -614,7 +623,8 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
           predicted <- stats::predict.lm(refitted, newdata = as.data.frame(xtest))
         }
       } else {
-        ids_predictors <- intersect(colnames(xtest), rownames(stats::coef(refitted)))
+        ids_predictors <- rownames(stats::coef(refitted))
+        ids_predictors <- ids_predictors[which(ids_predictors %in% colnames(xtest))]
         predicted <- stats::predict(refitted, newx = as.matrix(xtest[, ids_predictors]))
       }
     } else {

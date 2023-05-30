@@ -1,3 +1,12 @@
+# sharp version 1.4.1
+
+* Added package vignette
+* Used Ridge regression calibrated by cross validation instead of unpenalised regression in Refit(), ExplanatoryPerformance() and 
+Incremental()
+* Added new S3 class structural_model
+* Fixed inclusion of unpenalised predictors in Incremental()
+* Fixed clustering of rows in Clustering()
+
 # sharp version 1.4.0
 
 * Updated the stability score used by default (n_cat=NULL), previous score can be used with n_cat=3

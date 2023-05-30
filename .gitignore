@@ -5,3 +5,4 @@ sharp.Rproj
 .Ruserdata
 .DS_Store
 ./R/.DS_Store
+inst/doc

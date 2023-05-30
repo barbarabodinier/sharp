@@ -128,7 +128,12 @@ predict.variable_selection <- function(object,
   # Predictions from refitted model
   if (method[1] == "refit") {
     refitted <- Refit(xdata = xdata, ydata = ydata, stability = object)
-    yhat <- stats::predict(object = refitted, newdata = as.data.frame(newdata), ...)
+    if (inherits(refitted, "cv.glmnet")) {
+      ids_predictors <- intersect(colnames(newdata), rownames(stats::coef(refitted)))
+      yhat <- stats::predict(object = refitted, newx = as.matrix(newdata[, ids_predictors]))
+    } else {
+      yhat <- stats::predict(object = refitted, newdata = as.data.frame(newdata), ...)
+    }
     yhat <- cbind(yhat)
   }
   return(yhat)
