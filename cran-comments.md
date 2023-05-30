@@ -4,21 +4,12 @@ There were no ERRORs or WARNINGs.
 
 There were 3 NOTEs:
 
-Maintainer: 'Barbara Bodinier <barbara.bodinier@gmail.com>'
-
-New maintainer:
-  Barbara Bodinier <barbara.bodinier@gmail.com>
-Old maintainer(s):
-  Barbara Bodinier <b.bodinier@imperial.ac.uk>
-
-* I have changed my email address.
-
 Suggests or Enhances not in mainstream repositories:
   rCOSA
 Availability using Additional_repositories specification:
   rCOSA   yes   https://barbarabodinier.github.io/drat
 
-* I have used the R package drat. I also had this note with the previous version of sharp (1.3.0).
+* I have used the R package drat. I also had this note with the previous version of sharp (1.4.0).
 
 Found the following (possibly) invalid URLs:
   URL: http://www.jstor.org/stable/2346178
@@ -34,16 +25,16 @@ Found the following (possibly) invalid URLs:
     Status: 403
     Message: Forbidden
 
-* These URLs have been checked and are correct. I also had this note with the previous version of sharp (1.3.0). 
+* These URLs have been checked and are correct. I also had this note with the previous version of sharp (1.4.0). 
 
 Package suggested but not available for checking: 'rCOSA'
 
-* I have used the R package drat. I also had this note with the previous version of sharp (1.3.0).
+* I have used the R package drat. I also had this note with the previous version of sharp (1.4.0).
 
 Package unavailable to check Rd xrefs: 'rCOSA'
 
 * I would like to keep these references to the R package rCOSA which is under "Suggests". I also had this note with the 
-previous version of sharp (1.3.0).
+previous version of sharp (1.4.0).
 
 
 ## Downstream dependencies
