@@ -89,6 +89,6 @@ Other underlying algorithm functions:
 \code{\link{CART}()},
 \code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedGraphical}()},
-\code{\link{PenalisedSEM}()}
+\code{\link{PenalisedOpenMx}()}
 }
 \concept{underlying algorithm functions}

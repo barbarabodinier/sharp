@@ -408,7 +408,6 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' Penalised Structural Equation Model
 #'
 #' Runs penalised Structural Equation Modelling using implementations from
-#' \code{\link[regsem]{regsem}} (for \code{\link{PenalisedSEM}}),
 #' \code{\link[OpenMx]{OpenMx}} functions (for \code{\link{PenalisedOpenMx}}),
 #' or using series of penalised regressions with \code{\link[glmnet]{glmnet}}
 #' (for \code{\link{PenalisedLinearSystem}}). The function
@@ -420,9 +419,7 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #'   the minimum, maximum and length are used in \code{\link{PenalisedOpenMx}}.
 #' @param penalised optional binary matrix indicating which coefficients are
 #'   regularised.
-#' @param n_convergence maximum number of attempts to convergence.
-#' @param ... additional parameters passed to \code{\link[regsem]{regsem}} (for
-#'   \code{\link{PenalisedSEM}}), \code{\link[OpenMx]{OpenMx}} functions (for
+#' @param ... additional parameters passed to \code{\link[OpenMx]{OpenMx}} functions (for
 #'   \code{\link{PenalisedOpenMx}}), or \code{\link[glmnet]{glmnet}} (for
 #'   \code{\link{PenalisedLinearSystem}}).
 #'
@@ -434,12 +431,10 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #'
 #' @family underlying algorithm functions
 #' @seealso \code{\link{SelectionAlgo}}, \code{\link{VariableSelection}},
-#'   \code{\link{LavaanMatrix}}, \code{\link{OpenMxMatrix}},
+#'   \code{\link{OpenMxMatrix}},
 #'   \code{\link{LinearSystemMatrix}}
 #'
 #' @references \insertRef{RegSEM}{sharp}
-#'
-#'   \insertRef{lavaanBook}{sharp}
 #'
 #' @examples
 #' \donttest{
@@ -450,15 +445,6 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' theta[2, 4] <- 0
 #' set.seed(1)
 #' simul <- SimulateStructural(theta = theta, pk = pk, output_matrices = TRUE)
-#'
-#' # Running regularised SEM (regsem)
-#' if (requireNamespace("regsem", quietly = TRUE)) {
-#'   mysem <- PenalisedSEM(
-#'     xdata = simul$data, adjacency = dag,
-#'     Lambda = LambdaSequence(lmax = 1, lmin = 0.01, cardinal = 5)
-#'   )
-#'   LavaanMatrix(vect = mysem$selected[3, ], adjacency = dag)
-#' }
 #'
 #' # Running regularised SEM (OpenMx)
 #' if (requireNamespace("OpenMx", quietly = TRUE)) {
@@ -475,110 +461,6 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
 #' )
 #' LinearSystemMatrix(vect = mysem$selected[20, ], adjacency = dag)
 #' }
-#' @export
-PenalisedSEM <- function(xdata,
-                         adjacency,
-                         residual_covariance = NULL,
-                         Lambda,
-                         n_convergence = 500,
-                         ...) {
-  # Storing extra arguments
-  extra_args <- list(...)
-
-  # Scaling the data (recommended by regsem)
-  xdata <- scale(xdata)
-
-  # Creating lavaan model
-  model_spec <- LavaanModel(
-    adjacency = adjacency,
-    residual_covariance = residual_covariance,
-    manifest = colnames(adjacency)[colnames(adjacency) %in% colnames(xdata)]
-  )
-
-  # Running unpenalised sem
-  out_lavaan <- lavaan::sem(model = model_spec, data = xdata)
-
-  # Initialising matrix of coefficients
-  beta_full <- matrix(NA, nrow = length(Lambda), ncol = length(lavaan::coef(out_lavaan)))
-
-  # Extracting relevant extra arguments for regsem
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = regsem::regsem)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("model", "lambda")]
-
-  # Defining default parameters for regsem
-  if (!"type" %in% names(tmp_extra_args)) {
-    tmp_extra_args$type <- "lasso"
-    tmp_extra_args$gradFun <- "ram"
-  }
-  if (!"optMethod" %in% names(tmp_extra_args)) {
-    tmp_extra_args$optMethod <- "rsolnp"
-  }
-  if (!"pars_pen" %in% names(tmp_extra_args)) {
-    tmp_extra_args$pars_pen <- "regressions"
-  }
-
-  for (k in 1:length(Lambda)) {
-    # Running regularised sem
-    mymodel <- suppressWarnings(try(
-      withr::with_seed(seed = 1, code = {
-        do.call(regsem::regsem, args = c(
-          list(model = out_lavaan, lambda = Lambda[k]),
-          tmp_extra_args
-        ))
-      }),
-      silent = TRUE
-    ))
-
-    # Second chance to convergence
-    if ((mymodel$convergence == 1) | (inherits(mymodel, "try-error"))) {
-      it_conv <- 1
-      while (((mymodel$convergence == 1) | (inherits(mymodel, "try-error"))) & (it_conv <= n_convergence)) {
-        withr::with_seed(seed = it_conv, code = {
-          sampled_lambda <- exp(stats::rnorm(
-            n = 1, mean = log(Lambda[k]),
-            sd = 0.5 * abs(log(Lambda[k]) - log(Lambda[ifelse(k != 1, yes = k - 1, no = k + 1)]))
-          ))
-        })
-        mymodel <- suppressWarnings(try(
-          withr::with_seed(seed = 1, code = {
-            do.call(regsem::regsem, args = c(
-              list(model = out_lavaan, lambda = sampled_lambda),
-              tmp_extra_args
-            ))
-          }),
-          silent = TRUE
-        ))
-        it_conv <- it_conv + 1
-      }
-    }
-
-    # Storing coefficients if model convergence
-    if (mymodel$convergence == 0) {
-      beta_full[k, ] <- unlist(mymodel$coefficients)
-    }
-  }
-
-  # Defining row and column names
-  rownames(beta_full) <- paste0("s", seq(0, nrow(beta_full) - 1))
-  colnames(beta_full) <- names(lavaan::coef(out_lavaan))
-
-  # Extracting selection status
-  if (length(tmp_extra_args$pars_pen) == 1) {
-    if (tmp_extra_args$pars_pen == "regressions") {
-      selected <- ifelse(beta_full[, !grepl("~~", colnames(beta_full))] != 0, yes = 1, no = 0)
-    }
-    if (tmp_extra_args$pars_pen == "loadings") { # to check for latent variables
-      selected <- ifelse(beta_full[, grepl("=~", colnames(beta_full))] != 0, yes = 1, no = 0)
-    }
-  } else {
-    selected <- ifelse(beta_full != 0, yes = 1, no = 0)
-  }
-
-  return(list(selected = selected, beta_full = beta_full))
-}
-
-
-#' @rdname PenalisedSEM
 #' @export
 PenalisedOpenMx <- function(xdata,
                             adjacency,
@@ -663,7 +545,7 @@ PenalisedOpenMx <- function(xdata,
 }
 
 
-#' @rdname PenalisedSEM
+#' @rdname PenalisedOpenMx
 #' @export
 PenalisedLinearSystem <- function(xdata,
                                   adjacency,
@@ -736,192 +618,6 @@ PenalisedLinearSystem <- function(xdata,
 }
 
 
-#' Writing lavaan model
-#'
-#' Returns model specification in \code{\link[lavaan]{lavaan}} syntax from (i)
-#' the adjacency matrix of a Directed Acyclic Graph (asymmetric matrix A in
-#' Reticular Action Model notation), and (ii) a binary matrix encoding nonzero
-#' entries in the residual covariance matrix (symmetric matrix S in Reticular
-#' Action Model notation).
-#'
-#' @inheritParams PenalisedSEM
-#' @param manifest optional vector of manifest variable names.
-#'
-#' @return A character string that can be used in argument \code{model} in
-#'   \code{\link[lavaan]{sem}}.
-#'
-#' @seealso \code{\link{PenalisedSEM}}, \code{\link{LavaanMatrix}}
-#'
-#' @references \insertRef{lavaanBook}{sharp}
-#'
-#' @examples
-#' if (requireNamespace("regsem", quietly = TRUE)) {
-#'   # Definition of the model structure
-#'   layers <- list(
-#'     c("var1", "var2", "var3"),
-#'     c("var4", "var5"),
-#'     c("var6", "var7", "var8")
-#'   )
-#'   dag <- LayeredDAG(layers)
-#'
-#'   # Writing lavaan syntax
-#'   model_spec <- LavaanModel(adjacency = dag)
-#'
-#'   # Checking the matrices generated by lavaan
-#'   mylavaan <- lavaan::sem(model = model_spec)
-#'   regsem::extractMatrices(mylavaan)$A
-#'   regsem::extractMatrices(mylavaan)$S
-#'
-#'   # Including residual correlation
-#'   res_cov <- diag(ncol(dag))
-#'   res_cov[1, 2] <- res_cov[2, 1] <- 1
-#'   model_spec <- LavaanModel(
-#'     adjacency = dag,
-#'     residual_covariance = res_cov
-#'   )
-#'
-#'   # Checking the matrices generated by lavaan
-#'   mylavaan <- lavaan::sem(model = model_spec)
-#'   regsem::extractMatrices(mylavaan)$A
-#'   regsem::extractMatrices(mylavaan)$S
-#'
-#'   # Incorporating latent variables
-#'   dag <- LayeredDAG(layers = c(2, 1), n_manifest = 2)
-#'   LavaanModel(dag, manifest = paste0("x", 1:6))
-#' }
-#' @export
-LavaanModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) {
-  # Identifying manifest and latent variables
-  if (is.null(manifest)) {
-    ids_manifest <- 1:ncol(adjacency)
-    ids_latent <- NULL
-  } else {
-    ids_manifest <- which(colnames(adjacency) %in% manifest)
-    ids_latent <- which(!colnames(adjacency) %in% manifest)
-  }
-  # Creating residual covariance matrix structure if not provided
-  if (is.null(residual_covariance)) {
-    residual_covariance <- diag(ncol(adjacency))
-  }
-
-  # Checking row and column names
-  if (is.null(rownames(adjacency))) {
-    rownames(adjacency) <- colnames(adjacency) <- paste0("var", 1:ncol(adjacency))
-  }
-  rownames(residual_covariance) <- colnames(residual_covariance) <- rownames(adjacency)
-
-  # Initialising model specification
-  model_spec <- ""
-
-  if (length(ids_latent) > 0) {
-    # Listing regressions
-    adjacency_latent <- adjacency[ids_latent, ids_latent]
-    for (j in 1:ncol(adjacency_latent)) {
-      predictors <- rownames(adjacency_latent)[which(adjacency_latent[, j] != 0)]
-      if (length(predictors) > 0) {
-        model_spec <- paste0(
-          model_spec, colnames(adjacency_latent)[j], " ~ ",
-          paste(predictors, collapse = " + "),
-          " \n "
-        )
-      }
-    }
-
-    # Listing measurements
-    for (j in ids_latent) {
-      measured <- rownames(adjacency)[which(adjacency[j, ] != 0)]
-      measured <- measured[measured %in% manifest]
-      if (length(measured) > 0) {
-        model_spec <- paste0(
-          model_spec, colnames(adjacency)[j], " =~ ",
-          paste(measured, collapse = " + "),
-          " \n "
-        )
-      }
-    }
-  } else {
-    # Listing regressions
-    for (j in 1:ncol(adjacency)) {
-      predictors <- rownames(adjacency)[which(adjacency[, j] != 0)]
-      if (length(predictors) > 0) {
-        model_spec <- paste0(
-          model_spec, colnames(adjacency)[j], " ~ ",
-          paste(predictors, collapse = " + "),
-          " \n "
-        )
-      }
-    }
-  }
-
-  # Listing residual correlations
-  residual_covariance_upper <- residual_covariance
-  residual_covariance_upper[lower.tri(residual_covariance_upper, diag = TRUE)] <- 0
-  for (i in 1:(ncol(residual_covariance_upper) - 1)) {
-    tmprow <- residual_covariance_upper[i, upper.tri(residual_covariance_upper)[i, ], drop = FALSE]
-    correlated <- colnames(tmprow)[which(tmprow != 0)]
-    independent <- colnames(tmprow)[which(tmprow == 0)]
-    model_spec <- paste0(model_spec, rownames(residual_covariance_upper)[i], " ~~ ")
-    if (length(independent) > 0) {
-      model_spec <- paste0(
-        model_spec,
-        paste(paste0("0*", independent), collapse = " + ")
-      )
-      if (length(correlated) > 0) {
-        model_spec <- paste0(
-          model_spec, "+"
-        )
-      }
-    }
-    if (length(correlated) > 0) {
-      model_spec <- paste0(
-        model_spec,
-        paste(correlated, collapse = " + ")
-      )
-    }
-    model_spec <- paste0(model_spec, " \n ")
-  }
-
-  return(model_spec)
-}
-
-
-#' Matrix from lavaan outputs
-#'
-#' Returns a matrix from output in \code{\link[lavaan]{lavaan}} format.
-#'
-#' @inheritParams LavaanModel
-#' @param vect vector of coefficients to assign to entries of the matrix.
-#'
-#' @return An asymmetric matrix.
-#'
-#' @seealso \code{\link{PenalisedSEM}}, \code{\link{LavaanModel}}
-#'
-#' @references \insertRef{lavaanBook}{sharp}
-#'
-#' @export
-LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest = NULL) {
-  # Creating lavaan model
-  model_spec <- LavaanModel(adjacency = adjacency, residual_covariance = residual_covariance, manifest = manifest)
-
-  # Running unpenalised sem
-  out_lavaan <- lavaan::sem(model = model_spec, data = NULL)
-  A <- regsem::extractMatrices(out_lavaan)$A
-
-  # Assigning the effects to corresponding matrix entries
-  for (k in 1:length(vect)) {
-    A[which(A == k, arr.ind = TRUE)] <- vect[k]
-  }
-
-  # Transposing for causes as rows and consequences as columns
-  A <- t(A)
-
-  # Re-ordering as in input
-  A <- A[rownames(adjacency), colnames(adjacency)]
-
-  return(A)
-}
-
-
 #' Writing OpenMx model (matrix specification)
 #'
 #' Returns matrix specification for use in \code{\link[OpenMx]{mxModel}} from
@@ -930,10 +626,10 @@ LavaanMatrix <- function(vect, adjacency, residual_covariance = NULL, manifest =
 #' entries in the residual covariance matrix (symmetric matrix S in Reticular
 #' Action Model notation).
 #'
-#' @inheritParams LavaanModel
+#' @inheritParams PenalisedOpenMx
+#' @param manifest optional vector of manifest variable names.
 #'
-#' @return A character string that can be used in argument \code{model} in
-#'   \code{\link[lavaan]{sem}}.
+#' @return A list of RAM matrices that can be used in \code{\link[OpenMx]{mxRun}}.
 #'
 #' @seealso \code{\link{PenalisedOpenMx}}, \code{\link{OpenMxMatrix}}
 #'
@@ -1093,7 +789,7 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
 #'
 #' Returns a matrix from output of \code{\link[OpenMx]{mxPenaltySearch}}.
 #'
-#' @inheritParams PenalisedSEM
+#' @inheritParams PenalisedOpenMx
 #' @param vect vector of coefficients to assign to entries of the matrix.
 #'
 #' @return An asymmetric matrix.
@@ -1135,7 +831,7 @@ OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
 #'
 #' Returns a matrix from output of \code{\link{PenalisedLinearSystem}}.
 #'
-#' @inheritParams PenalisedSEM
+#' @inheritParams PenalisedOpenMx
 #' @param vect vector of coefficients to assign to entries of the matrix.
 #'
 #' @return An asymmetric matrix.

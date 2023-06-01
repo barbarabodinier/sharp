@@ -61,9 +61,7 @@ ensure reproducibility of the results (see \code{\link[base]{set.seed}}).}
 \code{NULL} to use the score based on a z test. Other possible values are 2
 or 3 to use the score based on the negative log-likelihood.}
 
-\item{implementation}{function to use for variable selection. If
-\code{implementation=PenalisedSEM}, the algorithm implemented in
-\code{\link[regsem]{regsem}} is used.}
+\item{implementation}{function to use for variable selection.}
 
 \item{resampling}{resampling approach. Possible values are:
 \code{"subsampling"} for sampling without replacement of a proportion
@@ -300,7 +298,7 @@ par(oldpar)
   \insertRef{RegSEM}{sharp}
 }
 \seealso{
-\code{\link{PenalisedSEM}}, \code{\link{SelectionAlgo}},
+\code{\link{SelectionAlgo}},
   \code{\link{Resample}}, \code{\link{StabilityScore}}
 
 Other stability functions: 

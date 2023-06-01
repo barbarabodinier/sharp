@@ -151,13 +151,6 @@ Adjacency <- function(stability, argmax_id = NULL) {
         adjacency = stability$params$adjacency
       )
     }
-
-    if (stability$methods$implementation == "PenalisedSEM") {
-      A <- LavaanMatrix(
-        vect = SelectedVariables(stability),
-        adjacency = stability$params$adjacency
-      )
-    }
   }
 
   A[is.na(A)] <- 0

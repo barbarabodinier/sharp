@@ -1,5 +1,6 @@
 # sharp version 1.4.1
 
+* Removed functions depending on regsem (removed from CRAN)
 * Fixed the use of packages in Suggests in the examples
 
 # sharp version 1.4.1

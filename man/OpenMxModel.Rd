@@ -19,8 +19,7 @@ residual covariance).}
 \item{manifest}{optional vector of manifest variable names.}
 }
 \value{
-A character string that can be used in argument \code{model} in
-  \code{\link[lavaan]{sem}}.
+A list of RAM matrices that can be used in \code{\link[OpenMx]{mxRun}}.
 }
 \description{
 Returns matrix specification for use in \code{\link[OpenMx]{mxModel}} from

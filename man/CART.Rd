@@ -60,7 +60,7 @@ if (requireNamespace("rpart", quietly = TRUE)) {
 Other underlying algorithm functions: 
 \code{\link{ClusteringAlgo}()},
 \code{\link{PenalisedGraphical}()},
-\code{\link{PenalisedRegression}()},
-\code{\link{PenalisedSEM}()}
+\code{\link{PenalisedOpenMx}()},
+\code{\link{PenalisedRegression}()}
 }
 \concept{underlying algorithm functions}

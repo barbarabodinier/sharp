@@ -20,9 +20,7 @@
 #'   residual covariance).
 #' @param Lambda matrix of parameters controlling the level of sparsity in the
 #'   underlying feature selection algorithm specified in \code{implementation}.
-#' @param implementation function to use for variable selection. If
-#'   \code{implementation=PenalisedSEM}, the algorithm implemented in
-#'   \code{\link[regsem]{regsem}} is used.
+#' @param implementation function to use for variable selection.
 #'
 #' @details In stability selection, a feature selection algorithm is fitted on
 #'   \code{K} subsamples (or bootstrap samples) of the data with different
@@ -120,7 +118,7 @@
 #'
 #' @family stability functions
 #'
-#' @seealso \code{\link{PenalisedSEM}}, \code{\link{SelectionAlgo}},
+#' @seealso \code{\link{SelectionAlgo}},
 #'   \code{\link{Resample}}, \code{\link{StabilityScore}}
 #'
 #' @references \insertRef{ourstabilityselection}{sharp}
