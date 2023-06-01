@@ -46,24 +46,25 @@ matrix calculated using the COSA algorithm as implemented in
 \code{\link[stats]{dist}}. This function is not using stability.
 }
 \examples{
+if (requireNamespace("cluster", quietly = TRUE)) {
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
-# Data simulation
-set.seed(1)
-simul <- SimulateClustering(n = c(10, 10), pk = 50)
-
-# PAM clustering
-myclust <- PAMClustering(
-  xdata = simul$data,
-  nc = 1:20
-)
-
-# Weighted PAM clustering (using COSA)
-if (requireNamespace("rCOSA", quietly = TRUE)) {
+  # PAM clustering
   myclust <- PAMClustering(
     xdata = simul$data,
-    nc = 1:20,
-    Lambda = c(0.2, 0.5)
+    nc = 1:20
   )
+
+  # Weighted PAM clustering (using COSA)
+  if (requireNamespace("rCOSA", quietly = TRUE)) {
+    myclust <- PAMClustering(
+      xdata = simul$data,
+      nc = 1:20,
+      Lambda = c(0.2, 0.5)
+    )
+  }
 }
 }
 \references{

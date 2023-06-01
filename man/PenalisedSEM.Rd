@@ -80,11 +80,13 @@ set.seed(1)
 simul <- SimulateStructural(theta = theta, pk = pk, output_matrices = TRUE)
 
 # Running regularised SEM (regsem)
-mysem <- PenalisedSEM(
-  xdata = simul$data, adjacency = dag,
-  Lambda = LambdaSequence(lmax = 1, lmin = 0.01, cardinal = 5)
-)
-LavaanMatrix(vect = mysem$selected[3, ], adjacency = dag)
+if (requireNamespace("regsem", quietly = TRUE)) {
+  mysem <- PenalisedSEM(
+    xdata = simul$data, adjacency = dag,
+    Lambda = LambdaSequence(lmax = 1, lmin = 0.01, cardinal = 5)
+  )
+  LavaanMatrix(vect = mysem$selected[3, ], adjacency = dag)
+}
 
 # Running regularised SEM (OpenMx)
 if (requireNamespace("OpenMx", quietly = TRUE)) {

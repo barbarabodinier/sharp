@@ -25,7 +25,6 @@ Runs clustering with Gaussian Mixture Models (GMM) using implementation from
 \code{\link[mclust]{Mclust}}. This function is not using stability.
 }
 \examples{
-
 # Data simulation
 set.seed(1)
 simul <- SimulateClustering(n = c(10, 10), pk = 50)

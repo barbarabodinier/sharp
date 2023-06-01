@@ -58,25 +58,26 @@ distances are calculated using \code{\link[stats]{dist}}. This function is
 not using stability.
 }
 \examples{
+if (requireNamespace("dbscan", quietly = TRUE)) {
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateClustering(n = c(10, 10), pk = 50)
+  plot(simul)
 
-# Data simulation
-set.seed(1)
-simul <- SimulateClustering(n = c(10, 10), pk = 50)
-plot(simul)
-
-# DBSCAN clustering
-myclust <- DBSCANClustering(
-  xdata = simul$data,
-  eps = seq(0, 2 * sqrt(ncol(simul$data) - 1), by = 0.1)
-)
-
-# Weighted PAM clustering (using COSA)
-if (requireNamespace("rCOSA", quietly = TRUE)) {
+  # DBSCAN clustering
   myclust <- DBSCANClustering(
     xdata = simul$data,
-    eps = c(0.25, 0.5, 0.75),
-    Lambda = c(0.2, 0.5)
+    eps = seq(0, 2 * sqrt(ncol(simul$data) - 1), by = 0.1)
   )
+
+  # Weighted PAM clustering (using COSA)
+  if (requireNamespace("rCOSA", quietly = TRUE)) {
+    myclust <- DBSCANClustering(
+      xdata = simul$data,
+      eps = c(0.25, 0.5, 0.75),
+      Lambda = c(0.2, 0.5)
+    )
+  }
 }
 }
 \references{

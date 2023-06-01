@@ -1,8 +1,8 @@
 Package: sharp
 Type: Package
 Title: Stability-enHanced Approaches using Resampling Procedures
-Version: 1.4.1
-Date: 2023-05-30
+Version: 1.4.2
+Date: 2023-06-01
 Author: Barbara Bodinier [aut, cre]
 Maintainer: Barbara Bodinier <barbara.bodinier@gmail.com>
 URL: https://github.com/barbarabodinier/sharp

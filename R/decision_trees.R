@@ -20,18 +20,19 @@
 #' @references \insertRef{CART}{sharp}
 #'
 #' @examples
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(pk = 50)
+#' if (requireNamespace("rpart", quietly = TRUE)) {
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(pk = 50)
 #'
-#' # Running the LASSO
-#' mycart <- CART(
-#'   xdata = simul$xdata,
-#'   ydata = simul$ydata,
-#'   family = "gaussian"
-#' )
-#' head(mycart$selected)
-#'
+#'   # Running the LASSO
+#'   mycart <- CART(
+#'     xdata = simul$xdata,
+#'     ydata = simul$ydata,
+#'     family = "gaussian"
+#'   )
+#'   head(mycart$selected)
+#' }
 #' @export
 CART <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Checking rpart package is installed

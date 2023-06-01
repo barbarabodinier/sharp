@@ -247,12 +247,14 @@
 #' head(coef(stab))
 #'
 #' # Using CART
-#' stab <- VariableSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   implementation = CART,
-#'   family = "gaussian",
-#' )
-#' plot(stab)
+#' if (requireNamespace("rpart", quietly = TRUE)) {
+#'   stab <- VariableSelection(
+#'     xdata = simul$xdata, ydata = simul$ydata,
+#'     implementation = CART,
+#'     family = "gaussian",
+#'   )
+#'   plot(stab)
+#' }
 #'
 #' # Regression with multivariate outcomes
 #' set.seed(1)
