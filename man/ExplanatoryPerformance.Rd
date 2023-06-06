@@ -170,32 +170,34 @@ plot(roc)
 boxplot(roc$AUC)
 
 # Partial Least Squares Discriminant Analysis
-stab <- VariableSelection(
-  xdata = xselect,
-  ydata = yselect,
-  implementation = SparsePLS,
-  family = "binomial"
-)
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  stab <- VariableSelection(
+    xdata = xselect,
+    ydata = yselect,
+    implementation = SparsePLS,
+    family = "binomial"
+  )
 
-# Defining wrapping functions for predictions from PLS-DA
-PLSDA <- function(xdata, ydata, family = "binomial") {
-  model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
-  return(model)
-}
-PredictPLSDA <- function(xdata, model) {
-  xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
-  predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
-  return(predicted)
-}
+  # Defining wrapping functions for predictions from PLS-DA
+  PLSDA <- function(xdata, ydata, family = "binomial") {
+    model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
+    return(model)
+  }
+  PredictPLSDA <- function(xdata, model) {
+    xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
+    predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
+    return(predicted)
+  }
 
-# Performances with custom models
-roc <- ExplanatoryPerformance(
-  xdata = rbind(xtrain, xtest),
-  ydata = c(ytrain, ytest),
-  stability = stab, K = 100,
-  implementation = PLSDA, prediction = PredictPLSDA
-)
-plot(roc)
+  # Performances with custom models
+  roc <- ExplanatoryPerformance(
+    xdata = rbind(xtrain, xtest),
+    ydata = c(ytrain, ytest),
+    stability = stab, K = 100,
+    implementation = PLSDA, prediction = PredictPLSDA
+  )
+  plot(roc)
+}
 }
 }
 \seealso{

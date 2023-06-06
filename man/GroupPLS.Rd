@@ -71,25 +71,27 @@ Runs a group Partial Least Squares model using implementation from
 \code{\link[sgPLS]{sgPLS-package}}. This function is not using stability.
 }
 \examples{
-## Group PLS
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, q = 3, family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  ## Group PLS
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = 50, q = 3, family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
 
-# Running gPLS with 1 group and sparsity of 0.5
-mypls <- GroupPLS(
-  xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-  group_x = c(10, 15, 25),
-)
+  # Running gPLS with 1 group and sparsity of 0.5
+  mypls <- GroupPLS(
+    xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+    group_x = c(10, 15, 25),
+  )
 
-# Running gPLS with groups on outcomes
-mypls <- GroupPLS(
-  xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-  group_x = c(10, 15, 25),
-  group_y = c(2, 1), keepY = 1
-)
+  # Running gPLS with groups on outcomes
+  mypls <- GroupPLS(
+    xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+    group_x = c(10, 15, 25),
+    group_y = c(2, 1), keepY = 1
+  )
+}
 }
 \references{
 \insertRef{sparsegroupPLS}{sharp}

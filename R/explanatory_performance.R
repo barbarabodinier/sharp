@@ -101,40 +101,40 @@
 #' refitted$coefficients # refitted coefficients
 #' head(refitted$fitted.values) # refitted predicted probabilities
 #'
-#'
 #' ## Partial Least Squares (multiple components)
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 500, pk = 15, q = 3, family = "gaussian")
 #'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 500, pk = 15, q = 3, family = "gaussian")
+#'   # Data split
+#'   ids_train <- Resample(
+#'     data = simul$ydata,
+#'     tau = 0.5, family = "gaussian"
+#'   )
+#'   xtrain <- simul$xdata[ids_train, , drop = FALSE]
+#'   ytrain <- simul$ydata[ids_train, , drop = FALSE]
+#'   xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+#'   yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 #'
-#' # Data split
-#' ids_train <- Resample(
-#'   data = simul$ydata,
-#'   tau = 0.5, family = "gaussian"
-#' )
-#' xtrain <- simul$xdata[ids_train, , drop = FALSE]
-#' ytrain <- simul$ydata[ids_train, , drop = FALSE]
-#' xrefit <- simul$xdata[-ids_train, , drop = FALSE]
-#' yrefit <- simul$ydata[-ids_train, , drop = FALSE]
+#'   # Stability selection
+#'   stab <- BiSelection(
+#'     xdata = xtrain, ydata = ytrain,
+#'     family = "gaussian", ncomp = 3,
+#'     LambdaX = 1:(ncol(xtrain) - 1),
+#'     LambdaY = 1:(ncol(ytrain) - 1),
+#'     implementation = SparsePLS
+#'   )
+#'   plot(stab)
 #'
-#' # Stability selection
-#' stab <- BiSelection(
-#'   xdata = xtrain, ydata = ytrain,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(xtrain) - 1),
-#'   LambdaY = 1:(ncol(ytrain) - 1),
-#'   implementation = SparsePLS
-#' )
-#' plot(stab)
-#'
-#' # Refitting the model
-#' refitted <- Refit(
-#'   xdata = xrefit, ydata = yrefit,
-#'   stability = stab
-#' )
-#' refitted$Wmat # refitted X-weights
-#' refitted$Cmat # refitted Y-weights
+#'   # Refitting the model
+#'   refitted <- Refit(
+#'     xdata = xrefit, ydata = yrefit,
+#'     stability = stab
+#'   )
+#'   refitted$Wmat # refitted X-weights
+#'   refitted$Cmat # refitted Y-weights
+#' }
 #' }
 #'
 #' @export
@@ -481,32 +481,34 @@ Recalibrate <- Refit
 #' boxplot(roc$AUC)
 #'
 #' # Partial Least Squares Discriminant Analysis
-#' stab <- VariableSelection(
-#'   xdata = xselect,
-#'   ydata = yselect,
-#'   implementation = SparsePLS,
-#'   family = "binomial"
-#' )
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   stab <- VariableSelection(
+#'     xdata = xselect,
+#'     ydata = yselect,
+#'     implementation = SparsePLS,
+#'     family = "binomial"
+#'   )
 #'
-#' # Defining wrapping functions for predictions from PLS-DA
-#' PLSDA <- function(xdata, ydata, family = "binomial") {
-#'   model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
-#'   return(model)
-#' }
-#' PredictPLSDA <- function(xdata, model) {
-#'   xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
-#'   predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
-#'   return(predicted)
-#' }
+#'   # Defining wrapping functions for predictions from PLS-DA
+#'   PLSDA <- function(xdata, ydata, family = "binomial") {
+#'     model <- mixOmics::plsda(X = xdata, Y = as.factor(ydata), ncomp = 1)
+#'     return(model)
+#'   }
+#'   PredictPLSDA <- function(xdata, model) {
+#'     xdata <- xdata[, rownames(model$loadings$X), drop = FALSE]
+#'     predicted <- predict(object = model, newdata = xdata)$predict[, 2, 1]
+#'     return(predicted)
+#'   }
 #'
-#' # Performances with custom models
-#' roc <- ExplanatoryPerformance(
-#'   xdata = rbind(xtrain, xtest),
-#'   ydata = c(ytrain, ytest),
-#'   stability = stab, K = 100,
-#'   implementation = PLSDA, prediction = PredictPLSDA
-#' )
-#' plot(roc)
+#'   # Performances with custom models
+#'   roc <- ExplanatoryPerformance(
+#'     xdata = rbind(xtrain, xtest),
+#'     ydata = c(ytrain, ytest),
+#'     stability = stab, K = 100,
+#'     implementation = PLSDA, prediction = PredictPLSDA
+#'   )
+#'   plot(roc)
+#' }
 #' }
 #' @export
 ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,

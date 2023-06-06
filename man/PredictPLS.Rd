@@ -21,17 +21,19 @@ regression mode applied on \code{xdata}. This function is using the algorithm
 implemented in \code{\link[mixOmics]{predict.pls}}.
 }
 \examples{
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = c(5, 5, 5), family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
+if (requireNamespace("mixOmics", quietly = TRUE)) {
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = c(5, 5, 5), family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
 
-# PLS
-mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
+  # PLS
+  mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
 
-# Predicted values
-predicted <- PredictPLS(xdata = x, model = mypls)
+  # Predicted values
+  predicted <- PredictPLS(xdata = x, model = mypls)
+}
 }
 \seealso{
 \code{\link{PLS}}

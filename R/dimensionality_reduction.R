@@ -47,56 +47,58 @@
 #'
 #' @examples
 #' \donttest{
-#' oldpar <- par(no.readonly = TRUE)
-#'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 200, pk = 15, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#'
-#' # PLS
-#' mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
-#'
-#' # Sparse PLS to identify relevant variables
-#' stab <- BiSelection(
-#'   xdata = x, ydata = y,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   LambdaY = 1:(ncol(y) - 1),
-#'   implementation = SparsePLS,
-#'   n_cat = 2
-#' )
-#' plot(stab)
-#'
-#' # Refitting of PLS model
-#' mypls <- PLS(
-#'   xdata = x, ydata = y,
-#'   selectedX = stab$selectedX,
-#'   selectedY = stab$selectedY
-#' )
-#'
-#' # Nonzero entries in weights are the same as in selectedX
-#' par(mfrow = c(2, 2))
-#' Heatmap(stab$selectedX,
-#'   legend = FALSE
-#' )
-#' title("Selected in X")
-#' Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
-#'   legend = FALSE
-#' )
-#' title("Nonzero entries in Wmat")
-#' Heatmap(stab$selectedY,
-#'   legend = FALSE
-#' )
-#' title("Selected in Y")
-#' Heatmap(ifelse(mypls$Cmat != 0, yes = 1, no = 0),
-#'   legend = FALSE
-#' )
-#' title("Nonzero entries in Cmat")
-#'
-#' # Multilevel PLS
 #' if (requireNamespace("mixOmics", quietly = TRUE)) {
+#'   oldpar <- par(no.readonly = TRUE)
+#'
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 200, pk = 15, q = 3, family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
+#'
+#'   # PLS
+#'   mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
+#'
+#'   if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'     # Sparse PLS to identify relevant variables
+#'     stab <- BiSelection(
+#'       xdata = x, ydata = y,
+#'       family = "gaussian", ncomp = 3,
+#'       LambdaX = 1:(ncol(x) - 1),
+#'       LambdaY = 1:(ncol(y) - 1),
+#'       implementation = SparsePLS,
+#'       n_cat = 2
+#'     )
+#'     plot(stab)
+#'
+#'     # Refitting of PLS model
+#'     mypls <- PLS(
+#'       xdata = x, ydata = y,
+#'       selectedX = stab$selectedX,
+#'       selectedY = stab$selectedY
+#'     )
+#'
+#'     # Nonzero entries in weights are the same as in selectedX
+#'     par(mfrow = c(2, 2))
+#'     Heatmap(stab$selectedX,
+#'       legend = FALSE
+#'     )
+#'     title("Selected in X")
+#'     Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
+#'       legend = FALSE
+#'     )
+#'     title("Nonzero entries in Wmat")
+#'     Heatmap(stab$selectedY,
+#'       legend = FALSE
+#'     )
+#'     title("Selected in Y")
+#'     Heatmap(ifelse(mypls$Cmat != 0, yes = 1, no = 0),
+#'       legend = FALSE
+#'     )
+#'     title("Nonzero entries in Cmat")
+#'   }
+#'
+#'   # Multilevel PLS
 #'   # Generating random design
 #'   z <- rep(1:50, each = 4)
 #'
@@ -105,9 +107,9 @@
 #'
 #'   # Running PLS on within-variability
 #'   mypls <- PLS(xdata = x_within, ydata = y, ncomp = 3)
-#' }
 #'
-#' par(oldpar)
+#'   par(oldpar)
+#' }
 #' }
 #' @export
 PLS <- function(xdata, ydata,
@@ -288,17 +290,19 @@ PLS <- function(xdata, ydata,
 #' @seealso \code{\link{PLS}}
 #'
 #' @examples
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = c(5, 5, 5), family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
+#' if (requireNamespace("mixOmics", quietly = TRUE)) {
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 100, pk = c(5, 5, 5), family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
 #'
-#' # PLS
-#' mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
+#'   # PLS
+#'   mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
 #'
-#' # Predicted values
-#' predicted <- PredictPLS(xdata = x, model = mypls)
+#'   # Predicted values
+#'   predicted <- PredictPLS(xdata = x, model = mypls)
+#' }
 #' @export
 PredictPLS <- function(xdata, model) {
   # Extracting arguments
@@ -385,26 +389,28 @@ PredictPLS <- function(xdata, model) {
 #' @references \insertRef{sparsePLS}{sharp}
 #'
 #' @examples
-#' ## Sparse PLS
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   ## Sparse PLS
 #'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 20, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 100, pk = 20, q = 3, family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
 #'
-#' # Running sPLS with 2 X-variables and 1 Y-variable
-#' mypls <- SparsePLS(xdata = x, ydata = y, Lambda = 2, family = "gaussian", keepY = 1)
+#'   # Running sPLS with 2 X-variables and 1 Y-variable
+#'   mypls <- SparsePLS(xdata = x, ydata = y, Lambda = 2, family = "gaussian", keepY = 1)
 #'
 #'
-#' ## Sparse PLS-DA
+#'   ## Sparse PLS-DA
 #'
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 20, family = "binomial")
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 100, pk = 20, family = "binomial")
 #'
-#' # Running sPLS-DA with 2 X-variables and 1 Y-variable
-#' mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
+#'   # Running sPLS-DA with 2 X-variables and 1 Y-variable
+#'   mypls <- SparsePLS(xdata = simul$xdata, ydata = simul$ydata, Lambda = 2, family = "binomial")
+#' }
 #' @export
 SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
                       ncomp = 1, scale = TRUE,
@@ -563,36 +569,38 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
 #' @references \insertRef{sparsegroupPLS}{sharp}
 #'
 #' @examples
-#' ## Sparse group PLS
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 30, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   ## Sparse group PLS
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 100, pk = 30, q = 3, family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
 #'
-#' # Running sgPLS with 1 group and sparsity of 0.5
-#' mypls <- SparseGroupPLS(
-#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-#'   group_x = c(10, 15, 5), alpha.x = 0.5
-#' )
+#'   # Running sgPLS with 1 group and sparsity of 0.5
+#'   mypls <- SparseGroupPLS(
+#'     xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+#'     group_x = c(10, 15, 5), alpha.x = 0.5
+#'   )
 #'
-#' # Running sgPLS with groups on outcomes
-#' mypls <- SparseGroupPLS(
-#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-#'   group_x = c(10, 15, 5), alpha.x = 0.5,
-#'   group_y = c(2, 1), keepY = 1, alpha.y = 0.9
-#' )
+#'   # Running sgPLS with groups on outcomes
+#'   mypls <- SparseGroupPLS(
+#'     xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+#'     group_x = c(10, 15, 5), alpha.x = 0.5,
+#'     group_y = c(2, 1), keepY = 1, alpha.y = 0.9
+#'   )
 #'
-#' ## Sparse group PLS-DA
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
+#'   ## Sparse group PLS-DA
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
 #'
-#' # Running sgPLS-DA with 1 group and sparsity of 0.9
-#' mypls <- SparseGroupPLS(
-#'   xdata = simul$xdata, ydata = simul$ydata, Lambda = 1, family = "binomial",
-#'   group_x = c(10, 15, 25), alpha.x = 0.9
-#' )
+#'   # Running sgPLS-DA with 1 group and sparsity of 0.9
+#'   mypls <- SparseGroupPLS(
+#'     xdata = simul$xdata, ydata = simul$ydata, Lambda = 1, family = "binomial",
+#'     group_x = c(10, 15, 25), alpha.x = 0.9
+#'   )
+#' }
 #' @export
 SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
                            Lambda, alpha.x, alpha.y = NULL,
@@ -771,25 +779,27 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 #' @references \insertRef{sparsegroupPLS}{sharp}
 #'
 #' @examples
-#' ## Group PLS
-#' # Data simulation
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 100, pk = 50, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   ## Group PLS
+#'   # Data simulation
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 100, pk = 50, q = 3, family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
 #'
-#' # Running gPLS with 1 group and sparsity of 0.5
-#' mypls <- GroupPLS(
-#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-#'   group_x = c(10, 15, 25),
-#' )
+#'   # Running gPLS with 1 group and sparsity of 0.5
+#'   mypls <- GroupPLS(
+#'     xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+#'     group_x = c(10, 15, 25),
+#'   )
 #'
-#' # Running gPLS with groups on outcomes
-#' mypls <- GroupPLS(
-#'   xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-#'   group_x = c(10, 15, 25),
-#'   group_y = c(2, 1), keepY = 1
-#' )
+#'   # Running gPLS with groups on outcomes
+#'   mypls <- GroupPLS(
+#'     xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+#'     group_x = c(10, 15, 25),
+#'     group_y = c(2, 1), keepY = 1
+#'   )
+#' }
 #' @export
 GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
                      Lambda, keepX_previous = NULL, keepY = NULL,
@@ -970,10 +980,20 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 #' x <- simul$xdata
 #'
 #' # Sparse PCA (by Zou, Hastie, Tibshirani)
-#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "sPCA")
+#' if (requireNamespace("elasticnet", quietly = TRUE)) {
+#'   mypca <- SparsePCA(
+#'     xdata = x, ncomp = 2,
+#'     Lambda = c(1, 2), keepX_previous = 10, algorithm = "sPCA"
+#'   )
+#' }
 #'
 #' # Sparse PCA (by Shen and Huang)
-#' mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD")
+#' if (requireNamespace("mixOmics", quietly = TRUE)) {
+#'   mypca <- SparsePCA(
+#'     xdata = x, ncomp = 2,
+#'     Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD"
+#'   )
+#' }
 #' @export
 SparsePCA <- function(xdata, Lambda,
                       ncomp = 1, scale = TRUE,

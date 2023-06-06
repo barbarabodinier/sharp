@@ -60,12 +60,12 @@ glassoFast
 glm
 glmnet
 igraph
-lavaan
 lmax
 lmin
 nonzero
 pk
 rSVD
+regsem
 sPCA
 ted
 thr

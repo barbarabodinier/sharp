@@ -269,77 +269,79 @@ In stability selection, a feature selection algorithm is fitted on
 }
 \examples{
 \donttest{
-oldpar <- par(no.readonly = TRUE)
-par(mar = c(12, 5, 1, 1))
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  oldpar <- par(no.readonly = TRUE)
+  par(mar = c(12, 5, 1, 1))
 
-## Sparse Principal Component Analysis
+  ## Sparse Principal Component Analysis
 
-# Data simulation
-set.seed(1)
-simul <- SimulateComponents(pk = c(5, 3, 4))
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateComponents(pk = c(5, 3, 4))
 
-# sPCA: sparsity on X (unsupervised)
-stab <- BiSelection(
-  xdata = simul$data,
-  ncomp = 2,
-  LambdaX = 1:(ncol(simul$data) - 1),
-  implementation = SparsePCA
-)
-print(stab)
+  # sPCA: sparsity on X (unsupervised)
+  stab <- BiSelection(
+    xdata = simul$data,
+    ncomp = 2,
+    LambdaX = 1:(ncol(simul$data) - 1),
+    implementation = SparsePCA
+  )
+  print(stab)
 
-# Calibration plot
-CalibrationPlot(stab)
+  # Calibration plot
+  CalibrationPlot(stab)
 
-# Visualisation of the results
-summary(stab)
-plot(stab)
-SelectedVariables(stab)
+  # Visualisation of the results
+  summary(stab)
+  plot(stab)
+  SelectedVariables(stab)
 
 
-## Sparse (Group) Partial Least Squares
+  ## Sparse (Group) Partial Least Squares
 
-# Data simulation (continuous outcomes)
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 15, q = 3, family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
+  # Data simulation (continuous outcomes)
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = 15, q = 3, family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
 
-# sPLS: sparsity on X
-stab <- BiSelection(
-  xdata = x, ydata = y,
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(x) - 1),
-  implementation = SparsePLS
-)
-CalibrationPlot(stab)
-summary(stab)
-plot(stab)
+  # sPLS: sparsity on X
+  stab <- BiSelection(
+    xdata = x, ydata = y,
+    family = "gaussian", ncomp = 3,
+    LambdaX = 1:(ncol(x) - 1),
+    implementation = SparsePLS
+  )
+  CalibrationPlot(stab)
+  summary(stab)
+  plot(stab)
 
-# sPLS: sparsity on both X and Y
-stab <- BiSelection(
-  xdata = x, ydata = y,
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(x) - 1),
-  LambdaY = 1:(ncol(y) - 1),
-  implementation = SparsePLS,
-  n_cat = 2
-)
-CalibrationPlot(stab)
-summary(stab)
-plot(stab)
+  # sPLS: sparsity on both X and Y
+  stab <- BiSelection(
+    xdata = x, ydata = y,
+    family = "gaussian", ncomp = 3,
+    LambdaX = 1:(ncol(x) - 1),
+    LambdaY = 1:(ncol(y) - 1),
+    implementation = SparsePLS,
+    n_cat = 2
+  )
+  CalibrationPlot(stab)
+  summary(stab)
+  plot(stab)
 
-# sgPLS: sparsity on X
-stab <- BiSelection(
-  xdata = x, ydata = y, K = 10,
-  group_x = c(2, 8, 5),
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
-  implementation = SparseGroupPLS
-)
-CalibrationPlot(stab)
-summary(stab)
+  # sgPLS: sparsity on X
+  stab <- BiSelection(
+    xdata = x, ydata = y, K = 10,
+    group_x = c(2, 8, 5),
+    family = "gaussian", ncomp = 3,
+    LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+    implementation = SparseGroupPLS
+  )
+  CalibrationPlot(stab)
+  summary(stab)
 
-par(oldpar)
+  par(oldpar)
+}
 }
 }
 \references{

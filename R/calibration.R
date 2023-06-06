@@ -236,20 +236,22 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #' dim(median_betas)
 #'
 #' # Sparse PLS with multivariate outcome
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#' stab <- BiSelection(
-#'   xdata = x, ydata = y,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   implementation = SparsePLS
-#' )
-#' median_betas <- AggregatedEffects(stab)
-#' dim(median_betas)
-#' median_betas <- AggregatedEffects(stab, side = "Y")
-#' dim(median_betas)
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 50, pk = 15, q = 3, family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
+#'   stab <- BiSelection(
+#'     xdata = x, ydata = y,
+#'     family = "gaussian", ncomp = 3,
+#'     LambdaX = 1:(ncol(x) - 1),
+#'     implementation = SparsePLS
+#'   )
+#'   median_betas <- AggregatedEffects(stab)
+#'   dim(median_betas)
+#'   median_betas <- AggregatedEffects(stab, side = "Y")
+#'   dim(median_betas)
+#' }
 #' }
 #'
 #' @export

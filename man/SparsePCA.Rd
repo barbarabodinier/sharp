@@ -59,10 +59,20 @@ simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 x <- simul$xdata
 
 # Sparse PCA (by Zou, Hastie, Tibshirani)
-mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "sPCA")
+if (requireNamespace("elasticnet", quietly = TRUE)) {
+  mypca <- SparsePCA(
+    xdata = x, ncomp = 2,
+    Lambda = c(1, 2), keepX_previous = 10, algorithm = "sPCA"
+  )
+}
 
 # Sparse PCA (by Shen and Huang)
-mypca <- SparsePCA(xdata = x, ncomp = 2, Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD")
+if (requireNamespace("mixOmics", quietly = TRUE)) {
+  mypca <- SparsePCA(
+    xdata = x, ncomp = 2,
+    Lambda = c(1, 2), keepX_previous = 10, algorithm = "rSVD"
+  )
+}
 }
 \references{
 \insertRef{sparsePCA}{sharp}

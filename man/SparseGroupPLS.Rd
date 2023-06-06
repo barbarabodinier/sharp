@@ -79,36 +79,38 @@ Runs a sparse group Partial Least Squares model using implementation from
 \code{\link[sgPLS]{sgPLS-package}}. This function is not using stability.
 }
 \examples{
-## Sparse group PLS
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 30, q = 3, family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  ## Sparse group PLS
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = 30, q = 3, family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
 
-# Running sgPLS with 1 group and sparsity of 0.5
-mypls <- SparseGroupPLS(
-  xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-  group_x = c(10, 15, 5), alpha.x = 0.5
-)
+  # Running sgPLS with 1 group and sparsity of 0.5
+  mypls <- SparseGroupPLS(
+    xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+    group_x = c(10, 15, 5), alpha.x = 0.5
+  )
 
-# Running sgPLS with groups on outcomes
-mypls <- SparseGroupPLS(
-  xdata = x, ydata = y, Lambda = 1, family = "gaussian",
-  group_x = c(10, 15, 5), alpha.x = 0.5,
-  group_y = c(2, 1), keepY = 1, alpha.y = 0.9
-)
+  # Running sgPLS with groups on outcomes
+  mypls <- SparseGroupPLS(
+    xdata = x, ydata = y, Lambda = 1, family = "gaussian",
+    group_x = c(10, 15, 5), alpha.x = 0.5,
+    group_y = c(2, 1), keepY = 1, alpha.y = 0.9
+  )
 
-## Sparse group PLS-DA
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
+  ## Sparse group PLS-DA
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = 50, family = "binomial")
 
-# Running sgPLS-DA with 1 group and sparsity of 0.9
-mypls <- SparseGroupPLS(
-  xdata = simul$xdata, ydata = simul$ydata, Lambda = 1, family = "binomial",
-  group_x = c(10, 15, 25), alpha.x = 0.9
-)
+  # Running sgPLS-DA with 1 group and sparsity of 0.9
+  mypls <- SparseGroupPLS(
+    xdata = simul$xdata, ydata = simul$ydata, Lambda = 1, family = "binomial",
+    group_x = c(10, 15, 25), alpha.x = 0.9
+  )
+}
 }
 \references{
 \insertRef{sparsegroupPLS}{sharp}

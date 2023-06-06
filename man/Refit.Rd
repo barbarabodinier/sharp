@@ -146,40 +146,40 @@ refitted <- Refit(
 refitted$coefficients # refitted coefficients
 head(refitted$fitted.values) # refitted predicted probabilities
 
-
 ## Partial Least Squares (multiple components)
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateRegression(n = 500, pk = 15, q = 3, family = "gaussian")
 
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 500, pk = 15, q = 3, family = "gaussian")
+  # Data split
+  ids_train <- Resample(
+    data = simul$ydata,
+    tau = 0.5, family = "gaussian"
+  )
+  xtrain <- simul$xdata[ids_train, , drop = FALSE]
+  ytrain <- simul$ydata[ids_train, , drop = FALSE]
+  xrefit <- simul$xdata[-ids_train, , drop = FALSE]
+  yrefit <- simul$ydata[-ids_train, , drop = FALSE]
 
-# Data split
-ids_train <- Resample(
-  data = simul$ydata,
-  tau = 0.5, family = "gaussian"
-)
-xtrain <- simul$xdata[ids_train, , drop = FALSE]
-ytrain <- simul$ydata[ids_train, , drop = FALSE]
-xrefit <- simul$xdata[-ids_train, , drop = FALSE]
-yrefit <- simul$ydata[-ids_train, , drop = FALSE]
+  # Stability selection
+  stab <- BiSelection(
+    xdata = xtrain, ydata = ytrain,
+    family = "gaussian", ncomp = 3,
+    LambdaX = 1:(ncol(xtrain) - 1),
+    LambdaY = 1:(ncol(ytrain) - 1),
+    implementation = SparsePLS
+  )
+  plot(stab)
 
-# Stability selection
-stab <- BiSelection(
-  xdata = xtrain, ydata = ytrain,
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(xtrain) - 1),
-  LambdaY = 1:(ncol(ytrain) - 1),
-  implementation = SparsePLS
-)
-plot(stab)
-
-# Refitting the model
-refitted <- Refit(
-  xdata = xrefit, ydata = yrefit,
-  stability = stab
-)
-refitted$Wmat # refitted X-weights
-refitted$Cmat # refitted Y-weights
+  # Refitting the model
+  refitted <- Refit(
+    xdata = xrefit, ydata = yrefit,
+    stability = stab
+  )
+  refitted$Wmat # refitted X-weights
+  refitted$Cmat # refitted Y-weights
+}
 }
 
 }

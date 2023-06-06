@@ -80,17 +80,19 @@
 #' plot(Graph(stab))
 #'
 #' # Sparse PLS
-#' set.seed(1)
-#' simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
-#' x <- simul$xdata
-#' y <- simul$ydata
-#' stab <- BiSelection(
-#'   xdata = simul$xdata, ydata = simul$ydata,
-#'   family = "gaussian", ncomp = 3,
-#'   LambdaX = 1:(ncol(x) - 1),
-#'   implementation = SparsePLS
-#' )
-#' plot(Graph(stab))
+#' if (requireNamespace("sgPLS", quietly = TRUE)) {
+#'   set.seed(1)
+#'   simul <- SimulateRegression(n = 50, pk = c(5, 5, 5), family = "gaussian")
+#'   x <- simul$xdata
+#'   y <- simul$ydata
+#'   stab <- BiSelection(
+#'     xdata = simul$xdata, ydata = simul$ydata,
+#'     family = "gaussian", ncomp = 3,
+#'     LambdaX = 1:(ncol(x) - 1),
+#'     implementation = SparsePLS
+#'   )
+#'   plot(Graph(stab))
+#' }
 #'
 #'
 #' ## Tools from other packages

@@ -43,4 +43,6 @@ There are currently no downstream dependencies for this package.
 
 ## Comments
 
+Examples have been fixed for use without Suggests.
+
 This new version does not suggest the R package regsem which has been removed from CRAN on 2023-05-31.

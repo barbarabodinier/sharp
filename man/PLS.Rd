@@ -71,56 +71,58 @@ All matrices are defined as in (Wold et al. 2001). The weight matrix
 }
 \examples{
 \donttest{
-oldpar <- par(no.readonly = TRUE)
-
-# Data simulation
-set.seed(1)
-simul <- SimulateRegression(n = 200, pk = 15, q = 3, family = "gaussian")
-x <- simul$xdata
-y <- simul$ydata
-
-# PLS
-mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
-
-# Sparse PLS to identify relevant variables
-stab <- BiSelection(
-  xdata = x, ydata = y,
-  family = "gaussian", ncomp = 3,
-  LambdaX = 1:(ncol(x) - 1),
-  LambdaY = 1:(ncol(y) - 1),
-  implementation = SparsePLS,
-  n_cat = 2
-)
-plot(stab)
-
-# Refitting of PLS model
-mypls <- PLS(
-  xdata = x, ydata = y,
-  selectedX = stab$selectedX,
-  selectedY = stab$selectedY
-)
-
-# Nonzero entries in weights are the same as in selectedX
-par(mfrow = c(2, 2))
-Heatmap(stab$selectedX,
-  legend = FALSE
-)
-title("Selected in X")
-Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
-  legend = FALSE
-)
-title("Nonzero entries in Wmat")
-Heatmap(stab$selectedY,
-  legend = FALSE
-)
-title("Selected in Y")
-Heatmap(ifelse(mypls$Cmat != 0, yes = 1, no = 0),
-  legend = FALSE
-)
-title("Nonzero entries in Cmat")
-
-# Multilevel PLS
 if (requireNamespace("mixOmics", quietly = TRUE)) {
+  oldpar <- par(no.readonly = TRUE)
+
+  # Data simulation
+  set.seed(1)
+  simul <- SimulateRegression(n = 200, pk = 15, q = 3, family = "gaussian")
+  x <- simul$xdata
+  y <- simul$ydata
+
+  # PLS
+  mypls <- PLS(xdata = x, ydata = y, ncomp = 3)
+
+  if (requireNamespace("sgPLS", quietly = TRUE)) {
+    # Sparse PLS to identify relevant variables
+    stab <- BiSelection(
+      xdata = x, ydata = y,
+      family = "gaussian", ncomp = 3,
+      LambdaX = 1:(ncol(x) - 1),
+      LambdaY = 1:(ncol(y) - 1),
+      implementation = SparsePLS,
+      n_cat = 2
+    )
+    plot(stab)
+
+    # Refitting of PLS model
+    mypls <- PLS(
+      xdata = x, ydata = y,
+      selectedX = stab$selectedX,
+      selectedY = stab$selectedY
+    )
+
+    # Nonzero entries in weights are the same as in selectedX
+    par(mfrow = c(2, 2))
+    Heatmap(stab$selectedX,
+      legend = FALSE
+    )
+    title("Selected in X")
+    Heatmap(ifelse(mypls$Wmat != 0, yes = 1, no = 0),
+      legend = FALSE
+    )
+    title("Nonzero entries in Wmat")
+    Heatmap(stab$selectedY,
+      legend = FALSE
+    )
+    title("Selected in Y")
+    Heatmap(ifelse(mypls$Cmat != 0, yes = 1, no = 0),
+      legend = FALSE
+    )
+    title("Nonzero entries in Cmat")
+  }
+
+  # Multilevel PLS
   # Generating random design
   z <- rep(1:50, each = 4)
 
@@ -129,9 +131,9 @@ if (requireNamespace("mixOmics", quietly = TRUE)) {
 
   # Running PLS on within-variability
   mypls <- PLS(xdata = x_within, ydata = y, ncomp = 3)
-}
 
-par(oldpar)
+  par(oldpar)
+}
 }
 }
 \references{

@@ -24,6 +24,7 @@ Imports:
     igraph,
     mclust,
     parallel,
+    plotrix,
     Rdpack,
     withr (>= 2.4.0)
 Suggests:
@@ -35,7 +36,6 @@ Suggests:
     mixOmics,
     nnet,
     OpenMx,
-    plotrix,
     RCy3,
     randomcoloR,
     rCOSA,

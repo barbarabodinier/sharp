@@ -315,37 +315,43 @@ stab <- VariableSelection(
 summary(stab)
 
 # Sparse PCA (1 component, see BiSelection for more components)
-set.seed(1)
-simul <- SimulateComponents(pk = c(5, 3, 4))
-stab <- VariableSelection(
-  xdata = simul$data,
-  Lambda = 1:(ncol(simul$data) - 1),
-  implementation = SparsePCA
-)
-CalibrationPlot(stab, xlab = "")
-summary(stab)
+if (requireNamespace("elasticnet", quietly = TRUE)) {
+  set.seed(1)
+  simul <- SimulateComponents(pk = c(5, 3, 4))
+  stab <- VariableSelection(
+    xdata = simul$data,
+    Lambda = 1:(ncol(simul$data) - 1),
+    implementation = SparsePCA
+  )
+  CalibrationPlot(stab, xlab = "")
+  summary(stab)
+}
 
 # Sparse PLS (1 outcome, 1 component, see BiSelection for more options)
-set.seed(1)
-simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
-stab <- VariableSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
-  Lambda = 1:(ncol(simul$xdata) - 1),
-  implementation = SparsePLS, family = "gaussian"
-)
-CalibrationPlot(stab, xlab = "")
-SelectedVariables(stab)
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  set.seed(1)
+  simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
+  stab <- VariableSelection(
+    xdata = simul$xdata, ydata = simul$ydata,
+    Lambda = 1:(ncol(simul$xdata) - 1),
+    implementation = SparsePLS, family = "gaussian"
+  )
+  CalibrationPlot(stab, xlab = "")
+  SelectedVariables(stab)
+}
 
 # Group PLS (1 outcome, 1 component, see BiSelection for more options)
-stab <- VariableSelection(
-  xdata = simul$xdata, ydata = simul$ydata,
-  Lambda = 1:5,
-  group_x = c(5, 5, 10, 20, 10),
-  group_penalisation = TRUE,
-  implementation = GroupPLS, family = "gaussian"
-)
-CalibrationPlot(stab, xlab = "")
-SelectedVariables(stab)
+if (requireNamespace("sgPLS", quietly = TRUE)) {
+  stab <- VariableSelection(
+    xdata = simul$xdata, ydata = simul$ydata,
+    Lambda = 1:5,
+    group_x = c(5, 5, 10, 20, 10),
+    group_penalisation = TRUE,
+    implementation = GroupPLS, family = "gaussian"
+  )
+  CalibrationPlot(stab, xlab = "")
+  SelectedVariables(stab)
+}
 
 # Example with more hyper-parameters: elastic net
 set.seed(1)
