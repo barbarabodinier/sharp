@@ -278,10 +278,10 @@ BinomialProbabilities <- function(q, N, pi, K, n_cat = 3) {
 #' @export
 ConsensusScore <- function(prop, K, theta) {
   # Calculating the within and between sums
-  X_w <- sum(prop * K * theta)
-  X_b <- sum(prop * K * (1 - theta))
-  N_w <- sum(K * theta)
-  N_b <- sum(K * (1 - theta))
+  X_w <- sum(prop * K * theta, na.rm = TRUE)
+  X_b <- sum(prop * K * (1 - theta), na.rm = TRUE)
+  N_w <- sum(K * theta, na.rm = TRUE)
+  N_b <- sum(K * (1 - theta), na.rm = TRUE)
 
   # Calculating the z statistic
   p_w <- X_w / N_w
