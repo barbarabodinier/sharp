@@ -1,4 +1,9 @@
-# sharp version 1.4.1
+# sharp version 1.4.3
+
+* Add sparse K means from the R package sparcl
+* Allow for missing values in proportions for more flexibility
+
+# sharp version 1.4.2
 
 * Removed functions depending on regsem (removed from CRAN)
 * Fixed the use of packages in Suggests in the examples

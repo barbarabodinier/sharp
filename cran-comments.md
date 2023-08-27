@@ -25,7 +25,7 @@ Found the following (possibly) invalid URLs:
     Status: 403
     Message: Forbidden
 
-* These URLs have been checked and are correct. I also had this note with the previous version of sharp (1.4.1). 
+* These URLs have been checked and are correct. I also had this note with the previous version of sharp (1.4.2). 
 
 Package suggested but not available for checking: 'rCOSA'
 
@@ -40,9 +40,3 @@ previous version of sharp (1.4.1).
 ## Downstream dependencies
 
 There are currently no downstream dependencies for this package.
-
-## Comments
-
-Examples have been fixed for use without Suggests.
-
-This new version does not suggest the R package regsem which has been removed from CRAN on 2023-05-31.
