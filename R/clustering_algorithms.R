@@ -565,7 +565,10 @@ DBSCANClustering <- function(xdata,
 #' \code{\link[stats]{kmeans}}. This function is not using stability.
 #'
 #' @inheritParams HierarchicalClustering
-#' @param ... additional parameters passed to \code{\link[stats]{kmeans}}.
+#' @param Lambda vector of penalty parameters (see argument \code{wbounds} in
+#'   \code{\link[sparcl]{KMeansSparseCluster}}).
+#' @param ... additional parameters passed to \code{\link[stats]{kmeans}} (if
+#'   \code{Lambda} is \code{NULL}) or \code{\link[sparcl]{KMeansSparseCluster}}.
 #'
 #' @return A list with: \item{comembership}{an array of binary and symmetric
 #'   co-membership matrices.} \item{weights}{a matrix of median weights by
@@ -573,56 +576,34 @@ DBSCANClustering <- function(xdata,
 #'
 #' @family clustering algorithms
 #'
+#' @references \insertRef{SparseClustering}{sharp}
+#'
 #' @examples
 #'
 #' # Data simulation
 #' set.seed(1)
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
-#' # k-means clustering
+#' # K means clustering
 #' mykmeans <- KMeansClustering(xdata = simul$data, nc = 1:20)
+#'
+#' # Sparse K means clustering
+#' if (requireNamespace("sparcl", quietly = TRUE)) {
+#'   mykmeans <- KMeansClustering(
+#'     xdata = simul$data, nc = 1:20,
+#'     Lambda = c(2, 5)
+#'   )
+#' }
+#'
 #' @export
 KMeansClustering <- function(xdata, nc = NULL,
+                             Lambda = NULL,
                              ...) {
-  # Storing extra arguments
-  extra_args <- list(...)
-
-  # Re-formatting nc
-  if (!is.null(nc)) {
-    if (is.vector(nc)) {
-      nc <- cbind(nc)
-    }
+  if (is.null(Lambda)) {
+    return(UnweightedKMeansClustering(xdata = xdata, nc = nc, ...))
   } else {
-    nc <- cbind(seq(1, nrow(xdata)))
+    return(SparseKMeansClustering(xdata = xdata, nc = nc, Lambda = Lambda, ...))
   }
-
-  # Initialisation of array storing co-membership matrices
-  Lambda <- cbind(0)
-  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
-  weight <- matrix(NA, nrow = nrow(nc) * nrow(Lambda), ncol = ncol(xdata))
-
-  # Extracting relevant extra arguments
-  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::kmeans)
-  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "centers")]
-
-  # Running k-means clustering
-  for (k in 1:nrow(nc)) {
-    if (nc[k, 1] == 1) {
-      adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
-    } else {
-      if (nc[k, 1] < nrow(xdata)) {
-        myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = nc[k, 1]), tmp_extra_args))
-        mygroups <- myclust$cluster
-        adjacency[, , k] <- CoMembership(groups = mygroups)
-      }
-    }
-  }
-
-  # Setting row and column names
-  rownames(weight) <- paste0("s", seq(0, nrow(weight) - 1))
-  colnames(weight) <- colnames(xdata)
-
-  return(list(comembership = adjacency, weight = weight))
 }
 
 
@@ -694,4 +675,157 @@ GMMClustering <- function(xdata, nc = NULL,
   colnames(weight) <- colnames(xdata)
 
   return(list(comembership = adjacency, weight = weight))
+}
+
+
+#' Unweighted K-means clustering
+#'
+#' Runs k-means clustering using implementation from
+#' \code{\link[stats]{kmeans}}. This function is not using stability.
+#'
+#' @inheritParams HierarchicalClustering
+#' @param ... additional parameters passed to \code{\link[stats]{kmeans}}.
+#'
+#' @return A list with: \item{comembership}{an array of binary and symmetric
+#'   co-membership matrices.} \item{weights}{a matrix of median weights by
+#'   feature.}
+#'
+#' @keywords internal
+UnweightedKMeansClustering <- function(xdata, nc = NULL,
+                                       ...) {
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Re-formatting nc
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
+  }
+
+  # Initialisation of array storing co-membership matrices
+  Lambda <- cbind(0)
+  adjacency <- array(0, dim = c(nrow(xdata), nrow(xdata), nrow(nc)))
+  weight <- matrix(NA, nrow = nrow(nc) * nrow(Lambda), ncol = ncol(xdata))
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = stats::kmeans)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "centers")]
+
+  # Running k-means clustering
+  for (k in 1:nrow(nc)) {
+    if (nc[k, 1] == 1) {
+      adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
+    } else {
+      if (nc[k, 1] < nrow(xdata)) {
+        myclust <- do.call(stats::kmeans, args = c(list(x = xdata, centers = nc[k, 1]), tmp_extra_args))
+        mygroups <- myclust$cluster
+        adjacency[, , k] <- CoMembership(groups = mygroups)
+      }
+    }
+  }
+
+  # Setting row and column names
+  rownames(weight) <- paste0("s", seq(0, nrow(weight) - 1))
+  colnames(weight) <- colnames(xdata)
+
+  return(list(comembership = adjacency, weight = weight))
+}
+
+
+#' Sparse K means clustering
+#'
+#' Runs sparse K means clustering using implementation from
+#' \code{\link[sparcl]{KMeansSparseCluster}}. This function is not using
+#' stability.
+#'
+#' @inheritParams HierarchicalClustering
+#' @param Lambda vector of penalty parameters (see argument \code{wbounds} in
+#'   \code{\link[sparcl]{KMeansSparseCluster}}).
+#' @param ... additional parameters passed to
+#'   \code{\link[sparcl]{KMeansSparseCluster}}.
+#'
+#' @return A list with: \item{comembership}{an array of binary and symmetric
+#'   co-membership matrices.} \item{weights}{a matrix of median weights by
+#'   feature.}
+#'
+#' @references \insertRef{SparseClustering}{sharp}
+#'
+#' @keywords internal
+SparseKMeansClustering <- function(xdata, nc = NULL, Lambda, ...) {
+  # Checking sparcl package is installed
+  if (!requireNamespace("sparcl")) {
+    stop("This function requires the 'sparcl' package.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
+  # Re-formatting Lambda
+  if (is.vector(Lambda)) {
+    Lambda <- cbind(Lambda)
+  }
+
+  # Re-formatting nc
+  if (!is.null(nc)) {
+    if (is.vector(nc)) {
+      nc <- cbind(nc)
+    }
+  } else {
+    nc <- cbind(seq(1, nrow(xdata)))
+  }
+
+  # Extracting relevant extra arguments
+  tmp_extra_args <- MatchingArguments(extra_args = extra_args, FUN = sparcl::KMeansSparseCluster)
+  tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "wbound", "silent", "K")]
+
+  # Defining the number of iterations
+  n_iter_lambda <- nrow(Lambda)
+  Lambda_iter <- Lambda
+
+  # Initialisation of array storing co-membership matrices
+  adjacency <- array(NA, dim = c(nrow(xdata), nrow(xdata), nrow(nc) * n_iter_lambda))
+  weight <- matrix(NA, nrow = nrow(nc) * n_iter_lambda, ncol = ncol(xdata))
+
+  # Iterating over the pair of parameters
+  id <- 0
+  for (i in 1:n_iter_lambda) {
+    for (j in 1:nrow(nc)) {
+      # Running sparse K means clustering
+      myclust <- tryCatch(
+        do.call(sparcl::KMeansSparseCluster, args = c(
+          list(x = xdata, K = nc[j], wbound = Lambda[i, 1], silent = TRUE),
+          tmp_extra_args
+        )),
+        error = function(e) {
+          NULL
+        }
+      )
+
+      # Defining clusters
+      if (!is.null(myclust)) {
+        mygroups <- myclust[[1]]$Cs
+        adjacency[, , id + j] <- CoMembership(groups = mygroups)
+        weight[id + j, ] <- myclust[[1]]$ws
+      } else {
+        # Single cluster and unique weights in case of error
+        mygroups <- rep(1, nrow(xdata))
+        adjacency[, , id + j] <- CoMembership(groups = mygroups)
+        weight[id + j, ] <- rep(1, ncol(xdata))
+      }
+    }
+    id <- id + nrow(nc)
+  }
+
+  # Setting row and column names
+  rownames(weight) <- paste0("s", seq(0, nrow(weight) - 1))
+  colnames(weight) <- colnames(xdata)
+
+  return(list(
+    comembership = adjacency,
+    weight = weight,
+    Lambda = Lambda_iter
+  ))
 }
