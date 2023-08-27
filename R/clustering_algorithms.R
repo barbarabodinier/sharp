@@ -559,7 +559,7 @@ DBSCANClustering <- function(xdata,
 }
 
 
-#' K-means clustering
+#' (Sparse) K-means clustering
 #'
 #' Runs k-means clustering using implementation from
 #' \code{\link[stats]{kmeans}}. This function is not using stability.

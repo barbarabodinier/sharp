@@ -2,7 +2,7 @@
 % Please edit documentation in R/clustering_algorithms.R
 \name{KMeansClustering}
 \alias{KMeansClustering}
-\title{K-means clustering}
+\title{(Sparse) K-means clustering}
 \usage{
 KMeansClustering(xdata, nc = NULL, Lambda = NULL, ...)
 }
