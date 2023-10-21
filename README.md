@@ -154,6 +154,12 @@ instead of the graphical LASSO.
 
 ## References
 
+-   Barbara Bodinier, Dragana Vuckovic, Sabrina Rodrigues, Sarah
+    Filippi, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration
+    of consensus weighted distance-based clustering approaches using
+    sharp. (2023) Bioinformatics.
+    [link](https://doi.org/10.1093/bioinformatics/btad635)
+
 -   Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien
     Chiquet and Marc Chadeau-Hyam. Automated calibration for stability
     selection in penalised regression and graphical models. (2021)
