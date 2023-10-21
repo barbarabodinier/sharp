@@ -1,3 +1,7 @@
+# sharp version 1.4.4
+
+* Update references with published articles
+
 # sharp version 1.4.3
 
 * Add sparse K means from the R package sparcl

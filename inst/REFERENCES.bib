@@ -6,19 +6,33 @@
 
 %% Saved with string encoding Unicode (UTF-8) 
 
+@article{OurConsensusClustering,
+    author = {Bodinier, Barbara and Vuckovic, Dragana and Rodrigues, Sabrina and Filippi, Sarah and Chiquet, Julien and Chadeau-Hyam, Marc},
+    title = "{Automated calibration of consensus weighted distance-based clustering approaches using sharp}",
+    journal = {Bioinformatics},
+    pages = {btad635},
+    year = {2023},
+    month = {10},
+    abstract = "{In consensus clustering, a clustering algorithm is used in combination with a subsampling procedure to detect stable clusters. Previous studies on both simulated and real data suggest that consensus clustering outperforms native algorithms.We extend here consensus clustering to allow for attribute weighting in the calculation of pairwise distances using existing regularised approaches. We propose a procedure for the calibration of the number of clusters (and regularisation parameter) by maximising the sharp score, a novel stability score calculated directly from consensus clustering outputs, making it extremely computationally competitive. Our simulation study shows better clustering performances of (i) approaches calibrated by maximising the sharp score compared to existing calibration scores, and (ii) weighted compared to unweighted approaches in the presence of features that do not contribute to cluster definition. Application on real gene expression data measured in lung tissue reveals clear clusters corresponding to different lung cancer subtypes.The R package sharp (version ≥ 1.4.3) is available on CRAN at https://CRAN.R-project.org/package=sharp.}",
+    issn = {1367-4811},
+    doi = {10.1093/bioinformatics/btad635},
+    url = {https://doi.org/10.1093/bioinformatics/btad635},
+    eprint = {https://academic.oup.com/bioinformatics/advance-article-pdf/doi/10.1093/bioinformatics/btad635/52191190/btad635.pdf},
+}
 
-
-@misc{OurConsensusClustering,
-	archiveprefix = {arXiv},
-	author = {Barbara Bodinier and Dragana Vuckovic and Sabrina Rodrigues and Sarah Filippi and Julien Chiquet and Marc Chadeau-Hyam},
-	date-added = {2023-04-28 18:00:02 +0200},
-	date-modified = {2023-04-28 18:00:12 +0200},
-	eprint = {2304.13706},
-	primaryclass = {stat.ME},
-	title = {Automated calibration of consensus weighted distance-based clustering approaches using sharp},
-	url = {https://arxiv.org/abs/2304.13706},
-	year = {2023},
-	bdsk-url-1 = {https://arxiv.org/abs/2304.13706}}
+@article{ourstabilityselection,
+    author = {Bodinier, Barbara and Filippi, Sarah and Nøst, Therese Haugdahl and Chiquet, Julien and Chadeau-Hyam, Marc},
+    title = "{Automated calibration for stability selection in penalised regression and graphical models}",
+    journal = {Journal of the Royal Statistical Society Series C: Applied Statistics},
+    pages = {qlad058},
+    year = {2023},
+    month = {07},
+    abstract = "{Stability selection represents an attractive approach to identify sparse sets of features jointly associated with an outcome in high-dimensional contexts. We introduce an automated calibration procedure via maximisation of an in-house stability score and accommodating a priori-known block structure (e.g. multi-OMIC) data. It applies to [Least Absolute Shrinkage Selection Operator (LASSO)] penalised regression and graphical models. Simulations show our approach outperforms non-stability-based and stability selection approaches using the original calibration. Application to multi-block graphical LASSO on real (epigenetic and transcriptomic) data from the Norwegian Women and Cancer study reveals a central/credible and novel cross-OMIC role of LRRN3 in the biological response to smoking. Proposed approaches were implemented in the R package sharp.}",
+    issn = {0035-9254},
+    doi = {10.1093/jrsssc/qlad058},
+    url = {https://doi.org/10.1093/jrsssc/qlad058},
+    eprint = {https://academic.oup.com/jrsssc/advance-article-pdf/doi/10.1093/jrsssc/qlad058/50878777/qlad058.pdf},
+}
 
 @book{CART,
 	author = {Breiman, L and Friedman, JH and Olshen, R and Stone, CJ},
@@ -73,15 +87,6 @@
 	volume = {23},
 	year = {2016},
 	bdsk-url-1 = {https://doi.org/10.1080/10705511.2016.1154793}}
-
-@misc{ourstabilityselection,
-	archiveprefix = {arXiv},
-	author = {Barbara Bodinier and Sarah Filippi and Therese Haugdahl Nost and Julien Chiquet and Marc Chadeau-Hyam},
-	primaryclass = {stat.ME},
-	title = {Automated calibration for stability selection in penalised regression and graphical models: a multi-OMICs network application exploring the molecular response to tobacco smoking},
-	url = {https://arxiv.org/abs/2106.02521},
-	year = {2021},
-	bdsk-url-1 = {https://arxiv.org/abs/2106.02521}}
 
 @article{stabilityselectionMB,
 	abstract = {Summary.  Estimation of structure, such as in variable selection, graphical modelling or cluster analysis, is notoriously difficult, especially for high dimensional data. We introduce stability selection. It is based on subsampling in combination with (high dimensional) selection algorithms. As such, the method is extremely general and has a very wide range of applicability. Stability selection provides finite sample control for some error rates of false discoveries and hence a transparent principle to choose a proper amount of regularization for structure estimation. Variable selection and structure estimation improve markedly for a range of selection methods if stability selection is applied. We prove for the randomized lasso that stability selection will be variable selection consistent even if the necessary conditions for consistency of the original lasso method are violated. We demonstrate stability selection for variable selection and Gaussian graphical modelling, using real and simulated data.},

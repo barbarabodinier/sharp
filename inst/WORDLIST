@@ -8,6 +8,7 @@ ClusteringPerformance
 ConsensusMatrix
 Cytoscape
 DBSCAN
+Dragana
 EnsemblePredictions
 ExplanatoryPerformance
 FDP
@@ -49,8 +50,8 @@ TPR
 Tamayo
 Tibshirani
 VariableSelection
+Vuckovic
 Zou
-arXiv
 centering
 coef
 doi
@@ -60,13 +61,16 @@ glassoFast
 glm
 glmnet
 igraph
+jrsssc
 lmax
 lmin
 nonzero
 pk
+qlad
 rSVD
 regsem
 sPCA
+sparcl
 ted
 thr
 unimodality

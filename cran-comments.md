@@ -34,7 +34,7 @@ Package suggested but not available for checking: 'rCOSA'
 Package unavailable to check Rd xrefs: 'rCOSA'
 
 * I would like to keep these references to the R package rCOSA which is under "Suggests". I also had this note with the 
-previous version of sharp (1.4.1).
+previous version of sharp (1.4.3).
 
 
 ## Downstream dependencies
