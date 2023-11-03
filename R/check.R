@@ -226,7 +226,7 @@ CheckDataRegression <- function(xdata, ydata = NULL,
       }
     }
     # Turning vector into factor
-    if (is.vector(ydata)) {
+    if ((family %in% c("binomial", "multinomial")) & is.vector(ydata)) {
       ydata <- as.factor(ydata)
     }
     # Defining reference category and final data type
