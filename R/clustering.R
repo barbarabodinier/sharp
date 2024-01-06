@@ -63,8 +63,8 @@
 #'   number generator is set to \code{seed}.
 #'
 #'   For parallelisation, stability selection with different sets of parameters
-#'   can be run on \code{n_cores} cores. This relies on forking with
-#'   \code{\link[parallel]{mclapply}} (specific to Unix systems).
+#'   can be run on \code{n_cores} cores. Using \code{n_cores > 1} creates a
+#'   \code{\link[future]{multisession}}.
 #'
 #' @return An object of class \code{clustering}. A list with: \item{Sc}{a matrix
 #'   of the best stability scores for different (sets of) parameters controlling
@@ -197,30 +197,31 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
     verbose = verbose
   )
 
-  # Check if parallelisation is possible (forking)
-  if (.Platform$OS.type != "unix") {
-    if (n_cores > 1) {
-      warning("Invalid input for argument 'n_cores'. Parallelisation relies on forking, it is only available on Unix systems.")
-    }
-    n_cores <- 1
-  }
-
   # Stability selection and score
-  mypar <- parallel::mclapply(X = 1:n_cores, FUN = function(k) {
-    return(SerialClustering(
-      xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
-      K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
-      implementation = implementation, scale = scale, linkage = linkage, row = row,
-      output_data = output_data, verbose = verbose, ...
-    ))
-  }) # keep pk for correct number of blocks etc
-
-  # Combining the outputs from parallel iterations
-  out <- mypar[[1]]
   if (n_cores > 1) {
+    future::plan(future::multisession, workers = n_cores)
+    mypar <- future.apply::future_lapply(X = 1:n_cores, future.seed = TRUE, FUN = function(k) {
+      return(SerialClustering(
+        xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
+        K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
+        implementation = implementation, scale = scale, linkage = linkage, row = row,
+        output_data = output_data, verbose = FALSE, ...
+      ))
+    }) # keep pk for correct number of blocks etc
+    future::plan(future::sequential)
+
+    # Combining the outputs from parallel iterations
+    out <- mypar[[1]]
     for (i in 2:length(mypar)) {
       out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[i]], include_beta = TRUE))
     }
+  } else {
+    out <- SerialClustering(
+      xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
+      K = K, tau = tau, seed = seed, n_cat = n_cat,
+      implementation = implementation, scale = scale, linkage = linkage, row = row,
+      output_data = output_data, verbose = verbose, ...
+    )
   }
 
   # Re-set the function names

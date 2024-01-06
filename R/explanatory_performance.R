@@ -612,7 +612,8 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
         Beta[iter, ] <- as.vector(stats::coef(refitted))
       }
 
-      if (ncol(xtrain) == 1) {
+      if (inherits(refitted, c("glm", "lm"))){
+      # if (ncol(xtrain) == 1) {
         # Predictions from logistic models
         if (tolower(metric) == "roc") {
           suppressWarnings({
@@ -627,7 +628,7 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
       } else {
         ids_predictors <- rownames(stats::coef(refitted))
         ids_predictors <- ids_predictors[which(ids_predictors %in% colnames(xtest))]
-        predicted <- stats::predict(refitted, newx = as.matrix(xtest[, ids_predictors]))
+        predicted <- stats::predict(refitted, newx = as.matrix(xtest[, ids_predictors, drop = FALSE]))
       }
     } else {
       if (is.null(prediction)) {

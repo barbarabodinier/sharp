@@ -18,12 +18,13 @@ Depends:
 Imports: 
     abind,
     beepr,
+    future,
+    future.apply,
     glassoFast (>= 1.0.0),
     glmnet,
     grDevices,
     igraph,
     mclust,
-    parallel,
     plotrix,
     Rdpack,
     withr (>= 2.4.0)

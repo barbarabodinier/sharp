@@ -93,8 +93,8 @@
 #'   number generator is set to \code{seed}.
 #'
 #'   For parallelisation, stability selection with different sets of parameters
-#'   can be run on \code{n_cores} cores. This relies on forking with
-#'   \code{\link[parallel]{mclapply}} (specific to Unix systems).
+#'   can be run on \code{n_cores} cores. Using \code{n_cores > 1} creates a
+#'   \code{\link[future]{multisession}}.
 #'
 #' @return An object of class \code{bi_selection}. A list with: \item{summary}{a
 #'   matrix of the best stability scores and corresponding parameters

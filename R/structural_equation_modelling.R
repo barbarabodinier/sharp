@@ -73,8 +73,8 @@
 #'   number generator is set to \code{seed}.
 #'
 #'   For parallelisation, stability selection with different sets of parameters
-#'   can be run on \code{n_cores} cores. This relies on forking with
-#'   \code{\link[parallel]{mclapply}} (specific to Unix systems). Alternatively,
+#'   can be run on \code{n_cores} cores. Using \code{n_cores > 1} creates a
+#'   \code{\link[future]{multisession}}. Alternatively,
 #'   the function can be run manually with different \code{seed}s and all other
 #'   parameters equal. The results can then be combined using
 #'   \code{\link{Combine}}.
@@ -228,14 +228,6 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
     xdata = xdata, ydata = ydata, family = family, verbose = verbose
   )
 
-  # Check if parallelisation is possible (forking)
-  if (.Platform$OS.type != "unix") {
-    if (n_cores > 1) {
-      warning("Invalid input for argument 'n_cores'. Parallelisation relies on forking, it is only available on Unix systems.")
-    }
-    n_cores <- 1
-  }
-
   # Defining the grid of penalty parameters (glmnet only)
   if (is.null(Lambda)) {
     # Identifying outcomes
@@ -250,25 +242,38 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
   }
 
   # Stability selection and score
-  mypar <- parallel::mclapply(X = 1:n_cores, FUN = function(k) {
-    return(SerialRegression(
+  if (n_cores > 1) {
+    future::plan(future::multisession, workers = n_cores)
+    mypar <- future.apply::future_lapply(X = 1:n_cores, future.seed = TRUE, FUN = function(k) {
+      return(SerialRegression(
+        xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+        K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
+        family = family, implementation = implementation,
+        resampling = resampling, cpss = cpss,
+        PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+        group_x = NULL, group_penalisation = FALSE,
+        output_data = output_data, verbose = FALSE,
+        adjacency = adjacency, residual_covariance = residual_covariance, ...
+      ))
+    })
+    future::plan(future::sequential)
+
+    # Combining the outputs from parallel iterations
+    out <- mypar[[1]]
+    for (i in 2:length(mypar)) {
+      out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[i]]))
+    }
+  } else {
+    out <- SerialRegression(
       xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
-      K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
+      K = K, tau = tau, seed = seed, n_cat = n_cat,
       family = family, implementation = implementation,
       resampling = resampling, cpss = cpss,
       PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
       group_x = NULL, group_penalisation = FALSE,
       output_data = output_data, verbose = verbose,
       adjacency = adjacency, residual_covariance = residual_covariance, ...
-    ))
-  })
-
-  # Combining the outputs from parallel iterations
-  out <- mypar[[1]]
-  if (n_cores > 1) {
-    for (i in 2:length(mypar)) {
-      out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[i]]))
-    }
+    )
   }
 
   # Re-setting the function names
