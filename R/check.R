@@ -219,16 +219,12 @@ CheckDataRegression <- function(xdata, ydata = NULL,
     if (is.data.frame(ydata)) {
       ydata <- as.matrix(ydata)
     }
-    # Turning matrix with one column into vector
-    if (is.matrix(ydata)) {
-      if (ncol(ydata) == 1) {
-        ydata <- as.vector(ydata)
-      }
-    }
-    # Turning vector into factor
+    
+    # Turning vector into matrix
     if (is.vector(ydata)) {
-      ydata <- as.factor(ydata)
+      ydata <- matrix(ydata, ncol = 1)
     }
+    
     # Defining reference category and final data type
     if (is.factor(ydata)) {
       if ((family %in% c("binomial", "multinomial")) & verbose) {
