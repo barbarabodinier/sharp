@@ -376,5 +376,4 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 #' @export
 LambdaSequence <- function(lmax, lmin, cardinal = 100) {
   return(exp(seq(log(lmax), log(lmin), length.out = cardinal)))
-  # return(seq(sqrt(lmax),sqrt(lmin),length.out=cardinal)^2)
 }
