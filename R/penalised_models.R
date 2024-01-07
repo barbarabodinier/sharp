@@ -192,7 +192,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
       if (family == "mgaussian") {
         mybeta <- array(NA,
           dim = c(length(Lambda), ncol(xdata), ncol(ydata)),
-          dimnames = list(1:length(Lambda), colnames(xdata), colnames(ydata))
+          dimnames = list(seq_len(length(Lambda)), colnames(xdata), colnames(ydata))
         )
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
@@ -205,7 +205,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
             stats::coef(mymodel, s = Lambda)
           })
         }
-        for (y_id in 1:ncol(ydata)) {
+        for (y_id in seq_len(ncol(ydata))) {
           tmpbeta <- tmpcoefs[[y_id]]
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
@@ -216,7 +216,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
         y_levels <- sort(unique(ydata))
         mybeta <- array(NA,
           dim = c(length(Lambda), ncol(xdata), length(y_levels)),
-          dimnames = list(1:length(Lambda), colnames(xdata), paste0("Y", y_levels))
+          dimnames = list(seq_len(length(Lambda)), colnames(xdata), paste0("Y", y_levels))
         )
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
@@ -229,7 +229,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
             stats::coef(mymodel, s = Lambda)
           })
         }
-        for (y_id in 1:length(y_levels)) {
+        for (y_id in seq_len(length(y_levels))) {
           tmpbeta <- tmpcoefs[[y_id]]
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
@@ -334,11 +334,11 @@ PenalisedGraphical <- function(xdata, pk = NULL, Lambda, Sequential_template = N
     omega_full <- adjacency
   }
 
-  for (k in 1:nrow(Lambda)) {
+  for (k in seq_len(nrow(Lambda))) {
     # Creating penalisation matrix
     if (nblocks > 1) {
       lambdamat <- bigblocks
-      for (b in 1:nblocks) {
+      for (b in seq_len(nblocks)) {
         lambdamat[bigblocks == b] <- Lambda[k, b]
       }
     } else {
@@ -530,7 +530,7 @@ PenalisedOpenMx <- function(xdata,
   ), silent = TRUE, suppressWarnings = TRUE)$compute$steps$PS$output$detail
 
   # Extracting estimated coefficients
-  beta_full <- as.matrix(mymodel[rev(1:nrow(mymodel)), seq(6, ncol(mymodel) - 1)])
+  beta_full <- as.matrix(mymodel[rev(seq_len(nrow(mymodel))), seq(6, ncol(mymodel) - 1)])
 
   # Setting as missing if model did not converge
   beta_full[which(as.character(mymodel$statusCode) != "OK"), ] <- NA
@@ -666,14 +666,14 @@ PenalisedLinearSystem <- function(xdata,
 #'   # Incorporating latent variables
 #'   ram_matrices <- OpenMxModel(
 #'     adjacency = dag,
-#'     manifest = paste0("x", 1:7)
+#'     manifest = paste0("x", seq_len(7))
 #'   )
 #'   ram_matrices$Fmat$values
 #'
 #'   # Running unpenalised model
 #'   unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
 #'     "Model",
-#'     OpenMx::mxData(simul$data[, 1:7], type = "raw"),
+#'     OpenMx::mxData(simul$data[, seq_len(7)], type = "raw"),
 #'     ram_matrices$Amat,
 #'     ram_matrices$Smat,
 #'     ram_matrices$Fmat,
@@ -720,7 +720,7 @@ OpenMxModel <- function(adjacency, residual_covariance = NULL, manifest = NULL) 
   # Creating matrix A
   adjacency_free <- ifelse(adjacency == 1, yes = TRUE, no = FALSE)
   if (length(latent) > 0) {
-    for (i in 1:length(latent)) {
+    for (i in seq_len(length(latent))) {
       id <- which(adjacency_free[, latent[i]])[1]
       adjacency_free[id, latent[i]] <- FALSE
     }
@@ -811,7 +811,7 @@ OpenMxMatrix <- function(vect, adjacency, residual_covariance = NULL) {
 
   # Assigning estimates to corresponding matrix entries
   A <- ram_matrices$Amat$values
-  for (k in 1:length(vect)) {
+  for (k in seq_len(length(vect))) {
     A[which(ram_matrices$Amat$labels == names(vect)[k], arr.ind = TRUE)] <- vect[k]
   }
   A <- t(A)
@@ -848,7 +848,7 @@ LinearSystemMatrix <- function(vect, adjacency) {
 
   # Assigning estimates to corresponding matrix entries
   A <- matrix(0, nrow = nrow(adjacency), ncol = ncol(adjacency))
-  for (k in 1:length(vect)) {
+  for (k in seq_len(length(vect))) {
     A[which(Alabels == names(vect)[k], arr.ind = TRUE)] <- vect[k]
   }
 

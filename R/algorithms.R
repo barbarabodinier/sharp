@@ -47,7 +47,7 @@ SelectionAlgo <- function(xdata, ydata = NULL,
                           implementation = PenalisedRegression, ...) {
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
-  for (j in 1:ncol(xdata)) {
+  for (j in seq_len(ncol(xdata))) {
     mysd[j] <- stats::sd(xdata[, j])
   }
   names(mysd) <- colnames(xdata)
@@ -140,7 +140,7 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
 
   # Identifying potential variables with null standard deviation in the subsample
   mysd <- rep(NA, ncol(xdata))
-  for (j in 1:ncol(xdata)) {
+  for (j in seq_len(ncol(xdata))) {
     mysd[j] <- stats::sd(xdata[, j])
   }
   if (any(mysd == 0)) {
@@ -169,7 +169,7 @@ GraphicalAlgo <- function(xdata, pk = NULL, Lambda, Sequential_template = NULL,
   }
 
   # Ensuring that there is no edge for variables with always the same value (null standard deviation)
-  for (k in 1:dim(adjacency)[3]) {
+  for (k in seq_len(dim(adjacency)[3])) {
     if (any(mysd == 0)) {
       adjacency[which(mysd == 0), , k] <- 0
       adjacency[, which(mysd == 0), k] <- 0
@@ -230,7 +230,7 @@ ClusteringAlgo <- function(xdata,
                            implementation = HierarchicalClustering, ...) {
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
-  for (j in 1:ncol(xdata)) {
+  for (j in seq_len(ncol(xdata))) {
     mysd[j] <- stats::sd(xdata[, j])
   }
   if (any(mysd == 0)) {

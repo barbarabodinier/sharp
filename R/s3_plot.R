@@ -75,7 +75,7 @@ plot.variable_selection <- function(x,
     n_predictors <- length(ids)
   }
   n_predictors <- min(n_predictors, length(ids))
-  ids <- ids[1:n_predictors]
+  ids <- ids[seq_len(n_predictors)]
   selprop <- selprop[ids]
   mycolours <- mycolours[ids]
   mycolours_axis <- mycolours_axis[ids]
@@ -99,7 +99,7 @@ plot.variable_selection <- function(x,
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "col.ticks", "type")]
 
   # Adding axis
-  for (i in 1:length(selprop)) {
+  for (i in seq_len(length(selprop))) {
     do.call(graphics::axis, args = c(
       list(
         side = 1,
@@ -231,7 +231,7 @@ plot.clustering <- function(x,
   }
 
   # Adding axes and ticks
-  for (k in 1:nrow(mat)) {
+  for (k in seq_len(nrow(mat))) {
     graphics::axis(
       side = 2,
       at = k - 0.5,
@@ -450,7 +450,7 @@ plot.incremental <- function(x,
     xlower <- sapply(x$Q_squared, stats::quantile, probs = quantiles[1], na.rm = TRUE)
     xupper <- sapply(x$Q_squared, stats::quantile, probs = quantiles[2], na.rm = TRUE)
   }
-  xseq <- 1:length(xfull)
+  xseq <- seq_len(length(xfull))
 
   # Re-formatting label colours
   if (length(col.axis) < length(xfull)) {
@@ -539,7 +539,7 @@ plot.incremental <- function(x,
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("side", "at", "labels", "col.axis", "col.ticks", "sfrac")]
 
   # Adding x-axis
-  for (k in 1:length(xseq)) {
+  for (k in seq_len(length(xseq))) {
     do.call(graphics::axis, args = c(
       list(
         side = 1,

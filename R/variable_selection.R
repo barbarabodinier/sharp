@@ -280,7 +280,7 @@
 #'   simul <- SimulateComponents(pk = c(5, 3, 4))
 #'   stab <- VariableSelection(
 #'     xdata = simul$data,
-#'     Lambda = 1:(ncol(simul$data) - 1),
+#'     Lambda = seq_len(ncol(simul$data) - 1),
 #'     implementation = SparsePCA
 #'   )
 #'   CalibrationPlot(stab, xlab = "")
@@ -293,7 +293,7 @@
 #'   simul <- SimulateRegression(n = 100, pk = 50, family = "gaussian")
 #'   stab <- VariableSelection(
 #'     xdata = simul$xdata, ydata = simul$ydata,
-#'     Lambda = 1:(ncol(simul$xdata) - 1),
+#'     Lambda = seq_len(ncol(simul$xdata) - 1),
 #'     implementation = SparsePLS, family = "gaussian"
 #'   )
 #'   CalibrationPlot(stab, xlab = "")
@@ -304,7 +304,7 @@
 #' if (requireNamespace("sgPLS", quietly = TRUE)) {
 #'   stab <- VariableSelection(
 #'     xdata = simul$xdata, ydata = simul$ydata,
-#'     Lambda = 1:5,
+#'     Lambda = seq_len(5),
 #'     group_x = c(5, 5, 10, 20, 10),
 #'     group_penalisation = TRUE,
 #'     implementation = GroupPLS, family = "gaussian"
@@ -347,7 +347,7 @@
 #'   simul <- SimulateRegression(n = 200, pk = 20, family = "binomial")
 #'   ManualGridGroupLasso <- function(xdata, ydata, family, group_x, ...) {
 #'     # Defining the grouping
-#'     group <- do.call(c, lapply(1:length(group_x), FUN = function(i) {
+#'     group <- do.call(c, lapply(seq_len(length(group_x)), FUN = function(i) {
 #'       rep(i, group_x[i])
 #'     }))
 #'
@@ -368,7 +368,7 @@
 #'   )
 #'   GroupLasso <- function(xdata, ydata, Lambda, family, group_x, ...) {
 #'     # Defining the grouping
-#'     group <- do.call(c, lapply(1:length(group_x), FUN = function(i) {
+#'     group <- do.call(c, lapply(seq_len(length(group_x)), FUN = function(i) {
 #'       rep(i, group_x[i])
 #'     }))
 #'
@@ -454,7 +454,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
   # Stability selection and score
   if (n_cores > 1) {
     future::plan(future::multisession, workers = n_cores)
-    mypar <- future.apply::future_lapply(X = 1:n_cores, future.seed = TRUE, FUN = function(k) {
+    mypar <- future.apply::future_lapply(X = seq_len(n_cores), future.seed = TRUE, FUN = function(k) {
       return(SerialRegression(
         xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
         K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
@@ -621,7 +621,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     pb <- utils::txtProgressBar(style = 3)
   }
   if (!cpss) {
-    for (k in 1:K) {
+    for (k in seq_len(K)) {
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
       Xsub <- xdata[s, , drop = FALSE]
       Ysub <- ydata[s, , drop = FALSE]
@@ -662,13 +662,13 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     bigstab <- matrix(NA, nrow = nrow(Beta), ncol = ncol(Beta))
     colnames(bigstab) <- colnames(Beta)
     rownames(bigstab) <- rownames(Beta)
-    for (i in 1:nrow(Beta)) {
-      for (j in 1:ncol(Beta)) {
+    for (i in seq_len(nrow(Beta))) {
+      for (j in seq_len(ncol(Beta))) {
         bigstab[i, j] <- sum(Beta[i, j, ] != 0, na.rm = TRUE) / sum(!is.na(Beta[i, j, ]))
       }
     }
   } else {
-    for (k in 1:ceiling(K / 2)) {
+    for (k in seq_len(ceiling(K / 2))) {
       s <- Resample(data = ydata, family = family, tau = tau, resampling = resampling, ...)
 
       # First subset
@@ -742,7 +742,7 @@ SerialRegression <- function(xdata, ydata = NULL, Lambda, pi_list = seq(0.6, 0.9
     colnames(bigstab) <- colnames(Beta)
     rownames(bigstab) <- rownames(Beta)
     n_valid <- rep(0, nrow(Beta))
-    for (k in 1:ceiling(K / 2)) {
+    for (k in seq_len(ceiling(K / 2))) {
       A1 <- ifelse(Beta[, , k] != 0, yes = 1, no = 0)
       A2 <- ifelse(Beta[, , ceiling(K / 2) + k] != 0, yes = 1, no = 0)
       A <- A1 + A2

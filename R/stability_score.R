@@ -75,7 +75,7 @@ StabilityScore <- function(selprop, pi_list = seq(0.6, 0.9, by = 0.01), K, n_cat
 
   # Loop over the values of pi
   score <- rep(NA, length(pi_list))
-  for (i in 1:length(pi_list)) {
+  for (i in seq_len(length(pi_list))) {
     pi <- pi_list[i]
 
     # Computing the probabilities of being stable-in, stable-out or unstable under the null (uniform selection)

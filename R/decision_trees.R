@@ -100,7 +100,7 @@ CART <- function(xdata, ydata, Lambda = NULL, family, ...) {
   # Pruning the decision tree
   selected <- matrix(0, nrow = nrow(Lambda), ncol = ncol(xdata))
   colnames(selected) <- colnames(xdata)
-  for (i in 1:nrow(Lambda)) {
+  for (i in seq_len(nrow(Lambda))) {
     n_split <- Lambda[i, 1]
     id <- max(which(mytree$cptable[, 2] <= n_split))
     mypruned <- rpart::prune(mytree, cp = mytree$cptable[id, 1])

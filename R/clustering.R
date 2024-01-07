@@ -200,7 +200,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
   # Stability selection and score
   if (n_cores > 1) {
     future::plan(future::multisession, workers = n_cores)
-    mypar <- future.apply::future_lapply(X = 1:n_cores, future.seed = TRUE, FUN = function(k) {
+    mypar <- future.apply::future_lapply(X = seq_len(n_cores), future.seed = TRUE, FUN = function(k) {
       return(SerialClustering(
         xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
         K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
@@ -357,7 +357,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   if (verbose) {
     pb <- utils::txtProgressBar(style = 3)
   }
-  for (k in 1:K) {
+  for (k in seq_len(K)) {
     # Subsampling observations
     s <- Resample(
       data = xdata, family = NULL, tau = tau, resampling = resampling, ...
@@ -383,7 +383,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
     }
 
     # Storing co-membership status
-    for (i in 1:dim(mybeta$comembership)[3]) {
+    for (i in seq_len(dim(mybeta$comembership)[3])) {
       if (row) {
         bigstab_obs[s, s, i] <- bigstab_obs[s, s, i] + mybeta$comembership[, , i]
       } else {
@@ -403,7 +403,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   nc_full <- nc_full / K
 
   # Computing the co-membership proportions
-  for (i in 1:dim(bigstab_obs)[3]) {
+  for (i in seq_len(dim(bigstab_obs)[3])) {
     if (row) {
       bigstab_obs[, , i] <- bigstab_obs[, , i] / sampled_pairs
     } else {
@@ -413,7 +413,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   bigstab_obs[is.nan(bigstab_obs)] <- NA
 
   # Computing the noise proportion
-  for (i in 1:nrow(bignoise)) {
+  for (i in seq_len(nrow(bignoise))) {
     if (row) {
       bignoise[i, ] <- bignoise[i, ] / diag(sampled_pairs)[i]
     } else {
@@ -428,7 +428,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   # Imputation of missing values (accounting for the fact that 2 items potentially never get picked together)
   if (any(is.na(bigstab_obs))) {
     warning("Missing values in consensus matrix. These have been set to zero by default. Consider increasing the number of subsamples 'K'.")
-    for (i in 1:dim(bigstab_obs)[3]) {
+    for (i in seq_len(dim(bigstab_obs)[3])) {
       if (any(is.na(bigstab_obs[, , i]))) {
         tmpmat <- bigstab_obs[, , i]
         tmpmat[which(is.na(tmpmat))] <- 0
@@ -439,7 +439,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
 
   # Calibration of consensus clustering
   metrics2 <- matrix(NA, ncol = 1, nrow = dim(bigstab_obs)[3])
-  for (i in 1:dim(bigstab_obs)[3]) {
+  for (i in seq_len(dim(bigstab_obs)[3])) {
     # Clustering on the consensus matrix
     sh_clust <- stats::hclust(stats::as.dist(1 - bigstab_obs[, , i]), method = linkage)
 
@@ -467,8 +467,8 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
     bigstab_var <- matrix(NA, nrow = nrow(Beta), ncol = ncol(Beta))
     colnames(bigstab_var) <- colnames(Beta)
     rownames(bigstab_var) <- rownames(Beta)
-    for (i in 1:nrow(Beta)) {
-      for (j in 1:ncol(Beta)) {
+    for (i in seq_len(nrow(Beta))) {
+      for (j in seq_len(ncol(Beta))) {
         bigstab_var[i, j] <- sum(Beta[i, j, ] != 0) / K
       }
     }

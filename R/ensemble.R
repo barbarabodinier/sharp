@@ -72,7 +72,7 @@ Ensemble <- function(stability, xdata, ydata) {
     # Initialising objects
     intercept <- rep(NA, nrow(beta))
     models <- list()
-    for (k in 1:nrow(beta)) {
+    for (k in seq_len(nrow(beta))) {
       # Calculating intercept for specific beta coefficients
       b <- cbind(beta[k, ])
       # a=mean(ydata)-apply(xdata, 2, mean)%*%b
@@ -104,7 +104,7 @@ Ensemble <- function(stability, xdata, ydata) {
     # Initialising objects
     intercept <- rep(NA, nrow(beta))
     models <- list()
-    for (k in 1:nrow(beta)) {
+    for (k in seq_len(nrow(beta))) {
       # Calculating intercept for specific beta coefficients
       b <- cbind(beta[k, ])
       tmp <- as.vector(as.matrix(xdata) %*% b)
@@ -195,7 +195,7 @@ EnsemblePredictions <- function(ensemble, xdata, ...) {
 
   # Making predictions
   ypreds <- matrix(NA, nrow = nrow(xdata), ncol = nrow(ensemble$beta))
-  for (k in 1:nrow(ensemble$beta)) {
+  for (k in seq_len(nrow(ensemble$beta))) {
     ypreds[, k] <- stats::predict(ensemble$models[[k]], newdata = as.data.frame(xdata), ...)
   }
   yhat <- cbind(apply(ypreds, 1, mean))

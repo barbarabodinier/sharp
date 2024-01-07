@@ -88,7 +88,7 @@
 #'   stab <- BiSelection(
 #'     xdata = simul$xdata, ydata = simul$ydata,
 #'     family = "gaussian", ncomp = 3,
-#'     LambdaX = 1:(ncol(x) - 1),
+#'     LambdaX = seq_len(ncol(x) - 1),
 #'     implementation = SparsePLS
 #'   )
 #'   plot(Graph(stab))
@@ -141,7 +141,7 @@ Graph <- function(adjacency, node_label = NULL, node_colour = NULL, node_shape =
 
   # Setting row and column names if none
   if (is.null(rownames(adjacency)) & (is.null(colnames(adjacency)))) {
-    rownames(adjacency) <- colnames(adjacency) <- paste0("var", 1:ncol(adjacency))
+    rownames(adjacency) <- colnames(adjacency) <- paste0("var", seq_len(ncol(adjacency)))
   } else {
     if (is.null(rownames(adjacency))) {
       rownames(adjacency) <- colnames(adjacency)

@@ -134,7 +134,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
   if (graph) { # to avoid memory issues in high dimensional variable selection
     bigblocks <- BlockMatrix(pk)
     nblocks <- length(pk) * (length(pk) + 1) / 2
-    bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = 1:nblocks)
+    bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = seq_len(nblocks))
     N_blocks <- unname(table(bigblocks_vect))
     blocks <- levels(bigblocks_vect)
     names(N_blocks) <- blocks
@@ -150,7 +150,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
   }
 
   # Computing the metrics for each value of lambda
-  for (k in 1:nlambda) {
+  for (k in seq_len(nlambda)) {
     # Extracting corresponding selection proportions
     if (graph) {
       stab_iter <- selprop[, , k]
@@ -159,7 +159,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
     }
 
     # Computing stability score with block-specific pi
-    for (block_id in 1:nblocks) {
+    for (block_id in seq_len(nblocks)) {
       if (Sequential_template[k, block_id]) {
         if (graph) {
           stab_iter_block <- stab_iter[(bigblocks == block_id) & (upper.tri(bigblocks))] # selection proportions in the block
@@ -178,7 +178,7 @@ StabilityMetrics <- function(selprop, pk = NULL, pi_list = seq(0.6, 0.9, by = 0.
         tmp_loglik <- tmp_PFERs <- tmp_FDPs <- rep(NA, length(pi_list))
 
         # Computing error rates and stability score for different values of pi
-        for (j in 1:length(pi_list)) {
+        for (j in seq_len(length(pi_list))) {
           pi <- pi_list[j]
           tmp_PFERs[j] <- PFER(q = q_block, pi = pi, N = N_block, K = K, PFER_method = PFER_method)
           tmp_FDPs[j] <- FDP(selprop = stab_iter_block, PFER = tmp_PFERs[j], pi = pi)

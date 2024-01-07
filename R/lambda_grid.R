@@ -196,7 +196,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 
   # Making sure none of the variables has a null standard deviation
   mysd <- rep(NA, ncol(xdata))
-  for (j in 1:ncol(xdata)) {
+  for (j in seq_len(ncol(xdata))) {
     mysd[j] <- stats::sd(xdata[, j])
   }
   if (any(mysd == 0)) {
@@ -238,7 +238,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
     while (redo) {
       lmin <- lmin * lambda_path_factor
       Lambda <- NULL
-      for (b in 1:nblocks) {
+      for (b in seq_len(nblocks)) {
         Lambda <- cbind(Lambda, LambdaSequence(lambda_max, lmin[b], cardinal = Lambda_cardinal))
       }
 
@@ -260,7 +260,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 
         if (l < nrow(Lambda)) {
           # Updating the smallest lambda if the density of the block is still below max_density
-          for (b in 1:nblocks) {
+          for (b in seq_len(nblocks)) {
             lmin[b] <- ifelse((myscreen$Q[b, b] < (max_density * N_blocks)[b]) & (done[b] == 0),
               yes = Lambda[l + 1, b], no = lmin[b]
             )
@@ -270,7 +270,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 
         # Increment if max_density is not yet reached
         Q_block_iteration <- NULL
-        for (b in 1:nblocks) {
+        for (b in seq_len(nblocks)) {
           Q_block_iteration <- c(Q_block_iteration, myscreen$Q[b, b])
         }
 
@@ -291,7 +291,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
     while (redo) {
       lmin <- lmin * lambda_path_factor
       Lambda <- NULL
-      for (b in 1:nblocks) {
+      for (b in seq_len(nblocks)) {
         Lambda <- cbind(Lambda, LambdaSequence(lambda_max, lmin[b], cardinal = Lambda_cardinal))
       }
 
@@ -313,9 +313,9 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 
         # Compute PFER
         PFER_l <- rep(NA, nblocks)
-        for (b in 1:nblocks) {
+        for (b in seq_len(nblocks)) {
           mytmplist <- NULL
-          for (j in 1:length(pi_list)) {
+          for (j in seq_len(length(pi_list))) {
             pi <- pi_list[j]
             mytmplist <- c(mytmplist, PFER(q = myscreen$Q[b, b], pi = pi, N = N_blocks[b], K = K, PFER_method = PFER_method))
           }
@@ -330,7 +330,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 
         # Increment if PFER or max_density are not yet reached
         Q_block_iteration <- NULL
-        for (b in 1:nblocks) {
+        for (b in seq_len(nblocks)) {
           Q_block_iteration <- c(Q_block_iteration, myscreen$Q[b, b])
         }
 
@@ -346,7 +346,7 @@ LambdaGridGraphical <- function(xdata, pk = NULL, lambda_other_blocks = 0.1, K =
 
   # Prepare final lambda path for each block
   Lambda <- NULL
-  for (b in 1:nblocks) {
+  for (b in seq_len(nblocks)) {
     Lambda <- cbind(Lambda, LambdaSequence(lambda_max, lmin[b], cardinal = Lambda_cardinal))
   }
   Lambda <- as.matrix(stats::na.exclude(Lambda))

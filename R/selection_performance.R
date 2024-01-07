@@ -94,7 +94,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
     theta_star <- as.vector(theta_star)
   } else {
     if (ncol(theta) != ncol(theta_star)) {
-      theta_star <- theta_star[, 1:ncol(theta)]
+      theta_star <- theta_star[, seq_len(ncol(theta))]
     }
   }
 
@@ -110,7 +110,7 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
         out <- SelectionPerformanceSingle(Asum, cor = cor, thr = thr)
       } else {
         out <- NULL
-        for (k in 1:ncol(Asum)) {
+        for (k in seq_len(ncol(Asum))) {
           out <- rbind(out, SelectionPerformanceSingle(Asum[, k], cor = cor, thr = thr))
         }
         rownames(out) <- colnames(Asum)
@@ -467,7 +467,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #'
 #' # Consensus clustering
 #' stab <- Clustering(
-#'   xdata = simul$data, nc = 1:5
+#'   xdata = simul$data, nc = seq_len(5)
 #' )
 #'
 #' # Clustering performance

@@ -51,7 +51,7 @@ summary.graphical_model <- function(object, ...) {
   if (ncol(object$S) > 1) {
     cat(paste0("Calibrated parameters:"))
     cat("\n")
-    for (k in 1:ncol(object$S)) {
+    for (k in seq_len(ncol(object$S))) {
       cat(paste0(
         "Block ", k, ": lambda = ",
         formatC(Argmax(object)[k, 1], format = "f", digits = 3),
@@ -63,7 +63,7 @@ summary.graphical_model <- function(object, ...) {
     cat("\n")
     cat("Maximum stability scores: ")
     cat("\n")
-    for (k in 1:ncol(object$S)) {
+    for (k in seq_len(ncol(object$S))) {
       cat(paste0(
         "Block ", k, ": ",
         formatC(max(object$S[, k], na.rm = TRUE), format = "f", digits = 3)
@@ -77,7 +77,7 @@ summary.graphical_model <- function(object, ...) {
     adjacency <- adjacency[upper.tri(adjacency)]
     bigblocks <- BlockMatrix(pk = object$params$pk)
     bigblocks <- bigblocks[upper.tri(bigblocks)]
-    for (k in 1:ncol(object$S)) {
+    for (k in seq_len(ncol(object$S))) {
       cat(paste0(
         "Block ", k, ": ",
         round(sum(adjacency[bigblocks == k]))
@@ -116,7 +116,7 @@ summary.graphical_model <- function(object, ...) {
 summary.bi_selection <- function(object, ...) {
   cat(paste0("Calibrated parameters (X):"))
   cat("\n")
-  for (k in 1:nrow(object$summary)) {
+  for (k in seq_len(nrow(object$summary))) {
     if ("alphax" %in% colnames(object$summary)) {
       cat(paste0(
         "Component ", k, ": n = ",
@@ -140,7 +140,7 @@ summary.bi_selection <- function(object, ...) {
     cat("\n")
     cat(paste0("Calibrated parameters (Y):"))
     cat("\n")
-    for (k in 1:nrow(object$summary)) {
+    for (k in seq_len(nrow(object$summary))) {
       if ("alphay" %in% colnames(object$summary)) {
         cat(paste0(
           "Component ", k, ": n = ",
@@ -168,7 +168,7 @@ summary.bi_selection <- function(object, ...) {
     cat("Maximum stability score (X): ")
   }
   cat("\n")
-  for (k in 1:nrow(object$summary)) {
+  for (k in seq_len(nrow(object$summary))) {
     cat(paste0(
       "Component ", k, ": ",
       formatC(max(object$summary[k, "S"], na.rm = TRUE), format = "f", digits = 3)
@@ -178,7 +178,7 @@ summary.bi_selection <- function(object, ...) {
   cat("\n")
   cat("Number of selected variable(s) (X): ")
   cat("\n")
-  for (k in 1:nrow(object$summary)) {
+  for (k in seq_len(nrow(object$summary))) {
     cat(paste0(
       "Component ", k, ": ",
       round(sum(object$selectedX[, k]))
@@ -189,7 +189,7 @@ summary.bi_selection <- function(object, ...) {
     cat("\n")
     cat("Number of selected variable(s) (Y): ")
     cat("\n")
-    for (k in 1:nrow(object$summary)) {
+    for (k in seq_len(nrow(object$summary))) {
       cat(paste0(
         "Component ", k, ": ",
         round(sum(object$selectedY[, k]))
@@ -226,7 +226,7 @@ summary.incremental <- function(object, ...) {
   cat("\n")
   cat("\n")
   mat <- plot.incremental(object, output_data = TRUE, ...)
-  for (i in 1:ncol(mat)) {
+  for (i in seq_len(ncol(mat))) {
     cat(paste0(
       ifelse(i == 1, yes = "  ", no = "+ "),
       colnames(mat)[i],

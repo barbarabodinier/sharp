@@ -124,7 +124,7 @@ Resample <- function(data, family = NULL, tau = 0.5, resampling = "subsampling",
         }
       } else {
         # Resampling for network models
-        s <- sample(1:nrow(data), size = tau * nrow(data), replace = replacement)
+        s <- sample(seq_len(nrow(data)), size = tau * nrow(data), replace = replacement)
       }
     }
   }
@@ -166,14 +166,14 @@ Folds <- function(data, family = NULL, n_folds = 5) {
   if (is.vector(data)) {
     data <- cbind(data)
   }
-  rownames(data) <- paste0("obs", 1:nrow(data))
+  rownames(data) <- paste0("obs", seq_len(nrow(data)))
 
   # Storing total number of observations
   n <- nrow(data)
 
   # Creating balanced folds
   folds_ids <- list()
-  for (k in 1:n_folds) {
+  for (k in seq_len(n_folds)) {
     ids <- rownames(data)[Resample(data = data, family = family, tau = 1 / n_folds * n / nrow(data))]
     folds_ids <- c(folds_ids, list(ids))
     data <- data[-which(rownames(data) %in% ids), , drop = FALSE]
@@ -222,7 +222,7 @@ Split <- function(data, family = NULL, tau = c(0.5, 0.25, 0.25)) {
   if (is.vector(data)) {
     data <- cbind(data)
   }
-  rownames(data) <- paste0("obs", 1:nrow(data))
+  rownames(data) <- paste0("obs", seq_len(nrow(data)))
 
   # Re-scaling input tau
   tau <- tau / sum(tau)
@@ -235,7 +235,7 @@ Split <- function(data, family = NULL, tau = c(0.5, 0.25, 0.25)) {
 
   # Creating balanced folds
   sets_ids <- list()
-  for (k in 1:n_sets) {
+  for (k in seq_len(n_sets)) {
     if (k < n_sets) {
       ids <- rownames(data)[Resample(data = data, family = family, tau = tau[1])]
       sets_ids <- c(sets_ids, list(ids))

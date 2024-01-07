@@ -102,10 +102,10 @@ AdjacencyFromObject <- function(object) {
 Square <- function(x) {
   # Assigning row and column names
   if (is.null(rownames(x))) {
-    rownames(x) <- paste0("row", 1:nrow(x))
+    rownames(x) <- paste0("row", seq_len(nrow(x)))
   }
   if (is.null(colnames(x))) {
-    colnames(x) <- paste0("col", 1:ncol(x))
+    colnames(x) <- paste0("col", seq_len(ncol(x)))
   }
 
   # Defining the square matrix
@@ -132,7 +132,7 @@ Square <- function(x) {
 DummyToCategories <- function(x, verbose = FALSE) {
   x_original <- x
   x <- matrix(0, nrow = nrow(x_original), ncol = ncol(x_original))
-  for (j in 1:ncol(x)) {
+  for (j in seq_len(ncol(x))) {
     tmp <- as.factor(x_original[, j])
     if (verbose) {
       message(paste0("Reference category for column ", j, ": ", levels(tmp)[1]))

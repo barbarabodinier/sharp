@@ -156,11 +156,11 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
   if (!is.null(stability1$selprop)) {
     bigstab <- array(NA, dim = dim(stability1$selprop), dimnames = dimnames(stability1$selprop))
     if (graph) {
-      for (k in 1:dim(stability1$selprop)[3]) {
+      for (k in seq_len(dim(stability1$selprop)[3])) {
         bigstab[, , k] <- (stability1$selprop[, , k] * stability1$params$K + stability2$selprop[, , k] * stability2$params$K) / K
       }
     } else {
-      for (k in 1:nrow(stability1$selprop)) {
+      for (k in seq_len(nrow(stability1$selprop))) {
         bigstab[k, ] <- (stability1$selprop[k, ] * stability1$params$K + stability2$selprop[k, ] * stability2$params$K) / K
       }
     }
@@ -169,7 +169,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
   # Computing co-membership proportions
   if (inherits(stability1, "clustering")) {
     coprop <- array(NA, dim = dim(stability1$coprop), dimnames = dimnames(stability1$coprop))
-    for (k in 1:dim(stability1$coprop)[3]) {
+    for (k in seq_len(dim(stability1$coprop)[3])) {
       coprop[, , k] <- (stability1$coprop[, , k] * stability1$params$K + stability2$coprop[, , k] * stability2$params$K) / K
     }
   }
@@ -181,23 +181,23 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
       if (!is.null(stability1$Beta)) {
         if (length(dim(stability1$Beta)) == 4) {
           Beta <- array(NA,
-            dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3], dim(stability1$Beta)[4]),
+            dim = c(dim(stability1$Beta)[seq_len(2)], dim(stability1$Beta)[3] + dim(stability2$Beta)[3], dim(stability1$Beta)[4]),
             dimnames = list(
               dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]],
               c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]]), dimnames(stability1$Beta)[[4]]
             )
           )
-          Beta[, , 1:dim(stability1$Beta)[3], ] <- stability1$Beta
+          Beta[, , seq_len(dim(stability1$Beta)[3]), ] <- stability1$Beta
           Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3], ] <- stability2$Beta
         } else {
           Beta <- array(NA,
-            dim = c(dim(stability1$Beta)[1:2], dim(stability1$Beta)[3] + dim(stability2$Beta)[3]),
+            dim = c(dim(stability1$Beta)[seq_len(2)], dim(stability1$Beta)[3] + dim(stability2$Beta)[3]),
             dimnames = list(
               dimnames(stability1$Beta)[[1]], dimnames(stability1$Beta)[[2]],
               c(dimnames(stability1$Beta)[[3]], dimnames(stability2$Beta)[[3]])
             )
           )
-          Beta[, , 1:dim(stability1$Beta)[3]] <- stability1$Beta
+          Beta[, , seq_len(dim(stability1$Beta)[3])] <- stability1$Beta
           Beta[, , (dim(stability1$Beta)[3] + 1):dim(Beta)[3]] <- stability2$Beta
         }
       }
@@ -222,7 +222,7 @@ Combine <- function(stability1, stability2, include_beta = TRUE) {
   if (inherits(stability1, "clustering")) {
     sampled_pairs <- stability1$sampled_pairs + stability2$sampled_pairs
     Sc <- matrix(NA, nrow = dim(coprop)[3], ncol = 1)
-    for (k in 1:dim(coprop)[3]) {
+    for (k in seq_len(dim(coprop)[3])) {
       # Clustering on the consensus matrix
       sh_clust <- stats::hclust(stats::as.dist(1 - coprop[, , k]), method = stability1$methods$linkage)
 

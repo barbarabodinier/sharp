@@ -184,7 +184,7 @@
 #' if (requireNamespace("OpenMx", quietly = TRUE)) {
 #'   dag <- LayeredDAG(layers = pk, n_manifest = 3)
 #'   penalised <- dag
-#'   penalised[, 1:ncol(simul$data)] <- 0
+#'   penalised[, seq_len(ncol(simul$data))] <- 0
 #'   stab <- StructuralModel(
 #'     xdata = simul$data,
 #'     implementation = PenalisedOpenMx,
@@ -244,7 +244,7 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
   # Stability selection and score
   if (n_cores > 1) {
     future::plan(future::multisession, workers = n_cores)
-    mypar <- future.apply::future_lapply(X = 1:n_cores, future.seed = TRUE, FUN = function(k) {
+    mypar <- future.apply::future_lapply(X = seq_len(n_cores), future.seed = TRUE, FUN = function(k) {
       return(SerialRegression(
         xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
         K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,

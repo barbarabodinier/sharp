@@ -65,7 +65,7 @@ BlockLambdaGrid <- function(Lambda, lambda_other_blocks = NULL) {
     } else {
       Sequential_template <- matrix(FALSE, nrow = nblocks * nrow(Lambda), ncol = nblocks)
     }
-    for (block_id in 1:nblocks) {
+    for (block_id in seq_len(nblocks)) {
       if (!is.vector(Lambda)) {
         tmpLambda <- Lambda[, block_id]
       } else {

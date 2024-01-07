@@ -117,14 +117,14 @@ Adjacency <- function(stability, argmax_id = NULL) {
       argmax <- Argmax(stability)
     } else {
       argmax <- NULL
-      for (block_id in 1:ncol(stability$Lambda)) {
+      for (block_id in seq_len(ncol(stability$Lambda))) {
         argmax <- rbind(argmax, c(
           stability$Lambda[argmax_id[block_id, 1], block_id],
           stability$params$pi_list[argmax_id[block_id, 2]]
         ))
       }
     }
-    for (block_id in 1:ncol(stability$Lambda)) {
+    for (block_id in seq_len(ncol(stability$Lambda))) {
       A_block <- ifelse(stability$selprop[, , argmax_id[block_id, 1]] >= argmax[block_id, 2], 1, 0)
       if (length(stability$params$pk) > 1) {
         A_block[bigblocks != block_id] <- 0
@@ -257,7 +257,7 @@ SelectionProportionsGraphical <- function(stability, argmax_id = NULL) {
   if (is.null(argmax_id)) {
     argmax_id <- ArgmaxId(stability)
   }
-  for (block_id in 1:ncol(stability$Lambda)) {
+  for (block_id in seq_len(ncol(stability$Lambda))) {
     A_block <- stability$selprop[, , argmax_id[block_id, 1]]
     A_block[lower.tri(A_block)] <- 0
     A_block <- A_block + t(A_block) # for symmetry

@@ -183,7 +183,7 @@
 #'   stab <- BiSelection(
 #'     xdata = simul$data,
 #'     ncomp = 2,
-#'     LambdaX = 1:(ncol(simul$data) - 1),
+#'     LambdaX = seq_len(ncol(simul$data) - 1),
 #'     implementation = SparsePCA
 #'   )
 #'   print(stab)
@@ -209,7 +209,7 @@
 #'   stab <- BiSelection(
 #'     xdata = x, ydata = y,
 #'     family = "gaussian", ncomp = 3,
-#'     LambdaX = 1:(ncol(x) - 1),
+#'     LambdaX = seq_len(ncol(x) - 1),
 #'     implementation = SparsePLS
 #'   )
 #'   CalibrationPlot(stab)
@@ -220,8 +220,8 @@
 #'   stab <- BiSelection(
 #'     xdata = x, ydata = y,
 #'     family = "gaussian", ncomp = 3,
-#'     LambdaX = 1:(ncol(x) - 1),
-#'     LambdaY = 1:(ncol(y) - 1),
+#'     LambdaX = seq_len(ncol(x) - 1),
+#'     LambdaY = seq_len(ncol(y) - 1),
 #'     implementation = SparsePLS,
 #'     n_cat = 2
 #'   )
@@ -234,7 +234,7 @@
 #'     xdata = x, ydata = y, K = 10,
 #'     group_x = c(2, 8, 5),
 #'     family = "gaussian", ncomp = 3,
-#'     LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+#'     LambdaX = seq_len(2), AlphaX = seq(0.1, 0.9, by = 0.1),
 #'     implementation = SparseGroupPLS
 #'   )
 #'   CalibrationPlot(stab)
@@ -266,7 +266,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   # Preparing xdata
   xdata <- as.matrix(xdata)
   if (is.null(colnames(xdata))) {
-    colnames(xdata) <- paste0("var", 1:ncol(xdata))
+    colnames(xdata) <- paste0("var", seq_len(ncol(xdata)))
   }
 
   # Preparing ydata
@@ -279,18 +279,18 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
       }
     }
     if (is.null(colnames(ydata))) {
-      colnames(ydata) <- paste0("outcome", 1:ncol(ydata))
+      colnames(ydata) <- paste0("outcome", seq_len(ncol(ydata)))
     }
   }
 
   # Naming rows of xdata and ydata
   if (is.null(ydata)) {
     if (is.null(rownames(xdata))) {
-      rownames(xdata) <- paste0("obs", 1:nrow(xdata))
+      rownames(xdata) <- paste0("obs", seq_len(nrow(xdata)))
     }
   } else {
     if (is.null(rownames(xdata)) & is.null(rownames(ydata))) {
-      rownames(xdata) <- paste0("obs", 1:nrow(xdata))
+      rownames(xdata) <- paste0("obs", seq_len(nrow(xdata)))
       rownames(ydata) <- rownames(xdata)
     } else {
       if ((is.null(rownames(xdata))) & (!is.null(rownames(ydata)))) {
@@ -327,7 +327,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   params_comp <- matrix(NA, nrow = ncomp, ncol = 8)
   colnames(params_comp) <- c("comp", "nx", "alphax", "pix", "ny", "alphay", "piy", "S")
 
-  for (comp in 1:ncomp) {
+  for (comp in seq_len(ncomp)) {
     # Preparing empty objects to be filled at current iteration (comp)
     tmp_selected_x <- matrix(NA, ncol = ncol(xdata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
     tmp_selprop_x <- matrix(NA, ncol = ncol(xdata), nrow = length(LambdaX) * length(LambdaY) * length(AlphaX) * length(AlphaY))
@@ -368,7 +368,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
                 ncomp = comp, scale = scale, ...
               )
             } else {
@@ -381,7 +381,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
                 ncomp = comp, scale = scale, ...
               )
             }
@@ -397,8 +397,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
+                keepY = NAToNULL(c(params_comp[seq_len(comp), "ny"], ny)),
                 ncomp = comp, scale = scale, ...
               )
             } else {
@@ -411,7 +411,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_method = PFER_method,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
                 ncomp = comp, scale = scale, ...
               )
             }
@@ -428,10 +428,10 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = FALSE,
                 group_x = NAToNULL(group_x), group_y = group_y,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
-                keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
-                alpha.y = NAToNULL(c(params_comp[1:comp, "alphay"], alphay)),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
+                alpha.x = NAToNULL(c(params_comp[seq_len(comp), "alphax"], alphax)),
+                keepY = NAToNULL(c(params_comp[seq_len(comp), "ny"], ny)),
+                alpha.y = NAToNULL(c(params_comp[seq_len(comp), "alphay"], alphay)),
                 ncomp = comp, scale = scale, ...
               )
             } else {
@@ -445,8 +445,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 PFER_thr = PFER_thr, FDP_thr = FDP_thr,
                 n_cores = n_cores, output_data = FALSE, verbose = FALSE,
                 group_x = NAToNULL(group_x), group_y = group_y,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                alpha.x = NAToNULL(c(params_comp[1:comp, "alphax"], alphax)),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
+                alpha.x = NAToNULL(c(params_comp[seq_len(comp), "alphax"], alphax)),
                 ncomp = comp, scale = scale, ...
               )
             }
@@ -464,8 +464,8 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 group_x = NAToNULL(group_x), group_y = group_y,
                 group_penalisation = TRUE,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
-                keepY = NAToNULL(c(params_comp[1:comp, "ny"], ny)),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
+                keepY = NAToNULL(c(params_comp[seq_len(comp), "ny"], ny)),
                 ncomp = comp, scale = scale, ...
               )
             } else {
@@ -480,7 +480,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 n_cores = n_cores, output_data = FALSE, verbose = verbose,
                 group_x = NAToNULL(group_x), group_y = group_y,
                 group_penalisation = TRUE,
-                keepX_previous = NAToNULL(params_comp[1:comp, "nx"]),
+                keepX_previous = NAToNULL(params_comp[seq_len(comp), "nx"]),
                 ncomp = comp, scale = scale, ...
               )
             }
@@ -491,7 +491,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
           if (!is.null(ydata)) {
             mycoefs <- Coefficients(stab, side = "Y", comp = comp)
           }
-          for (i in 1:length(LambdaX)) {
+          for (i in seq_len(length(LambdaX))) {
             tmp_selprop_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- stab$selprop[i, ]
             tmp_selected_x[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- ifelse(stab$selprop[i, ] >= stab$P[i, ], yes = 1, no = 0)
 
@@ -501,7 +501,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 tmpcoef <- matrix(tmpcoef, nrow = dim(mycoefs)[2], ncol = dim(mycoefs)[3])
               }
               mytmp <- rep(NA, ifelse(length(dim(tmpcoef)) == 2, yes = nrow(tmpcoef), no = 1))
-              for (l in 1:nrow(tmpcoef)) {
+              for (l in seq_len(nrow(tmpcoef))) {
                 mytmp[l] <- sum(tmpcoef[l, ] != 0) / length(tmpcoef[l, ])
               }
               tmp_selprop_y[seq((id - 1) * length(LambdaX) + 1, id * length(LambdaX))[i], ] <- mytmp
@@ -515,7 +515,7 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
                 # Calculating the score for different thresholds pi
                 if (is.null(n_cat)) {
                   tmpscore <- rep(NA, length(stab$params$pi_list))
-                  for (k in 1:length(stab$params$pi_list)) {
+                  for (k in seq_len(length(stab$params$pi_list))) {
                     theta <- ifelse(mytmp >= stab$params$pi_list[k], yes = 1, no = 0)
                     tmpscore[k] <- ConsensusScore(prop = mytmp, K = K, theta = theta)
                   }
@@ -588,15 +588,15 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
   coefs_X <- array(NA,
     dim = c(ncomp, sum(grepl("X_.*PC1", colnames(coefs))), dim(coefs)[3]),
     dimnames = list(
-      paste0("PC", 1:ncomp),
+      paste0("PC", seq_len(ncomp)),
       gsub("_PC.*", "", gsub(
         "X_", "",
         colnames(coefs)[grep("X_.*PC1", colnames(coefs))]
       )),
-      paste0("iter", 1:dim(coefs)[3])
+      paste0("iter", seq_len(dim(coefs)[3]))
     )
   )
-  for (i in 1:ncomp) {
+  for (i in seq_len(ncomp)) {
     coefs_X[i, , ] <- coefs[1, grep(paste0("X_.*PC", i), colnames(coefs)), ]
   }
 
@@ -605,15 +605,15 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
     coefs_Y <- array(NA,
       dim = c(ncomp, sum(grepl("Y_.*PC1", colnames(coefs))), dim(coefs)[3]),
       dimnames = list(
-        paste0("PC", 1:ncomp),
+        paste0("PC", seq_len(ncomp)),
         gsub("_PC.*", "", gsub(
           "Y_", "",
           colnames(coefs)[grep("Y_.*PC1", colnames(coefs))]
         )),
-        paste0("iter", 1:dim(coefs)[3])
+        paste0("iter", seq_len(dim(coefs)[3]))
       )
     )
-    for (i in 1:ncomp) {
+    for (i in seq_len(ncomp)) {
       coefs_Y[i, , ] <- coefs[1, grep(paste0("Y_.*PC", i), colnames(coefs)), ]
     }
   }
@@ -625,12 +625,12 @@ BiSelection <- function(xdata, ydata = NULL, group_x = NULL, group_y = NULL,
 
   # Assigning row and column names
   colnames(selected_x_comp) <- colnames(selprop_x_comp) <- colnames(selected_x) <- colnames(selprop_x) <- colnames(xdata)
-  rownames(selected_x_comp) <- rownames(selprop_x_comp) <- paste0("comp", 1:ncomp)
+  rownames(selected_x_comp) <- rownames(selprop_x_comp) <- paste0("comp", seq_len(ncomp))
   if (!is.null(ydata)) {
     if (family == "gaussian") {
       colnames(selected_y_comp) <- colnames(selprop_y_comp) <- colnames(selected_y) <- colnames(selprop_y) <- colnames(ydata)
     }
-    rownames(selected_y_comp) <- rownames(selprop_y_comp) <- paste0("comp", 1:ncomp)
+    rownames(selected_y_comp) <- rownames(selprop_y_comp) <- paste0("comp", seq_len(ncomp))
   }
 
   # Transposing selection status and proportion to be aligned with

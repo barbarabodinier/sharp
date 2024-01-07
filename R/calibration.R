@@ -59,13 +59,13 @@ ArgmaxId <- function(stability = NULL, S = NULL) {
       if (is.null(stability$params$lambda_other_blocks) & (length(stability$params$pk) > 1)) {
         id <- which.max(apply(stability$S, 1, sum, na.rm = TRUE))
         argmax_id[, 1] <- rep(id, nrow(argmax_id))
-        for (block_id in 1:ncol(stability$Lambda)) {
+        for (block_id in seq_len(ncol(stability$Lambda))) {
           if (!is.na(stability$P[id, block_id])) {
             argmax_id[block_id, 2] <- which(stability$params$pi_list == stability$P[id, block_id])
           }
         }
       } else {
-        for (block_id in 1:ncol(stability$Lambda)) {
+        for (block_id in seq_len(ncol(stability$Lambda))) {
           if (ncol(stability$Lambda) == 1) {
             myS <- stability$S
           } else {
@@ -117,7 +117,7 @@ Argmax <- function(stability) {
         argmax[, 1] <- stability$Lambda[id, ]
         argmax[, 2] <- stability$P[id, ]
       } else {
-        for (block_id in 1:ncol(stability$Lambda)) {
+        for (block_id in seq_len(ncol(stability$Lambda))) {
           if (ncol(stability$Lambda) == 1) {
             myS <- stability$S
           } else {
@@ -244,7 +244,7 @@ Coefficients <- function(stability, side = "X", comp = 1, iterations = NULL) {
 #'   stab <- BiSelection(
 #'     xdata = x, ydata = y,
 #'     family = "gaussian", ncomp = 3,
-#'     LambdaX = 1:(ncol(x) - 1),
+#'     LambdaX = seq_len(ncol(x) - 1),
 #'     implementation = SparsePLS
 #'   )
 #'   median_betas <- AggregatedEffects(stab)
@@ -375,7 +375,7 @@ WeightBoxplot <- function(stability, at = NULL, argmax_id = NULL,
 
   xaxt <- "s"
   if (is.null(at)) {
-    x <- 1:nrow(y)
+    x <- seq_len(nrow(y))
   } else {
     x <- at
     xaxt <- "n"
@@ -583,7 +583,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
           # Defining vertical grid
           if (xgrid) {
             withr::local_par(list(xpd = FALSE))
-            graphics::abline(v = 1:nrow(tmp), lty = 3, col = "grey")
+            graphics::abline(v = seq_len(nrow(tmp)), lty = 3, col = "grey")
           }
 
           # Defining horizontal grid
@@ -593,10 +593,10 @@ CalibrationPlot <- function(stability, block_id = NULL,
           }
 
           # Adding x-axes
-          for (param_id in 1:length(params)) {
+          for (param_id in seq_len(length(params))) {
             if (param_id == 1) {
               graphics::axis(
-                side = 1, at = 1:nrow(tmp),
+                side = 1, at = seq_len(nrow(tmp)),
                 labels = tmp[, rev(params)[param_id]],
                 cex.axis = cex.axis, las = xlas
               )
@@ -613,7 +613,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
               )
             }
           }
-          # graphics::axis(side = 1, at = 1:nrow(tmp), labels = tmp$nx, cex.axis = cex.axis, las = xlas)
+          # graphics::axis(side = 1, at = seq_len(nrow(tmp)), labels = tmp$nx, cex.axis = cex.axis, las = xlas)
           # if ("ny" %in% colnames(tmp)) {
           #   ids <- c(which(!duplicated(tmp$ny)) - 0.5, nrow(tmp) + 0.5)
           #   graphics::axis(side = 1, at = ids, labels = NA, line = 3)
@@ -625,7 +625,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
 
           # Adding x-labels
           if (length(params) > 1) {
-            for (param_id in 1:length(params)) {
+            for (param_id in seq_len(length(params))) {
               if (rev(params)[param_id] == "nx") {
                 graphics::mtext(text = expression(n[X]), side = 1, at = 0.5 - nrow(tmp) * 0.1, line = (param_id - 1) * 3 + 1, cex = cex.lab)
               }
@@ -661,7 +661,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
           #     )
           #   }
           # } else {
-          graphics::lines(1:nrow(tmp),
+          graphics::lines(seq_len(nrow(tmp)),
             tmp$S,
             col = col[comp_id],
             lty = lty, lwd = lwd
@@ -696,7 +696,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
         }
 
         if ((show_pix) & (show_piy)) {
-          for (k in 1:nrow(tmp)) {
+          for (k in seq_len(nrow(tmp))) {
             graphics::text(k, tmp[k, "S"],
               labels = eval(parse(text = paste0("expression(pi[x]*' = ", tmp[k, "pix"], " ; '*pi[y]*' = ", tmp[k, "piy"], "')"))),
               col = col[comp_id],
@@ -746,7 +746,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
       if ((stability$methods$type == "graphical_model") & (is.null(block_id))) {
         bigblocks <- BlockMatrix(stability$params$pk)
         nblocks <- length(stability$params$pk) * (length(stability$params$pk) + 1) / 2
-        bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = 1:nblocks)
+        bigblocks_vect <- factor(bigblocks[upper.tri(bigblocks)], levels = seq_len(nblocks))
         N_blocks <- unname(table(bigblocks_vect))
         blocks <- levels(bigblocks_vect)
         names(N_blocks) <- blocks
@@ -833,23 +833,23 @@ CalibrationPlot <- function(stability, block_id = NULL,
           # Including axes
           if (clustering) {
             graphics::axis(
-              side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
+              side = 2, at = (seq_len(ncol(mat))) - 0.5, las = ylas, cex.axis = cex.axis,
               labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 0)
             )
           } else {
             graphics::axis(
-              side = 2, at = (1:ncol(mat)) - 0.5, las = ylas, cex.axis = cex.axis,
+              side = 2, at = (seq_len(ncol(mat))) - 0.5, las = ylas, cex.axis = cex.axis,
               labels = formatC(as.numeric(colnames(mat)), format = "f", digits = 2)
             )
           }
           if (grepl("penalised", tolower(stability$methods$implementation))) {
             graphics::axis(
-              side = 3, at = (1:nrow(mat)) - 0.5, las = zlas, cex.axis = cex.axis,
+              side = 3, at = (seq_len(nrow(mat))) - 0.5, las = zlas, cex.axis = cex.axis,
               labels = rev(formatC(Q, format = "f", big.mark = ",", digits = 0))
             )
-            graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
+            graphics::axis(side = 1, at = (seq_len(nrow(mat))) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
           } else {
-            graphics::axis(side = 1, at = (1:nrow(mat)) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
+            graphics::axis(side = 1, at = (seq_len(nrow(mat))) - 0.5, las = xlas, labels = rev(rownames(mat)), cex.axis = cex.axis)
           }
 
           # Including axis labels
@@ -933,7 +933,7 @@ CalibrationPlot <- function(stability, block_id = NULL,
             # Adding x-axis and z-axis and their labels
             lseq <- grDevices::axisTicks(range(Lambda, na.rm = TRUE), log = FALSE)
             xseq <- 1
-            for (i in 1:length(lseq)) {
+            for (i in seq_len(length(lseq))) {
               xseq <- c(xseq, which.min(abs(Lambda - lseq[i])))
             }
             xseq <- c(xseq, length(Lambda))

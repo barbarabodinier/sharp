@@ -64,8 +64,8 @@
 #'     stab <- BiSelection(
 #'       xdata = x, ydata = y,
 #'       family = "gaussian", ncomp = 3,
-#'       LambdaX = 1:(ncol(x) - 1),
-#'       LambdaY = 1:(ncol(y) - 1),
+#'       LambdaX = seq_len(ncol(x) - 1),
+#'       LambdaY = seq_len(ncol(y) - 1),
 #'       implementation = SparsePLS,
 #'       n_cat = 2
 #'     )
@@ -100,7 +100,7 @@
 #'
 #'   # Multilevel PLS
 #'   # Generating random design
-#'   z <- rep(1:50, each = 4)
+#'   z <- rep(seq_len(50), each = 4)
 #'
 #'   # Extracting the within-variability
 #'   x_within <- mixOmics::withinVariation(X = x, design = cbind(z))
@@ -128,7 +128,7 @@ PLS <- function(xdata, ydata,
     ydata <- cbind(ydata)
   }
   if (is.null(colnames(ydata))) {
-    colnames(ydata) <- paste0("outcome", 1:ncol(ydata))
+    colnames(ydata) <- paste0("outcome", seq_len(ncol(ydata)))
   }
 
   # Checking consistency of arguments
@@ -163,14 +163,14 @@ PLS <- function(xdata, ydata,
     selectedX <- matrix(1, nrow = ncol(xdata), ncol = ncomp)
   }
   rownames(selectedX) <- colnames(xdata)
-  colnames(selectedX) <- paste0("comp", 1:ncomp)
+  colnames(selectedX) <- paste0("comp", seq_len(ncomp))
 
   # Defining the selection status for outcomes
   if (is.null(selectedY)) {
     selectedY <- matrix(1, nrow = ncol(ydata), ncol = ncomp)
   }
   rownames(selectedY) <- colnames(ydata)
-  colnames(selectedY) <- paste0("comp", 1:ncomp)
+  colnames(selectedY) <- paste0("comp", seq_len(ncomp))
 
   # Initialisation
   Emat <- scale(xdata, center = TRUE, scale = scale)
@@ -193,10 +193,10 @@ PLS <- function(xdata, ydata,
   Tmat <- matrix(NA, nrow = nrow(xdata), ncol = ncomp)
   Umat <- matrix(NA, nrow = nrow(ydata), ncol = ncomp)
   rownames(Tmat) <- rownames(Umat) <- rownames(xdata)
-  colnames(Wmat) <- colnames(Pmat) <- colnames(Cmat) <- colnames(Tmat) <- colnames(Umat) <- paste0("comp", 1:ncomp)
+  colnames(Wmat) <- colnames(Pmat) <- colnames(Cmat) <- colnames(Tmat) <- colnames(Umat) <- paste0("comp", seq_len(ncomp))
 
   # Loop over the components
-  for (comp in 1:ncomp) {
+  for (comp in seq_len(ncomp)) {
     # Extracting the stably selected predictors
     idsX <- rownames(selectedX)[which(selectedX[, comp] == 1)]
     if (length(idsX) > 0) {
@@ -335,9 +335,9 @@ PredictPLS <- function(xdata, model) {
   )
 
   # Loop over the components
-  for (comp in 1:ncomp) {
+  for (comp in seq_len(ncomp)) {
     # Computing predicted values
-    Ypred <- newdata %*% model$Wmat[, 1:comp, drop = FALSE] %*% solve(t(model$Qmat[, 1:comp, drop = FALSE]) %*% model$Wmat[, 1:comp, drop = FALSE]) %*% t(model$Rmat)[1:comp, , drop = FALSE]
+    Ypred <- newdata %*% model$Wmat[, seq_len(comp), drop = FALSE] %*% solve(t(model$Qmat[, seq_len(comp), drop = FALSE]) %*% model$Wmat[, seq_len(comp), drop = FALSE]) %*% t(model$Rmat)[seq_len(comp), , drop = FALSE]
 
     # Re-scaling
     Ypred <- t(apply(Ypred, 1, FUN = function(y) {
@@ -451,21 +451,21 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
     beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
     rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))),
+      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(seq_len(ncomp), each = ncol(ydata)))
     )
   } else {
     ncat <- length(unique(ydata))
     beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncat) * ncomp)
     rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(1:ncomp, each = ncat))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))),
+      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(seq_len(ncomp), each = ncat))
     )
   }
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(Lambda)) {
+  for (k in seq_len(length(Lambda))) {
     # Number of selected variables per component in X
     nvarx <- c(keepX_previous, Lambda[k])
 
@@ -505,7 +505,7 @@ SparsePLS <- function(xdata, ydata, Lambda, family = "gaussian",
 
     # Making sure that the loadings of the univariate Y are positives
     if (ncol(ydata) == 1) {
-      for (j in 1:ncol(mymodel$loadings$Y)) {
+      for (j in seq_len(ncol(mymodel$loadings$Y))) {
         if (sign(mymodel$loadings$Y[1, j]) == -1) {
           Yloadings[1, j] <- -Yloadings[1, j]
           Xloadings[, j] <- -Xloadings[, j]
@@ -662,21 +662,21 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
     beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
     rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))),
+      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(seq_len(ncomp), each = ncol(ydata)))
     )
   } else {
     ncat <- length(unique(ydata))
     beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncat) * ncomp)
     rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(1:ncomp, each = ncat))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))),
+      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(seq_len(ncomp), each = ncat))
     )
   }
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(Lambda)) {
+  for (k in seq_len(length(Lambda))) {
     # Number of selected variables per component in X
     nvarx <- c(keepX_previous, Lambda[k])
 
@@ -719,7 +719,7 @@ SparseGroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y =
 
     # Making sure that the loadings of the univariate Y are positives
     if (ncol(ydata) == 1) {
-      for (j in 1:ncol(mymodel$loadings$Y)) {
+      for (j in seq_len(ncol(mymodel$loadings$Y))) {
         if (sign(mymodel$loadings$Y[1, j]) == -1) {
           Yloadings[1, j] <- -Yloadings[1, j]
           Xloadings[, j] <- -Xloadings[, j]
@@ -860,21 +860,21 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
     beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncol(ydata)) * ncomp)
     rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(1:ncomp, each = ncol(ydata)))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))),
+      paste0(paste0("Y_", colnames(ydata), "_PC"), rep(seq_len(ncomp), each = ncol(ydata)))
     )
   } else {
     ncat <- length(unique(ydata))
     beta_full <- matrix(NA, nrow = length(Lambda), ncol = (ncol(xdata) + ncat) * ncomp)
     rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
     colnames(beta_full) <- c(
-      paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))),
-      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(1:ncomp, each = ncat))
+      paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))),
+      paste0(paste0("Y_", sort(unique(ydata)), "_PC"), rep(seq_len(ncomp), each = ncat))
     )
   }
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(Lambda)) {
+  for (k in seq_len(length(Lambda))) {
     # Number of selected variables per component in X
     nvarx <- c(keepX_previous, Lambda[k])
 
@@ -916,7 +916,7 @@ GroupPLS <- function(xdata, ydata, family = "gaussian", group_x, group_y = NULL,
 
     # Making sure that the loadings of the univariate Y are positives
     if (ncol(ydata) == 1) {
-      for (j in 1:ncol(mymodel$loadings$Y)) {
+      for (j in seq_len(ncol(mymodel$loadings$Y))) {
         if (sign(mymodel$loadings$Y[1, j]) == -1) {
           Yloadings[1, j] <- -Yloadings[1, j]
           Xloadings[, j] <- -Xloadings[, j]
@@ -1034,10 +1034,10 @@ SparsePCA <- function(xdata, Lambda,
   # # Initialising the full set of loadings coefficients
   beta_full <- matrix(NA, nrow = length(Lambda), ncol = ncol(xdata) * ncomp)
   rownames(beta_full) <- paste0("s", 0:(length(Lambda) - 1))
-  colnames(beta_full) <- c(paste0(paste0("X_", colnames(xdata), "_PC"), rep(1:ncomp, each = ncol(xdata))))
+  colnames(beta_full) <- c(paste0(paste0("X_", colnames(xdata), "_PC"), rep(seq_len(ncomp), each = ncol(xdata))))
 
   # Loop over all parameters (number of selected variables in X in current component)
-  for (k in 1:length(Lambda)) {
+  for (k in seq_len(length(Lambda))) {
     # Number of selected variables per component in X
     nvarx <- c(keepX_previous, Lambda[k])
 

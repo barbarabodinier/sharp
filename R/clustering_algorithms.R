@@ -44,7 +44,7 @@
 #' # Hierarchical clustering
 #' myhclust <- HierarchicalClustering(
 #'   xdata = simul$data,
-#'   nc = 1:20
+#'   nc = seq_len(20)
 #' )
 #'
 #' # Weighted Hierarchical clustering (using COSA)
@@ -52,7 +52,7 @@
 #'   myhclust <- HierarchicalClustering(
 #'     xdata = simul$data,
 #'     weighted = TRUE,
-#'     nc = 1:20,
+#'     nc = seq_len(20),
 #'     Lambda = c(0.2, 0.5)
 #'   )
 #' }
@@ -136,7 +136,7 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 
   # Iterating over the pair of parameters
   id <- 0
-  for (i in 1:nrow(Lambda)) {
+  for (i in seq_len(nrow(Lambda))) {
     if (weighted) {
       # Computing weighted pairwise distances
       utils::capture.output({
@@ -174,7 +174,7 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
     if (is.null(dim(mygroups))) {
       mygroups <- cbind(mygroups)
     }
-    for (j in 1:nrow(nc)) {
+    for (j in seq_len(nrow(nc))) {
       adjacency[, , id + j] <- CoMembership(groups = mygroups[, j])
       # weight[,,id + j] <- out$W
       if (weighted) {
@@ -228,14 +228,14 @@ HierarchicalClustering <- function(xdata, nc = NULL, Lambda = NULL,
 #'   # PAM clustering
 #'   myclust <- PAMClustering(
 #'     xdata = simul$data,
-#'     nc = 1:20
+#'     nc = seq_len(20)
 #'   )
 #'
 #'   # Weighted PAM clustering (using COSA)
 #'   if (requireNamespace("rCOSA", quietly = TRUE)) {
 #'     myclust <- PAMClustering(
 #'       xdata = simul$data,
-#'       nc = 1:20,
+#'       nc = seq_len(20),
 #'       Lambda = c(0.2, 0.5)
 #'     )
 #'   }
@@ -314,7 +314,7 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
 
   # Iterating over the pair of parameters
   id <- 0
-  for (i in 1:nrow(Lambda)) {
+  for (i in seq_len(nrow(Lambda))) {
     if (weighted) {
       # Computing weighted pairwise distances
       utils::capture.output({
@@ -339,7 +339,7 @@ PAMClustering <- function(xdata, nc = NULL, Lambda = NULL,
     }
 
     # Running PAM clustering
-    for (k in 1:nrow(nc)) {
+    for (k in seq_len(nrow(nc))) {
       if (nc[k, 1] == 1) {
         adjacency[, , id + k] <- CoMembership(groups = rep(1, nrow(xdata)))
       } else {
@@ -499,7 +499,7 @@ DBSCANClustering <- function(xdata,
 
   # Iterating over the pair of parameters
   id <- 0
-  for (i in 1:nrow(Lambda)) {
+  for (i in seq_len(nrow(Lambda))) {
     if (weighted) {
       # Computing weighted pairwise distances
       utils::capture.output({
@@ -524,7 +524,7 @@ DBSCANClustering <- function(xdata,
     }
 
     # Running DBSCAN clustering
-    for (k in 1:nrow(nc)) {
+    for (k in seq_len(nrow(nc))) {
       # Running algorithm
       mygroups <- do.call(dbscan::dbscan, args = c(
         list(x = stats::as.dist(mydistance), eps = eps[k, 1], minPts = 2),
@@ -585,12 +585,12 @@ DBSCANClustering <- function(xdata,
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # K means clustering
-#' mykmeans <- KMeansClustering(xdata = simul$data, nc = 1:20)
+#' mykmeans <- KMeansClustering(xdata = simul$data, nc = seq_len(20))
 #'
 #' # Sparse K means clustering
 #' if (requireNamespace("sparcl", quietly = TRUE)) {
 #'   mykmeans <- KMeansClustering(
-#'     xdata = simul$data, nc = 1:20,
+#'     xdata = simul$data, nc = seq_len(20),
 #'     Lambda = c(2, 5)
 #'   )
 #' }
@@ -627,7 +627,7 @@ KMeansClustering <- function(xdata, nc = NULL,
 #' simul <- SimulateClustering(n = c(10, 10), pk = 50)
 #'
 #' # Clustering using Gaussian Mixture Models
-#' mygmm <- GMMClustering(xdata = simul$data, nc = 1:30)
+#' mygmm <- GMMClustering(xdata = simul$data, nc = seq_len(30))
 #' @export
 GMMClustering <- function(xdata, nc = NULL,
                           ...) {
@@ -658,7 +658,7 @@ GMMClustering <- function(xdata, nc = NULL,
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("data", "G", "verbose")]
 
   # Running gaussian mixture model
-  for (k in 1:nrow(nc)) {
+  for (k in seq_len(nrow(nc))) {
     if (nc[k, 1] == 1) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
@@ -715,7 +715,7 @@ UnweightedKMeansClustering <- function(xdata, nc = NULL,
   tmp_extra_args <- tmp_extra_args[!names(tmp_extra_args) %in% c("x", "centers")]
 
   # Running k-means clustering
-  for (k in 1:nrow(nc)) {
+  for (k in seq_len(nrow(nc))) {
     if (nc[k, 1] == 1) {
       adjacency[, , k] <- CoMembership(groups = rep(1, nrow(xdata)))
     } else {
@@ -791,8 +791,8 @@ SparseKMeansClustering <- function(xdata, nc = NULL, Lambda, ...) {
 
   # Iterating over the pair of parameters
   id <- 0
-  for (i in 1:n_iter_lambda) {
-    for (j in 1:nrow(nc)) {
+  for (i in seq_len(n_iter_lambda)) {
+    for (j in seq_len(nrow(nc))) {
       # Running sparse K means clustering
       myclust <- tryCatch(
         do.call(sparcl::KMeansSparseCluster, args = c(
