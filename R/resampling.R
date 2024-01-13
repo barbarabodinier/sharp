@@ -219,7 +219,7 @@ Folds <- function(data, family = NULL, n_folds = 5) {
 #' @export
 Split <- function(data, family = NULL, tau = c(0.5, 0.25, 0.25)) {
   # Re-formatting the inputs
-  if (is.factor(data)){
+  if (is.factor(data)) {
     data <- as.numeric(data) - 1
   }
   if (is.vector(data)) {

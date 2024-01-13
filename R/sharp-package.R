@@ -21,7 +21,6 @@
 #'
 #'   \insertRef{ConsensusClustering}{sharp}
 #'
-#' @docType package
 #' @name sharp-package
 #'
 #' @importFrom Rdpack reprompt
