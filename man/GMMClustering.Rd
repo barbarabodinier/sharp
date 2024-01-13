@@ -30,7 +30,7 @@ set.seed(1)
 simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
 # Clustering using Gaussian Mixture Models
-mygmm <- GMMClustering(xdata = simul$data, nc = 1:30)
+mygmm <- GMMClustering(xdata = simul$data, nc = seq_len(30))
 }
 \seealso{
 Other clustering algorithms: 

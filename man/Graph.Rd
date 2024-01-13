@@ -111,7 +111,7 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
   stab <- BiSelection(
     xdata = simul$xdata, ydata = simul$ydata,
     family = "gaussian", ncomp = 3,
-    LambdaX = 1:(ncol(x) - 1),
+    LambdaX = seq_len(ncol(x) - 1),
     implementation = SparsePLS
   )
   plot(Graph(stab))

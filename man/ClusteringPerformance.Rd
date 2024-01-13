@@ -45,7 +45,7 @@ plot(simul)
 
 # Consensus clustering
 stab <- Clustering(
-  xdata = simul$data, nc = 1:5
+  xdata = simul$data, nc = seq_len(5)
 )
 
 # Clustering performance

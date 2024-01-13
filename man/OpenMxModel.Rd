@@ -61,14 +61,14 @@ if (requireNamespace("OpenMx", quietly = TRUE)) {
   # Incorporating latent variables
   ram_matrices <- OpenMxModel(
     adjacency = dag,
-    manifest = paste0("x", 1:7)
+    manifest = paste0("x", seq_len(7))
   )
   ram_matrices$Fmat$values
 
   # Running unpenalised model
   unpenalised <- OpenMx::mxRun(OpenMx::mxModel(
     "Model",
-    OpenMx::mxData(simul$data[, 1:7], type = "raw"),
+    OpenMx::mxData(simul$data[, seq_len(7)], type = "raw"),
     ram_matrices$Amat,
     ram_matrices$Smat,
     ram_matrices$Fmat,

@@ -88,8 +88,8 @@ if (requireNamespace("mixOmics", quietly = TRUE)) {
     stab <- BiSelection(
       xdata = x, ydata = y,
       family = "gaussian", ncomp = 3,
-      LambdaX = 1:(ncol(x) - 1),
-      LambdaY = 1:(ncol(y) - 1),
+      LambdaX = seq_len(ncol(x) - 1),
+      LambdaY = seq_len(ncol(y) - 1),
       implementation = SparsePLS,
       n_cat = 2
     )
@@ -124,7 +124,7 @@ if (requireNamespace("mixOmics", quietly = TRUE)) {
 
   # Multilevel PLS
   # Generating random design
-  z <- rep(1:50, each = 4)
+  z <- rep(seq_len(50), each = 4)
 
   # Extracting the within-variability
   x_within <- mixOmics::withinVariation(X = x, design = cbind(z))

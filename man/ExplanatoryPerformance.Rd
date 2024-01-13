@@ -127,7 +127,7 @@ For a fair evaluation of the prediction performance, the data is
 # Data simulation
 set.seed(1)
 simul <- SimulateRegression(
-  n = 1000, pk = 10,
+  n = 1000, pk = 20,
   family = "binomial", ev_xy = 0.8
 )
 

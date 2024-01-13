@@ -17,7 +17,7 @@ medoids, K means or Gaussian mixture models in consensus clustering.
 \details{
 \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
 1.4.4 \cr Date: \tab 2023-10-21 \cr License: \tab GPL (>= 3)\cr Maintainer:
-\tab Barbara Bodinier \email{b.bodinier@gmail.com}}
+\tab Barbara Bodinier \email{barbara.bodinier@gmail.com}}
 }
 \examples{
 \donttest{

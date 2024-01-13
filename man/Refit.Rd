@@ -166,8 +166,8 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
   stab <- BiSelection(
     xdata = xtrain, ydata = ytrain,
     family = "gaussian", ncomp = 3,
-    LambdaX = 1:(ncol(xtrain) - 1),
-    LambdaY = 1:(ncol(ytrain) - 1),
+    LambdaX = seq_len(ncol(xtrain) - 1),
+    LambdaY = seq_len(ncol(ytrain) - 1),
     implementation = SparsePLS
   )
   plot(stab)

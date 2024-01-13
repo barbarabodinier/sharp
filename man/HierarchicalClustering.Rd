@@ -67,7 +67,7 @@ simul <- SimulateClustering(n = c(10, 10), pk = 50)
 # Hierarchical clustering
 myhclust <- HierarchicalClustering(
   xdata = simul$data,
-  nc = 1:20
+  nc = seq_len(20)
 )
 
 # Weighted Hierarchical clustering (using COSA)
@@ -75,7 +75,7 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
   myhclust <- HierarchicalClustering(
     xdata = simul$data,
     weighted = TRUE,
-    nc = 1:20,
+    nc = seq_len(20),
     Lambda = c(0.2, 0.5)
   )
 }

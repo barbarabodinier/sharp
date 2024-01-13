@@ -98,8 +98,8 @@ calibration is used (the default).}
 the level of sparsity in the underlying algorithm. Only used if
 \code{Lambda=NULL}.}
 
-\item{n_cores}{number of cores to use for parallel computing (see
-\code{\link[parallel]{mclapply}}). Only available on Unix systems.}
+\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
+\code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}
@@ -208,8 +208,8 @@ In stability selection, a feature selection algorithm is fitted on
   number generator is set to \code{seed}.
 
   For parallelisation, stability selection with different sets of parameters
-  can be run on \code{n_cores} cores. This relies on forking with
-  \code{\link[parallel]{mclapply}} (specific to Unix systems). Alternatively,
+  can be run on \code{n_cores} cores. Using \code{n_cores > 1} creates a
+  \code{\link[future]{multisession}}. Alternatively,
   the function can be run manually with different \code{seed}s and all other
   parameters equal. The results can then be combined using
   \code{\link{Combine}}.
@@ -269,7 +269,7 @@ simul <- SimulateStructural(
 if (requireNamespace("OpenMx", quietly = TRUE)) {
   dag <- LayeredDAG(layers = pk, n_manifest = 3)
   penalised <- dag
-  penalised[, 1:ncol(simul$data)] <- 0
+  penalised[, seq_len(ncol(simul$data))] <- 0
   stab <- StructuralModel(
     xdata = simul$data,
     implementation = PenalisedOpenMx,

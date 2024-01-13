@@ -71,8 +71,8 @@ Only used if \code{implementation=HierarchicalClustering}.}
 \item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
 \code{row=FALSE}) contain the items to cluster.}
 
-\item{n_cores}{number of cores to use for parallel computing (see
-\code{\link[parallel]{mclapply}}). Only available on Unix systems.}
+\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
+\code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}
@@ -144,8 +144,8 @@ In consensus clustering, a clustering algorithm is applied on
   number generator is set to \code{seed}.
 
   For parallelisation, stability selection with different sets of parameters
-  can be run on \code{n_cores} cores. This relies on forking with
-  \code{\link[parallel]{mclapply}} (specific to Unix systems).
+  can be run on \code{n_cores} cores. Using \code{n_cores > 1} creates a
+  \code{\link[future]{multisession}}.
 }
 \examples{
 \donttest{

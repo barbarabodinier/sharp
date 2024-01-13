@@ -35,12 +35,12 @@ set.seed(1)
 simul <- SimulateClustering(n = c(10, 10), pk = 50)
 
 # K means clustering
-mykmeans <- KMeansClustering(xdata = simul$data, nc = 1:20)
+mykmeans <- KMeansClustering(xdata = simul$data, nc = seq_len(20))
 
 # Sparse K means clustering
 if (requireNamespace("sparcl", quietly = TRUE)) {
   mykmeans <- KMeansClustering(
-    xdata = simul$data, nc = 1:20,
+    xdata = simul$data, nc = seq_len(20),
     Lambda = c(2, 5)
   )
 }

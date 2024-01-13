@@ -129,8 +129,8 @@ features (or False Discovery Proportion) for constrained calibration by
 error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 calibration is used (the default).}
 
-\item{n_cores}{number of cores to use for parallel computing (see
-\code{\link[parallel]{mclapply}}). Only available on Unix systems.}
+\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
+\code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}
@@ -264,8 +264,8 @@ In stability selection, a feature selection algorithm is fitted on
   number generator is set to \code{seed}.
 
   For parallelisation, stability selection with different sets of parameters
-  can be run on \code{n_cores} cores. This relies on forking with
-  \code{\link[parallel]{mclapply}} (specific to Unix systems).
+  can be run on \code{n_cores} cores. Using \code{n_cores > 1} creates a
+  \code{\link[future]{multisession}}.
 }
 \examples{
 \donttest{
@@ -283,7 +283,7 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
   stab <- BiSelection(
     xdata = simul$data,
     ncomp = 2,
-    LambdaX = 1:(ncol(simul$data) - 1),
+    LambdaX = seq_len(ncol(simul$data) - 1),
     implementation = SparsePCA
   )
   print(stab)
@@ -309,7 +309,7 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
   stab <- BiSelection(
     xdata = x, ydata = y,
     family = "gaussian", ncomp = 3,
-    LambdaX = 1:(ncol(x) - 1),
+    LambdaX = seq_len(ncol(x) - 1),
     implementation = SparsePLS
   )
   CalibrationPlot(stab)
@@ -320,8 +320,8 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
   stab <- BiSelection(
     xdata = x, ydata = y,
     family = "gaussian", ncomp = 3,
-    LambdaX = 1:(ncol(x) - 1),
-    LambdaY = 1:(ncol(y) - 1),
+    LambdaX = seq_len(ncol(x) - 1),
+    LambdaY = seq_len(ncol(y) - 1),
     implementation = SparsePLS,
     n_cat = 2
   )
@@ -334,7 +334,7 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
     xdata = x, ydata = y, K = 10,
     group_x = c(2, 8, 5),
     family = "gaussian", ncomp = 3,
-    LambdaX = 1:2, AlphaX = seq(0.1, 0.9, by = 0.1),
+    LambdaX = seq_len(2), AlphaX = seq(0.1, 0.9, by = 0.1),
     implementation = SparseGroupPLS
   )
   CalibrationPlot(stab)

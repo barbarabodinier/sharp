@@ -54,14 +54,14 @@ if (requireNamespace("cluster", quietly = TRUE)) {
   # PAM clustering
   myclust <- PAMClustering(
     xdata = simul$data,
-    nc = 1:20
+    nc = seq_len(20)
   )
 
   # Weighted PAM clustering (using COSA)
   if (requireNamespace("rCOSA", quietly = TRUE)) {
     myclust <- PAMClustering(
       xdata = simul$data,
-      nc = 1:20,
+      nc = seq_len(20),
       Lambda = c(0.2, 0.5)
     )
   }

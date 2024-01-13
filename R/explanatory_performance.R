@@ -612,8 +612,8 @@ ExplanatoryPerformance <- function(xdata, ydata, new_xdata = NULL, new_ydata = N
         Beta[iter, ] <- as.vector(stats::coef(refitted))
       }
 
-      if (inherits(refitted, c("glm", "lm"))){
-      # if (ncol(xtrain) == 1) {
+      if (inherits(refitted, c("glm", "lm"))) {
+        # if (ncol(xtrain) == 1) {
         # Predictions from logistic models
         if (tolower(metric) == "roc") {
           suppressWarnings({
@@ -828,6 +828,11 @@ Incremental <- function(xdata, ydata, new_xdata = NULL, new_ydata = NULL,
       stop("Argument 'family' must be provided. Possible values are: 'binomial', 'cox' or 'gaussian'.")
     }
   }
+
+  # Object preparation, error and warning messages
+  CheckDataRegression(
+    xdata = xdata, ydata = ydata, family = family, verbose = verbose
+  )
 
   # Defining the number of predictors
   if (is.null(n_predictors)) {

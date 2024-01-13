@@ -78,7 +78,7 @@ if (requireNamespace("sgPLS", quietly = TRUE)) {
   stab <- BiSelection(
     xdata = x, ydata = y,
     family = "gaussian", ncomp = 3,
-    LambdaX = 1:(ncol(x) - 1),
+    LambdaX = seq_len(ncol(x) - 1),
     implementation = SparsePLS
   )
   median_betas <- AggregatedEffects(stab)

@@ -194,6 +194,11 @@ CheckDataRegression <- function(xdata, ydata = NULL,
     "xdata", "ydata", "family"
   )
 
+  # Turning factors into dummy variables if needed
+  if (is.list(xdata)) {
+    xdata <- stats::model.matrix(~., data = xdata)[, -1]
+  }
+
   # Checking the inputs (xdata and ydata)
   xdata <- as.matrix(xdata)
   if (!is.null(ydata)) {
