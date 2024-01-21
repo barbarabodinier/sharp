@@ -85,7 +85,8 @@
 #'   regression, the use of \code{optimisation="grid_search"} is recommended as
 #'   it allows for warm start.
 #' @param n_cores number of cores to use for parallel computing (see argument
-#'   \code{workers} in \code{\link[future]{multisession}}).
+#'   \code{workers} in \code{\link[future]{multisession}}). Using 
+#'   \code{n_cores>1} is only supported with \code{optimisation="grid_search"}.
 #' @param output_data logical indicating if the input datasets \code{xdata} and
 #'   \code{ydata} should be included in the output.
 #' @param verbose logical indicating if a loading bar and messages should be
