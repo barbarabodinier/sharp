@@ -193,43 +193,59 @@ CoMembership <- function(groups) {
 #' @keywords internal
 Concatenate <- function(stability1, stability2 = NULL, order_output = FALSE) {
   if (!is.null(stability2)) {
-    stability1$S <- rbind(stability1$S, stability2$S)
     stability1$Lambda <- rbind(stability1$Lambda, stability2$Lambda)
     stability1$Q <- rbind(stability1$Q, stability2$Q)
-    stability1$Q_s <- rbind(stability1$Q_s, stability2$Q_s)
-    stability1$P <- rbind(stability1$P, stability2$P)
-    stability1$PFER <- rbind(stability1$PFER, stability2$PFER)
-    stability1$FDP <- rbind(stability1$FDP, stability2$FDP)
-    stability1$S_2d <- rbind(stability1$S_2d, stability2$S_2d)
-    stability1$PFER_2d <- rbind(stability1$PFER_2d, stability2$PFER_2d)
-    stability1$FDP_2d <- rbind(stability1$FDP_2d, stability2$FDP_2d)
-    if (stability1$methods$type == "variable_selection") {
+    if (stability1$methods$type %in% c("variable_selection", "graphical_model")) {
+      stability1$S <- rbind(stability1$S, stability2$S)
+      stability1$Q_s <- rbind(stability1$Q_s, stability2$Q_s)
+      stability1$P <- rbind(stability1$P, stability2$P)
+      stability1$PFER <- rbind(stability1$PFER, stability2$PFER)
+      stability1$FDP <- rbind(stability1$FDP, stability2$FDP)
+      stability1$S_2d <- rbind(stability1$S_2d, stability2$S_2d)
+      stability1$PFER_2d <- rbind(stability1$PFER_2d, stability2$PFER_2d)
+      stability1$FDP_2d <- rbind(stability1$FDP_2d, stability2$FDP_2d)
+    }
+    if (stability1$methods$type %in% c("variable_selection", "clustering")) {
       stability1$selprop <- rbind(stability1$selprop, stability2$selprop)
       stability1$Beta <- abind::abind(stability1$Beta, stability2$Beta, along = 1)
     }
     if (stability1$methods$type == "graphical_model") {
       stability1$selprop <- abind::abind(stability1$selprop, stability2$selprop, along = 3)
     }
+    if (stability1$methods$type == "clustering") {
+      stability1$Sc <- rbind(stability1$Sc, stability2$Sc)
+      stability1$nc <- rbind(stability1$nc, stability2$nc)
+      stability1$coprop <- abind::abind(stability1$coprop, stability2$coprop, along = 3)
+      stability1$bignoise <- cbind(stability1$bignoise, stability2$bignoise)
+    }
   }
 
   if (order_output) {
-    ids <- sort.list(stability1$Q)
-    stability1$S <- stability1$S[ids, , drop = FALSE]
+    ids <- sort.list(stability1$Lambda, decreasing = TRUE)
     stability1$Lambda <- stability1$Lambda[ids, , drop = FALSE]
     stability1$Q <- stability1$Q[ids, , drop = FALSE]
-    stability1$Q_s <- stability1$Q_s[ids, , drop = FALSE]
-    stability1$P <- stability1$P[ids, , drop = FALSE]
-    stability1$PFER <- stability1$PFER[ids, , drop = FALSE]
-    stability1$FDP <- stability1$FDP[ids, , drop = FALSE]
-    stability1$S_2d <- stability1$S_2d[ids, , drop = FALSE]
-    stability1$PFER_2d <- stability1$PFER_2d[ids, , drop = FALSE]
-    stability1$FDP_2d <- stability1$FDP_2d[ids, , drop = FALSE]
-    if (stability1$methods$type == "variable_selection") {
+    if (stability1$methods$type %in% c("variable_selection", "graphical_model")) {
+      stability1$S <- stability1$S[ids, , drop = FALSE]
+      stability1$Q_s <- stability1$Q_s[ids, , drop = FALSE]
+      stability1$P <- stability1$P[ids, , drop = FALSE]
+      stability1$PFER <- stability1$PFER[ids, , drop = FALSE]
+      stability1$FDP <- stability1$FDP[ids, , drop = FALSE]
+      stability1$S_2d <- stability1$S_2d[ids, , drop = FALSE]
+      stability1$PFER_2d <- stability1$PFER_2d[ids, , drop = FALSE]
+      stability1$FDP_2d <- stability1$FDP_2d[ids, , drop = FALSE]
+    }
+    if (stability1$methods$type %in% c("variable_selection", "clustering")) {
       stability1$selprop <- stability1$selprop[ids, , drop = FALSE]
       stability1$Beta <- stability1$Beta[ids, , , drop = FALSE]
     }
     if (stability1$methods$type == "graphical_model") {
       stability1$selprop <- stability1$selprop[, , ids, drop = FALSE]
+    }
+    if (stability1$methods$type == "clustering") {
+      stability1$Sc <- stability1$Sc[ids, , drop = FALSE]
+      stability1$nc <- stability1$nc[ids, , drop = FALSE]
+      stability1$coprop <- stability1$coprop[, , ids, drop = FALSE]
+      stability1$bignoise <- stability1$bignoise[, ids, drop = FALSE]
     }
   }
 

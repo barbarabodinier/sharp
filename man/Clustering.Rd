@@ -17,6 +17,7 @@ Clustering(
   scale = TRUE,
   linkage = "complete",
   row = TRUE,
+  optimisation = c("grid_search", "nloptr"),
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
@@ -71,6 +72,18 @@ Only used if \code{implementation=HierarchicalClustering}.}
 
 \item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
 \code{row=FALSE}) contain the items to cluster.}
+
+\item{optimisation}{character string indicating the type of optimisation
+method to calibrate the regularisation parameter (only used if
+\code{Lambda} is not \code{NULL}). With \code{optimisation="grid_search"}
+(the default), all values in \code{Lambda} are visited.
+Alternatively, optimisation algorithms implemented in
+\code{\link[nloptr]{nloptr}} can be used with \code{optimisation="nloptr"}.
+By default, we use \code{"algorithm"="NLOPT_GN_DIRECT_L"},
+\code{"xtol_abs"=0.1}, \code{"ftol_abs"=0.1} and
+\code{"maxeval"} defined as \code{length(Lambda)}. These values can be
+changed by providing the argument \code{opts} (see
+\code{\link[nloptr]{nloptr}}).}
 
 \item{n_cores}{number of cores to use for parallel computing (see argument
 \code{workers} in \code{\link[future]{multisession}}). Using

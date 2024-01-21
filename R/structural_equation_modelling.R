@@ -250,6 +250,9 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
 
   # Stability selection and score
   if (n_cores > 1) {
+    if (optimisation != "grid_search") {
+      message("Using grid search to allow for parallelisation.")
+    }
     future::plan(future::multisession, workers = n_cores)
     mypar <- future.apply::future_lapply(X = seq_len(n_cores), future.seed = TRUE, FUN = function(k) {
       return(SerialRegression(

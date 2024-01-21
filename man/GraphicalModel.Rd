@@ -144,10 +144,10 @@ the density of the estimated graph does not exceed max_density.}
 method. With \code{optimisation="grid_search"} (the default), all values in
 \code{Lambda} are visited. Alternatively, optimisation algorithms
 implemented in \code{\link[nloptr]{nloptr}} can be used with
-\code{optimisation="nloptr"}. In this case, we use
+\code{optimisation="nloptr"}. By default, we use
 \code{"algorithm"="NLOPT_GN_DIRECT_L"}, \code{"xtol_abs"=0.1},
-\code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
-These values can be changed by providing the argument \code{opts} (see
+\code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal}. These values
+can be changed by providing the argument \code{opts} (see
 \code{\link[nloptr]{nloptr}}). For stability selection using penalised
 regression, \code{optimisation="grid_search"} may be faster as it allows
 for warm start.}

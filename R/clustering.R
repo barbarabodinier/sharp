@@ -37,6 +37,17 @@
 #'   Only used if \code{implementation=HierarchicalClustering}.
 #' @param row logical indicating if rows (if \code{row=TRUE}) or columns (if
 #'   \code{row=FALSE}) contain the items to cluster.
+#' @param optimisation character string indicating the type of optimisation
+#'   method to calibrate the regularisation parameter (only used if
+#'   \code{Lambda} is not \code{NULL}). With \code{optimisation="grid_search"}
+#'   (the default), all values in \code{Lambda} are visited.
+#'   Alternatively, optimisation algorithms implemented in
+#'   \code{\link[nloptr]{nloptr}} can be used with \code{optimisation="nloptr"}.
+#'   By default, we use \code{"algorithm"="NLOPT_GN_DIRECT_L"},
+#'   \code{"xtol_abs"=0.1}, \code{"ftol_abs"=0.1} and
+#'   \code{"maxeval"} defined as \code{length(Lambda)}. These values can be
+#'   changed by providing the argument \code{opts} (see
+#'   \code{\link[nloptr]{nloptr}}).
 #'
 #' @details In consensus clustering, a clustering algorithm is applied on
 #'   \code{K} subsamples of the observations with different numbers of clusters
@@ -144,6 +155,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
                        scale = TRUE,
                        linkage = "complete",
                        row = TRUE,
+                       optimisation = c("grid_search", "nloptr"),
                        n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
   # Visiting all possible numbers of clusters
   if (is.null(eps)) {
@@ -198,8 +210,20 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
     verbose = verbose
   )
 
+  # Defining the type of optimisation
+  optimisation <- match.arg(optimisation)
+  if ((optimisation == "grid_search") & is.null(Lambda)) {
+    message("Using grid search to tune the number of clusters.")
+  }
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Stability selection and score
   if (n_cores > 1) {
+    if (optimisation != "grid_search") {
+      message("Using grid search to allow for parallelisation.")
+    }
     future::plan(future::multisession, workers = n_cores)
     mypar <- future.apply::future_lapply(X = seq_len(n_cores), future.seed = TRUE, FUN = function(k) {
       return(SerialClustering(
@@ -217,12 +241,65 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
       out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[i]], include_beta = TRUE))
     }
   } else {
-    out <- SerialClustering(
-      xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
-      K = K, tau = tau, seed = seed, n_cat = n_cat,
-      implementation = implementation, scale = scale, linkage = linkage, row = row,
-      output_data = output_data, verbose = verbose, ...
-    )
+    if (optimisation == "grid_search") {
+      out <- SerialClustering(
+        xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
+        K = K, tau = tau, seed = seed, n_cat = n_cat,
+        implementation = implementation, scale = scale, linkage = linkage, row = row,
+        output_data = output_data, verbose = verbose, ...
+      )
+    } else {
+      # Creating the function to be minimised
+      eval_f <- function(x, env) {
+        # Running with a given lambda
+        out_nloptr <- SerialClustering(
+          xdata = xdata, Lambda = rbind(x), nc = cbind(nc), eps = cbind(eps),
+          K = K, tau = tau, seed = seed, n_cat = n_cat,
+          implementation = implementation, scale = scale, linkage = linkage, row = row,
+          output_data = output_data, verbose = FALSE, ...
+        )
+        if (any(!is.na(out_nloptr$Sc))) {
+          score <- max(out_nloptr$Sc, na.rm = TRUE)
+        } else {
+          score <- -Inf
+        }
+
+        # Storing the visited values
+        out <- get("out", envir = env)
+        out <- Concatenate(out_nloptr, out)
+        assign("out", out, envir = env)
+
+        return(-score)
+      }
+
+      # Defining the nloptr options
+      opts <- list(
+        "algorithm" = "NLOPT_GN_DIRECT_L",
+        "xtol_abs" = 0.1,
+        "ftol_abs" = 0.1,
+        "print_level" = 0,
+        "maxeval" = length(Lambda)
+      )
+      if ("opts" %in% names(extra_args)) {
+        for (opts_id in 1:length(extra_args[["opts"]])) {
+          opts[[names(extra_args[["opts"]])[opts_id]]] <- extra_args[["opts"]][[opts_id]]
+        }
+      }
+
+      # Initialising the values to store
+      nloptr_env <- new.env(parent = emptyenv())
+      assign("out", NULL, envir = nloptr_env)
+      nloptr_results <- nloptr::nloptr(
+        x0 = max(Lambda, na.rm = TRUE),
+        eval_f = eval_f,
+        opts = opts,
+        lb = min(Lambda, na.rm = TRUE),
+        ub = max(Lambda, na.rm = TRUE),
+        env = nloptr_env
+      )
+      out <- get("out", envir = nloptr_env)
+      out <- Concatenate(out, order_output = TRUE)
+    }
   }
 
   # Re-set the function names
