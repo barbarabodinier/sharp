@@ -10,7 +10,7 @@
 #' medoids, K means or Gaussian mixture models in consensus clustering.
 #'
 #' \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
-#' 1.4.4 \cr Date: \tab 2023-10-21 \cr License: \tab GPL (>= 3)\cr Maintainer:
+#' 1.4.5 \cr Date: \tab 2024-01-21 \cr License: \tab GPL (>= 3)\cr Maintainer:
 #' \tab Barbara Bodinier \email{barbara.bodinier@@gmail.com}}
 #'
 #' @references \insertRef{OurConsensusClustering}{sharp}

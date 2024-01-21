@@ -18,6 +18,6 @@ test_that("The optimisation with nloptr is working for VariableSelection().", {
     optimisation = "nloptr",
     verbose = FALSE
   )
-  expect_lt(abs(max(stab_grid$S, na.rm=TRUE) - max(stab_nloptr$S, na.rm=TRUE)), 3)
+  expect_lt(abs(max(stab_grid$S, na.rm = TRUE) - max(stab_nloptr$S, na.rm = TRUE)), 3)
   expect_lt(length(stab_nloptr$Lambda), 100)
 })
