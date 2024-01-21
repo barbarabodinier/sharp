@@ -82,10 +82,10 @@
 #'   \code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
 #'   These values can be changed by providing the argument \code{opts} (see
 #'   \code{\link[nloptr]{nloptr}}). For stability selection using penalised
-#'   regression, the use of \code{optimisation="grid_search"} is recommended as
-#'   it allows for warm start.
+#'   regression, \code{optimisation="grid_search"} may be faster as it allows
+#'   for warm start.
 #' @param n_cores number of cores to use for parallel computing (see argument
-#'   \code{workers} in \code{\link[future]{multisession}}). Using 
+#'   \code{workers} in \code{\link[future]{multisession}}). Using
 #'   \code{n_cores>1} is only supported with \code{optimisation="grid_search"}.
 #' @param output_data logical indicating if the input datasets \code{xdata} and
 #'   \code{ydata} should be included in the output.
@@ -531,7 +531,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
 
         # Storing the visited values
         out <- get("out", envir = env)
-        out <- ConcatenateVariableSelection(out_nloptr, out)
+        out <- Concatenate(out_nloptr, out)
         assign("out", out, envir = env)
 
         return(-score)
@@ -563,7 +563,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
         env = nloptr_env
       )
       out <- get("out", envir = nloptr_env)
-      out <- ConcatenateVariableSelection(out, order_output = TRUE)
+      out <- Concatenate(out, order_output = TRUE)
     }
   }
 

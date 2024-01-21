@@ -26,6 +26,7 @@ GraphicalModel(
   lambda_max = NULL,
   lambda_path_factor = 0.001,
   max_density = 0.5,
+  optimisation = c("grid_search", "nloptr"),
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
@@ -139,8 +140,21 @@ value in the grid.}
 \item{max_density}{threshold on the density. The grid is defined such that
 the density of the estimated graph does not exceed max_density.}
 
+\item{optimisation}{character string indicating the type of optimisation
+method. With \code{optimisation="grid_search"} (the default), all values in
+\code{Lambda} are visited. Alternatively, optimisation algorithms
+implemented in \code{\link[nloptr]{nloptr}} can be used with
+\code{optimisation="nloptr"}. In this case, we use
+\code{"algorithm"="NLOPT_GN_DIRECT_L"}, \code{"xtol_abs"=0.1},
+\code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
+These values can be changed by providing the argument \code{opts} (see
+\code{\link[nloptr]{nloptr}}). For stability selection using penalised
+regression, \code{optimisation="grid_search"} may be faster as it allows
+for warm start.}
+
 \item{n_cores}{number of cores to use for parallel computing (see argument
-\code{workers} in \code{\link[future]{multisession}}).}
+\code{workers} in \code{\link[future]{multisession}}). Using
+\code{n_cores>1} is only supported with \code{optimisation="grid_search"}.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

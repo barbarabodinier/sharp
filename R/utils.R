@@ -180,19 +180,18 @@ CoMembership <- function(groups) {
 }
 
 
-#' Concatenate stability objects for variable selection
+#' Concatenate stability objects
 #'
 #' Generates a single stability object from two stability objects. This function
-#' is used to concatenate results when using nloptr for optimisation in
-#' \code{\link{VariableSelection}}.
+#' is used to concatenate results when using \code{\link[nloptr]{nloptr}}.
 #'
-#' @param stability1 matrix of dummy variables.
-#' @param stability2 logical indicating if messages should be printed.
+#' @param stability1 a stability object.
+#' @param stability2 another stability object (optional).
 #'
 #' @return A single stability object.
 #'
 #' @keywords internal
-ConcatenateVariableSelection <- function(stability1, stability2 = NULL, order_output = FALSE) {
+Concatenate <- function(stability1, stability2 = NULL, order_output = FALSE) {
   if (!is.null(stability2)) {
     stability1$S <- rbind(stability1$S, stability2$S)
     stability1$Lambda <- rbind(stability1$Lambda, stability2$Lambda)
@@ -204,8 +203,13 @@ ConcatenateVariableSelection <- function(stability1, stability2 = NULL, order_ou
     stability1$S_2d <- rbind(stability1$S_2d, stability2$S_2d)
     stability1$PFER_2d <- rbind(stability1$PFER_2d, stability2$PFER_2d)
     stability1$FDP_2d <- rbind(stability1$FDP_2d, stability2$FDP_2d)
-    stability1$selprop <- rbind(stability1$selprop, stability2$selprop)
-    stability1$Beta <- abind::abind(stability1$Beta, stability2$Beta, along = 1)
+    if (stability1$methods$type == "variable_selection") {
+      stability1$selprop <- rbind(stability1$selprop, stability2$selprop)
+      stability1$Beta <- abind::abind(stability1$Beta, stability2$Beta, along = 1)
+    }
+    if (stability1$methods$type == "graphical_model") {
+      stability1$selprop <- abind::abind(stability1$selprop, stability2$selprop, along = 3)
+    }
   }
 
   if (order_output) {
@@ -220,8 +224,13 @@ ConcatenateVariableSelection <- function(stability1, stability2 = NULL, order_ou
     stability1$S_2d <- stability1$S_2d[ids, , drop = FALSE]
     stability1$PFER_2d <- stability1$PFER_2d[ids, , drop = FALSE]
     stability1$FDP_2d <- stability1$FDP_2d[ids, , drop = FALSE]
-    stability1$selprop <- stability1$selprop[ids, , drop = FALSE]
-    stability1$Beta <- stability1$Beta[ids, , , drop = FALSE]
+    if (stability1$methods$type == "variable_selection") {
+      stability1$selprop <- stability1$selprop[ids, , drop = FALSE]
+      stability1$Beta <- stability1$Beta[ids, , , drop = FALSE]
+    }
+    if (stability1$methods$type == "graphical_model") {
+      stability1$selprop <- stability1$selprop[, , ids, drop = FALSE]
+    }
   }
 
   return(stability1)

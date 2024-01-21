@@ -126,11 +126,12 @@ implemented in \code{\link[nloptr]{nloptr}} can be used with
 \code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
 These values can be changed by providing the argument \code{opts} (see
 \code{\link[nloptr]{nloptr}}). For stability selection using penalised
-regression, the use of \code{optimisation="grid_search"} is recommended as
-it allows for warm start.}
+regression, \code{optimisation="grid_search"} may be faster as it allows
+for warm start.}
 
 \item{n_cores}{number of cores to use for parallel computing (see argument
-\code{workers} in \code{\link[future]{multisession}}).}
+\code{workers} in \code{\link[future]{multisession}}). Using
+\code{n_cores>1} is only supported with \code{optimisation="grid_search"}.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

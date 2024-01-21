@@ -99,7 +99,8 @@ the level of sparsity in the underlying algorithm. Only used if
 \code{Lambda=NULL}.}
 
 \item{n_cores}{number of cores to use for parallel computing (see argument
-\code{workers} in \code{\link[future]{multisession}}).}
+\code{workers} in \code{\link[future]{multisession}}). Using
+\code{n_cores>1} is only supported with \code{optimisation="grid_search"}.}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}
