@@ -543,7 +543,7 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
         "xtol_abs" = 0.1,
         "ftol_abs" = 0.1,
         "print_level" = 0,
-        "maxeval" = Lambda_cardinal,
+        "maxeval" = Lambda_cardinal
       )
       if ("opts" %in% names(extra_args)) {
         for (opts_id in 1:length(extra_args[["opts"]])) {
