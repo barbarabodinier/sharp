@@ -129,8 +129,8 @@ features (or False Discovery Proportion) for constrained calibration by
 error control. If \code{PFER_thr=Inf} and \code{FDP_thr=Inf}, unconstrained
 calibration is used (the default).}
 
-\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
-\code{\link[future]{multisession}}).}
+\item{n_cores}{number of cores to use for parallel computing (see argument
+\code{workers} in \code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

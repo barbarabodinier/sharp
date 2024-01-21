@@ -23,6 +23,7 @@ VariableSelection(
   Lambda_cardinal = 100,
   group_x = NULL,
   group_penalisation = FALSE,
+  optimisation = c("grid_search", "nloptr"),
   n_cores = 1,
   output_data = FALSE,
   verbose = TRUE,
@@ -116,8 +117,18 @@ be considered in the stability score. The use of
 \code{group_penalisation=TRUE} strictly applies to group (not sparse-group)
 penalisation.}
 
-\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
-\code{\link[future]{multisession}}).}
+\item{optimisation}{character string indicating the type of optimisation
+method. With \code{optimisation="grid_search"} (the default), all values in
+\code{Lambda} are visited. Alternatively, optimisation algorithms
+implemented in \code{\link[nloptr]{nloptr}} can be used with
+\code{optimisation="nloptr"}. In this case, we use
+\code{"algorithm"="NLOPT_GN_DIRECT_L"}, \code{"xtol_abs"=0.1},
+\code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
+These values can be changed by providing the argument \code{opts} (see
+\code{\link[nloptr]{nloptr}}).}
+
+\item{n_cores}{number of cores to use for parallel computing (see argument
+\code{workers} in \code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

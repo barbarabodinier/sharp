@@ -25,6 +25,7 @@ Imports:
     grDevices,
     igraph,
     mclust,
+    nloptr,
     plotrix,
     Rdpack,
     withr (>= 2.4.0)

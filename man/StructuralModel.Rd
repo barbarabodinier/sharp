@@ -98,8 +98,8 @@ calibration is used (the default).}
 the level of sparsity in the underlying algorithm. Only used if
 \code{Lambda=NULL}.}
 
-\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
-\code{\link[future]{multisession}}).}
+\item{n_cores}{number of cores to use for parallel computing (see argument
+\code{workers} in \code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

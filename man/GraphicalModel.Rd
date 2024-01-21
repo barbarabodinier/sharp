@@ -139,8 +139,8 @@ value in the grid.}
 \item{max_density}{threshold on the density. The grid is defined such that
 the density of the estimated graph does not exceed max_density.}
 
-\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
-\code{\link[future]{multisession}}).}
+\item{n_cores}{number of cores to use for parallel computing (see argument
+\code{workers} in \code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}

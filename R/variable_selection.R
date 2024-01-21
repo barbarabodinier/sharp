@@ -73,8 +73,17 @@
 #'   be considered in the stability score. The use of
 #'   \code{group_penalisation=TRUE} strictly applies to group (not sparse-group)
 #'   penalisation.
-#' @param n_cores number of cores to use for parallel computing (see argument \code{workers} in
-#'   \code{\link[future]{multisession}}).
+#' @param optimisation character string indicating the type of optimisation
+#'   method. With \code{optimisation="grid_search"} (the default), all values in
+#'   \code{Lambda} are visited. Alternatively, optimisation algorithms
+#'   implemented in \code{\link[nloptr]{nloptr}} can be used with
+#'   \code{optimisation="nloptr"}. In this case, we use
+#'   \code{"algorithm"="NLOPT_GN_DIRECT_L"}, \code{"xtol_abs"=0.1},
+#'   \code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
+#'   These values can be changed by providing the argument \code{opts} (see
+#'   \code{\link[nloptr]{nloptr}}).
+#' @param n_cores number of cores to use for parallel computing (see argument
+#'   \code{workers} in \code{\link[future]{multisession}}).
 #' @param output_data logical indicating if the input datasets \code{xdata} and
 #'   \code{ydata} should be included in the output.
 #' @param verbose logical indicating if a loading bar and messages should be
@@ -409,18 +418,19 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
                               resampling = "subsampling", cpss = FALSE,
                               PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                               Lambda_cardinal = 100, group_x = NULL, group_penalisation = FALSE,
+                              optimisation = c("grid_search", "nloptr"),
                               n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
   if (is.null(Lambda)) {
     # Defining Lambda if used with sparse PLS
     if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
       Lambda <- seq(1, length(group_x) - 1)
     }
-    
+
     # Defining Lambda if used with sparse PCA
     if (as.character(substitute(implementation)) %in% c("SparsePLS", "SparsePCA")) {
       Lambda <- seq(1, ncol(xdata) - 1)
     }
-    
+
     # Defining Lambda if used with CART
     if (as.character(substitute(implementation)) %in% c("CART")) {
       Lambda <- seq(1, min(nrow(xdata) / 2, 100))
@@ -458,8 +468,17 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
     )
   }
 
+  # Defining the type of optimisation
+  optimisation <- match.arg(optimisation)
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Stability selection and score
   if (n_cores > 1) {
+    if (optimisation != "grid_search") {
+      message("Using grid search to allow for parallelisation.")
+    }
     future::plan(future::multisession, workers = n_cores)
     mypar <- future.apply::future_lapply(X = seq_len(n_cores), future.seed = TRUE, FUN = function(k) {
       return(SerialRegression(
@@ -482,15 +501,67 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
       }
     }
   } else {
-    out <- SerialRegression(
-      xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
-      K = K, tau = tau, seed = seed, n_cat = n_cat,
-      family = family, implementation = implementation,
-      resampling = resampling, cpss = cpss,
-      PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-      group_x = group_x, group_penalisation = group_penalisation,
-      output_data = output_data, verbose = verbose, ...
-    )
+    if (optimisation == "grid_search") {
+      out <- SerialRegression(
+        xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+        K = K, tau = tau, seed = seed, n_cat = n_cat,
+        family = family, implementation = implementation,
+        resampling = resampling, cpss = cpss,
+        PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+        group_x = group_x, group_penalisation = group_penalisation,
+        output_data = output_data, verbose = verbose, ...
+      )
+    } else {
+      # Creating the function to be minimised
+      eval_f <- function(x, env) {
+        # Running with a given lambda
+        out_nloptr <- SerialRegression(
+          xdata = xdata, ydata = ydata, Lambda = rbind(x), pi_list = pi_list,
+          K = K, tau = tau, seed = seed, n_cat = n_cat,
+          family = family, implementation = implementation,
+          resampling = resampling, cpss = cpss,
+          PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+          group_x = group_x, group_penalisation = group_penalisation,
+          output_data = output_data, verbose = FALSE, ...
+        )
+        score <- max(out_nloptr$S, na.rm = TRUE)
+
+        # Storing the visited values
+        out <- get("out", envir = env)
+        out <- ConcatenateVariableSelection(out_nloptr, out)
+        assign("out", out, envir = env)
+
+        return(-score)
+      }
+
+      # Defining the nloptr options
+      opts <- list(
+        "algorithm" = "NLOPT_GN_DIRECT_L",
+        "xtol_abs" = 0.1,
+        "ftol_abs" = 0.1,
+        "print_level" = 0,
+        "maxeval" = Lambda_cardinal,
+      )
+      if ("opts" %in% names(extra_args)) {
+        for (opts_id in 1:length(extra_args[["opts"]])) {
+          opts[[names(extra_args[["opts"]])[opts_id]]] <- extra_args[["opts"]][[opts_id]]
+        }
+      }
+
+      # Initialising the values to store
+      nloptr_env <- new.env(parent = emptyenv())
+      assign("out", NULL, envir = nloptr_env)
+      nloptr_results <- nloptr::nloptr(
+        x0 = apply(Lambda, 2, max, na.rm = TRUE),
+        eval_f = eval_f,
+        opts = opts,
+        lb = apply(Lambda, 2, min, na.rm = TRUE),
+        ub = apply(Lambda, 2, max, na.rm = TRUE),
+        env = nloptr_env
+      )
+      out <- get("out", envir = nloptr_env)
+      out <- ConcatenateVariableSelection(out, order_output = TRUE)
+    }
   }
 
   # Re-set the function names

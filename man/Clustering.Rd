@@ -72,8 +72,8 @@ Only used if \code{implementation=HierarchicalClustering}.}
 \item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
 \code{row=FALSE}) contain the items to cluster.}
 
-\item{n_cores}{number of cores to use for parallel computing (see argument \code{workers} in
-\code{\link[future]{multisession}}).}
+\item{n_cores}{number of cores to use for parallel computing (see argument
+\code{workers} in \code{\link[future]{multisession}}).}
 
 \item{output_data}{logical indicating if the input datasets \code{xdata} and
 \code{ydata} should be included in the output.}
