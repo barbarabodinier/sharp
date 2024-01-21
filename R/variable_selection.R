@@ -81,7 +81,9 @@
 #'   \code{"algorithm"="NLOPT_GN_DIRECT_L"}, \code{"xtol_abs"=0.1},
 #'   \code{"ftol_abs"=0.1} and \code{"maxeval"=Lambda_cardinal} by default.
 #'   These values can be changed by providing the argument \code{opts} (see
-#'   \code{\link[nloptr]{nloptr}}).
+#'   \code{\link[nloptr]{nloptr}}). For stability selection using penalised
+#'   regression, the use of \code{optimisation="grid_search"} is recommended as
+#'   it allows for warm start.
 #' @param n_cores number of cores to use for parallel computing (see argument
 #'   \code{workers} in \code{\link[future]{multisession}}).
 #' @param output_data logical indicating if the input datasets \code{xdata} and
