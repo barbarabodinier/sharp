@@ -345,7 +345,11 @@ GraphicalModel <- function(xdata, pk = NULL, Lambda = NULL, lambda_other_blocks 
           resampling = resampling, cpss = cpss, PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
           output_data = output_data, verbose = FALSE, ...
         )
-        score <- max(out_nloptr$S, na.rm = TRUE)
+        if (any(!is.na(out_nloptr$S))) {
+          score <- max(out_nloptr$S, na.rm = TRUE)
+        } else {
+          score <- -Inf
+        }
 
         # Storing the visited values
         out <- get("out", envir = env)

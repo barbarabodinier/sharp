@@ -527,7 +527,11 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
           group_x = group_x, group_penalisation = group_penalisation,
           output_data = output_data, verbose = FALSE, ...
         )
-        score <- max(out_nloptr$S, na.rm = TRUE)
+        if (any(!is.na(out_nloptr$S))) {
+          score <- max(out_nloptr$S, na.rm = TRUE)
+        } else {
+          score <- -Inf
+        }
 
         # Storing the visited values
         out <- get("out", envir = env)

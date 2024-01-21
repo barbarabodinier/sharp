@@ -210,6 +210,7 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
                             resampling = "subsampling", cpss = FALSE,
                             PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                             Lambda_cardinal = 100,
+                            optimisation = c("grid_search", "nloptr"),
                             n_cores = 1, output_data = FALSE, verbose = TRUE, ...) {
   # Object preparation, error and warning messages
   family <- "gaussian"
@@ -241,6 +242,12 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
     Lambda <- matrix(LambdaSequence(lmax = lambda_max, lmin = 1e-4 * lambda_max, cardinal = Lambda_cardinal), ncol = 1)
   }
 
+  # Defining the type of optimisation
+  optimisation <- match.arg(optimisation)
+
+  # Storing extra arguments
+  extra_args <- list(...)
+
   # Stability selection and score
   if (n_cores > 1) {
     future::plan(future::multisession, workers = n_cores)
@@ -264,16 +271,73 @@ StructuralModel <- function(xdata, adjacency, residual_covariance = NULL,
       out <- do.call(Combine, list(stability1 = out, stability2 = mypar[[i]]))
     }
   } else {
-    out <- SerialRegression(
-      xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
-      K = K, tau = tau, seed = seed, n_cat = n_cat,
-      family = family, implementation = implementation,
-      resampling = resampling, cpss = cpss,
-      PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
-      group_x = NULL, group_penalisation = FALSE,
-      output_data = output_data, verbose = verbose,
-      adjacency = adjacency, residual_covariance = residual_covariance, ...
-    )
+    if (optimisation == "grid_search") {
+      out <- SerialRegression(
+        xdata = xdata, ydata = ydata, Lambda = Lambda, pi_list = pi_list,
+        K = K, tau = tau, seed = seed, n_cat = n_cat,
+        family = family, implementation = implementation,
+        resampling = resampling, cpss = cpss,
+        PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+        group_x = NULL, group_penalisation = FALSE,
+        output_data = output_data, verbose = verbose,
+        adjacency = adjacency, residual_covariance = residual_covariance, ...
+      )
+    } else {
+      # Creating the function to be minimised
+      eval_f <- function(x, env) {
+        # Running with a given lambda
+        out_nloptr <- SerialRegression(
+          xdata = xdata, ydata = ydata, Lambda = rbind(x), pi_list = pi_list,
+          K = K, tau = tau, seed = seed, n_cat = n_cat,
+          family = family, implementation = implementation,
+          resampling = resampling, cpss = cpss,
+          PFER_method = PFER_method, PFER_thr = PFER_thr, FDP_thr = FDP_thr,
+          group_x = NULL, group_penalisation = FALSE,
+          output_data = output_data, verbose = FALSE,
+          adjacency = adjacency, residual_covariance = residual_covariance, ...
+        )
+        if (any(!is.na(out_nloptr$S))) {
+          score <- max(out_nloptr$S, na.rm = TRUE)
+        } else {
+          score <- -Inf
+        }
+
+        # Storing the visited values
+        out <- get("out", envir = env)
+        out <- Concatenate(out_nloptr, out)
+        assign("out", out, envir = env)
+
+        return(-score)
+      }
+
+      # Defining the nloptr options
+      opts <- list(
+        "algorithm" = "NLOPT_GN_DIRECT_L",
+        "xtol_abs" = 0.1,
+        "ftol_abs" = 0.1,
+        "print_level" = 0,
+        "maxeval" = Lambda_cardinal
+      )
+      if ("opts" %in% names(extra_args)) {
+        for (opts_id in 1:length(extra_args[["opts"]])) {
+          opts[[names(extra_args[["opts"]])[opts_id]]] <- extra_args[["opts"]][[opts_id]]
+        }
+      }
+
+      # Initialising the values to store
+      nloptr_env <- new.env(parent = emptyenv())
+      assign("out", NULL, envir = nloptr_env)
+      nloptr_results <- nloptr::nloptr(
+        x0 = apply(Lambda, 2, max, na.rm = TRUE),
+        eval_f = eval_f,
+        opts = opts,
+        lb = apply(Lambda, 2, min, na.rm = TRUE),
+        ub = apply(Lambda, 2, max, na.rm = TRUE),
+        env = nloptr_env
+      )
+      out <- get("out", envir = nloptr_env)
+      out <- Concatenate(out, order_output = TRUE)
+    }
   }
 
   # Re-setting the function names
