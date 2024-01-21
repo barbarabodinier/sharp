@@ -36,7 +36,8 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \code{implementation=DBSCANClustering}.}
 
 \item{Lambda}{vector of penalty parameters for weighted distance calculation.
-Only used if \code{implementation=HierarchicalClustering},
+Only used for distance-based clustering, including for example
+\code{implementation=HierarchicalClustering},
 \code{implementation=PAMClustering}, or
 \code{implementation=DBSCANClustering}.}
 

@@ -410,13 +410,20 @@ VariableSelection <- function(xdata, ydata = NULL, Lambda = NULL, pi_list = seq(
                               PFER_method = "MB", PFER_thr = Inf, FDP_thr = Inf,
                               Lambda_cardinal = 100, group_x = NULL, group_penalisation = FALSE,
                               n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
-  # Defining Lambda if used with sparse PCA or PLS
   if (is.null(Lambda)) {
+    # Defining Lambda if used with sparse PLS
     if (as.character(substitute(implementation)) %in% c("SparseGroupPLS", "GroupPLS")) {
       Lambda <- seq(1, length(group_x) - 1)
     }
+    
+    # Defining Lambda if used with sparse PCA
     if (as.character(substitute(implementation)) %in% c("SparsePLS", "SparsePCA")) {
       Lambda <- seq(1, ncol(xdata) - 1)
+    }
+    
+    # Defining Lambda if used with CART
+    if (as.character(substitute(implementation)) %in% c("CART")) {
+      Lambda <- seq(1, min(nrow(xdata) / 2, 100))
     }
   }
 

@@ -11,7 +11,8 @@
 #' @param xdata data matrix with observations as rows and variables as columns.
 #' @param tau subsample size.
 #' @param Lambda vector of penalty parameters for weighted distance calculation.
-#'   Only used if \code{implementation=HierarchicalClustering},
+#'   Only used for distance-based clustering, including for example
+#'   \code{implementation=HierarchicalClustering},
 #'   \code{implementation=PAMClustering}, or
 #'   \code{implementation=DBSCANClustering}.
 #' @param nc matrix of parameters controlling the number of clusters in the

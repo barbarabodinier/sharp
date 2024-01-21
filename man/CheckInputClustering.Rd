@@ -22,7 +22,8 @@ CheckInputClustering(
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
 \item{Lambda}{vector of penalty parameters for weighted distance calculation.
-Only used if \code{implementation=HierarchicalClustering},
+Only used for distance-based clustering, including for example
+\code{implementation=HierarchicalClustering},
 \code{implementation=PAMClustering}, or
 \code{implementation=DBSCANClustering}.}
 
