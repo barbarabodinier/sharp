@@ -11,7 +11,7 @@ Description: In stability selection (N Meinshausen, P Bühlmann (2010) <doi:10.1
 License: GPL (>= 3)
 Language: en-GB
 Encoding: UTF-8
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.1
 Depends: 
     fake (>= 1.4.0),
     R (>= 3.5)
@@ -48,7 +48,7 @@ Suggests:
     survival (>= 3.2.13),
     testthat (>= 3.0.0),
     visNetwork
-Remotes: mkampert/rCOSA, bioc::mixOmics, bioc::RCy3,  bioc::sgPLS
+Remotes: mkampert/rCOSA, bioc::sgPLS, bioc::RCy3,  
 Additional_repositories: https://barbarabodinier.github.io/drat
 Config/testthat/edition: 3
 RdMacros: Rdpack
