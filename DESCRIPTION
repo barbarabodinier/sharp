@@ -48,7 +48,7 @@ Suggests:
     survival (>= 3.2.13),
     testthat (>= 3.0.0),
     visNetwork
-Remotes: mkampert/rCOSA, bioc::release/mixOmics, bioc::release/RCy3,  bioc::release/sgPLS
+Remotes: mkampert/rCOSA, bioc::mixOmics, bioc::RCy3,  bioc::sgPLS
 Additional_repositories: https://barbarabodinier.github.io/drat
 Config/testthat/edition: 3
 RdMacros: Rdpack
