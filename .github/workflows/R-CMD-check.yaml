@@ -39,6 +39,7 @@ jobs:
       - name: Install additional LaTeX packages
         run: |
           tlmgr install pdfpages
+          tlmgr install pdflscape
           tlmgr list --only-installed      
       
       - uses: r-lib/actions/setup-r@v2
