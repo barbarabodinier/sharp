@@ -1,5 +1,6 @@
 ARI
 Bühlmann
+CMD
 COSA
 CPSS
 Chadeau
@@ -65,6 +66,7 @@ igraph
 jrsssc
 lmax
 lmin
+nloptr
 nonzero
 pk
 qlad
