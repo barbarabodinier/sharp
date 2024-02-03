@@ -1,3 +1,7 @@
+# sharp version 1.4.6
+
+* Update the vignette
+
 # sharp version 1.4.5
 
 * Allow for alternative optimisation methods implemented in nloptr
