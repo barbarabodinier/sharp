@@ -1,8 +1,9 @@
 \documentclass{article}
 \usepackage{pdfpages}
-%\VignetteIndexEntry{Overview}
+%\VignetteIndexEntry{Sharp-JSS-2024}
+%\VignettePackage{sharp}
+%\VignetteEncoding{UTF-8}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 \includepdf[pages=-, fitpaper=true]{jss_submission.pdf}
 \end{document}

@@ -61,7 +61,7 @@ ClusteringPerformance(
 }
 \seealso{
 Other functions for model performance: 
-\code{\link{SelectionPerformanceGraph}()},
-\code{\link{SelectionPerformance}()}
+\code{\link{SelectionPerformance}()},
+\code{\link{SelectionPerformanceGraph}()}
 }
 \concept{functions for model performance}
