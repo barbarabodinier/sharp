@@ -10,11 +10,14 @@
 #' @inheritParams VariableSelection
 #' @param xdata data matrix with observations as rows and variables as columns.
 #' @param tau subsample size.
-#' @param Lambda vector of penalty parameters for weighted distance calculation.
-#'   Only used for distance-based clustering, including for example
-#'   \code{implementation=HierarchicalClustering},
-#'   \code{implementation=PAMClustering}, or
-#'   \code{implementation=DBSCANClustering}.
+#' @param Lambda vector of penalty parameters for weighted clustering. This 
+#'   is done either (i) using a weighted distance calculated in 
+#'   \code{\link[rCOSA]{cosa2}} and a distance-based clustering algorithm, 
+#'   including for example \code{implementation=HierarchicalClustering},
+#'   \code{implementation=PAMClustering}, and
+#'   \code{implementation=DBSCANClustering}, or (ii) using the sparse k-means 
+#'   algorithm implemented in \code{\link[sparcl]{KMeansSparseCluster}}
+#'   and accessible using \code{implementation=KMeansClustering}.
 #' @param nc matrix of parameters controlling the number of clusters in the
 #'   underlying algorithm specified in \code{implementation}. If \code{nc} is
 #'   not provided, it is set to \code{seq(1, tau*nrow(xdata))}.
@@ -30,11 +33,10 @@
 #'   symmetric matrix for which diagonal elements are equal to zero can be used.
 #' @param scale logical indicating if the data should be scaled to ensure that
 #'   all variables contribute equally to the clustering of the observations.
-#' @param linkage character string indicating the type of linkage used in
+#' @param consensus_linkage character string indicating the type of linkage used in
 #'   hierarchical clustering to define the stable clusters. Possible values
 #'   include \code{"complete"}, \code{"single"} and \code{"average"} (see
 #'   argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
-#'   Only used if \code{implementation=HierarchicalClustering}.
 #' @param row logical indicating if rows (if \code{row=TRUE}) or columns (if
 #'   \code{row=FALSE}) contain the items to cluster.
 #' @param optimisation character string indicating the type of optimisation
@@ -91,7 +93,7 @@
 #'   proportions. Columns correspond to attributes. Rows correspond to different
 #'   parameters controlling the number of clusters and penalisation of attribute
 #'   weights.} \item{method}{a list with \code{type="clustering"} and values
-#'   used for arguments \code{implementation}, \code{linkage}, and
+#'   used for arguments \code{implementation}, \code{consensus_linkage}, and
 #'   \code{resampling}.} \item{params}{a list with values used for arguments
 #'   \code{K}, \code{tau}, \code{pk}, \code{n} (number of observations in
 #'   \code{xdata}), and \code{seed}.} The rows of \code{Sc}, \code{nc},
@@ -127,7 +129,7 @@
 #' Clusters(stab)
 #' plot(stab)
 #'
-#' # Consensus weighted clustering
+#' # Consensus weighted clustering using COSA
 #' if (requireNamespace("rCOSA", quietly = TRUE)) {
 #'   set.seed(1)
 #'   simul <- SimulateClustering(
@@ -147,13 +149,33 @@
 #'   plot(stab)
 #'   WeightBoxplot(stab)
 #' }
+#' 
+#' # Consensus weighted clustering using sparcl
+#' if (requireNamespace("sparcl", quietly = TRUE)) {
+#'   set.seed(1)
+#'   simul <- SimulateClustering(
+#'     n = c(30, 30, 30), pk = 20,
+#'     theta_xc = c(rep(1, 10), rep(0, 10)),
+#'     ev_xc = 0.9
+#'   )
+#'   stab <- Clustering(
+#'     xdata = simul$data,
+#'     Lambda = LambdaSequence(lmin = 1.1, lmax = 10, cardinal = 10),
+#'     implementation = KMeansClustering,
+#'   )
+#'   print(stab)
+#'   CalibrationPlot(stab)
+#'   summary(stab)
+#'   Clusters(stab)
+#'   plot(stab)
+#' }
 #' }
 #' @export
 Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
                        K = 100, tau = 0.5, seed = 1, n_cat = 3,
                        implementation = HierarchicalClustering,
                        scale = TRUE,
-                       linkage = "complete",
+                       consensus_linkage = "complete",
                        row = TRUE,
                        optimisation = c("grid_search", "nloptr"),
                        n_cores = 1, output_data = FALSE, verbose = TRUE, beep = NULL, ...) {
@@ -212,8 +234,9 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 
   # Defining the type of optimisation
   optimisation <- match.arg(optimisation)
-  if ((optimisation == "grid_search") & is.null(Lambda)) {
+  if ((optimisation != "grid_search") & !is.null(Lambda)) {
     message("Using grid search to tune the number of clusters.")
+    optimisation = "grid_search"
   }
 
   # Storing extra arguments
@@ -229,7 +252,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
       return(SerialClustering(
         xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
         K = ceiling(K / n_cores), tau = tau, seed = as.numeric(paste0(seed, k)), n_cat = n_cat,
-        implementation = implementation, scale = scale, linkage = linkage, row = row,
+        implementation = implementation, scale = scale, consensus_linkage = consensus_linkage, row = row,
         output_data = output_data, verbose = FALSE, ...
       ))
     }) # keep pk for correct number of blocks etc
@@ -245,7 +268,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
       out <- SerialClustering(
         xdata = xdata, Lambda = cbind(Lambda), nc = cbind(nc), eps = cbind(eps),
         K = K, tau = tau, seed = seed, n_cat = n_cat,
-        implementation = implementation, scale = scale, linkage = linkage, row = row,
+        implementation = implementation, scale = scale, consensus_linkage = consensus_linkage, row = row,
         output_data = output_data, verbose = verbose, ...
       )
     } else {
@@ -255,7 +278,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
         out_nloptr <- SerialClustering(
           xdata = xdata, Lambda = rbind(x), nc = cbind(nc), eps = cbind(eps),
           K = K, tau = tau, seed = seed, n_cat = n_cat,
-          implementation = implementation, scale = scale, linkage = linkage, row = row,
+          implementation = implementation, scale = scale, consensus_linkage = consensus_linkage, row = row,
           output_data = output_data, verbose = FALSE, ...
         )
         if (any(!is.na(out_nloptr$Sc))) {
@@ -304,9 +327,9 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 
   # Re-set the function names
   if ("methods" %in% names(out)) {
-    myimplementation <- as.character(substitute(implementation))
+    myimplementation <- deparse(substitute(implementation))
     if (is.function(resampling)) {
-      myresampling <- as.character(substitute(resampling))
+      myresampling <- deparse(substitute(resampling))
     } else {
       myresampling <- resampling
     }
@@ -352,7 +375,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 #'   proportions. Columns correspond to attributes. Rows correspond to different
 #'   parameters controlling the number of clusters and penalisation of attribute
 #'   weights.} \item{method}{a list with \code{type="clustering"} and values
-#'   used for arguments \code{implementation}, \code{linkage}, and
+#'   used for arguments \code{implementation}, \code{consensus_linkage}, and
 #'   \code{resampling}.} \item{params}{a list with values used for arguments
 #'   \code{K}, \code{tau}, \code{pk}, \code{n} (number of observations in
 #'   \code{xdata}), and \code{seed}.} The rows of \code{Sc}, \code{nc},
@@ -364,7 +387,7 @@ Clustering <- function(xdata, nc = NULL, eps = NULL, Lambda = NULL,
 SerialClustering <- function(xdata, nc, eps, Lambda,
                              K = 100, tau = 0.5, seed = 1, n_cat = 3,
                              implementation = HierarchicalClustering,
-                             scale = TRUE, linkage = "complete", row = TRUE,
+                             scale = TRUE, consensus_linkage = "complete", row = TRUE,
                              output_data = FALSE, verbose = TRUE, ...) {
   # Defining the full vectors of nc and Lambda
   if (is.null(Lambda)) {
@@ -519,7 +542,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   metrics2 <- matrix(NA, ncol = 1, nrow = dim(bigstab_obs)[3])
   for (i in seq_len(dim(bigstab_obs)[3])) {
     # Clustering on the consensus matrix
-    sh_clust <- stats::hclust(stats::as.dist(1 - bigstab_obs[, , i]), method = linkage)
+    sh_clust <- stats::hclust(stats::as.dist(1 - bigstab_obs[, , i]), method = consensus_linkage)
 
     # Identifying stable clusters
     theta <- CoMembership(groups = stats::cutree(sh_clust, k = ceiling(nc_full[i])))
@@ -563,9 +586,9 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
   }
 
   # Preparing outputs
-  myimplementation <- as.character(substitute(implementation, env = parent.frame(n = 2)))
+  myimplementation <- deparse(substitute(implementation, env = parent.frame(n = 2)))
   if (is.function(resampling)) {
-    myresampling <- as.character(substitute(resampling))
+    myresampling <- deparse(substitute(resampling))
   } else {
     myresampling <- resampling
   }
@@ -585,7 +608,7 @@ SerialClustering <- function(xdata, nc, eps, Lambda,
     methods = list(
       type = "clustering",
       implementation = myimplementation,
-      linkage = linkage,
+      consensus_linkage = consensus_linkage,
       resampling = myresampling
     ),
     params = list(

@@ -15,7 +15,7 @@ Clustering(
   n_cat = 3,
   implementation = HierarchicalClustering,
   scale = TRUE,
-  linkage = "complete",
+  consensus_linkage = "complete",
   row = TRUE,
   optimisation = c("grid_search", "nloptr"),
   n_cores = 1,
@@ -36,11 +36,14 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \code{\link[dbscan]{dbscan}}. Only used if
 \code{implementation=DBSCANClustering}.}
 
-\item{Lambda}{vector of penalty parameters for weighted distance calculation.
-Only used for distance-based clustering, including for example
-\code{implementation=HierarchicalClustering},
-\code{implementation=PAMClustering}, or
-\code{implementation=DBSCANClustering}.}
+\item{Lambda}{vector of penalty parameters for weighted clustering. This 
+is done either (i) using a weighted distance calculated in 
+\code{\link[rCOSA]{cosa2}} and a distance-based clustering algorithm, 
+including for example \code{implementation=HierarchicalClustering},
+\code{implementation=PAMClustering}, and
+\code{implementation=DBSCANClustering}, or (ii) using the sparse k-means 
+algorithm implemented in \code{\link[sparcl]{KMeansSparseCluster}}
+and accessible using \code{implementation=KMeansClustering}.}
 
 \item{K}{number of resampling iterations.}
 
@@ -64,11 +67,10 @@ symmetric matrix for which diagonal elements are equal to zero can be used.}
 \item{scale}{logical indicating if the data should be scaled to ensure that
 all variables contribute equally to the clustering of the observations.}
 
-\item{linkage}{character string indicating the type of linkage used in
+\item{consensus_linkage}{character string indicating the type of linkage used in
 hierarchical clustering to define the stable clusters. Possible values
 include \code{"complete"}, \code{"single"} and \code{"average"} (see
-argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
-Only used if \code{implementation=HierarchicalClustering}.}
+argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).}
 
 \item{row}{logical indicating if rows (if \code{row=TRUE}) or columns (if
 \code{row=FALSE}) contain the items to cluster.}
@@ -116,7 +118,7 @@ An object of class \code{clustering}. A list with: \item{Sc}{a matrix
   proportions. Columns correspond to attributes. Rows correspond to different
   parameters controlling the number of clusters and penalisation of attribute
   weights.} \item{method}{a list with \code{type="clustering"} and values
-  used for arguments \code{implementation}, \code{linkage}, and
+  used for arguments \code{implementation}, \code{consensus_linkage}, and
   \code{resampling}.} \item{params}{a list with values used for arguments
   \code{K}, \code{tau}, \code{pk}, \code{n} (number of observations in
   \code{xdata}), and \code{seed}.} The rows of \code{Sc}, \code{nc},
@@ -176,7 +178,7 @@ summary(stab)
 Clusters(stab)
 plot(stab)
 
-# Consensus weighted clustering
+# Consensus weighted clustering using COSA
 if (requireNamespace("rCOSA", quietly = TRUE)) {
   set.seed(1)
   simul <- SimulateClustering(
@@ -195,6 +197,26 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
   Clusters(stab)
   plot(stab)
   WeightBoxplot(stab)
+}
+
+# Consensus weighted clustering using sparcl
+if (requireNamespace("sparcl", quietly = TRUE)) {
+  set.seed(1)
+  simul <- SimulateClustering(
+    n = c(30, 30, 30), pk = 20,
+    theta_xc = c(rep(1, 10), rep(0, 10)),
+    ev_xc = 0.9
+  )
+  stab <- Clustering(
+    xdata = simul$data,
+    Lambda = LambdaSequence(lmin = 1.1, lmax = 10, cardinal = 10),
+    implementation = KMeansClustering,
+  )
+  print(stab)
+  CalibrationPlot(stab)
+  summary(stab)
+  Clusters(stab)
+  plot(stab)
 }
 }
 }

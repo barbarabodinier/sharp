@@ -21,11 +21,14 @@ CheckInputClustering(
 \arguments{
 \item{xdata}{data matrix with observations as rows and variables as columns.}
 
-\item{Lambda}{vector of penalty parameters for weighted distance calculation.
-Only used for distance-based clustering, including for example
-\code{implementation=HierarchicalClustering},
-\code{implementation=PAMClustering}, or
-\code{implementation=DBSCANClustering}.}
+\item{Lambda}{vector of penalty parameters for weighted clustering. This 
+is done either (i) using a weighted distance calculated in 
+\code{\link[rCOSA]{cosa2}} and a distance-based clustering algorithm, 
+including for example \code{implementation=HierarchicalClustering},
+\code{implementation=PAMClustering}, and
+\code{implementation=DBSCANClustering}, or (ii) using the sparse k-means 
+algorithm implemented in \code{\link[sparcl]{KMeansSparseCluster}}
+and accessible using \code{implementation=KMeansClustering}.}
 
 \item{K}{number of resampling iterations.}
 

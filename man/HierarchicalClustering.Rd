@@ -32,12 +32,6 @@ not provided, it is set to \code{seq(1, tau*nrow(xdata))}.}
 \code{"euclidean"} (\code{pwr=2}) or \code{"absolute"} (\code{pwr=1}) (see
 argument \code{pwr} in \code{\link[rCOSA]{cosa2}}).}
 
-\item{linkage}{character string indicating the type of linkage used in
-hierarchical clustering to define the stable clusters. Possible values
-include \code{"complete"}, \code{"single"} and \code{"average"} (see
-argument \code{"method"} in \code{\link[stats]{hclust}} for a full list).
-Only used if \code{implementation=HierarchicalClustering}.}
-
 \item{...}{additional parameters passed to \code{\link[stats]{hclust}},
 \code{\link[stats]{dist}}, or \code{\link[rCOSA]{cosa2}}. Parameters
 \code{niter} (default to 1) and \code{noit} (default to 100) correspond to
