@@ -105,7 +105,9 @@
 #'   \code{\link{HierarchicalClustering}}, \code{\link{PAMClustering}},
 #'   \code{\link{KMeansClustering}}, \code{\link{GMMClustering}}
 #'
-#' @references \insertRef{OurConsensusClustering}{sharp}
+#' @references \insertRef{JStatSoft}{sharp}
+#'
+#'   \insertRef{OurConsensusClustering}{sharp}
 #'
 #'   \insertRef{rCOSA}{sharp}
 #'

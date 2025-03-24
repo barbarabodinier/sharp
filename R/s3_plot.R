@@ -162,7 +162,7 @@ plot.bi_selection <- function(x, ...) {
 #' @param bty character string indicating if the box around the plot should be
 #'   drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 #'   \code{"n"} (no box).
-#' @param ... additional arguments passed to \code{\link{Heatmap}}.
+#' @param ... additional arguments passed to \code{\link[fake]{Heatmap}}.
 #'
 #' @return A heatmap.
 #'
@@ -261,10 +261,10 @@ plot.clustering <- function(x,
 #' from multiple ROC analyses are provided (e.g. output of
 #' \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
 #' median is represented and flanked by a transparent band defined by point-wise
-#' \code{quantiles}. See examples in \code{\link{ROC}} and
+#' \code{quantiles}. See examples in \code{\link[fake]{ROC}} and
 #' \code{\link{ExplanatoryPerformance}}.
 #'
-#' @param x output of \code{\link{ROC}} or \code{\link{ExplanatoryPerformance}}.
+#' @param x output of \code{\link[fake]{ROC}} or \code{\link{ExplanatoryPerformance}}.
 #' @param col_band colour of the band defined by point-wise \code{quantiles}.
 #' @param alpha level of opacity for the band.
 #' @param quantiles point-wise quantiles of the performances defining the band.
@@ -274,7 +274,7 @@ plot.clustering <- function(x,
 #'
 #' @return A base plot.
 #'
-#' @seealso \code{\link{ROC}}, \code{\link{ExplanatoryPerformance}}
+#' @seealso \code{\link[fake]{ROC}}, \code{\link{ExplanatoryPerformance}}
 #'
 #' @export
 plot.roc_band <- function(x,

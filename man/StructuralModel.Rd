@@ -303,7 +303,9 @@ if (requireNamespace("OpenMx", quietly = TRUE)) {
 par(oldpar)
 }
 \references{
-\insertRef{ourstabilityselection}{sharp}
+\insertRef{JStatSoft}{sharp}
+
+  \insertRef{ourstabilityselection}{sharp}
 
   \insertRef{stabilityselectionMB}{sharp}
 

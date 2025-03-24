@@ -199,7 +199,9 @@ if (requireNamespace("rCOSA", quietly = TRUE)) {
 }
 }
 \references{
-\insertRef{OurConsensusClustering}{sharp}
+\insertRef{JStatSoft}{sharp}
+
+  \insertRef{OurConsensusClustering}{sharp}
 
   \insertRef{rCOSA}{sharp}
 

@@ -121,7 +121,9 @@
 #' @seealso \code{\link{SelectionAlgo}},
 #'   \code{\link{Resample}}, \code{\link{StabilityScore}}
 #'
-#' @references \insertRef{ourstabilityselection}{sharp}
+#' @references \insertRef{JStatSoft}{sharp}
+#'
+#'   \insertRef{ourstabilityselection}{sharp}
 #'
 #'   \insertRef{stabilityselectionMB}{sharp}
 #'

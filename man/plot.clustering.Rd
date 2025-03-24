@@ -70,7 +70,7 @@ This argument is used to define item colours.}
 drawn. Possible values include: \code{"o"} (default, the box is drawn), or
 \code{"n"} (no box).}
 
-\item{...}{additional arguments passed to \code{\link{Heatmap}}.}
+\item{...}{additional arguments passed to \code{\link[fake]{Heatmap}}.}
 }
 \value{
 A heatmap.

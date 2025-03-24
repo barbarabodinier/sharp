@@ -458,7 +458,9 @@ par(oldpar)
 
 }
 \references{
-\insertRef{ourstabilityselection}{sharp}
+\insertRef{JStatSoft}{sharp}
+
+  \insertRef{ourstabilityselection}{sharp}
 
   \insertRef{stabilityselectionSS}{sharp}
 

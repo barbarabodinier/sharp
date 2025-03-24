@@ -20,7 +20,7 @@ SelectionPerformanceGraph(
 \code{\link{BiSelection}}.}
 
 \item{theta_star}{true binary adjacency matrix or output of
-\code{\link{SimulateGraphical}} or \code{\link{SimulateRegression}}.}
+\code{\link[fake]{SimulateGraphical}} or \code{\link[fake]{SimulateRegression}}.}
 
 \item{col}{vector of edge colours. The first entry of the vector defines
 the colour of False Positive edges, second entry is for True Negatives and
@@ -66,7 +66,7 @@ plot(perfgraph)
 
 }
 \seealso{
-\code{\link{SimulateGraphical}}, \code{\link{SimulateRegression}},
+\code{\link[fake]{SimulateGraphical}}, \code{\link[fake]{SimulateRegression}},
   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
   \code{\link{BiSelection}}
 

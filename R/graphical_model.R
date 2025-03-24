@@ -110,7 +110,9 @@
 #'   \code{\link[visNetwork:visDocumentation]{visNetwork}} can be used for
 #'   interactive network visualisation (see examples in \code{\link{Graph}}).
 #'
-#' @references \insertRef{ourstabilityselection}{sharp}
+#' @references \insertRef{JStatSoft}{sharp}
+#'
+#'   \insertRef{ourstabilityselection}{sharp}
 #'
 #'   \insertRef{stabilityselectionSS}{sharp}
 #'

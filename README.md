@@ -11,6 +11,7 @@ status](https://www.r-pkg.org/badges/version/sharp)](https://CRAN.R-project.org/
 downloads](https://cranlogs.r-pkg.org/badges/last-month/sharp?color=blue)](https://r-pkg.org/pkg/sharp)
 ![GitHub last
 commit](https://img.shields.io/github/last-commit/barbarabodinier/sharp?logo=GitHub&style=flat-square)
+[![R-CMD-check](https://github.com/barbarabodinier/sharp/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/barbarabodinier/sharp/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Description
@@ -154,23 +155,27 @@ instead of the graphical LASSO.
 
 ## References
 
--   Barbara Bodinier, Dragana Vuckovic, Sabrina Rodrigues, Sarah
-    Filippi, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration
-    of consensus weighted distance-based clustering approaches using
-    sharp. (2023) Bioinformatics.
-    [link](https://doi.org/10.1093/bioinformatics/btad635)
+- Barbara Bodinier, Sabrina Rodrigues, Maryam Karimi, Sarah Filippi,
+  Julien Chiquet and Marc Chadeau-Hyam. Stability Selection and
+  Consensus Clustering in R: The R Package sharp. (2025) Journal of
+  Statistical Software. [link](https://doi.org/10.18637/jss.v112.i05)
 
--   Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien
-    Chiquet and Marc Chadeau-Hyam. Automated calibration for stability
-    selection in penalised regression and graphical models. (2021)
-    Journal of the Royal Statistical Society: Series C (Applied
-    Statistics). [link](https://doi.org/10.1093/jrsssc/qlad058)
+- Barbara Bodinier, Dragana Vuckovic, Sabrina Rodrigues, Sarah Filippi,
+  Julien Chiquet and Marc Chadeau-Hyam. Automated calibration of
+  consensus weighted distance-based clustering approaches using
+  sharp. (2023) Bioinformatics.
+  [link](https://doi.org/10.1093/bioinformatics/btad635)
 
--   Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010)
-    Journal of the Royal Statistical Society: Series B (Statistical
-    Methodology).
-    [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
+- Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet
+  and Marc Chadeau-Hyam. Automated calibration for stability selection
+  in penalised regression and graphical models. (2021) Journal of the
+  Royal Statistical Society: Series C (Applied Statistics).
+  [link](https://doi.org/10.1093/jrsssc/qlad058)
 
--   Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. Consensus
-    clustering. (2003) Machine Learning.
-    [link](https://doi.org/10.1023/A:1023949509487)
+- Nicolai Meinshausen and Peter Bühlmann. Stability selection. (2010)
+  Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology). [link](https://doi.org/10.1111/j.1467-9868.2010.00740.x)
+
+- Stefano Monti, Pablo Tamayo, Jill Mesirov and Todd Golub. Consensus
+  clustering. (2003) Machine Learning.
+  [link](https://doi.org/10.1023/A:1023949509487)

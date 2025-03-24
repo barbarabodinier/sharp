@@ -14,7 +14,7 @@
 )
 }
 \arguments{
-\item{x}{output of \code{\link{ROC}} or \code{\link{ExplanatoryPerformance}}.}
+\item{x}{output of \code{\link[fake]{ROC}} or \code{\link{ExplanatoryPerformance}}.}
 
 \item{col_band}{colour of the band defined by point-wise \code{quantiles}.}
 
@@ -36,9 +36,9 @@ Plots the True Positive Rate (TPR) as a function of the False Positive Rate
 from multiple ROC analyses are provided (e.g. output of
 \code{\link{ExplanatoryPerformance}} with large \code{K}), the point-wise
 median is represented and flanked by a transparent band defined by point-wise
-\code{quantiles}. See examples in \code{\link{ROC}} and
+\code{quantiles}. See examples in \code{\link[fake]{ROC}} and
 \code{\link{ExplanatoryPerformance}}.
 }
 \seealso{
-\code{\link{ROC}}, \code{\link{ExplanatoryPerformance}}
+\code{\link[fake]{ROC}}, \code{\link{ExplanatoryPerformance}}
 }

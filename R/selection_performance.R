@@ -9,8 +9,8 @@
 #'   \code{\link{BiSelection}}, or \code{\link{GraphicalModel}}. Alternatively,
 #'   it can be a binary matrix of selected variables (in variable selection) or
 #'   a binary adjacency matrix (in graphical modelling)
-#' @param theta_star output from \code{\link{SimulateRegression}},
-#'   \code{\link{SimulateComponents}}, or \code{\link{SimulateGraphical}}.
+#' @param theta_star output from \code{\link[fake]{SimulateRegression}},
+#'   \code{\link[fake]{SimulateComponents}}, or \code{\link[fake]{SimulateGraphical}}.
 #'   Alternatively, it can be a binary matrix of true predictors (in variable
 #'   selection) or the true binary adjacency matrix (in graphical modelling).
 #' @param cor optional correlation matrix. Only used in graphical modelling.
@@ -35,7 +35,7 @@
 #'   Block-specific performances are reported if "pk" is not NULL. In this case,
 #'   the first row of the matrix corresponds to the overall performances, and
 #'   subsequent rows correspond to each of the blocks. The order of the blocks
-#'   is defined as in \code{\link{BlockStructure}}.
+#'   is defined as in \code{\link[fake]{BlockStructure}}.
 #'
 #' @family functions for model performance
 #'
@@ -148,8 +148,8 @@ SelectionPerformance <- function(theta, theta_star, pk = NULL, cor = NULL, thr =
 #' @param graph1 first graph. Possible inputs are: adjacency matrix, or
 #'   \code{\link[igraph:igraph-package]{igraph}} object, or output of
 #'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
-#'   \code{\link{BiSelection}}, or output of \code{\link{SimulateGraphical}},
-#'   \code{\link{SimulateRegression}}.
+#'   \code{\link{BiSelection}}, or output of \code{\link[fake]{SimulateGraphical}},
+#'   \code{\link[fake]{SimulateRegression}}.
 #' @param graph2 second graph.
 #' @param col vector of edge colours. The first entry of the vector defines
 #'   the colour of edges in \code{graph1} only, second entry is for edges in
@@ -284,7 +284,7 @@ GraphComparison <- function(graph1, graph2,
 #'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}}, or
 #'   \code{\link{BiSelection}}.
 #' @param theta_star true binary adjacency matrix or output of
-#'   \code{\link{SimulateGraphical}} or \code{\link{SimulateRegression}}.
+#'   \code{\link[fake]{SimulateGraphical}} or \code{\link[fake]{SimulateRegression}}.
 #' @param col vector of edge colours. The first entry of the vector defines
 #'   the colour of False Positive edges, second entry is for True Negatives and
 #'   third entry is for True Positives.
@@ -293,7 +293,7 @@ GraphComparison <- function(graph1, graph2,
 #'
 #' @family functions for model performance
 #'
-#' @seealso \code{\link{SimulateGraphical}}, \code{\link{SimulateRegression}},
+#' @seealso \code{\link[fake]{SimulateGraphical}}, \code{\link[fake]{SimulateRegression}},
 #'   \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
 #'   \code{\link{BiSelection}}
 #'
@@ -437,7 +437,7 @@ SelectionPerformanceSingle <- function(Asum, cor = NULL, thr = 0.5) {
 #'
 #' @param theta output from \code{\link{Clustering}}. Alternatively, it can be
 #'   the estimated co-membership matrix (see \code{\link{CoMembership}}).
-#' @param theta_star output from \code{\link{SimulateClustering}}.Alternatively,
+#' @param theta_star output from \code{\link[fake]{SimulateClustering}}.Alternatively,
 #'   it can be the true co-membership matrix (see \code{\link{CoMembership}}).
 #' @param ... additional arguments to be passed to \code{\link{Clusters}}.
 #'

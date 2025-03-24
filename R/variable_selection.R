@@ -205,7 +205,9 @@
 #'   \code{\link{StabilityScore}} \code{\link{Refit}},
 #'   \code{\link{ExplanatoryPerformance}}, \code{\link{Incremental}},
 #'
-#' @references \insertRef{ourstabilityselection}{sharp}
+#' @references \insertRef{JStatSoft}{sharp}
+#'
+#'   \insertRef{ourstabilityselection}{sharp}
 #'
 #'   \insertRef{stabilityselectionSS}{sharp}
 #'

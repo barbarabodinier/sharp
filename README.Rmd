@@ -128,6 +128,8 @@ Other algorithms can be used by defining a wrapper function to be called in `imp
 
 ## References
 
+- Barbara Bodinier, Sabrina Rodrigues, Maryam Karimi, Sarah Filippi, Julien Chiquet and Marc Chadeau-Hyam. Stability Selection and Consensus Clustering in R: The R Package sharp. (2025) Journal of Statistical Software. [link](https://doi.org/10.18637/jss.v112.i05)
+
 - Barbara Bodinier, Dragana Vuckovic, Sabrina Rodrigues, Sarah Filippi, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration of consensus weighted distance-based clustering approaches using sharp. (2023) Bioinformatics. [link](https://doi.org/10.1093/bioinformatics/btad635)
 
 - Barbara Bodinier, Sarah Filippi, Therese Haugdahl Nost, Julien Chiquet and Marc Chadeau-Hyam. Automated calibration for stability selection in penalised regression and graphical models. (2021) Journal of the Royal Statistical Society: Series C (Applied Statistics). [link](https://doi.org/10.1093/jrsssc/qlad058)

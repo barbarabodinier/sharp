@@ -18,8 +18,8 @@ GraphComparison(
 \item{graph1}{first graph. Possible inputs are: adjacency matrix, or
 \code{\link[igraph:igraph-package]{igraph}} object, or output of
 \code{\link{GraphicalModel}}, \code{\link{VariableSelection}},
-\code{\link{BiSelection}}, or output of \code{\link{SimulateGraphical}},
-\code{\link{SimulateRegression}}.}
+\code{\link{BiSelection}}, or output of \code{\link[fake]{SimulateGraphical}},
+\code{\link[fake]{SimulateRegression}}.}
 
 \item{graph2}{second graph.}
 

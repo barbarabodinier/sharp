@@ -1,3 +1,7 @@
+# sharp version 1.4.7
+
+* Add reference to the publication in the Journal of Statistical Software
+
 # sharp version 1.4.6
 
 * Update the vignette

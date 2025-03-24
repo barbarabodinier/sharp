@@ -10,7 +10,7 @@ ClusteringPerformance(theta, theta_star, ...)
 \item{theta}{output from \code{\link{Clustering}}. Alternatively, it can be
 the estimated co-membership matrix (see \code{\link{CoMembership}}).}
 
-\item{theta_star}{output from \code{\link{SimulateClustering}}.Alternatively,
+\item{theta_star}{output from \code{\link[fake]{SimulateClustering}}.Alternatively,
 it can be the true co-membership matrix (see \code{\link{CoMembership}}).}
 
 \item{...}{additional arguments to be passed to \code{\link{Clusters}}.}

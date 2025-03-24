@@ -25,9 +25,11 @@ Hastie
 Haugdahl
 Hyam
 Jaccard
+Karimi
 LavaanMatrix
 LavaanModel
 LinearSystemMatrix
+Maryam
 Meinshausen
 Mesirov
 Monti
@@ -64,6 +66,7 @@ glm
 glmnet
 igraph
 jrsssc
+jss
 lmax
 lmin
 nloptr

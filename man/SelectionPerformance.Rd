@@ -12,8 +12,8 @@ SelectionPerformance(theta, theta_star, pk = NULL, cor = NULL, thr = 0.5)
 it can be a binary matrix of selected variables (in variable selection) or
 a binary adjacency matrix (in graphical modelling)}
 
-\item{theta_star}{output from \code{\link{SimulateRegression}},
-\code{\link{SimulateComponents}}, or \code{\link{SimulateGraphical}}.
+\item{theta_star}{output from \code{\link[fake]{SimulateRegression}},
+\code{\link[fake]{SimulateComponents}}, or \code{\link[fake]{SimulateGraphical}}.
 Alternatively, it can be a binary matrix of true predictors (in variable
 selection) or the true binary adjacency matrix (in graphical modelling).}
 
@@ -46,7 +46,7 @@ A matrix of selection metrics including:
   Block-specific performances are reported if "pk" is not NULL. In this case,
   the first row of the matrix corresponds to the overall performances, and
   subsequent rows correspond to each of the blocks. The order of the blocks
-  is defined as in \code{\link{BlockStructure}}.
+  is defined as in \code{\link[fake]{BlockStructure}}.
 }
 \description{
 Computes different metrics of selection performance by comparing the set of
