@@ -15,7 +15,7 @@ medoids, K means or Gaussian mixture models in consensus clustering.
 }
 \details{
 \tabular{ll}{ Package: \tab sharp\cr Type: \tab Package\cr Version: \tab
-1.4.6 \cr Date: \tab 2024-02-03 \cr License: \tab GPL (>= 3)\cr Maintainer:
+1.4.6 \cr Date: \tab 2025-03-24 \cr License: \tab GPL (>= 3)\cr Maintainer:
 \tab Barbara Bodinier \email{barbara.bodinier@gmail.com}}
 }
 \examples{
@@ -87,9 +87,9 @@ par(oldpar)
 }
 }
 \references{
-\insertRef{OurConsensusClustering}{sharp}
+\insertRef{JStatSoft}{sharp}
 
-\insertRef{ourstabilityselection}{sharp}
+  \insertRef{ourstabilityselection}{sharp}
 
   \insertRef{stabilityselectionMB}{sharp}
 
