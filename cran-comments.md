@@ -1,5 +1,7 @@
 ## R CMD check results
 
+The DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
+
 There were no ERRORs or WARNINGs.
 
 There were 3 NOTEs:
