@@ -27,11 +27,11 @@
 #'   \code{implementation}.
 #'
 #'
-#' @return The output as obtained from: \item{\code{\link[stats]{lm}}}{for
+#' @return The output as obtained from: \item{stats::lm}{for
 #'   linear regression (\code{"gaussian"} family).}
-#'   \item{\code{\link[survival]{coxph}}}{for Cox regression (\code{"cox"}
-#'   family).} \item{\code{\link[stats]{glm}}}{for logistic regression
-#'   (\code{"binomial"} family).} \item{\code{\link[nnet]{multinom}}}{for
+#'   \item{survival::coxph}{for Cox regression (\code{"cox"}
+#'   family).} \item{stats::glm}{for logistic regression
+#'   (\code{"binomial"} family).} \item{nnet::multinom}{for
 #'   multinomial regression (\code{"multinomial"} family).}
 #'
 #' @seealso \code{\link{VariableSelection}}

@@ -1,7 +1,5 @@
 ## R CMD check results
 
-The DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
-
 There were no ERRORs or WARNINGs.
 
 There were 3 NOTEs:
@@ -27,18 +25,18 @@ Found the following (possibly) invalid URLs:
     Status: 403
     Message: Forbidden
 
-* These URLs have been checked and are correct. I also had this note with the previous version of sharp (1.4.6). 
+* These URLs have been checked and are correct. I also had this note with the previous version of sharp (1.4.7). 
 
 Package suggested but not available for checking: 'rCOSA'
 
-* I have used the R package drat. I also had this note with the previous version of sharp (1.4.6).
+* I have used the R package drat. I also had this note with the previous version of sharp (1.4.7).
 
 Package unavailable to check Rd xrefs: 'rCOSA'
 
 * I would like to keep these references to the R package rCOSA which is under "Suggests". I also had this note with the 
-previous version of sharp (1.4.6).
+previous version of sharp (1.4.7).
 
 
 ## Downstream dependencies
 
-There are currently no downstream dependencies for this package.
+There is no impact on the downstream dependency (LSAMBA).

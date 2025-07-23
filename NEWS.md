@@ -1,3 +1,7 @@
+# sharp version 1.4.8
+
+* Update glmnet
+
 # sharp version 1.4.7
 
 * Add reference to the publication in the Journal of Statistical Software

@@ -190,9 +190,12 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
       }
     } else {
       if (family == "mgaussian") {
+        if (is.null(names(Lambda))) {
+          names(Lambda) <- paste0("s=", Lambda)
+        }
         mybeta <- array(NA,
           dim = c(length(Lambda), ncol(xdata), ncol(ydata)),
-          dimnames = list(seq_len(length(Lambda)), colnames(xdata), colnames(ydata))
+          dimnames = list(names(Lambda), colnames(xdata), colnames(ydata))
         )
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
@@ -205,7 +208,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
             stats::coef(mymodel, s = Lambda)
           })
         }
-        for (y_id in seq_len(ncol(ydata))) {
+        for (y_id in colnames(ydata)) {
           tmpbeta <- tmpcoefs[[y_id]]
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
@@ -213,10 +216,13 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
         }
       }
       if (family == "multinomial") {
-        y_levels <- sort(unique(ydata))
+        y_levels <- as.character(sort(unique(ydata)))
+        if (is.null(names(Lambda))) {
+          names(Lambda) <- paste0("s=", Lambda)
+        }
         mybeta <- array(NA,
           dim = c(length(Lambda), ncol(xdata), length(y_levels)),
-          dimnames = list(seq_len(length(Lambda)), colnames(xdata), paste0("Y", y_levels))
+          dimnames = list(names(Lambda), colnames(xdata), y_levels)
         )
         if (length(Lambda) > 1) {
           tmpcoefs <- suppressWarnings({
@@ -229,7 +235,7 @@ PenalisedRegression <- function(xdata, ydata, Lambda = NULL, family,
             stats::coef(mymodel, s = Lambda)
           })
         }
-        for (y_id in seq_len(length(y_levels))) {
+        for (y_id in y_levels) {
           tmpbeta <- tmpcoefs[[y_id]]
           tmpbeta <- t(as.matrix(tmpbeta))
           tmpbeta <- tmpbeta[, colnames(xdata), drop = FALSE] # removing the intercept if included
